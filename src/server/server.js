@@ -6,7 +6,7 @@ import chokidar from 'chokidar';
 import raven from 'raven';
 
 import * as routes from './routes/';
-import conf from './configure';
+import { conf } from './helpers/config';
 import logging from './logging';
 import { clearRequireCache } from './helpers/hot-load';
 import setRevisionHeader from './middleware/set-revision-header.js';
