@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+# FIXME: mu needs a specific .deb, this won't be needed once a proper PPA is
+# setup (or the firewall gives access to https://deb.nodesource.com/node_6.x
+# see https://portal.admin.canonical.com/96130) -- vila 2016-10-04
+ACC_URL=http://archive.admin.canonical.com/other/nodejs
+NODE_JS_DEB=nodejs_6.9.1-1nodesource1~xenial1_amd64.deb
+tmp_dl_dir=$(mktemp -d /tmp/dl.XXXXXX)
+wget $ACC_URL/$NODE_JS_DEB -O $tmp_dl_dir/$NODE_JS_DEB
+APT_OPTIONS=$(echo {apt.options} | sed -e 's/,//g')
+apt-get install $APT_OPTIONS $tmp_dl_dir/$NODE_JS_DEB 
+rm -fr $tmp_dl_dir
