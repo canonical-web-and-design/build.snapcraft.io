@@ -7,7 +7,7 @@
     "start": "node ./webpack/webpack-dev-server",
     "lint": "eslint -c .eslintrc.js '**/*.js'",
     "test": "nyc npm run test:unit && npm run lint",
-    "test:unit": "mocha --recursive ./test/unit/**/*"
+    "test:unit": "BABEL_DISABLE_CACHE=1 NODE_ENV=TEST mocha --recursive --require babel-core/register --compilers js:babel-register ./test/unit/setup.js ./test/unit/**/*"
   },
   "repository": {
     "type": "git",
