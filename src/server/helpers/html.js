@@ -21,16 +21,13 @@ export default class Html extends Component {
           {head.link.toComponent()}
           {head.script.toComponent()}
           <link rel="stylesheet" href={ assets.main.css } />
-          {/*
-            Can't add script to Helmet in here (as we are already rendering <head>).
-            And having script added to Helmet in App causes script to be loaded
-            twice (once from server side rendered HTML, once on client side).
-
-            See more:
-            https://github.com/nfl/react-helmet/issues/149
-            https://github.com/canonical-ols/javan-rhino/issues/176
-          */}
-          <script src='https://js.stripe.com/v2/'></script>
+          {
+           /*
+            Insert third party scripts (e.g. Stripe) here.
+            Trying to load them with Helmet will make them
+            load twice.
+           */
+          }
         </head>
         <body>
           <div id="content" dangerouslySetInnerHTML={{ __html: content }}/>
