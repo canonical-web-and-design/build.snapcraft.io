@@ -5,7 +5,8 @@
   "main": "src/server/index.js",
   "scripts": {
     "start": "node ./webpack/webpack-dev-server",
-    "test": "nyc npm run test:unit",
+    "lint": "eslint -c .eslintrc.js '**/*.js'",
+    "test": "nyc npm run test:unit && npm run lint",
     "test:unit": "mocha --recursive ./test/unit/**/*"
   },
   "repository": {
@@ -14,6 +15,7 @@
   },
   "contributors": [
     "Bartek Szopka <bartek.szopka@canonical.com>",
+    "Colin Watson <cjwatson@canonical.com>",
     "Katie Fenn <katie.fenn@canonical.com>",
     "Stephen Stewart <stephen.stewart@canonical.com>"
   ],

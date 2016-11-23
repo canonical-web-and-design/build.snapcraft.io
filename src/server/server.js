@@ -1,6 +1,5 @@
 import Express from 'express';
 import helmet from 'helmet';
-import session from 'express-session';
 import url from 'url';
 import expressWinston from 'express-winston';
 import chokidar from 'chokidar';
