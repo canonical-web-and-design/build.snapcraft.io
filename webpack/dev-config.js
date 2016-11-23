@@ -6,7 +6,7 @@ const vars = require('postcss-simple-vars');
 const autoprefixer = require('autoprefixer');
 
 const conf = require('../src/server/configure.js');
-const WEBPACK_DEV_URL = conf.get('SERVER:WEBPACK_DEV_URL');
+const WEBPACK_DEV_URL = conf.get('WEBPACK_DEV_URL');
 
 const sharedVars = require('../src/common/style/variables');
 
