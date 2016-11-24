@@ -12,6 +12,8 @@ const CLIENT_SIDE_WHITELIST = [
   'BASE_URL'
 ];
 
+let configForClient;
+
 // Load settings from CLI arguments
 nconf.argv();
 
@@ -30,8 +32,12 @@ nconf.env({
 export const conf = nconf;
 
 export const getClientConfig = () => {
-  let configForClient = {};
+  // Return memoized config if it has been built
+  if (configForClient) {
+    return configForClient;
+  }
 
+  configForClient = {};
   CLIENT_SIDE_WHITELIST.forEach(item => {
     configForClient[item] = nconf.get(item);
   });
