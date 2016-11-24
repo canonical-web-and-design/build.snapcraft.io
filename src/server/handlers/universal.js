@@ -3,7 +3,7 @@ import { match, RouterContext } from 'react-router';
 import { renderToString } from 'react-dom/server';
 
 import Html from '../helpers/html';
-import conf from '../configure.js';
+import { getClientConfig } from '../helpers/config';
 import configureStore from '../../common/store/configureStore';
 
 let routes = require('../../common/routes').default;
@@ -54,10 +54,12 @@ export const handleMatch = (req, res, error, redirectLocation, renderProps) => {
 
     const store = configureStore(initialState);
 
-    // config we share from server side to client side
-    const config = {
-      UNIVERSAL: conf.get('UNIVERSAL')
-    };
+   /**
+    * IMPORTANT:
+    * Config data MUST pass through getClientConfig
+    * whitelist in order to be exposed to the client side
+    */
+    const config = getClientConfig();
 
     // You can also check renderProps.components or renderProps.routes for
     // your "not found" component or route respectively, and send a 404 as

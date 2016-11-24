@@ -5,9 +5,8 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const vars = require('postcss-simple-vars');
 const autoprefixer = require('autoprefixer');
 
-const conf = require('../src/server/configure.js');
+const { conf } = require('../src/server/helpers/config');
 const WEBPACK_DEV_URL = conf.get('WEBPACK_DEV_URL');
-
 const sharedVars = require('../src/common/style/variables');
 
 module.exports = {
