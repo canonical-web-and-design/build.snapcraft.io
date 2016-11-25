@@ -1,0 +1,14 @@
+repo: git@github.com:canonical-ols/build.snapcraft.io.git
+includes:
+    - layer:ols
+    - interface:memcache
+options:
+    ols:
+        service_name: snap-build
+        user: ubuntu
+        tarball_payload: false
+
+exclude:
+    - tmp
+    - Makefile
+    - tests

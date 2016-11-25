@@ -1,0 +1,6 @@
+charm-dist
+tmp
+.git
+.gitignore
+.done
+.build.manifest

@@ -1,0 +1,10 @@
+options:
+    session_secret:
+        type: string
+        description: Secret key for signing session cookie IDs
+    memcache_session_secret:
+        type: string
+        description: Secret key for encrypting session data stored in memcached
+    sentry_dsn:
+        type: string
+        description: The Sentry DSN that will be used by Raven to send error reports to Sentry

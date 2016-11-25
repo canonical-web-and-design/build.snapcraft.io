@@ -1,0 +1,21 @@
+# This file is managed by Juju; ANY CHANGES WILL BE OVERWRITTEN
+#--------------------------------------------------------------
+
+[Unit]
+Description=Build snaps from GitHub repositories
+
+[Service]
+Type=simple
+Environment='SESSION_SECRET={{ session_secret }}'
+Environment='LOGS_PATH={{ logs_path }}'
+Environment='SESSION_MEMCACHED_HOST={{ cache_hosts | join(",") }}'
+Environment='SESSION_MEMCACHED_SECRET={{ memcache_session_secret }}'
+Environment='SENTRY_DSN={{ sentry_dsn }}'
+WorkingDirectory={{ working_dir }}
+User={{ user }}
+ExecStart=/usr/bin/npm run start-build -- --env=environments/{{ environment }}.env
+Restart=on-failure
+RestartSec=15 5
+
+[Install]
+WantedBy=multi-user.target

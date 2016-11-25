@@ -1,0 +1,15 @@
+interface                           @
+interface/nrpe-external-master      lp:~ubuntuone-hackers/ols-charm-deps/interface-nrpe-external-master;revno=4
+interface/interface-conn-check      git+ssh://git.launchpad.net/~ubuntuone-hackers/conn-check/+git/interface-conn-check;revno=780dc16
+interface/interface-http            lp:~ubuntuone-hackers/ols-charm-deps/interface-http;revno=17
+interface/interface-juju-info       lp:~ubuntuone-hackers/ols-charm-deps/interface-juju-info;revno=6
+interface/interface-memcache        git+ssh://git.launchpad.net/~ubuntuone-hackers/ols-charm-deps/+git/interface-memcache;revno=5ccddd9
+interface/interface-pgsql           git+ssh://git.launchpad.net/interface-pgsql;revno=1c6e893
+interface/interface-wsgi            git+ssh://git.launchpad.net/~ubuntuone-hackers/charms/+source/interface-wsgi;revno=04cab5b
+
+layer                               @
+layer/layer-apt                     git+ssh://git.launchpad.net/layer-apt;revno=608bdf5
+layer/layer-basic                   lp:~ubuntuone-hackers/ols-charm-deps/layer-basic;revno=62
+layer/layer-ols                     lp:~ubuntuone-hackers/ols-charm-deps/layer-ols;revno=12
+
+wheels                              git+ssh://git.launchpad.net/~ubuntuone-hackers/ols-charm-deps/+git/wheels

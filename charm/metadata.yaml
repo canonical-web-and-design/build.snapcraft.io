@@ -1,0 +1,11 @@
+name: snap-build
+summary: Build snaps from GitHub repositories
+maintainer: Colin Watson <cjwatson@canonical.com>
+description: |
+  <Multi-line description here>
+subordinate: false
+series:
+  - xenial
+requires:
+  cache: 
+    interface: memcache
