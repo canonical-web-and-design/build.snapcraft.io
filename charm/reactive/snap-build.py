@@ -37,6 +37,7 @@ def configure(cache):
                 'memcache_session_secret': memcache_session_secret,
                 'sentry_dsn': sentry_dsn,
             })
+        check_call(['systemctl', 'daemon-reload'])
         check_port('ols.{}.express'.format(service_name()), port())
         set_state('service.configured')
         hookenv.status_set('active', 'systemd unit configured')
