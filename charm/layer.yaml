@@ -1,6 +1,6 @@
 repo: git@github.com:canonical-ols/build.snapcraft.io.git
 includes:
-    - layer:ols
+    - layer:ols-http
     - interface:memcache
 options:
     ols:

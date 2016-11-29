@@ -8,7 +8,8 @@ from charmhelpers.core.host import restart_on_change
 from charmhelpers.core.templating import render
 from charms.reactive import when, when_not, set_state
 from charms.apt import queue_install
-from charms.ols import check_port, code_dir, logs_dir, port, service_name, user
+from ols.base import check_port, code_dir, logs_dir, service_name, user
+from ols.http import port
 
 
 SYSTEMD_CONFIG = '/lib/systemd/system/snap-build.service'
