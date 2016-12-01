@@ -8,24 +8,25 @@ import {
   verifyGitHubRepository
 } from '../../actions/repository-input';
 
+import Button from '../button';
+import { Form, InputField, Message } from '../forms';
+
 export class RepositoryInput extends Component {
   constructor(props) {
     super(props);
   }
 
-  getStatusMessage() {
+  getErrorMessage() {
     const input = this.props.repositoryInput;
     let message;
 
     if (input.inputValue.length > 2 && !input.repository) {
-      message = '❌ Repository URL or name is invalid.';
-    } else if (input.repository && input.isFetching) {
-      message = `🔍 Verifying ${input.repository} on GitHub...`;
-    } else if (input.success && input.repositoryUrl) {
-      message = `✅ Repository ${input.repository} contains snapcraft project and can be built.`;
+      message = 'Please enter a valid GitHub repository name or URL.';
     } else if (input.error) {
       if (input.repository) {
-        message = `❌ Repository ${input.repository} is doesn't exist, is not public or doesn't contain snapcraft.yaml file.`;
+        message = `Repository ${input.repository} doesn't exist, is not public or doesn't contain snapcraft.yaml file.`;
+      } else {
+        message = input.error.message;
       }
     }
 
@@ -33,17 +34,32 @@ export class RepositoryInput extends Component {
   }
 
   render() {
-    const isValid = !!this.props.repositoryInput.repository;
+    const input = this.props.repositoryInput;
+
+    const isTouched = input.inputValue.length > 2;
+    const isValid = !!input.repository && !input.error;
 
     return (
-      <form onSubmit={this.onSubmit.bind(this)}>
-        <label>Repository URL:</label>
-        <input type='text' value={this.props.repositoryInput.inputValue} onChange={this.onInputChange.bind(this)} />
-        <button type='submit' disabled={!isValid}>Verify</button>
-        <div>
-          {this.getStatusMessage()}
-        </div>
-      </form>
+      <Form onSubmit={this.onSubmit.bind(this)}>
+
+        <InputField
+          label='Repository URL'
+          placeholder='username/snap-example'
+          value={input.inputValue}
+          touched={isTouched}
+          valid={isValid}
+          onChange={this.onInputChange.bind(this)}
+          errorMsg={this.getErrorMessage()}
+        />
+        { input.success &&
+          <Message status='info'>
+            Repository <a href={input.repositoryUrl}>{input.repository}</a> contains snapcraft project and can be built.
+          </Message>
+        }
+        <Button type='submit' disabled={!isValid || input.isFetching}>
+          { input.isFetching ? 'Verifying...' : 'Verify' }
+        </Button>
+      </Form>
     );
   }
 

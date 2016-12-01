@@ -1,0 +1,31 @@
+.message {
+  border: 1px solid $mid-grey;
+  padding: .5em .7em;
+  border-radius: 2px;
+  margin-bottom: 0.5em;
+}
+
+.error {
+  composes: message;
+  border-color: $error;
+}
+
+.success {
+  composes: message;
+  border-color: $success;
+}
+
+.info {
+  composes: message;
+  border-color: $information;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%3E%3Ctitle%3Einfo%3C%2Ftitle%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cpath%20d%3D%22M0%200h16v16H0z%22%2F%3E%3Cg%20fill%3D%22%2319B6EE%22%3E%3Cpath%20d%3D%22M8%200C3.6%200%200%203.6%200%208s3.6%208%208%208%208-3.6%208-8-3.6-8-8-8zm0%2014.5c-3.6%200-6.5-2.9-6.5-6.5S4.4%201.5%208%201.5s6.5%202.9%206.5%206.5-2.9%206.5-6.5%206.5z%22%2F%3E%3Cpath%20d%3D%22M7%2010h2v2H7zM7%204h2v5H7z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: 10px 50%;
+  padding-left: 2em; /** move to .message when we get all icons **/
+}
+
+.warning {
+  composes: message;
+  border-color: $warning;
+}
+

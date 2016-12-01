@@ -1,0 +1,69 @@
+$primary-button-color: $ubuntu-orange;
+$primary-button-color-hover: #d44615;
+$primary-button-text-color: #FFF;
+
+$secondary-button-color: #FFF;
+$secondary-button-color-hover: #EFEFEF;
+$secondary-button-text-color: $ubuntu-orange;
+$secondary-border-color: $mid-grey;
+
+.button {
+  font-smoothing: subpixel-antialiased;
+  font-size: 1em;
+  display: inline-block;
+  margin: 0;
+  padding: 6px 19px;
+  text-align: center;
+  text-decoration: none;
+  border: 0;
+  border-radius: 2px;
+  outline: none;
+  font-weight: 300;
+  cursor: pointer;
+}
+
+.button:active,
+.button:focus,
+.button:hover {
+  text-decoration: none;
+}
+
+.primary {
+  composes: button;
+
+  color: $primary-button-text-color;
+  background-color: $primary-button-color;
+}
+
+.primary:active,
+.primary:focus,
+.primary:hover {
+  background-color: $primary-button-color-hover;
+}
+
+.secondary {
+  composes: button;
+
+  color: $secondary-button-text-color;
+  background-color: $secondary-button-color;
+  border: 1px solid $secondary-border-color;
+}
+
+.secondary:active,
+.secondary:focus,
+.secondary:hover {
+  background-color: $secondary-button-color-hover;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.primary:disabled:hover {
+  background-color: $primary-button-color;
+}
+
+.secondary:disabled:hover {
+  background-color: $secondary-button-color;
+}
