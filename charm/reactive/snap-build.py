@@ -33,7 +33,7 @@ def configure(cache):
                 'session_secret': session_secret,
                 'logs_path': logs_dir(),
                 'environment': environment,
-                'cache_hosts': cache.memcache_hosts(),
+                'cache_hosts': sorted(cache.memcache_hosts()),
                 'memcache_session_secret': memcache_session_secret,
                 'sentry_dsn': sentry_dsn,
             })
