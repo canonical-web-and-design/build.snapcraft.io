@@ -1,12 +1,14 @@
 import Express from 'express';
 import supertest from 'supertest';
 import nock from 'nock';
+import expect from 'expect';
 
 import github from '../../../../../src/server/routes/github';
 import { conf } from '../../../../../src/server/helpers/config.js';
 
 describe('The GitHub API endpoint', () => {
   let app;
+  let scope;
   app = Express();
   app.use((req, res, next) => {
     req.session = {};
@@ -17,13 +19,24 @@ describe('The GitHub API endpoint', () => {
   describe('new integration route', () => {
     context('when webhook does not already exist', () => {
       beforeEach(() => {
-        nock(conf.get('GITHUB_API_ENDPOINT'))
+        scope = nock(conf.get('GITHUB_API_ENDPOINT'))
           .post('/repos/anaccount/arepo/hooks')
           .reply(201, '');
       });
 
       afterEach(() => {
         nock.cleanAll();
+      });
+
+      it('should call GitHub API endpoint to create new webhook', (done) => {
+        supertest(app)
+          .post('/github/integrations')
+          .send({ account: 'anaccount', repo: 'arepo' })
+          .end(() => {
+            expect(scope.isDone()).toBe(true);
+            done();
+          }
+        );
       });
 
       it('should return a 201 created response', (done) => {
