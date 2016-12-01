@@ -6,10 +6,12 @@
   "scripts": {
     "start": "node ./webpack/webpack-dev-server",
     "start-build": "node dist/server/",
+    "start-mock-service": "DEBUG=express:* node mocks/service/index.js",
     "build": "./scripts/build.sh",
     "lint": "eslint -c .eslintrc.js '**/*.js'",
-    "test": "nyc npm run test:unit && npm run lint",
-    "test:unit": "BABEL_DISABLE_CACHE=1 NODE_ENV=TEST mocha --recursive --require babel-core/register --compilers js:babel-register ./test/unit/setup.js ./test/unit/**/*"
+    "test": "nyc npm run test:unit && npm run test:routes && npm run lint",
+    "test:unit": "BABEL_DISABLE_CACHE=1 NODE_ENV=TEST mocha --recursive --require babel-core/register --compilers js:babel-register ./test/unit/setup.js ./test/unit/**/*",
+    "test:routes": "mocha --recursive --require babel-core/register --compilers js:babel-register ./test/routes/setup.js ./test/routes/**/*"
   },
   "repository": {
     "type": "git",
@@ -53,6 +55,7 @@
     "react-router-redux": "^4.0.6",
     "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",
+    "request": "^2.79.0",
     "winston": "^2.3.0"
   },
   "devDependencies": {

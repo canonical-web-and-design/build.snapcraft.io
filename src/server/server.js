@@ -34,6 +34,7 @@ app.use(helmet());
 app.use(Express.static(__dirname + '/../public', { maxAge: '365d' }));
 
 // routes
+app.use('/api', routes.github);
 app.use('/', routes.universal);
 
 // FIXME sstewart 18-Nov-16 won't ever log because of

@@ -10,7 +10,7 @@ let routes = require('../../common/routes').default;
 
 import assets from '../../../webpack-assets.json';
 
-export const universal = (req, res) => {
+export const universal = (req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     // Hot-reload application files when changes
     // made when running as a development site
@@ -20,6 +20,8 @@ export const universal = (req, res) => {
   match({ routes, location: req.url }, (error, redirectLocation, renderProps) => {
     handleMatch(req, res, error, redirectLocation, renderProps);
   });
+
+  next();
 };
 
 export const handleMatch = (req, res, error, redirectLocation, renderProps) => {

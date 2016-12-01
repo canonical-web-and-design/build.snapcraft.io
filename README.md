@@ -1,5 +1,20 @@
 # build.snapcraft.io
-User interface layer for the Snapcraft Build site.
+Snapcraft Build site.
+
+## Service layer mock
+A mock service is bundled with this project to replace the GitHub API when running on development platforms. To start the mock service, run the following command:
+
+```
+npm run start-mock-service
+```
+
+It is possible to restart the mock service automatically when changes are made to its source files using nodemon:
+
+`npm install nodemon -g`
+
+Start the mock service using nodemon using the following command:
+
+`DEBUG=express:* nodemon mocks/service/index.js`
 
 ## lxd container setup
 
