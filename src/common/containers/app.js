@@ -1,6 +1,9 @@
 import React, { PropTypes, Component } from 'react';
 import Helmet from 'react-helmet';
 
+import Header from '../components/header';
+import Footer from '../components/footer';
+
 export class App extends Component {
   render() {
     return (
@@ -13,7 +16,9 @@ export class App extends Component {
             { 'name': 'description', 'content': 'build.snapcraft.io' },
           ]}
         />
+        <Header />
         { this.props.children }
+        <Footer />
       </div>
     );
   }
