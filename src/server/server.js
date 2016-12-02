@@ -2,19 +2,20 @@ import Express from 'express';
 import helmet from 'helmet';
 import url from 'url';
 import expressWinston from 'express-winston';
-import chokidar from 'chokidar';
 import raven from 'raven';
 
 import * as routes from './routes/';
 import { conf } from './helpers/config';
 import logging from './logging';
-import { clearRequireCache } from './helpers/hot-load';
 import setRevisionHeader from './middleware/set-revision-header.js';
 
 const appUrl = url.parse(conf.get('BASE_URL'));
 const app = Express();
 const accessLogger = logging.getLogger('express-access');
 const errorLogger = logging.getLogger('express-error');
+const logger = logging.getLogger('express');
+
+app.set('logger', logger);
 
 if (app.get('env') === 'production') {
   app.set('trust proxy', 1);
@@ -44,18 +45,5 @@ app.use(expressWinston.errorLogger({
   winstonInstance: errorLogger,
   level: 'info'
 }));
-
-if (process.env.NODE_ENV === 'development') {
-  // Do "hot-reloading" of express stuff on the server
-  // Throw away cached modules and re-require next time
-  // Ensure there's no important state in there!
-  const watcher = chokidar.watch('./src');
-
-  watcher.on('ready', function() {
-    watcher.on('all', function() {
-      clearRequireCache(/[\/\\]src[\/\\]/, require.cache);
-    });
-  });
-}
 
 export { app as default };
