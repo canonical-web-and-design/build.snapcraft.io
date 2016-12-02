@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set NODE_ENV="production"
+
 # Build server files
 babel --out-dir=dist src --copy-files
 

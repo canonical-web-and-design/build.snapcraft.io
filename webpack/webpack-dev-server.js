@@ -30,7 +30,7 @@ const webpackMiddleware = webpackDevMiddleware(compiler, {
 
 // run dev express server once bundle is ready
 webpackMiddleware.waitUntilValid(() => {
-  require('../src/server');
+  require('../src/server/dev-server');
 });
 
 app.use(webpackMiddleware);
