@@ -3,7 +3,7 @@ import { match, RouterContext } from 'react-router';
 import { renderToString } from 'react-dom/server';
 
 import Html from '../helpers/html';
-import { getClientConfig } from '../helpers/config';
+import { conf, getClientConfig } from '../helpers/config';
 import configureStore from '../../common/store/configureStore';
 
 let routes = require('../../common/routes').default;
@@ -25,33 +25,24 @@ export const universal = (req, res, next) => {
 };
 
 export const handleMatch = (req, res, error, redirectLocation, renderProps) => {
+  const teams = JSON.parse(conf.get('OPENID_TEAMS') || 'null');
+
   if (error) {
     res.status(500).send(error.message);
   } else if (redirectLocation) {
     res.redirect(302, redirectLocation.pathname + redirectLocation.search);
+  } else if (!req.session && teams && teams.length) {
+    res.redirect(302, '/login/authenticate');
   } else if (renderProps) {
 
     const initialState = {};
 
-    if (req.session) {
-
-      if (req.session.authenticated) {
-        initialState['identity'] = {
-          isAuthenticated: req.session.authenticated,
-          name: req.session.name,
-          email: req.session.email
-        };
-      }
-
-      if (req.session.error) {
-        initialState['oyez'] = [{
-          'message': req.session.error,
-          'status': 'error'
-        }];
-
-        delete req.session.error;
-      }
-
+    if (req.session.error) {
+      initialState['authError'] = { message: req.session.error };
+      delete req.session.error;
+    } else if (!req.session.authenticated && teams && teams.length) {
+      res.redirect(302, '/login/authenticate');
+      return;
     }
 
     const store = configureStore(initialState);

@@ -14,6 +14,10 @@ const CLIENT_SIDE_WHITELIST = [
 
 let configForClient;
 
+// Install an empty store for use (only!) by tests.  Values in this store
+// override everything else.
+nconf.add('test-overrides', { type: 'memory' });
+
 // Load settings from CLI arguments
 nconf.argv();
 

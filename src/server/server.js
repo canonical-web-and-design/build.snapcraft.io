@@ -1,11 +1,13 @@
 import Express from 'express';
 import helmet from 'helmet';
+import session from 'express-session';
 import url from 'url';
 import expressWinston from 'express-winston';
 import raven from 'raven';
 
 import * as routes from './routes/';
 import { conf } from './helpers/config';
+import sessionConfig from './helpers/session';
 import logging from './logging';
 import setRevisionHeader from './middleware/set-revision-header.js';
 
@@ -32,9 +34,11 @@ app.use(expressWinston.logger({
   level: 'info'
 }));
 app.use(helmet());
+app.use(session(sessionConfig(conf)));
 app.use(Express.static(__dirname + '/../public', { maxAge: '365d' }));
 
 // routes
+app.use('/', routes.login);
 app.use('/api', routes.github);
 app.use('/', routes.universal);
 

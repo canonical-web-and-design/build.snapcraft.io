@@ -1,5 +1,45 @@
 # Environment Variables
 
+## Session storage settings
+
+### SESSION\_SECRET
+
+The secret key for signing session cookie IDs.
+
+### COOKIE\_SECURE
+
+If true, set secure session cookies.
+
+### MEMCACHED\_HOST
+
+The host name of the memcached service.
+
+### MEMCACHED\_SERVICE
+
+The secret key for encrypting session data stored in memcached.
+
+## SSO settings
+
+### UBUNTU\_SSO\_URL
+
+- **Example**: `https://login.staging.ubuntu.com`
+
+The URL of the authentication service used to log users in.
+
+### OPENID\_VERIFY\_URL
+
+- **Example**: `http://127.0.0.1:8000/login/verify`
+
+The landing page to which users will be redirected to complete logging in to
+the application.
+
+### OPENID\_TEAMS
+
+- **Example**: `["ubuntuone-hackers"]`
+
+A JSON array of Launchpad team names.  If set, users must be a member of at
+least one of these teams to use the application.
+
 ## Launchpad settings
 
 ### LP\_API\_URL

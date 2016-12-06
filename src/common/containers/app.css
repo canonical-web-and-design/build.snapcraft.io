@@ -1,0 +1,4 @@
+.staticNotifications {
+  composes: container from './container.css';
+  padding-bottom: 0;
+}
