@@ -2,34 +2,15 @@ import Express from 'express';
 import supertest from 'supertest';
 import nock from 'nock';
 import expect from 'expect';
-import { stub } from 'sinon';
-import proxyquire from 'proxyquire';
+import url from 'url';
 
+import auth from '../../../../../src/server/routes/github-auth';
 import { conf } from '../../../../../src/server/helpers/config.js';
-conf.set('GITHUB_AUTH_CLIENT_ID', 'akdjhoizxuclakjsdh');
-conf.set('GITHUB_AUTH_CLIENT_SECRET', 'oiwuowiruncoiuihq3e');
 
-const GITHUB_AUTH_LOGIN_URL = 'http://127.0.0.1/login/url';
-const GITHUB_AUTH_CLIENT_ID = 'example_client_id';
-const GITHUB_AUTH_REDIRECT_URL = 'http://127.0.0.1/redirect/url';
-const GITHUB_AUTH_VERIFY_URL = 'http://127.0.0.1/verify/url';
-const GITHUB_AUTH_CLIENT_SECRET = 'example_client_secret';
-
-const mockConfigGetter = stub();
-mockConfigGetter.withArgs('GITHUB_AUTH_LOGIN_URL').returns(GITHUB_AUTH_LOGIN_URL);
-mockConfigGetter.withArgs('GITHUB_AUTH_CLIENT_ID').returns(GITHUB_AUTH_CLIENT_ID);
-mockConfigGetter.withArgs('GITHUB_AUTH_REDIRECT_URL').returns(GITHUB_AUTH_REDIRECT_URL);
-mockConfigGetter.withArgs('GITHUB_AUTH_VERIFY_URL').returns(GITHUB_AUTH_VERIFY_URL);
-mockConfigGetter.withArgs('GITHUB_AUTH_CLIENT_SECRET').returns(GITHUB_AUTH_CLIENT_SECRET);
-
-const login = proxyquire(
-  '../../../../../src/server/routes/github-auth',
-  {
-    '../helpers/config': {
-      conf: { get: mockConfigGetter }
-    }
-  }
-).default;
+const GITHUB_AUTH_LOGIN_URL = conf.get('GITHUB_AUTH_LOGIN_URL');
+const GITHUB_AUTH_CLIENT_ID = conf.get('GITHUB_AUTH_CLIENT_ID');
+const GITHUB_AUTH_REDIRECT_URL = conf.get('GITHUB_AUTH_REDIRECT_URL');
+const GITHUB_AUTH_VERIFY_URL = conf.get('GITHUB_AUTH_VERIFY_URL');
 
 describe('The login route', () => {
   let app;
@@ -42,7 +23,7 @@ describe('The login route', () => {
       };
       next();
     });
-    app.use(login);
+    app.use(auth);
     app.use((err, req, res, next) => {
       res.status(500).send();
       next();
@@ -92,8 +73,9 @@ describe('The login route', () => {
 
     context('when token successfully exchanged', () => {
       beforeEach(() => {
-        scope = nock(getHost(GITHUB_AUTH_VERIFY_URL))
-          .post(getPath(GITHUB_AUTH_VERIFY_URL))
+        const { protocol, host, path } = url.parse(GITHUB_AUTH_VERIFY_URL);
+        scope = nock(`${protocol}//${host}`)
+          .post(path)
           .reply(200, 'access_token=baz');
       });
 
@@ -137,8 +119,9 @@ describe('The login route', () => {
 
     context('when token exchange fails', () => {
       beforeEach(() => {
-        scope = nock(getHost(GITHUB_AUTH_VERIFY_URL))
-          .post(getPath(GITHUB_AUTH_VERIFY_URL))
+        const { protocol, host, path } = url.parse(GITHUB_AUTH_VERIFY_URL);
+        scope = nock(`${protocol}//${host}`)
+          .post(path)
           .reply(500);
       });
 
@@ -156,11 +139,3 @@ describe('The login route', () => {
     });
   });
 });
-
-function getHost(url) {
-  return url.split(/\//)[0] + '//' + url.split(/\//)[2];
-}
-
-function getPath(url) {
-  return url.replace(getHost(url), '');
-}

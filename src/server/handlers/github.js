@@ -77,7 +77,7 @@ export const newIntegration = (req, res) => {
 
 const getRequest = (account, repo, token) => {
   return {
-    url: GITHUB_API_ENDPOINT + `/repos/${account}/${repo}/hooks`,
+    url: `${GITHUB_API_ENDPOINT}/repos/${account}/${repo}/hooks`,
     proxy: HTTP_PROXY,
     headers: {
       'User-Agent': 'SnapCraftBuild',
