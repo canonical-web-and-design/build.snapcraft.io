@@ -8,3 +8,12 @@ options:
     sentry_dsn:
         type: string
         description: The Sentry DSN that will be used by Raven to send error reports to Sentry
+    lp_api_consumer_key:
+        type: string
+        description: Launchpad OAuth consumer key
+    lp_api_token:
+        type: string
+        description: Launchpad OAuth access token
+    lp_api_token_secret:
+        type: string
+        description: Launchpad OAuth token secret

@@ -11,6 +11,9 @@ Environment='LOGS_PATH={{ logs_path }}'
 Environment='SESSION_MEMCACHED_HOST={{ cache_hosts | join(",") }}'
 Environment='SESSION_MEMCACHED_SECRET={{ memcache_session_secret }}'
 Environment='SENTRY_DSN={{ sentry_dsn }}'
+Environment='LP_API_CONSUMER_KEY={{ lp_api_consumer_key }}'
+Environment='LP_API_TOKEN={{ lp_api_token }}'
+Environment='LP_API_TOKEN_SECRET={{ lp_api_token_secret }}'
 WorkingDirectory={{ working_dir }}
 User={{ user }}
 ExecStart=/usr/bin/npm run start-build -- --env=environments/{{ environment }}.env
