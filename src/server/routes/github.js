@@ -5,7 +5,7 @@ import { newIntegration } from '../handlers/github';
 
 const router = Router();
 
-router.use(json());
+router.use('/github/integrations', json());
 router.post('/github/integrations', newIntegration);
 
 export default router;

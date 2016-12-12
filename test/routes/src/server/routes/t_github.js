@@ -8,6 +8,10 @@ import { conf } from '../../../../../src/server/helpers/config.js';
 describe('The GitHub API endpoint', () => {
   let app;
   app = Express();
+  app.use((req, res, next) => {
+    req.session = {};
+    next();
+  });
   app.use(github);
 
   describe('new integration route', () => {

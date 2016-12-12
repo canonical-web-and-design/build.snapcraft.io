@@ -1,39 +1,29 @@
 import { Router } from 'express';
+import LoginForm from './login-form';
+import React from 'react';
+import ReactDOM from 'react-dom/server';
+import * as responses from './responses';
 
 // UNCOMMENT DESIRED RESPONSE
-const response = 'okay-new-hook-created';
-// const response = 'error-no-account-or-repo';
-// const response = 'error-bad-credentials';
-// const response = 'error-webhook-exists';
+const webhookResponse = responses.okayNewHookCreated;
+// const webhookResponse = responses.errorNoAccountOrRepo;
+// const webhookResponse = responses.errorBadCredentials;
+// const webhookResponse = responses.errorWebhookExists;
 
 const router = Router();
 
-const responses = {};
+router.post('/repos/:account/:repo/hooks', webhookResponse);
 
-responses['okay-new-hook-created'] = (req, res) => {
-  res.status(201);
-  // No response body implemented
-  res.send();
-};
+router.get('/login/oauth/authorize', (req, res) => {
+  res.status(200).send(ReactDOM.renderToString(
+    <LoginForm
+      redirectUrl={ req.query.redirect_uri }
+      sharedSecret={ req.query.state }
+    />
+  ));
+});
 
-responses['error-no-account-or-repo'] = (req, res) => {
-  res.status(404).send({
-    message: 'Not Found'
-  });
-};
+router.post('/login/oauth/access_token', responses.okayAuthenticated);
 
-responses['error-bad-credentials'] = (req, res) => {
-  res.status(401).send({
-    message: 'Bad Credentials'
-  });
-};
-
-responses['error-webhook-exists'] = (req, res) => {
-  res.status(422).send({
-    message: 'Validation Failed'
-  });
-};
-
-router.post('/repos/:account/:repo/hooks', responses[response]);
 
 export default router;
