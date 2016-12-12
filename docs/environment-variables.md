@@ -14,7 +14,7 @@ If true, set secure session cookies.
 
 The host name of the memcached service.
 
-### MEMCACHED\_SERVICE
+### SESSION\_MEMCACHED\_SERVICE
 
 The secret key for encrypting session data stored in memcached.
 

@@ -30,8 +30,8 @@ describe('The session helper', () => {
       let config;
 
       beforeEach(() => {
-        mockConfig.get.withArgs('SESSION_MEMCACHED_HOST').returns('127.0.0.1:8000');
-        mockConfig.get.withArgs('SESSION_MEMCACHED_SECRET').returns('secret');
+        mockConfig.get.withArgs('MEMCACHED_HOST').returns('127.0.0.1:8000');
+        mockConfig.get.withArgs('MEMCACHED_SESSION_SECRET').returns('secret');
         config = sessionStorageConfig(mockConfig);
       });
 
@@ -44,8 +44,8 @@ describe('The session helper', () => {
       let config;
 
       beforeEach(() => {
-        mockConfig.get.withArgs('SESSION_MEMCACHED_HOST').returns(null);
-        mockConfig.get.withArgs('SESSION_MEMCACHED_SECRET').returns(null);
+        mockConfig.get.withArgs('MEMCACHED_HOST').returns(null);
+        mockConfig.get.withArgs('MEMCACHED_SESSION_SECRET').returns(null);
         config = sessionStorageConfig(mockConfig);
       });
 
@@ -70,8 +70,8 @@ describe('The session helper', () => {
 
     context('when session secret config is not set', () => {
       beforeEach(() => {
-        mockConfig.get.withArgs('SESSION_MEMCACHED_HOST').returns(null);
-        mockConfig.get.withArgs('SESSION_MEMCACHED_SECRET').returns(null);
+        mockConfig.get.withArgs('MEMCACHED_HOST').returns(null);
+        mockConfig.get.withArgs('MEMCACHED_SESSION_SECRET').returns(null);
         mockConfig.get.withArgs('SESSION_SECRET').returns(null);
       });
 

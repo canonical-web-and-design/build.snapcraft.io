@@ -33,11 +33,12 @@ export default function sessionStorageConfig(config) {
     settings.secret = 'dont-use-me-in-production';
   }
 
-  if(config.get('SESSION_MEMCACHED_HOST') && config.get('SESSION_MEMCACHED_SECRET')) {
-    logger.info('Starting with memcached session store');
+  if(config.get('MEMCACHED_HOST') && config.get('MEMCACHED_SESSION_SECRET')) {
+    logger.info('Starting with memcached store');
     settings.store = new MemcachedStore({
-      hosts: config.get('SESSION_MEMCACHED_HOST').split(','),
-      secret: config.get('SESSION_MEMCACHED_SECRET')
+      hosts: config.get('MEMCACHED_HOST').split(','),
+      prefix: 'session:',
+      secret: config.get('MEMCACHED_SESSION_SECRET')
     });
   } else {
     // TODO: Log memory session store

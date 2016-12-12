@@ -8,8 +8,8 @@ Description=Build snaps from GitHub repositories
 Type=simple
 Environment='SESSION_SECRET={{ session_secret }}'
 Environment='LOGS_PATH={{ logs_path }}'
-Environment='SESSION_MEMCACHED_HOST={{ cache_hosts | join(",") }}'
-Environment='SESSION_MEMCACHED_SECRET={{ memcache_session_secret }}'
+Environment='MEMCACHED_HOST={{ cache_hosts | join(",") }}'
+Environment='MEMCACHED_SESSION_SECRET={{ memcache_session_secret }}'
 Environment='SENTRY_DSN={{ sentry_dsn }}'
 Environment='LP_API_CONSUMER_KEY={{ lp_api_consumer_key }}'
 Environment='LP_API_TOKEN={{ lp_api_token }}'
