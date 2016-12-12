@@ -73,7 +73,7 @@ describe('Launchpad', () => {
       }, error => {
         expect(error.response.status).toEqual(503);
         expect(error.uri).toEqual(
-          'https://api.staging.launchpad.net/api/devel/people');
+          'https://api.launchpad.net/api/devel/people');
       });
     });
   });
@@ -106,7 +106,7 @@ describe('Launchpad', () => {
       }, error => {
         expect(error.response.status).toEqual(503);
         expect(error.uri).toEqual(
-          'https://api.staging.launchpad.net/api/devel/people?' +
+          'https://api.launchpad.net/api/devel/people?' +
           'ws.op=getByEmail');
       });
     });
@@ -151,7 +151,7 @@ describe('Launchpad', () => {
       }, error => {
         expect(error.response.status).toEqual(503);
         expect(error.uri).toEqual(
-          'https://api.staging.launchpad.net/api/devel/people');
+          'https://api.launchpad.net/api/devel/people');
       });
     });
   });
@@ -186,7 +186,7 @@ describe('Launchpad', () => {
         }, error => {
           expect(error.response.status).toEqual(503);
           expect(error.uri).toEqual(
-            'https://api.staging.launchpad.net/api/devel/~foo');
+            'https://api.launchpad.net/api/devel/~foo');
         });
     });
   });
@@ -226,8 +226,8 @@ describe('Launchpad', () => {
   });
 
   describe('wrap_resource_on_success', () => {
-    const original_uri = 'https://api.staging.launchpad.net/original_uri';
-    const updated_uri = 'https://api.staging.launchpad.net/object_uri';
+    const original_uri = 'https://api.launchpad.net/original_uri';
+    const updated_uri = 'https://api.launchpad.net/object_uri';
     const fake_response = {
       headers: {
         get: key => {

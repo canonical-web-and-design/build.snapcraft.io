@@ -22,7 +22,7 @@ The secret key for encrypting session data stored in memcached.
 
 ### UBUNTU\_SSO\_URL
 
-- **Example**: `https://login.staging.ubuntu.com`
+- **Example**: `https://login.ubuntu.com`
 
 The URL of the authentication service used to log users in.
 
@@ -44,7 +44,7 @@ least one of these teams to use the application.
 
 ### LP\_API\_URL
 
-- **Example**: `https://api.staging.launchpad.net`
+- **Example**: `https://api.launchpad.net`
 
 The URL of the Launchpad API service.
 
