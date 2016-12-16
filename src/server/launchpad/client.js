@@ -210,7 +210,7 @@ export class Launchpad {
         // for use in other api methods off of that object.  During a PATCH
         // request the caller is the object.  Leave the original_uri alone.
         // Otherwise make the uri the object coming back.
-        if (representation.self_link && method !== 'PATCH') {
+        if (representation && representation.self_link && method !== 'PATCH') {
           uri = representation.self_link;
         }
         return this.wrap_resource(uri, representation);

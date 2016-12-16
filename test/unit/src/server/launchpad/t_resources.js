@@ -73,6 +73,38 @@ describe('Resources', () => {
         expect(slice.entries[24].name).toEqual('person99');
       });
     });
+
+    it('allows iteration over the collection', async () => {
+      let entries = [];
+      for (let i = 0; i < 100; i++) {
+        entries.push({ name: `person${i}` });
+      }
+
+      lp.get('/api/devel/~foo/ppas')
+        .query({ 'ws.start': 75, 'ws.size': 75 })
+        .reply(200, {
+          total_size: entries.length,
+          start: 75,
+          prev_collection_link: `${LP_API_URL}/api/devel/~foo/ppas?ws.size=75`,
+          entries: entries.slice(75, 100)
+        });
+
+      const representation = {
+        total_size: entries.length,
+        start: 0,
+        next_collection_link:
+          `${LP_API_URL}/api/devel/~foo/ppas?ws.start=75&ws.size=75`,
+        entries: entries.slice(0, 75)
+      };
+      const collection = new Collection(
+        getLaunchpad(), representation, `${LP_API_URL}/api/devel/~foo/ppas`);
+      let copied_entries = [];
+      // https://github.com/babel/babel-eslint/issues/415
+      for await (const entry of collection) { // eslint-disable-line semi
+        copied_entries.push({ name: entry.name });
+      }
+      expect(copied_entries).toEqual(entries);
+    });
   });
 
   describe('Entry', () => {

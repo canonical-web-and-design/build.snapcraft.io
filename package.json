@@ -10,8 +10,8 @@
     "build": "./scripts/build.sh",
     "lint": "eslint -c .eslintrc.js '**/*.js'",
     "test": "nyc npm run test:unit && npm run test:routes && npm run lint",
-    "test:unit": "BABEL_DISABLE_CACHE=1 NODE_ENV=TEST mocha --recursive --require babel-core/register --compilers js:babel-register ./test/unit/setup.js ./test/unit/t_*.js ./test/unit/**/*",
-    "test:routes": "HTTP_PROXY= HTTPS_PROXY= mocha --recursive --require babel-core/register --compilers js:babel-register ./test/routes/setup.js ./test/routes/**/*"
+    "test:unit": "BABEL_DISABLE_CACHE=1 NODE_ENV=TEST mocha --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/unit/setup.js ./test/unit/t_*.js ./test/unit/**/*",
+    "test:routes": "HTTP_PROXY= HTTPS_PROXY= mocha --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/routes/setup.js ./test/routes/**/*"
   },
   "repository": {
     "type": "git",
@@ -41,6 +41,7 @@
     "helmet": "^3.1.0",
     "images-require-hook": "^1.0.3",
     "isomorphic-fetch": "^2.2.1",
+    "js-yaml": "^3.7.0",
     "memcached": "^2.2.2",
     "nconf": "^0.8.4",
     "nconf-yaml": "^1.0.2",
@@ -67,6 +68,7 @@
     "autoprefixer": "^6.5.1",
     "babel-cli": "^6.16.0",
     "babel-core": "^6.17.0",
+    "babel-eslint": "^7.1.1",
     "babel-loader": "^6.2.5",
     "babel-plugin-transform-es2015-destructuring": "^6.16.0",
     "babel-plugin-transform-object-rest-spread": "^6.16.0",

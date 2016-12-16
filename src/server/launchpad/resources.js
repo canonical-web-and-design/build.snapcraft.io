@@ -55,6 +55,20 @@ export class Collection extends Resource {
   lp_slice(start, size) {
     return this.lp_client.get(this.uri, { start: start, size: size });
   }
+
+  async *[Symbol.asyncIterator]() {
+    let collection = this;
+    do {
+      for (const entry of collection.entries) {
+        yield entry;
+      }
+      if (collection.next_collection_link !== undefined) {
+        collection = await this.lp_client.get(collection.next_collection_link);
+      } else {
+        collection = undefined;
+      }
+    } while (collection !== undefined);
+  }
 }
 
 /** A single object from the Launchpad web service. */

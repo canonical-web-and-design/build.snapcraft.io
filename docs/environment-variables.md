@@ -48,6 +48,10 @@ least one of these teams to use the application.
 
 The URL of the Launchpad API service.
 
+### LP\_API\_USERNAME
+
+The name of the user that this service uses to interact with Launchpad.
+
 ### LP\_API\_CONSUMER\_KEY
 
 The OAuth consumer key.  This is an arbitrary identifier.

@@ -25,5 +25,8 @@ router.get('/login/oauth/authorize', (req, res) => {
 
 router.post('/login/oauth/access_token', responses.okayAuthenticated);
 
+router.get('/repos/:account/:repo/contents/snapcraft.yaml', (req, res) => {
+  res.status(200).send(`name: ${req.params.repo}\n`);
+});
 
 export default router;

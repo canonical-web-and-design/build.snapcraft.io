@@ -1,9 +1,7 @@
 import { conf } from '../helpers/config';
-import request from 'request';
+import requestGitHub from '../helpers/github';
 import logging from '../logging';
 
-const GITHUB_API_ENDPOINT = conf.get('GITHUB_API_ENDPOINT');
-const HTTP_PROXY = conf.get('HTTP_PROXY');
 const logger = logging.getLogger('express-error');
 
 const RESPONSE_NOT_FOUND = {
@@ -50,13 +48,27 @@ export const newIntegration = (req, res) => {
   const account = req.body.account;
   const repo = req.body.repo;
 
-  const options = getRequest(account, repo, req.session.token);
-
-  request.post(options, (err, response, body) => {
+  const uri = `/repos/${account}/${repo}/hooks`;
+  const options = {
+    headers: { 'Authorization': `token ${req.session.token}` },
+    json: {
+      name: 'web',
+      active: true,
+      events: [
+        'push'
+      ],
+      config: {
+        url: conf.get('WEBHOOK_ENDPOINT'),
+        content_type: 'json'
+      }
+    }
+  };
+  requestGitHub.post(uri, options, (err, response, body) => {
     if (response.statusCode !== 201) {
+      logger.info(body);
       switch (body.message) {
         case 'Not Found':
-          // Repoistory does not exist or access not granted
+          // Repository does not exist or access not granted
           return res.status(404).send(RESPONSE_NOT_FOUND);
         case 'Bad credentials':
           // Authentication failed
@@ -73,26 +85,4 @@ export const newIntegration = (req, res) => {
 
     return res.status(201).send(RESPONSE_CREATED);
   });
-};
-
-const getRequest = (account, repo, token) => {
-  return {
-    url: `${GITHUB_API_ENDPOINT}/repos/${account}/${repo}/hooks`,
-    proxy: HTTP_PROXY,
-    headers: {
-      'User-Agent': 'SnapCraftBuild',
-      'Authorization': 'token ' + token
-    },
-    json: {
-      name: 'web',
-      active: true,
-      events: [
-        'push'
-      ],
-      config: {
-        url: conf.get('WEBHOOK_ENDPOINT'),
-        content_type: 'json'
-      }
-    }
-  };
 };

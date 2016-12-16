@@ -12,8 +12,8 @@ import url from 'url';
  * Does nothing to a relative URI that includes the root.
  */
 export function normalizeURI(base_uri, uri) {
-  const service_base = '/api/devel';
   const base_parsed = url.parse(base_uri);
+  const service_base = base_parsed.pathname.replace(/\/+$/, '') + '/api/devel';
   const parsed = url.parse(uri);
 
   if (parsed.host !== null) {
