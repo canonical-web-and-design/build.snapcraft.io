@@ -143,7 +143,8 @@ describe('repositoryInput reducers', () => {
 
       const action = {
         type: ActionTypes.VERIFY_GITHUB_REPOSITORY_ERROR,
-        payload: new Error('Something went wrong!')
+        payload: new Error('Something went wrong!'),
+        error: true
       };
 
       expect(repositoryInput(state, action)).toEqual({

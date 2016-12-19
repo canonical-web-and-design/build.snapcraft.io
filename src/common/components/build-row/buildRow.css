@@ -1,0 +1,41 @@
+.buildRow {
+  border: 1px solid #CCC;
+  padding: 5px 5px 5px 15px;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  background: #fff;
+}
+
+.buildRow::before {
+  content: '';
+  display: block;
+  width: 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+}
+
+.buildRow.success::before {
+  background-color: $success;
+}
+
+.buildRow.error::before {
+  background-color: $error;
+}
+
+.buildRow.pending::before {
+  background-color: $warning;
+}
+
+.item {
+  flex: 1;
+  border-right: 1px solid #CCC;
+  padding: 0 5px;
+}
+
+.item:last-child {
+  border: none;
+}

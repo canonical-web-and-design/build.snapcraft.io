@@ -1,6 +1,7 @@
 import 'isomorphic-fetch';
 
 import React, { Component, PropTypes } from 'react';
+import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 
 import {
@@ -31,6 +32,14 @@ export class RepositoryInput extends Component {
     }
 
     return message;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const input = nextProps.repositoryInput;
+
+    if (input.success && this.props.repositoryInput.success !== input.success) {
+      this.props.router.push(`${input.repository}/builds`);
+    }
   }
 
   render() {
@@ -78,6 +87,7 @@ export class RepositoryInput extends Component {
 }
 
 RepositoryInput.propTypes = {
+  router: PropTypes.object.isRequired,
   repositoryInput: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired
 };
@@ -92,4 +102,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(RepositoryInput);
+export default connect(mapStateToProps)(withRouter(RepositoryInput));
