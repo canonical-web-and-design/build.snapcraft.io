@@ -1,4 +1,5 @@
 require('babel-register');
+require('babel-polyfill');
 const Express = require('express');
 const webpack = require('webpack');
 const url = require('url');

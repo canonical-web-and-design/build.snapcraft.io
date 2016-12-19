@@ -1,3 +1,4 @@
+require('babel-polyfill');
 require('css-modules-require-hook/preset');
 require('images-require-hook')('.svg', '/static/icons');
 

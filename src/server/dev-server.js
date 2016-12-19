@@ -1,4 +1,3 @@
-require('babel-register');
 require('css-modules-require-hook/preset');
 const clearRequireCache = require('./helpers/hot-load').clearRequireCache;
 const chokidar = require('chokidar');
