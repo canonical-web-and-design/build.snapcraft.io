@@ -78,19 +78,19 @@ describe('The Launchpad API endpoint', () => {
           .reply(200, 'name: test-snap\n');
         const lp_api_url = conf.get('LP_API_URL');
         nock(lp_api_url)
-          .post('/api/devel/+snaps')
+          .post('/devel/+snaps')
           .query({ 'ws.op': 'new' })
           .reply(201, 'Created', {
-            Location: `${lp_api_url}/api/devel/~test-user/+snap/test-snap`
+            Location: `${lp_api_url}/devel/~test-user/+snap/test-snap`
           });
         nock(lp_api_url)
-          .get('/api/devel/~test-user/+snap/test-snap')
+          .get('/devel/~test-user/+snap/test-snap')
           .reply(200, {
-            resource_type_link: `${lp_api_url}/api/devel/#snap`,
-            self_link: `${lp_api_url}/api/devel/~test-user/+snap/test-snap`
+            resource_type_link: `${lp_api_url}/devel/#snap`,
+            self_link: `${lp_api_url}/devel/~test-user/+snap/test-snap`
           });
         nock(lp_api_url)
-          .post('/api/devel/~test-user/+snap/test-snap')
+          .post('/devel/~test-user/+snap/test-snap')
           .query({ 'ws.op': 'beginAuthorization' })
           .reply(200, JSON.stringify(caveatId), {
             'Content-Type': 'application/json'
@@ -132,7 +132,7 @@ describe('The Launchpad API endpoint', () => {
           .reply(200, 'name: test-snap\n');
         const lp_api_url = conf.get('LP_API_URL');
         nock(lp_api_url)
-          .post('/api/devel/+snaps')
+          .post('/devel/+snaps')
           .query({ 'ws.op': 'new' })
           .reply(
             400,
@@ -287,9 +287,9 @@ describe('The Launchpad API endpoint', () => {
     context('when snap exists', () => {
       beforeEach(() => {
         const lp_api_url = conf.get('LP_API_URL');
-        const lp_api_base = `${lp_api_url}/api/devel`;
+        const lp_api_base = `${lp_api_url}/devel`;
         nock(lp_api_url)
-          .get('/api/devel/+snaps')
+          .get('/devel/+snaps')
           .query({
             'ws.op': 'findByURL',
             url: 'https://github.com/anaccount/arepo'
@@ -338,7 +338,7 @@ describe('The Launchpad API endpoint', () => {
           .query({ repository_url: 'https://github.com/anaccount/arepo' })
           .expect(hasMessage(
             'snap-found',
-            `${conf.get('LP_API_URL')}/api/devel/~test-user/+snap/test-snap`))
+            `${conf.get('LP_API_URL')}/devel/~test-user/+snap/test-snap`))
           .end(done);
       });
     });
@@ -347,7 +347,7 @@ describe('The Launchpad API endpoint', () => {
       beforeEach(() => {
         const lp_api_url = conf.get('LP_API_URL');
         nock(lp_api_url)
-          .get('/api/devel/+snaps')
+          .get('/devel/+snaps')
           .query({
             'ws.op': 'findByURL',
             url: 'https://github.com/anaccount/arepo'
@@ -391,7 +391,7 @@ describe('The Launchpad API endpoint', () => {
       beforeEach(() => {
         const lp_api_url = conf.get('LP_API_URL');
         nock(lp_api_url)
-          .get('/api/devel/+snaps')
+          .get('/devel/+snaps')
           .query({
             'ws.op': 'findByURL',
             url: 'https://github.com/anaccount/arepo'
@@ -448,9 +448,9 @@ describe('The Launchpad API endpoint', () => {
     context('when snap exists', () => {
       beforeEach(() => {
         const lp_api_url = conf.get('LP_API_URL');
-        const lp_api_base = `${lp_api_url}/api/devel`;
+        const lp_api_base = `${lp_api_url}/devel`;
         nock(lp_api_url)
-          .get('/api/devel/+snaps')
+          .get('/devel/+snaps')
           .query({
             'ws.op': 'findByURL',
             url: 'https://github.com/anaccount/arepo'
@@ -467,7 +467,7 @@ describe('The Launchpad API endpoint', () => {
             ]
           });
         nock(lp_api_url)
-          .post('/api/devel/~test-user/+snap/test-snap')
+          .post('/devel/~test-user/+snap/test-snap')
           .query({
             'ws.op': 'completeAuthorization',
             'discharge_macaroon': 'dummy-discharge'
@@ -511,7 +511,7 @@ describe('The Launchpad API endpoint', () => {
           })
           .expect(hasMessage(
             'snap-authorized',
-            `${conf.get('LP_API_URL')}/api/devel/~test-user/+snap/test-snap`))
+            `${conf.get('LP_API_URL')}/devel/~test-user/+snap/test-snap`))
           .end(done);
       });
     });
@@ -520,7 +520,7 @@ describe('The Launchpad API endpoint', () => {
       beforeEach(() => {
         const lp_api_url = conf.get('LP_API_URL');
         nock(lp_api_url)
-          .get('/api/devel/+snaps')
+          .get('/devel/+snaps')
           .query({
             'ws.op': 'findByURL',
             url: 'https://github.com/anaccount/arepo'

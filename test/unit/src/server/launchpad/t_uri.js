@@ -10,8 +10,8 @@ describe('normalizeURI', () => {
   it('handles absolute URI', () => {
     const result = normalizeURI(
       'http://www.example.com/path',
-      'http://www.example.com/path/api/devel/foo');
-    expect(result).toEqual('http://www.example.com/path/api/devel/foo');
+      'http://www.example.com/path/devel/foo');
+    expect(result).toEqual('http://www.example.com/path/devel/foo');
   });
 
   it('handles absolute URI without inserting service base', () => {
@@ -22,23 +22,23 @@ describe('normalizeURI', () => {
 
   it('prepends base URI and service base to relative URI', () => {
     const result = normalizeURI('http://www.example.com/path', '/foo/bar');
-    expect(result).toEqual('http://www.example.com/path/api/devel/foo/bar');
+    expect(result).toEqual('http://www.example.com/path/devel/foo/bar');
   });
 
   it('prepends base URI to relative URI with service base', () => {
     const result = normalizeURI(
-      'http://www.example.com/path', '/path/api/devel/foo/bar');
-    expect(result).toEqual('http://www.example.com/path/api/devel/foo/bar');
+      'http://www.example.com/path', '/path/devel/foo/bar');
+    expect(result).toEqual('http://www.example.com/path/devel/foo/bar');
   });
 
   it('prepends base URI and service base to /-less relative URI', () => {
     const result = normalizeURI('http://www.example.com/path', 'foo/bar');
-    expect(result).toEqual('http://www.example.com/path/api/devel/foo/bar');
+    expect(result).toEqual('http://www.example.com/path/devel/foo/bar');
   });
 
   it('prepends base URI to /-less relative URI with service base', () => {
     const result = normalizeURI(
-      'http://www.example.com/path', 'path/api/devel/foo/bar');
-    expect(result).toEqual('http://www.example.com/path/api/devel/foo/bar');
+      'http://www.example.com/path', 'path/devel/foo/bar');
+    expect(result).toEqual('http://www.example.com/path/devel/foo/bar');
   });
 });

@@ -53,7 +53,7 @@ describe('Launchpad', () => {
 
   describe('get', () => {
     it('handles successful response', () => {
-      lp.get('/api/devel/people')
+      lp.get('/devel/people')
         .matchHeader('Authorization', checkAuthorization)
         .matchHeader('Accept', /^application\/json$/)
         .reply(200, { entry: { resource_type_link: 'foo' } });
@@ -65,27 +65,26 @@ describe('Launchpad', () => {
     });
 
     it('handles failing response', () => {
-      lp.get('/api/devel/people').reply(503);
+      lp.get('/devel/people').reply(503);
 
       return getLaunchpad().get('/people').then(result => {
         assert(false, 'Expected promise to be rejected; got %s instead',
                result);
       }, error => {
         expect(error.response.status).toEqual(503);
-        expect(error.uri).toEqual(
-          'https://api.launchpad.net/api/devel/people');
+        expect(error.uri).toEqual('https://api.launchpad.net/devel/people');
       });
     });
   });
 
   describe('named_get', () => {
     it('handles successful response', () => {
-      lp.get('/api/devel/people')
+      lp.get('/devel/people')
         .query({ 'ws.op': 'getByEmail', 'email': 'foo@example.com' })
         .matchHeader('Authorization', checkAuthorization)
         .matchHeader('Accept', /^application\/json$/)
         .reply(200, {
-          resource_type_link: `${LP_API_URL}/api/devel/#person`,
+          resource_type_link: `${LP_API_URL}/devel/#person`,
           name: 'foo'
         });
 
@@ -98,7 +97,7 @@ describe('Launchpad', () => {
     });
 
     it('handles failing response', () => {
-      lp.get('/api/devel/people').query({ 'ws.op': 'getByEmail' }).reply(503);
+      lp.get('/devel/people').query({ 'ws.op': 'getByEmail' }).reply(503);
 
       return getLaunchpad().named_get('/people', 'getByEmail').then(result => {
         assert(false, 'Expected promise to be rejected; got %s instead',
@@ -106,15 +105,14 @@ describe('Launchpad', () => {
       }, error => {
         expect(error.response.status).toEqual(503);
         expect(error.uri).toEqual(
-          'https://api.launchpad.net/api/devel/people?' +
-          'ws.op=getByEmail');
+          'https://api.launchpad.net/devel/people?ws.op=getByEmail');
       });
     });
   });
 
   describe('named_post', () => {
     it('handles successful response', () => {
-      lp.post('/api/devel/people', { 'ws.op': 'newTeam' })
+      lp.post('/devel/people', { 'ws.op': 'newTeam' })
         .matchHeader('Authorization', checkAuthorization)
         .reply(200, { entry: { resource_type_link: 'foo' } });
 
@@ -125,12 +123,12 @@ describe('Launchpad', () => {
     });
 
     it('handles factory response', () => {
-      lp.post('/api/devel/people', { 'ws.op': 'newTeam', 'name': 'foo' })
+      lp.post('/devel/people', { 'ws.op': 'newTeam', 'name': 'foo' })
         .matchHeader('Authorization', checkAuthorization)
-        .reply(201, '', { 'Location': `${LP_API_URL}/api/devel/~foo` });
-      lp.get('/api/devel/~foo')
+        .reply(201, '', { 'Location': `${LP_API_URL}/devel/~foo` });
+      lp.get('/devel/~foo')
         .reply(200, {
-          resource_type_link: `${LP_API_URL}/api/devel/#team`,
+          resource_type_link: `${LP_API_URL}/devel/#team`,
           name: 'foo'
         });
 
@@ -143,28 +141,27 @@ describe('Launchpad', () => {
     });
 
     it('handles failing response', () => {
-      lp.post('/api/devel/people').reply(503);
+      lp.post('/devel/people').reply(503);
 
       return getLaunchpad().named_post('/people', 'newTeam').then(result => {
         assert(false, 'Expected promise to be rejected; got %s instead',
                result);
       }, error => {
         expect(error.response.status).toEqual(503);
-        expect(error.uri).toEqual(
-          'https://api.launchpad.net/api/devel/people');
+        expect(error.uri).toEqual('https://api.launchpad.net/devel/people');
       });
     });
   });
 
   describe('patch', () => {
     it('handles successful response', () => {
-      lp.post('/api/devel/~foo', { 'display_name': 'Foo' })
+      lp.post('/devel/~foo', { 'display_name': 'Foo' })
         .matchHeader('Authorization', checkAuthorization)
         .matchHeader('Accept', /^application\/json$/)
         .matchHeader('X-HTTP-Method-Override', /^PATCH$/)
         .matchHeader('X-Content-Type-Override', /^application\/json$/)
         .reply(200, {
-          resource_type_link: `${LP_API_URL}/api/devel/#person`,
+          resource_type_link: `${LP_API_URL}/devel/#person`,
           name: 'foo',
           display_name: 'Foo'
         });
@@ -177,7 +174,7 @@ describe('Launchpad', () => {
     });
 
     it('handles failing response', () => {
-      lp.post('/api/devel/~foo').reply(503);
+      lp.post('/devel/~foo').reply(503);
 
       return getLaunchpad().patch('/~foo', { 'display_name': 'Foo' })
         .then(result => {
@@ -185,8 +182,7 @@ describe('Launchpad', () => {
                  result);
         }, error => {
           expect(error.response.status).toEqual(503);
-          expect(error.uri).toEqual(
-            'https://api.launchpad.net/api/devel/~foo');
+          expect(error.uri).toEqual('https://api.launchpad.net/devel/~foo');
         });
     });
   });

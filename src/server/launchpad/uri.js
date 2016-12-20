@@ -13,16 +13,16 @@ import url from 'url';
  */
 export function normalizeURI(base_uri, uri) {
   const base_parsed = url.parse(base_uri);
-  const service_base = base_parsed.pathname.replace(/\/+$/, '') + '/api/devel';
+  const service_base = base_parsed.pathname.replace(/\/+$/, '') + '/devel';
   const parsed = url.parse(uri);
 
   if (parsed.host !== null) {
-    // e.g. 'http://www.example.com/api/devel/foo';
+    // e.g. 'http://www.example.com/devel/foo';
     // Don't try to insert the service base into what was an absolute URL.
     // So 'http://www.example.com/foo' remains unchanged.
   } else {
     if (!parsed.pathname.startsWith('/')) {
-      // e.g. 'api/devel/foo' or 'foo'
+      // e.g. 'devel/foo' or 'foo'
       parsed.pathname = '/' + parsed.pathname;
     }
     if (!parsed.pathname.startsWith(service_base)) {

@@ -34,7 +34,7 @@ describe('Resources', () => {
         entries: [{ name: 'one' }, { name: 'two' }]
       };
       const collection = new Collection(
-        getLaunchpad(), representation, `${LP_API_URL}/api/devel/~foo/ppas`);
+        getLaunchpad(), representation, `${LP_API_URL}/devel/~foo/ppas`);
       expect(collection.total_size).toEqual(2);
       expect(collection.entries.length).toEqual(2);
       expect(collection.entries[0].name).toEqual('one');
@@ -47,12 +47,12 @@ describe('Resources', () => {
         entries.push({ name: `person${i}` });
       }
 
-      lp.get('/api/devel/~foo/ppas')
+      lp.get('/devel/~foo/ppas')
         .query({ 'ws.start': 75, 'ws.size': 25 })
         .reply(200, {
           total_size: entries.length,
           start: 75,
-          prev_collection_link: `${LP_API_URL}/api/devel/~foo/ppas?ws.size=75`,
+          prev_collection_link: `${LP_API_URL}/devel/~foo/ppas?ws.size=75`,
           entries: entries.slice(75, 100)
         });
 
@@ -60,11 +60,11 @@ describe('Resources', () => {
         total_size: entries.length,
         start: 0,
         next_collection_link:
-          `${LP_API_URL}/api/devel/~foo/ppas?ws.start=75&ws.size=75`,
+          `${LP_API_URL}/devel/~foo/ppas?ws.start=75&ws.size=75`,
         entries: entries.slice(0, 75)
       };
       const collection = new Collection(
-        getLaunchpad(), representation, `${LP_API_URL}/api/devel/~foo/ppas`);
+        getLaunchpad(), representation, `${LP_API_URL}/devel/~foo/ppas`);
       expect(collection.total_size).toEqual(100);
       expect(collection.entries.length).toEqual(75);
       return collection.lp_slice(75, 25).then(slice => {
@@ -80,12 +80,12 @@ describe('Resources', () => {
         entries.push({ name: `person${i}` });
       }
 
-      lp.get('/api/devel/~foo/ppas')
+      lp.get('/devel/~foo/ppas')
         .query({ 'ws.start': 75, 'ws.size': 75 })
         .reply(200, {
           total_size: entries.length,
           start: 75,
-          prev_collection_link: `${LP_API_URL}/api/devel/~foo/ppas?ws.size=75`,
+          prev_collection_link: `${LP_API_URL}/devel/~foo/ppas?ws.size=75`,
           entries: entries.slice(75, 100)
         });
 
@@ -93,11 +93,11 @@ describe('Resources', () => {
         total_size: entries.length,
         start: 0,
         next_collection_link:
-          `${LP_API_URL}/api/devel/~foo/ppas?ws.start=75&ws.size=75`,
+          `${LP_API_URL}/devel/~foo/ppas?ws.start=75&ws.size=75`,
         entries: entries.slice(0, 75)
       };
       const collection = new Collection(
-        getLaunchpad(), representation, `${LP_API_URL}/api/devel/~foo/ppas`);
+        getLaunchpad(), representation, `${LP_API_URL}/devel/~foo/ppas`);
       let copied_entries = [];
       // https://github.com/babel/babel-eslint/issues/415
       for await (const entry of collection) { // eslint-disable-line semi
@@ -121,35 +121,35 @@ describe('Resources', () => {
 
     it('defines properties based on the given representation', () => {
       const representation = {
-        resource_type_link: `${LP_API_URL}/api/devel/#person`,
+        resource_type_link: `${LP_API_URL}/devel/#person`,
         name: 'foo'
       };
       const entry = new Entry(
-        getLaunchpad(), representation, `${LP_API_URL}/api/devel/~foo`);
+        getLaunchpad(), representation, `${LP_API_URL}/devel/~foo`);
       expect(entry.resource_type_link)
-        .toEqual(`${LP_API_URL}/api/devel/#person`);
+        .toEqual(`${LP_API_URL}/devel/#person`);
       expect(entry.name).toEqual('foo');
     });
 
     it('saves modified attributes', () => {
-      lp.post('/api/devel/~foo', { 'display_name': 'Bar' })
+      lp.post('/devel/~foo', { 'display_name': 'Bar' })
         .matchHeader('X-HTTP-Method-Override', /^PATCH$/)
         .reply(200, {
-          resource_type_link: `${LP_API_URL}/api/devel/#person`,
-          self_link: `${LP_API_URL}/api/devel/~foo`,
+          resource_type_link: `${LP_API_URL}/devel/#person`,
+          self_link: `${LP_API_URL}/devel/~foo`,
           name: 'foo',
           display_name: 'Bar'
         });
 
       const representation = {
         http_etag: 'test-etag',
-        resource_type_link: `${LP_API_URL}/api/devel/#person`,
-        self_link: `${LP_API_URL}/api/devel/~foo`,
+        resource_type_link: `${LP_API_URL}/devel/#person`,
+        self_link: `${LP_API_URL}/devel/~foo`,
         name: 'foo',
         display_name: 'Foo'
       };
       let entry = new Entry(
-        getLaunchpad(), representation, `${LP_API_URL}/api/devel/~foo`);
+        getLaunchpad(), representation, `${LP_API_URL}/devel/~foo`);
       entry.display_name = 'Bar';
       expect(entry.dirty_attributes).toEqual(['display_name']);
       return entry.lp_save()
