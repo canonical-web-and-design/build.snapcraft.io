@@ -40,6 +40,7 @@ app.use(Express.static(__dirname + '/../public', { maxAge: '365d' }));
 // routes
 app.use('/', routes.login);
 app.use('/api', routes.github);
+app.use('/api', routes.launchpad);
 app.use(routes.login);
 app.use(routes.githubAuth);
 app.use('/', routes.universal);
