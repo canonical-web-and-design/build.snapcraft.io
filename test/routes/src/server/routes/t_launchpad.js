@@ -1,6 +1,7 @@
 import Express from 'express';
 import nock from 'nock';
 import supertest from 'supertest';
+import expect from 'expect';
 
 import { setMemcached } from '../../../../../src/server/handlers/launchpad';
 import launchpad from '../../../../../src/server/routes/launchpad';
@@ -568,6 +569,272 @@ describe('The Launchpad API endpoint', () => {
           .end(done);
       });
     });
+  });
+
+
+  describe('get snap builds route', () => {
+    const lp_snap_user = 'test-snap-user';
+    const lp_snap_name = 'test-snap-name';
+
+    let lp_api_url;
+    let lp_snap_path;
+    let lp_builds_path;
+    let lp_snap_link;
+
+    before(() => {
+      lp_api_url = conf.get('LP_API_URL');
+      lp_snap_path = `/devel/~${lp_snap_user}/+snap/${lp_snap_name}`;
+      lp_builds_path = `${lp_snap_path}/builds`;
+
+      lp_snap_link = `${lp_api_url}${lp_snap_path}`;
+    });
+
+    context('when snap and builds are successfully fetched', () => {
+      let test_build;
+
+      beforeEach(() => {
+        test_build = {
+          'resource_type_link': `${lp_api_url}/devel/#snap_build`,
+          'self_link': `${lp_api_url}${lp_snap_path}/+build/12345`,
+        };
+
+        // when getting snap data from API (via self_link)
+        nock(lp_api_url)
+          .get(lp_snap_path)
+          .reply(200, {
+            name: lp_snap_name,
+            builds_collection_link: `${lp_api_url}${lp_builds_path}`
+          });
+
+        // when getting builds list (via builds_collection_link)
+        nock(lp_api_url)
+          .get(lp_builds_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 10
+          })
+          .reply(200, {
+            total_size: 1,
+            start: 0,
+            entries: [ test_build ]
+          });
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should return a 200 OK response', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .query({ snap_link: lp_snap_link })
+          .expect(200, done);
+      });
+
+      it('should return a "success" status', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .query({ snap_link: lp_snap_link })
+          .expect(hasStatus('success'))
+          .end(done);
+      });
+
+      it('should return body with "snap-builds-found" message', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .query({ snap_link: lp_snap_link })
+          .expect(hasMessage('snap-builds-found'))
+          .end(done);
+      });
+
+      it('should return builds list in payload', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .query({ snap_link: lp_snap_link })
+          .end((err, res) => {
+            const build = res.body.payload.builds[0];
+            // XXX bartaz
+            // Wanted to use `expect(build).toEqual(test_build)`
+            // but LP client adds more propeties to the object...
+            // also `expect(build).toContain(test_build)` doesnt work
+            // because `expect` fails to iterate over keys on the object
+            // for some reason (async maybe).
+            // To be investigated later...
+            expect(build.self_link).toEqual(test_build.self_link);
+            done(err);
+          });
+      });
+
+    });
+
+    context('when passing start and size params', () => {
+
+      beforeEach(() => {
+        // when getting snap data from API (via self_link)
+        nock(lp_api_url)
+          .get(lp_snap_path)
+          .reply(200, {
+            name: lp_snap_name,
+            builds_collection_link: `${lp_api_url}${lp_builds_path}`
+          });
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should default start to 0 and size to 10', (done) => {
+        // when getting builds list (via builds_collection_link)
+        const lp = nock(lp_api_url)
+          .get(lp_builds_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 10
+          })
+          .reply(200,{ entries: [] });
+
+        supertest(app)
+          .get('/launchpad/builds')
+          .query({ snap_link: lp_snap_link })
+          .expect(200, (err) => {
+            lp.done();
+            done(err);
+          });
+      });
+
+      it('should pass start and size params to builds_collection_link call', (done) => {
+        // when getting builds list (via builds_collection_link)
+        const lp = nock(lp_api_url)
+          .get(lp_builds_path)
+          .query({
+            'ws.start': 7,
+            'ws.size': 42
+          })
+          .reply(200, { entries: [] });
+
+        supertest(app)
+          .get('/launchpad/builds')
+          .query({ snap_link: lp_snap_link, size: 42, start: 7 })
+          .expect(200, (err) => {
+            lp.done();
+            done(err);
+          });
+      });
+
+    });
+
+    context('when builds fail to fetch', () => {
+
+      beforeEach(() => {
+        // when getting snap data from API (via self_link)
+        nock(lp_api_url)
+          .get(lp_snap_path)
+          .reply(200, {
+            name: lp_snap_name,
+            builds_collection_link: `${lp_api_url}${lp_builds_path}`
+          });
+
+        // when getting builds list (via builds_collection_link)
+        nock(lp_api_url)
+          .get(lp_builds_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 10
+          })
+          .reply(404, 'Not found');
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should return a 404 response', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .query({ snap_link: lp_snap_link })
+          .expect(404, done);
+      });
+
+      it('should return a "error" status', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .query({ snap_link: lp_snap_link })
+          .expect(hasStatus('error'))
+          .end(done);
+      });
+
+      it('should return body with error message', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .query({ snap_link: lp_snap_link })
+          .expect(hasMessage('lp-error', 'Not found'))
+          .end(done);
+      });
+
+    });
+
+    context('when snap fails to fetch', () => {
+
+      beforeEach(() => {
+        // when getting snap data from API (via self_link)
+        nock(lp_api_url)
+          .get(lp_snap_path)
+          .reply(404, 'Not found');
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should return a 404 response', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .query({ snap_link: lp_snap_link })
+          .expect(404, done);
+      });
+
+      it('should return a "error" status', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .query({ snap_link: lp_snap_link })
+          .expect(hasStatus('error'))
+          .end(done);
+      });
+
+      it('should return body with error message', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .query({ snap_link: lp_snap_link })
+          .expect(hasMessage('lp-error', 'Not found'))
+          .end(done);
+      });
+
+    });
+
+    context('when snap_link parameter is missing', () => {
+
+      it('should return a 404 response', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .expect(404, done);
+      });
+
+      it('should return a "error" status', (done) => {
+        supertest(app)
+        .get('/launchpad/builds')
+        .expect(hasStatus('error'))
+        .end(done);
+      });
+
+      it('should return body with error message', (done) => {
+        supertest(app)
+        .get('/launchpad/builds')
+        .expect(hasMessage('missing-snap-link'))
+        .end(done);
+      });
+
+    });
+
   });
 });
 

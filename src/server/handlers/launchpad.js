@@ -96,6 +96,31 @@ export const setMemcached = (value) => {
   memcached = value;
 };
 
+const responseError = (res, error) => {
+  if (error.response) {
+    // if it's ResourceError from LP client at least for the moment
+    // we just wrap the error we get from LP
+    return error.response.text().then(text => {
+      logger.info('Launchpad API error:', text);
+      return res.status(error.response.status).send({
+        status: 'error',
+        payload: {
+          code: 'lp-error',
+          message: text
+        }
+      });
+    });
+  } else {
+    return res.status(500).send({
+      status: 'error',
+      payload: {
+        code: 'internal-error',
+        message: error.message
+      }
+    });
+  }
+};
+
 const makeSnapName = url => {
   return createHash('md5').update(url).digest('hex');
 };
@@ -191,20 +216,7 @@ export const newSnap = (req, res) => {
             }
           });
         });
-    }).catch(error => {
-      // At least for the moment, we just wrap the error we get from
-      // Launchpad.
-      return error.response.text().then(text => {
-        logger.info('Launchpad API error:', text);
-        return res.status(error.response.status).send({
-          status: 'error',
-          payload: {
-            code: 'lp-error',
-            message: text
-          }
-        });
-      });
-    });
+    }).catch(error => responseError(res, error));
   });
 };
 
@@ -300,4 +312,36 @@ export const completeSnapAuthorization = async (req, res) => {
       }
     });
   });
+};
+
+export const getSnapBuilds = (req, res) => {
+  const snap_link = req.query.snap_link;
+
+  const start = typeof req.query.start !== 'undefined' ? req.query.start : 0;
+  const size = typeof req.query.size !== 'undefined' ? req.query.size : 10;
+
+  if (!snap_link) {
+    return res.status(404).send({
+      status: 'error',
+      payload: {
+        code: 'missing-snap-link',
+        message: 'Missing query parameter snap_link'
+      }
+    });
+  }
+
+  return getLaunchpad().get(snap_link).then(snap => {
+    return getLaunchpad().get(snap.builds_collection_link, { start: start, size: size })
+      .then(builds => {
+        return res.status(200).send({
+          status: 'success',
+          payload: {
+            code: 'snap-builds-found',
+            builds: builds.entries
+          }
+        });
+      });
+  })
+  .catch(error => responseError(res, error));
+
 };
