@@ -43,6 +43,22 @@ export function repositoryInput(state = {
         success: false,
         error: action.payload
       };
+    // XXX cjwatson 2016-12-21: Merge with
+    // ActionTypes.VERIFY_GITHUB_REPOSITORY?
+    case ActionTypes.CREATE_SNAP:
+      return {
+        ...state,
+        isFetching: true
+      };
+    // XXX cjwatson 2016-12-21: Merge with
+    // ActionTypes.VERIFY_GITHUB_REPOSITORY_ERROR?
+    case ActionTypes.CREATE_SNAP_ERROR:
+      return {
+        ...state,
+        isFetching: false,
+        success: false,
+        error: action.payload
+      };
     default:
       return state;
   }

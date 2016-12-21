@@ -5,8 +5,8 @@ import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 
 import {
-  setGitHubRepository,
-  verifyGitHubRepository
+  createSnap,
+  setGitHubRepository
 } from '../../actions/repository-input';
 
 import Button from '../button';
@@ -66,7 +66,7 @@ export class RepositoryInput extends Component {
           </Message>
         }
         <Button type='submit' disabled={!isValid || input.isFetching}>
-          { input.isFetching ? 'Verifying...' : 'Verify' }
+          { input.isFetching ? 'Creating...' : 'Create' }
         </Button>
       </Form>
     );
@@ -80,7 +80,7 @@ export class RepositoryInput extends Component {
     const { repository } = this.props.repositoryInput;
 
     if (repository) {
-      this.props.dispatch(verifyGitHubRepository(repository));
+      this.props.dispatch(createSnap(repository));
     }
     event.preventDefault();
   }

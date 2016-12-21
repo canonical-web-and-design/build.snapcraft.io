@@ -13,7 +13,7 @@ describe('RelyingParty', () => {
   let rp;
 
   before(() => {
-    rp = RelyingPartyFactory({});
+    rp = RelyingPartyFactory({}, VERIFY_URL);
   });
 
   it('should set verify url from config', () => {
@@ -38,7 +38,7 @@ describe('RelyingParty default extensions', () => {
 
   before(() => {
     conf.stores['test-overrides'].set('OPENID_TEAMS', 'null');
-    rp = RelyingPartyFactory({});
+    rp = RelyingPartyFactory({}, VERIFY_URL);
   });
 
   after(() => {
@@ -57,7 +57,7 @@ describe('RelyingParty with teams extension', () => {
 
   before(() => {
     conf.stores['test-overrides'].set('OPENID_TEAMS', '["test1", "test2"]');
-    rp = RelyingPartyFactory({});
+    rp = RelyingPartyFactory({}, VERIFY_URL);
   });
 
   after(() => {

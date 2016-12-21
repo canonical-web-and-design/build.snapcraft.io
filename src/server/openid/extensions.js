@@ -15,7 +15,7 @@ export class Teams {
   }
 }
 
-export class Macaroons {
+export class Macaroon {
   constructor(cid) {
     this.requestParams = {
       'openid.ns.macaroon': 'http://ns.login.ubuntu.com/2016/openid-macaroon'

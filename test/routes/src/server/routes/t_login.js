@@ -1,3 +1,4 @@
+import expect from 'expect';
 import Express from 'express';
 import nock from 'nock';
 import supertest from 'supertest';
@@ -60,32 +61,95 @@ describe('login routes', () => {
   });
 
   describe('authenticate', () => {
-    it('should redirect from /login/authenticate to SSO', (done) => {
-      supertest(app)
-        .get('/login/authenticate')
-        .expect(res => {
-          const loc = res.header['location'];
-          if (!loc.startsWith(UBUNTU_SSO_URL)) {
-            throw new Error(
-              `Location header ${loc} does not start with ${UBUNTU_SSO_URL}`);
-          }
-        })
-        .expect(302, done);
+    context('with no options', () => {
+      it('should redirect from /login/authenticate to SSO', (done) => {
+        supertest(app)
+          .get('/login/authenticate')
+          .expect(res => {
+            expect(res.statusCode).toEqual(302);
+            const expectedBaseUrl = url.parse(UBUNTU_SSO_URL);
+            expect(url.parse(res.header.location)).toMatch({
+              protocol: expectedBaseUrl.protocol,
+              host: expectedBaseUrl.host
+            });
+          })
+          .end(done);
+      });
+
+      it('should include verify url in redirect header', (done) => {
+        supertest(app)
+          .get('/login/authenticate')
+          .expect(res => {
+            const parsedLocation = url.parse(res.header.location, true);
+            expect(parsedLocation.query['openid.return_to'])
+              .toEqual(OPENID_VERIFY_URL);
+          })
+          .end(done);
+      });
+
+      it('should not include macaroon extension in redirect ' +
+         'header', (done) => {
+        supertest(app)
+          .get('/login/authenticate')
+          .expect(res => {
+            const parsedLocation = url.parse(res.header['location'], true);
+            expect(parsedLocation.query).toExcludeKey('openid.ns.macaroon');
+            expect(parsedLocation.query)
+              .toExcludeKey('openid.macaroon.caveat_id');
+          })
+          .end(done);
+      });
     });
 
-    it('should include verify url in redirect header', (done) => {
-      supertest(app)
-        .get('/login/authenticate')
-        .expect(res => {
-          const parsedLocation = url.parse(res.header['location'], true);
-          const returnTo = parsedLocation.query['openid.return_to'];
-          if (returnTo != OPENID_VERIFY_URL) {
-            throw new Error(
-              `openid.return_to is ${returnTo}, ` +
-              `expected ${OPENID_VERIFY_URL}`);
-          }
-        })
-        .end(done);
+    context('with options', () => {
+      it('should redirect from /login/authenticate to SSO', (done) => {
+        supertest(app)
+          .get('/login/authenticate')
+          .query({ 'starting_url': 'http://www.example.com/origin' })
+          .query({ 'caveat_id': 'dummy caveat' })
+          .expect(res => {
+            expect(res.statusCode).toEqual(302);
+            const expectedBaseUrl = url.parse(UBUNTU_SSO_URL);
+            expect(url.parse(res.header.location)).toMatch({
+              protocol: expectedBaseUrl.protocol,
+              host: expectedBaseUrl.host
+            });
+          })
+          .end(done);
+      });
+
+      it('should include verify url in redirect header', (done) => {
+        supertest(app)
+          .get('/login/authenticate')
+          .query({ 'starting_url': 'http://www.example.com/origin' })
+          .query({ 'caveat_id': 'dummy caveat' })
+          .expect(res => {
+            const parsedLocation = url.parse(res.header['location'], true);
+            const expectedReturnTo =
+              OPENID_VERIFY_URL +
+              '?starting_url=http%3A%2F%2Fwww.example.com%2Forigin' +
+              '&caveat_id=dummy%20caveat';
+            expect(parsedLocation.query['openid.return_to'])
+              .toEqual(expectedReturnTo);
+          })
+          .end(done);
+      });
+
+      it('should include macaroon extension in redirect header', (done) => {
+        const expectedCaveatId = 'dummy caveat';
+        supertest(app)
+          .get('/login/authenticate')
+          .query({ 'starting_url': 'http://www.example.com/origin' })
+          .query({ 'caveat_id': expectedCaveatId })
+          .expect(res => {
+            const parsedLocation = url.parse(res.header['location'], true);
+            expect(parsedLocation.query['openid.ns.macaroon'])
+              .toEqual('http://ns.login.ubuntu.com/2016/openid-macaroon');
+            expect(parsedLocation.query['openid.macaroon.caveat_id'])
+              .toEqual(expectedCaveatId);
+          })
+          .end(done);
+      });
     });
   });
 });

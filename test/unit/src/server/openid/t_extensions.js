@@ -1,5 +1,5 @@
 import expect from 'expect';
-import { Teams, Macaroons } from '../../../../../src/server/openid/extensions.js';
+import { Teams, Macaroon } from '../../../../../src/server/openid/extensions.js';
 
 describe('Teams', () => {
   it('should have lp namespace', () => {
@@ -34,9 +34,9 @@ describe('Teams', () => {
   });
 });
 
-describe('Macaroons', () => {
+describe('Macaroon', () => {
   it('should have the sso macaroon namespace', () => {
-    const macaroons = new Macaroons();
+    const macaroons = new Macaroon();
 
     expect(macaroons.requestParams).toEqual({
       'openid.ns.macaroon': 'http://ns.login.ubuntu.com/2016/openid-macaroon'
@@ -45,7 +45,7 @@ describe('Macaroons', () => {
 
   it('should send caveat id', () => {
     const cid = 'foo';
-    const macaroons = new Macaroons(cid);
+    const macaroons = new Macaroon(cid);
 
     expect(macaroons.requestParams).toEqual({
       'openid.ns.macaroon': 'http://ns.login.ubuntu.com/2016/openid-macaroon',
@@ -55,7 +55,7 @@ describe('Macaroons', () => {
 
   it('should fill result caveat id', () => {
     const cid = 'foo';
-    const macaroons = new Macaroons(cid);
+    const macaroons = new Macaroon(cid);
     const params = {
       'openid.macaroon.discharge': cid
     };

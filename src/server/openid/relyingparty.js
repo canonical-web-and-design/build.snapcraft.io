@@ -1,10 +1,10 @@
 import openid from 'openid';
 import { conf } from '../helpers/config';
-import { Teams } from './extensions';
+import { Macaroon, Teams } from './extensions';
 
+openid['Macaroon'] = Macaroon;
 openid['Teams'] = Teams;
 
-const OPENID_VERIFY_URL = conf.get('OPENID_VERIFY_URL');
 const BASE_URL = conf.get('BASE_URL');
 
 const saveAssociation = (session) => {
@@ -40,7 +40,7 @@ const removeAssociation = (session) => {
 };
 
 
-const RelyingPartyFactory = (session) => {
+const RelyingPartyFactory = (session, returnUrl, caveatId) => {
 
   openid.saveAssociation = saveAssociation(session);
   openid.loadAssociation = loadAssociation(session);
@@ -53,12 +53,17 @@ const RelyingPartyFactory = (session) => {
     })
   ];
 
+  if (caveatId) {
+    extensions.push(new openid.Macaroon(caveatId));
+  }
+
   const teams = JSON.parse(conf.get('OPENID_TEAMS') || 'null');
   if (teams && teams.length) {
     extensions.push(new openid.Teams(teams));
   }
+
   return new openid.RelyingParty(
-    OPENID_VERIFY_URL,
+    returnUrl,
     BASE_URL,
     false, // Use stateless verification
     false, // Strict mode

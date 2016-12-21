@@ -3,14 +3,18 @@ import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import nock from 'nock';
 import { isFSA } from 'flux-standard-action';
+import url from 'url';
 
 import {
+  createSnap,
+  createSnapError,
   setGitHubRepository,
   verifyGitHubRepository,
   verifyGitHubRepositorySuccess,
   verifyGitHubRepositoryError
 } from '../../../../../src/common/actions/repository-input';
 import * as ActionTypes from '../../../../../src/common/actions/repository-input';
+import conf from '../../../../../src/common/helpers/config';
 
 const middlewares = [ thunk ];
 const mockStore = configureMockStore(middlewares);
@@ -139,7 +143,84 @@ describe('repository input actions', () => {
           );
         });
     });
-
   });
 
+  context('createSnap', () => {
+    const BASE_URL = conf.get('BASE_URL');
+    let scope;
+
+    beforeEach(() => {
+      scope = nock(BASE_URL);
+    });
+
+    afterEach(() => {
+      nock.cleanAll();
+    });
+
+    it('redirects to /login/authenticate on successful creation', () => {
+      scope.post('/api/launchpad/snaps')
+        .reply(201, {
+          status: 'success',
+          payload: {
+            code: 'snap-created',
+            message: 'dummy-caveat'
+          }
+        });
+
+      const location = {};
+      return store.dispatch(createSnap('foo/bar', location))
+        .then(() => {
+          expect(url.parse(location.href, true)).toMatch({
+            path: '/login/authenticate',
+            query: {
+              starting_url: '/foo/bar/builds',
+              caveat_id: 'dummy-caveat'
+            }
+          });
+        });
+    });
+
+    it('stores an error on failure', () => {
+      scope.post('/api/launchpad/snaps')
+        .reply(400, {
+          status: 'error',
+          payload: {
+            code: 'snapcraft-yaml-no-name',
+            message: 'snapcraft.yaml has no top-level "name" attribute'
+          }
+        });
+
+      const location = {};
+      return store.dispatch(createSnap('foo/bar', location))
+        .then(() => {
+          expect(location).toExcludeKey('href');
+          expect(store.getActions()).toHaveActionOfType(
+            ActionTypes.CREATE_SNAP_ERROR
+          );
+        });
+    });
+  });
+
+  context('createSnapError', () => {
+    let payload = 'Something went wrong!';
+
+    beforeEach(() => {
+      action = createSnapError(payload);
+    });
+
+    it('creates an action to store error on failure', () => {
+      const expectedAction = {
+        type: ActionTypes.CREATE_SNAP_ERROR,
+        error: true,
+        payload
+      };
+
+      store.dispatch(action);
+      expect(store.getActions()).toInclude(expectedAction);
+    });
+
+    it('creates a valid flux standard action', () => {
+      expect(isFSA(action)).toBe(true);
+    });
+  });
 });

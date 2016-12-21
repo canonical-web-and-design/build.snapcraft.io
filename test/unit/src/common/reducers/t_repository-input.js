@@ -155,4 +155,41 @@ describe('repositoryInput reducers', () => {
       });
     });
   });
+
+  context('CREATE_SNAP', () => {
+    it('stores fetching status when repository is being created', () => {
+      const action = {
+        type: ActionTypes.CREATE_SNAP,
+        payload: 'dummy/repo'
+      };
+
+      expect(repositoryInput(initialState, action)).toEqual({
+        ...initialState,
+        isFetching: true
+      });
+    });
+  });
+
+  context('CREATE_SNAP_ERROR', () => {
+    it('handles snap creation failure', () => {
+      const state = {
+        ...initialState,
+        repository: 'dummy/repo',
+        isFetching: true
+      };
+
+      const action = {
+        type: ActionTypes.CREATE_SNAP_ERROR,
+        payload: new Error('Something went wrong!'),
+        error: true
+      };
+
+      expect(repositoryInput(state, action)).toEqual({
+        ...state,
+        isFetching: false,
+        success: false,
+        error: action.payload
+      });
+    });
+  });
 });

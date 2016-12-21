@@ -42,6 +42,9 @@ least one of these teams to use the application.
 
 ## Launchpad settings
 
+Use `scripts/create-launchpad-credentials` to create these (apart from
+`LP_API_URL`).
+
 ### LP\_API\_URL
 
 - **Example**: `https://api.launchpad.net`
