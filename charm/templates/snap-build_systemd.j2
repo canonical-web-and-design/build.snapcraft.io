@@ -15,6 +15,8 @@ Environment='LP_API_USERNAME={{ lp_api_username }}'
 Environment='LP_API_CONSUMER_KEY={{ lp_api_consumer_key }}'
 Environment='LP_API_TOKEN={{ lp_api_token }}'
 Environment='LP_API_TOKEN_SECRET={{ lp_api_token_secret }}'
+Environment='GITHUB_AUTH_CLIENT_ID={{ github_auth_client_id }}'
+Environment='GITHUB_AUTH_CLIENT_SECRET={{ github_auth_client_secret }}'
 WorkingDirectory={{ working_dir }}
 User={{ user }}
 ExecStart=/usr/bin/npm run start-build -- --env=environments/{{ environment }}.env

@@ -20,3 +20,9 @@ options:
     lp_api_token_secret:
         type: string
         description: Launchpad OAuth token secret
+    github_auth_client_id:
+        type: string
+        description: GitHub client ID
+    github_auth_client_secret:
+        type: string
+        description: GitHub client secret

@@ -27,6 +27,9 @@ def configure(cache):
     lp_api_consumer_key = hookenv.config('lp_api_consumer_key') or ''
     lp_api_token = hookenv.config('lp_api_token') or ''
     lp_api_token_secret = hookenv.config('lp_api_token_secret') or ''
+    github_auth_client_id = hookenv.config('github_auth_client_id') or ''
+    github_auth_client_secret = (
+        hookenv.config('github_auth_client_secret') or '')
     if session_secret and memcache_session_secret:
         render(
             source='snap-build_systemd.j2',
@@ -44,6 +47,8 @@ def configure(cache):
                 'lp_api_consumer_key': lp_api_consumer_key,
                 'lp_api_token': lp_api_token,
                 'lp_api_token_secret': lp_api_token_secret,
+                'github_auth_client_id': github_auth_client_id,
+                'github_auth_client_secret': github_auth_client_secret,
             })
         check_call(['systemctl', 'daemon-reload'])
         check_port('ols.{}.express'.format(service_name()), port())
