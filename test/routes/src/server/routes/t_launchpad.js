@@ -79,8 +79,12 @@ describe('The Launchpad API endpoint', () => {
           .reply(200, 'name: test-snap\n');
         const lp_api_url = conf.get('LP_API_URL');
         nock(lp_api_url)
-          .post('/devel/+snaps')
-          .query({ 'ws.op': 'new' })
+          .post('/devel/+snaps', {
+            'ws.op': 'new',
+            git_repository_url: 'https://github.com/anaccount/arepo',
+            processors: ['/+processors/amd64', '/+processors/armhf'],
+            store_name: 'test-snap'
+          })
           .reply(201, 'Created', {
             Location: `${lp_api_url}/devel/~test-user/+snap/test-snap`
           });
@@ -91,8 +95,9 @@ describe('The Launchpad API endpoint', () => {
             self_link: `${lp_api_url}/devel/~test-user/+snap/test-snap`
           });
         nock(lp_api_url)
-          .post('/devel/~test-user/+snap/test-snap')
-          .query({ 'ws.op': 'beginAuthorization' })
+          .post('/devel/~test-user/+snap/test-snap', {
+            'ws.op': 'beginAuthorization'
+          })
           .reply(200, JSON.stringify(caveatId), {
             'Content-Type': 'application/json'
           });
@@ -133,8 +138,7 @@ describe('The Launchpad API endpoint', () => {
           .reply(200, 'name: test-snap\n');
         const lp_api_url = conf.get('LP_API_URL');
         nock(lp_api_url)
-          .post('/devel/+snaps')
-          .query({ 'ws.op': 'new' })
+          .post('/devel/+snaps', { 'ws.op': 'new' })
           .reply(
             400,
             'There is already a snap package with the same name and owner.');
@@ -468,8 +472,7 @@ describe('The Launchpad API endpoint', () => {
             ]
           });
         nock(lp_api_url)
-          .post('/devel/~test-user/+snap/test-snap')
-          .query({
+          .post('/devel/~test-user/+snap/test-snap', {
             'ws.op': 'completeAuthorization',
             'discharge_macaroon': 'dummy-discharge'
           })
