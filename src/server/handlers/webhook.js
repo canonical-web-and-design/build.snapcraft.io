@@ -5,5 +5,5 @@ export const notify = (req, res) => {
   // Acknowledge webhook
   res.status(200).send();
 
-  logger.info('Received webhook: ', req.body);
+  logger.debug('Received webhook: ', req.body);
 };

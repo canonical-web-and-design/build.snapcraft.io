@@ -1,7 +1,6 @@
 import Express from 'express';
 import supertest from 'supertest';
 import nock from 'nock';
-import expect from 'expect';
 
 import github from '../../../../../src/server/routes/github';
 import { conf } from '../../../../../src/server/helpers/config.js';
@@ -32,9 +31,9 @@ describe('The GitHub API endpoint', () => {
         supertest(app)
           .post('/github/integrations')
           .send({ account: 'anaccount', repo: 'arepo' })
-          .end(() => {
-            expect(scope.isDone()).toBe(true);
-            done();
+          .end((err) => {
+            scope.done();
+            done(err);
           }
         );
       });
