@@ -3,6 +3,7 @@ import 'isomorphic-fetch';
 import conf from '../helpers/config';
 
 const BASE_URL = conf.get('BASE_URL');
+const GITHUB_API_ENDPOINT = conf.get('GITHUB_API_ENDPOINT');
 
 export const SET_GITHUB_REPOSITORY = 'SET_GITHUB_REPOSITORY';
 export const VERIFY_GITHUB_REPOSITORY = 'VERIFY_GITHUB_REPOSITORY';
@@ -36,7 +37,7 @@ export function verifyGitHubRepository(repository) {
         payload: repository
       });
 
-      return fetch(`https://api.github.com/repos/${repository}/contents/snapcraft.yaml`)
+      return fetch(`${GITHUB_API_ENDPOINT}/repos/${repository}/contents/snapcraft.yaml`)
         .then(checkStatus)
         .then(() => dispatch(verifyGitHubRepositorySuccess(`https://github.com/${repository}.git`)))
         .catch(error => dispatch(verifyGitHubRepositoryError(error)));

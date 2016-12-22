@@ -105,10 +105,11 @@ describe('repository input actions', () => {
   });
 
   context('verifyGitHubRepository', () => {
+    const GITHUB_API_ENDPOINT = conf.get('GITHUB_API_ENDPOINT');
     let scope;
 
     beforeEach(() => {
-      scope = nock('https://api.github.com');
+      scope = nock(GITHUB_API_ENDPOINT);
     });
 
     afterEach(() => {
