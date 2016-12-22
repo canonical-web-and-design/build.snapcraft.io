@@ -26,3 +26,6 @@ options:
     github_auth_client_secret:
         type: string
         description: GitHub client secret
+    http_proxy:
+        type: string
+        description: HTTP proxy URL
