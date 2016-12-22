@@ -9,6 +9,7 @@ const GITHUB_AUTH_VERIFY_URL = conf.get('GITHUB_AUTH_VERIFY_URL');
 const GITHUB_AUTH_CLIENT_ID = conf.get('GITHUB_AUTH_CLIENT_ID');
 const GITHUB_AUTH_CLIENT_SECRET = conf.get('GITHUB_AUTH_CLIENT_SECRET');
 const GITHUB_AUTH_REDIRECT_URL = conf.get('GITHUB_AUTH_REDIRECT_URL');
+const HTTP_PROXY = conf.get('HTTP_PROXY');
 const logger = logging.getLogger('login');
 
 export const authenticate = (req, res, next) => {
@@ -47,7 +48,8 @@ export const verify = (req, res, next) => {
       code: req.query.code,
       redirect_uri: GITHUB_AUTH_REDIRECT_URL,
       state: req.session.sharedSecret
-    }
+    },
+    proxy: HTTP_PROXY
   };
 
   // Exchange code for token
