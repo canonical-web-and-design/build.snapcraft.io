@@ -43,7 +43,7 @@ least one of these teams to use the application.
 ## Launchpad settings
 
 Use `scripts/create-launchpad-credentials` to create these (apart from
-`LP_API_URL`).
+`LP_API_URL`) or follow instructions about [Signing Requests at Launchpad help](https://help.launchpad.net/API/SigningRequests).
 
 ### LP\_API\_URL
 
