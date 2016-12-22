@@ -7,6 +7,7 @@ import { conf } from '../../../../../src/server/helpers/config.js';
 
 describe('The GitHub API endpoint', () => {
   let app;
+  let scope;
   app = Express();
   app.use((req, res, next) => {
     req.session = {};
@@ -17,13 +18,24 @@ describe('The GitHub API endpoint', () => {
   describe('new integration route', () => {
     context('when webhook does not already exist', () => {
       beforeEach(() => {
-        nock(conf.get('GITHUB_API_ENDPOINT'))
+        scope = nock(conf.get('GITHUB_API_ENDPOINT'))
           .post('/repos/anaccount/arepo/hooks')
           .reply(201, '');
       });
 
       afterEach(() => {
         nock.cleanAll();
+      });
+
+      it('should call GitHub API endpoint to create new webhook', (done) => {
+        supertest(app)
+          .post('/github/integrations')
+          .send({ account: 'anaccount', repo: 'arepo' })
+          .end((err) => {
+            scope.done();
+            done(err);
+          }
+        );
       });
 
       it('should return a 201 created response', (done) => {
