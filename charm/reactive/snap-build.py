@@ -1,6 +1,6 @@
 from glob import glob
 from re import search
-from os.path import dirname, join
+from os.path import basename, dirname, join
 from subprocess import check_call, check_output
 
 from charmhelpers.core import hookenv
@@ -50,6 +50,7 @@ def configure(cache):
                 'github_auth_client_id': github_auth_client_id,
                 'github_auth_client_secret': github_auth_client_secret,
             })
+        check_call(['systemctl', 'enable', basename(SYSTEMD_CONFIG)])
         check_call(['systemctl', 'daemon-reload'])
         check_port('ols.{}.express'.format(service_name()), port())
         set_state('service.configured')
