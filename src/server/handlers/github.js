@@ -63,35 +63,37 @@ export const createWebhook = (req, res) => {
 
   const uri = `/repos/${account}/${repo}/hooks`;
   const options = getRequest(account, repo, req.session.token, secret);
-  requestGitHub.post(uri, options, (err, response, body) => {
-    if (response.statusCode !== 201) {
-      logger.info(body);
-      switch (body.message) {
-        case 'Not Found':
-          // Repository does not exist or access not granted
-          return res.status(404).send(RESPONSE_NOT_FOUND);
-        case 'Bad credentials':
-          // Authentication failed
-          return res.status(401).send(RESPONSE_AUTHENTICATION_FAILED);
-        case 'Validation Failed':
-          // Webhook already created
-          return res.status(422).send(RESPONSE_ALREADY_CREATED);
-        default:
-          // Something else
-          logger.info('GitHub API error', err, body);
-          return res.status(500).send(RESPONSE_OTHER);
+  requestGitHub.post(uri, options)
+    .then((response) => {
+      if (response.statusCode !== 201) {
+        logger.info(response.body);
+        switch (response.body.message) {
+          case 'Not Found':
+            // Repository does not exist or access not granted
+            return res.status(404).send(RESPONSE_NOT_FOUND);
+          case 'Bad credentials':
+            // Authentication failed
+            return res.status(401).send(RESPONSE_AUTHENTICATION_FAILED);
+          case 'Validation Failed':
+            // Webhook already created
+            return res.status(422).send(RESPONSE_ALREADY_CREATED);
+          default:
+            // Something else
+            logger.info('GitHub API error', response.statusCode);
+            return res.status(500).send(RESPONSE_OTHER);
+        }
       }
-    }
 
-    return res.status(201).send(RESPONSE_CREATED);
-  });
+      return res.status(201).send(RESPONSE_CREATED);
+    }).catch((err) => {
+      logger.info('GitHub API error', err);
+      return res.status(500).send(err.message);
+    });
 };
 
 const getRequest = (account, repo, token, secret) => {
   return {
-    headers: {
-      'Authorization': `token ${token}`
-    },
+    token,
     json: {
       name: 'web',
       active: true,
@@ -101,7 +103,7 @@ const getRequest = (account, repo, token, secret) => {
       config: {
         url: `${conf.get('BASE_URL')}/${account}/${repo}/webhook/notify`,
         content_type: 'json',
-        secret: secret
+        secret
       }
     }
   };

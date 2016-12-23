@@ -34,6 +34,14 @@ const RESPONSE_GITHUB_BAD_URL = {
   }
 };
 
+const RESPONSE_GITHUB_NO_ADMIN_PERMISSIONS = {
+  status: 'error',
+  payload: {
+    code: 'github-no-admin-permissions',
+    message: 'You do not have admin permissions for this GitHub repository'
+  }
+};
+
 const RESPONSE_GITHUB_NOT_FOUND = {
   status: 'error',
   payload: {
@@ -97,11 +105,24 @@ export const setMemcached = (value) => {
   memcached = value;
 };
 
+class PreparedError extends Error {
+  constructor(status, body) {
+    super();
+    this.status = status;
+    this.body = body;
+  }
+}
+
 const responseError = (res, error) => {
-  if (error.response) {
+  if (error.status && error.body) {
+    // The error comes with a prepared representation.
+    return res.status(error.status).send(error.body);
+  } else if (error.response) {
     // if it's ResourceError from LP client at least for the moment
     // we just wrap the error we get from LP
-    return error.response.text().then(text => {
+    // XXX cjwatson 2016-12-22: Perhaps refactor to use the PreparedError
+    // system above?
+    return error.response.text().then((text) => {
       logger.info('Launchpad API error:', text);
       return res.status(error.response.status).send({
         status: 'error',
@@ -122,107 +143,132 @@ const responseError = (res, error) => {
   }
 };
 
-const makeSnapName = url => {
-  return createHash('md5').update(url).digest('hex');
+const checkGitHubStatus = (response) => {
+  if (response.statusCode !== 200) {
+    let body = response.body;
+    if (typeof body !== 'object') {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        logger.info('Invalid JSON received', e, body);
+        throw new PreparedError(500, RESPONSE_GITHUB_OTHER);
+      }
+    }
+    switch (body.message) {
+      case 'Not Found':
+        // snapcraft.yaml not found
+        throw new PreparedError(404, RESPONSE_GITHUB_NOT_FOUND);
+      case 'Bad credentials':
+        // Authentication failed
+        throw new PreparedError(401, RESPONSE_GITHUB_AUTHENTICATION_FAILED);
+      default:
+        // Something else
+        logger.info('GitHub API error:', response.statusCode, body);
+        throw new PreparedError(500, RESPONSE_GITHUB_OTHER);
+    }
+  }
+  return response;
 };
 
-const getSnapcraftYaml = (req, res, callback) => {
+const checkAdminPermissions = (req) => {
+  if (!req.session || !req.session.token) {
+    return Promise.reject(new PreparedError(401, RESPONSE_NOT_LOGGED_IN));
+  }
+  const token = req.session.token;
+
   const repositoryUrl = req.body.repository_url;
   const parsed = parseGitHubUrl(repositoryUrl);
   if (parsed === null || parsed.owner === null || parsed.name === null) {
     logger.info(`Cannot parse "${repositoryUrl}"`);
-    return res.status(400).send(RESPONSE_GITHUB_BAD_URL);
+    return Promise.reject(new PreparedError(400, RESPONSE_GITHUB_BAD_URL));
   }
 
-  const uri = `/repos/${parsed.owner}/${parsed.name}/contents/snapcraft.yaml`;
-  const options = {
-    headers: {
-      'Authorization': `token ${req.session.token}`,
-      'Accept': 'application/vnd.github.v3.raw'
-    }
-  };
-  logger.info(`Fetching snapcraft.yaml from ${repositoryUrl}`);
-  return requestGitHub.get(uri, options, (err, response, body) => {
-    if (response.statusCode !== 200) {
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        logger.info('Invalid JSON received', err, body);
-        return res.status(500).send(RESPONSE_GITHUB_OTHER);
+  const uri = `/repos/${parsed.owner}/${parsed.name}`;
+  const options = { token, json: true };
+  logger.info(`Checking permissions for ${parsed.owner}/${parsed.name}`);
+  return requestGitHub.get(uri, options)
+    .then(checkGitHubStatus)
+    .then((response) => {
+      if (!response.body.permissions || !response.body.permissions.admin) {
+        throw new PreparedError(401, RESPONSE_GITHUB_NO_ADMIN_PERMISSIONS);
       }
-      switch (body.message) {
-        case 'Not Found':
-          // snapcraft.yaml not found
-          return res.status(404).send(RESPONSE_GITHUB_NOT_FOUND);
-        case 'Bad credentials':
-          // Authentication failed
-          return res.status(401).send(RESPONSE_GITHUB_AUTHENTICATION_FAILED);
-        default:
-          // Something else
-          logger.info('GitHub API error:', err, body);
-          return res.status(500).send(RESPONSE_GITHUB_OTHER);
-      }
-    }
+      return [parsed.owner, parsed.name, token];
+    });
+};
 
-    let snapcraftYaml;
-    try {
-      snapcraftYaml = yaml.safeLoad(body);
-    } catch (e) {
-      return res.status(400).send(RESPONSE_SNAPCRAFT_YAML_PARSE_FAILED);
-    }
-    return callback(snapcraftYaml);
-  });
+const makeSnapName = (url) => {
+  return createHash('md5').update(url).digest('hex');
+};
+
+const getSnapcraftYaml = (owner, name, token) => {
+  const uri = `/repos/${owner}/${name}/contents/snapcraft.yaml`;
+  const options = {
+    token,
+    headers: { 'Accept': 'application/vnd.github.v3.raw' }
+  };
+  logger.info(`Fetching snapcraft.yaml from ${owner}/${name}`);
+  return requestGitHub.get(uri, options)
+    .then(checkGitHubStatus)
+    .then((response) => {
+      try {
+        return yaml.safeLoad(response.body);
+      } catch (e) {
+        throw new PreparedError(400, RESPONSE_SNAPCRAFT_YAML_PARSE_FAILED);
+      }
+    });
 };
 
 export const newSnap = (req, res) => {
-  // XXX cjwatson 2016-12-15: Limit to only repositories the user owns.
-  if (!req.session || !req.session.token) {
-    return res.status(401).send(RESPONSE_NOT_LOGGED_IN);
-  }
-
-  getSnapcraftYaml(req, res, snapcraftYaml => {
-    const repositoryUrl = req.body.repository_url;
-    if (!('name' in snapcraftYaml)) {
-      return res.status(400).send(RESPONSE_SNAPCRAFT_YAML_NO_NAME);
-    }
-    const lp_client = getLaunchpad();
-    const username = conf.get('LP_API_USERNAME');
-    logger.info(`Creating new snap for ${repositoryUrl}`);
-    lp_client.named_post('/+snaps', 'new', {
-      parameters: {
-        owner: `/~${username}`,
-        distro_series: `/${DISTRIBUTION}/${DISTRO_SERIES}`,
-        name: `${makeSnapName(repositoryUrl)}-${DISTRO_SERIES}`,
-        git_repository_url: repositoryUrl,
-        git_path: 'refs/heads/master',
-        auto_build: true,
-        auto_build_archive: `/${DISTRIBUTION}/+archive/primary`,
-        auto_build_pocket: 'Updates',
-        processors: ARCHITECTURES.map(arch => {
-          return `/+processors/${arch}`;
-        }),
-        store_upload: true,
-        store_series: `/+snappy-series/${STORE_SERIES}`,
-        store_name: snapcraftYaml.name
+  const repositoryUrl = req.body.repository_url;
+  const lpClient = getLaunchpad();
+  let snapUrl;
+  // We need admin permissions in order to be able to install a webhook later.
+  checkAdminPermissions(req)
+    .then(([owner, name, token]) => getSnapcraftYaml(owner, name, token))
+    .then((snapcraftYaml) => {
+      if (!('name' in snapcraftYaml)) {
+        throw new PreparedError(400, RESPONSE_SNAPCRAFT_YAML_NO_NAME);
       }
-    }).then(result => {
-      logger.info(`Authorizing ${result.self_link}`);
-      return lp_client.named_post(result.self_link, 'beginAuthorization')
-        .then(caveatId => {
-          logger.info(`Began authorization of ${result.self_link}`);
-          return res.status(201).send({
-            status: 'success',
-            payload: {
-              code: 'snap-created',
-              message: caveatId
-            }
-          });
-        });
-    }).catch(error => responseError(res, error));
-  });
+      const username = conf.get('LP_API_USERNAME');
+      logger.info(`Creating new snap for ${repositoryUrl}`);
+      return lpClient.named_post('/+snaps', 'new', {
+        parameters: {
+          owner: `/~${username}`,
+          distro_series: `/${DISTRIBUTION}/${DISTRO_SERIES}`,
+          name: `${makeSnapName(repositoryUrl)}-${DISTRO_SERIES}`,
+          git_repository_url: repositoryUrl,
+          git_path: 'refs/heads/master',
+          auto_build: true,
+          auto_build_archive: `/${DISTRIBUTION}/+archive/primary`,
+          auto_build_pocket: 'Updates',
+          processors: ARCHITECTURES.map((arch) => {
+            return `/+processors/${arch}`;
+          }),
+          store_upload: true,
+          store_series: `/+snappy-series/${STORE_SERIES}`,
+          store_name: snapcraftYaml.name
+        }
+      });
+    })
+    .then((result) => {
+      snapUrl = result.self_link;
+      logger.info(`Authorizing ${snapUrl}`);
+      return lpClient.named_post(snapUrl, 'beginAuthorization');
+    })
+    .then((caveatId) => {
+      logger.info(`Began authorization of ${snapUrl}`);
+      return res.status(201).send({
+        status: 'success',
+        payload: {
+          code: 'snap-created',
+          message: caveatId
+        }
+      });
+    })
+    .catch((error) => responseError(res, error));
 };
 
-const internalFindSnap = async repositoryUrl => {
+const internalFindSnap = async (repositoryUrl) => {
   const cacheId = `url:${repositoryUrl}`;
 
   return new Promise((resolve, reject) => {
@@ -233,7 +279,24 @@ const internalFindSnap = async repositoryUrl => {
 
       getLaunchpad().named_get('/+snaps', 'findByURL', {
         parameters: { url: repositoryUrl }
-      }).then(async result => {
+      })
+      .catch((error) => {
+        if (error.response.status === 404) {
+          return reject(new PreparedError(404, RESPONSE_SNAP_NOT_FOUND));
+        }
+        // At least for the moment, we just wrap the error we get from
+        // Launchpad.
+        error.response.text().then((text) => {
+          return reject(new PreparedError(error.response.status, {
+            status: 'error',
+            payload: {
+              code: 'lp-error',
+              message: text
+            }
+          }));
+        });
+      })
+      .then(async (result) => {
         const username = conf.get('LP_API_USERNAME');
         // https://github.com/babel/babel-eslint/issues/415
         for await (const entry of result) { // eslint-disable-line semi
@@ -243,77 +306,47 @@ const internalFindSnap = async repositoryUrl => {
             });
           }
         }
-        return resolve(null);
-      }).catch(error => {
-        return error.response.text().then(text => {
-          err = new Error();
-          err.status = error.response.status;
-          err.text = text;
-          return reject(err);
-        });
+        return reject(new PreparedError(404, RESPONSE_SNAP_NOT_FOUND));
       });
     });
   });
 };
 
 export const findSnap = (req, res) => {
-  internalFindSnap(req.query.repository_url).then(self_link => {
-    if (self_link !== null) {
+  internalFindSnap(req.query.repository_url)
+    .then((snapUrl) => {
       return res.status(200).send({
         status: 'success',
         payload: {
           code: 'snap-found',
-          message: self_link
+          message: snapUrl
         }
       });
-    } else {
-      return res.status(404).send(RESPONSE_SNAP_NOT_FOUND);
-    }
-  }).catch(error => {
-    // At least for the moment, we just wrap the error we get from Launchpad.
-    return res.status(error.status).send({
-      status: 'error',
-      payload: {
-        code: 'lp-error',
-        message: error.text
-      }
-    });
-  });
+    })
+    .catch((error) => responseError(res, error));
 };
 
 export const completeSnapAuthorization = async (req, res) => {
-  // XXX cjwatson 2016-12-15: Limit to only repositories the user owns.
-  if (!req.session || !req.session.token) {
-    return res.status(401).send(RESPONSE_NOT_LOGGED_IN);
-  }
-
-  internalFindSnap(req.body.repository_url).then(self_link => {
-    if (self_link !== null) {
-      return getLaunchpad().named_post(self_link, 'completeAuthorization', {
+  let snapUrl;
+  checkAdminPermissions(req)
+    .then(() => internalFindSnap(req.body.repository_url))
+    .then((result) => {
+      snapUrl = result;
+      return getLaunchpad().named_post(snapUrl, 'completeAuthorization', {
         parameters: { discharge_macaroon: req.body.discharge_macaroon },
-      }).then(() => {
-        logger.info(`Completed authorization of ${self_link}`);
-        return res.status(200).send({
-          status: 'success',
-          payload: {
-            code: 'snap-authorized',
-            message: self_link
-          }
-        });
       });
-    } else {
-      return res.status(404).send(RESPONSE_SNAP_NOT_FOUND);
-    }
-  }).catch(error => {
-    // At least for the moment, we just wrap the error we get from Launchpad.
-    return res.status(error.status).send({
-      status: 'error',
-      payload: {
-        code: 'lp-error',
-        message: error.text
-      }
-    });
-  });
+    })
+    .then(() => {
+      logger.info(`Completed authorization of ${snapUrl}`);
+      return res.status(200).send({
+        status: 'success',
+        payload: {
+          code: 'snap-authorized',
+          message: snapUrl
+        }
+      });
+    })
+    .catch((error) => responseError(res, error));
 };
 
 export const getSnapBuilds = (req, res) => {
@@ -332,9 +365,9 @@ export const getSnapBuilds = (req, res) => {
     });
   }
 
-  return getLaunchpad().get(snapUrl).then(snap => {
+  return getLaunchpad().get(snapUrl).then((snap) => {
     return getLaunchpad().get(snap.builds_collection_link, { start: start, size: size })
-      .then(builds => {
+      .then((builds) => {
         return res.status(200).send({
           status: 'success',
           payload: {
@@ -344,6 +377,6 @@ export const getSnapBuilds = (req, res) => {
         });
       });
   })
-  .catch(error => responseError(res, error));
+  .catch((error) => responseError(res, error));
 
 };
