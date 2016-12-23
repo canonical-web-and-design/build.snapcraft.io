@@ -207,7 +207,7 @@ export const newSnap = (req, res) => {
       }
     }).then(result => {
       logger.info(`Authorizing ${result.self_link}`);
-      lp_client.named_post(result.self_link, 'beginAuthorization')
+      return lp_client.named_post(result.self_link, 'beginAuthorization')
         .then(caveatId => {
           logger.info(`Began authorization of ${result.self_link}`);
           return res.status(201).send({

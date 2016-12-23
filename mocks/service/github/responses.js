@@ -8,7 +8,6 @@ export function okayNewHookCreated(req, res) {
   res.status(201);
   // No response body implemented
   res.send();
-
   // Send ping to webhook endpoint
   request.post({
     url: req.body.config.url,
@@ -58,4 +57,14 @@ export function okayAuthenticated(req, res) {
     scope: 'read:repo_hook',
     token_type: 'bearer'
   });
+}
+
+export function okayDontPromptForLogin(req, res) {
+  const url =`${req.query.redirect_uri}?state=${req.query.state}&code=example_code_REPLACE_ME`;
+  res.redirect(302, url);
+}
+
+export function okayBadSharedSecret(req, res) {
+  const url =`${req.query.redirect_uri}?state=notTheSharedSecret&code=example_code_REPLACE_ME`;
+  res.redirect(302, url);
 }

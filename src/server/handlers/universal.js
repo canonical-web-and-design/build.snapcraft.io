@@ -35,7 +35,15 @@ export const handleMatch = (req, res, error, redirectLocation, renderProps) => {
     res.redirect(302, '/login/authenticate');
   } else if (renderProps) {
 
-    const initialState = {};
+    const initialState = {
+      auth: {
+        authenticated: false
+      }
+    };
+
+    if (req.session.githubAuthenticated) {
+      initialState.auth.authenticated = true;
+    }
 
     if (req.session.error) {
       initialState['authError'] = { message: req.session.error };

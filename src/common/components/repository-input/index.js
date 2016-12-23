@@ -1,22 +1,15 @@
 import 'isomorphic-fetch';
-
 import React, { Component, PropTypes } from 'react';
-import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 
-import {
-  createSnap,
-  setGitHubRepository
-} from '../../actions/repository-input';
-
+import { setGitHubRepository } from '../../actions/repository-input';
+import { createWebhook } from '../../actions/webhook';
 import Button from '../button';
+import Step from '../step';
+import { Anchor } from '../button';
 import { Form, InputField, Message } from '../forms';
 
-export class RepositoryInput extends Component {
-  constructor(props) {
-    super(props);
-  }
-
+class RepositoryInput extends Component {
   getErrorMessage() {
     const input = this.props.repositoryInput;
     let message;
@@ -34,72 +27,93 @@ export class RepositoryInput extends Component {
     return message;
   }
 
-  componentWillReceiveProps(nextProps) {
-    const input = nextProps.repositoryInput;
-
-    if (input.success && this.props.repositoryInput.success !== input.success) {
-      this.props.router.push(`${input.repository}/builds`);
-    }
+  render() {
+    return (
+      <div>
+        <h2>Welcome</h2>
+        <p>To get started building snaps, sign in with GitHub and tell us about your repository.</p>
+        <ol>
+          { this.step1.call(this) }
+          { this.step2.call(this) }
+        </ol>
+      </div>
+    );
   }
 
-  render() {
-    const input = this.props.repositoryInput;
+  step1() {
+    const { authenticated } = this.props.auth;
 
+    return (
+      <Step number="1" complete={ authenticated }>
+        <Anchor href="/auth/authenticate">Log in with GitHub</Anchor>
+      </Step>
+    );
+  }
+
+  step2() {
+    const { authenticated } = this.props.auth;
+    const input = this.props.repositoryInput;
     const isTouched = input.inputValue.length > 2;
     const isValid = !!input.repository && !input.error;
 
     return (
-      <Form onSubmit={this.onSubmit.bind(this)}>
-
-        <InputField
-          label='Repository URL'
-          placeholder='username/snap-example'
-          value={input.inputValue}
-          touched={isTouched}
-          valid={isValid}
-          onChange={this.onInputChange.bind(this)}
-          errorMsg={this.getErrorMessage()}
-        />
-        { input.success &&
-          <Message status='info'>
-            Repository <a href={input.repositoryUrl}>{input.repository}</a> contains snapcraft project and can be built.
-          </Message>
-        }
-        <Button type='submit' disabled={!isValid || input.isFetching}>
-          { input.isFetching ? 'Creating...' : 'Create' }
-        </Button>
-      </Form>
+      <Step number="2" complete={ input.success }>
+        <Form onSubmit={this.onSubmit.bind(this)}>
+          <InputField
+            label='Repository URL'
+            placeholder='username/snap-example'
+            value={input.inputValue}
+            touched={isTouched}
+            valid={isValid}
+            onChange={this.onChange.bind(this)}
+            errorMsg={this.getErrorMessage()}
+          />
+          { input.success &&
+            <Message status='info'>
+              Repository <a href={input.repositoryUrl}>{input.repository}</a> contains snapcraft project and can be built.
+            </Message>
+          }
+          <Button type='submit' disabled={!isValid || input.isFetching || !authenticated }>
+            { input.isFetching ? 'Creating...' : 'Create' }
+          </Button>
+        </Form>
+      </Step>
     );
   }
 
-  onInputChange(event) {
+  onChange(event) {
     this.props.dispatch(setGitHubRepository(event.target.value));
   }
 
   onSubmit(event) {
+    event.preventDefault();
     const { repository } = this.props.repositoryInput;
 
     if (repository) {
-      this.props.dispatch(createSnap(repository));
+      this.props.dispatch(createWebhook(repository));
     }
-    event.preventDefault();
   }
 }
 
 RepositoryInput.propTypes = {
-  router: PropTypes.object.isRequired,
   repositoryInput: PropTypes.object.isRequired,
-  dispatch: PropTypes.func.isRequired
+  auth: PropTypes.object.isRequired,
+  dispatch: PropTypes.func.isRequired,
+  webhook: PropTypes.object.isRequired
 };
 
 function mapStateToProps(state) {
   const {
-    repositoryInput
+    repositoryInput,
+    auth,
+    webhook
   } = state;
 
   return {
-    repositoryInput
+    auth,
+    repositoryInput,
+    webhook
   };
 }
 
-export default connect(mapStateToProps)(withRouter(RepositoryInput));
+export default connect(mapStateToProps)(RepositoryInput);

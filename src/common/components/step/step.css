@@ -1,0 +1,36 @@
+$success-color: $success;
+
+.number {
+  font-size: 42px;
+  list-style: none;
+  align-self: flex-start;
+  line-height: 42px;
+}
+
+.complete .number {
+  color: $success-color;
+}
+
+.step {
+  display: flex;
+  margin: 15px 0;
+}
+
+.content {
+  margin-left: 20px;
+  flex: 1;
+  align-self: flex-start;
+}
+
+.complete .content {
+  opacity: 0.4;
+}
+
+.indicatorWrapper {
+  flex-basis: fit-content;
+  align-self: flex-start;
+}
+
+.indicator {
+  width: 45px;
+}

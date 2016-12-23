@@ -72,7 +72,7 @@ export function createSnap(repository, location) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          repository_url: `https://github.com/${repository}`
+          repository_url: `https://github.com/${repository}.git`
         }),
         credentials: 'same-origin'
       })

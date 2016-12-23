@@ -36,7 +36,6 @@ export const verify = (req, res, next) => {
   // Check shared secret matches our copy
   if (req.query.state !== req.session.sharedSecret) {
     // Warn about potential CSRF attack
-    logger.info('Authentication shared secret mismatch');
     return next(new Error('Returned shared secret does not match generated shared secret'));
   }
 
@@ -54,16 +53,25 @@ export const verify = (req, res, next) => {
 
   // Exchange code for token
   request.post(options, (error, response, body) => {
-    if (error || response.statusCode !== 200) {
-      logger.info('Authentication token exchange failed', error);
-      return next(new Error('Authentication token exchange failed'));
+    // XXX bartaz
+    // it seems that we get 200 response with error in body
+    // https://developer.github.com/v3/oauth/#common-errors-for-the-access-token-request
+    if (error || response.statusCode !== 200 || (body && body.error)) {
+      return next(new Error(`Authentication token exchange failed. ${(body && body.error_message) || ''}`));
     }
 
     // Save auth token to session
+    req.session.githubAuthenticated = true;
     req.session.token = body.access_token;
     logger.info('User successfully authenticated');
 
     // Redirect to logged in URL
     res.redirect('/');
   });
+};
+
+export const errorHandler = (error, req, res, next) => {
+  req.session.error = 'Authentication with GitHub failed. Please try again later.';
+  res.redirect(302, '/login/failed');
+  next();
 };

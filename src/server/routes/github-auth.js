@@ -1,10 +1,10 @@
 import { Router } from 'express';
 
-import { authenticate, verify } from '../handlers/github-auth';
+import { authenticate, verify, errorHandler } from '../handlers/github-auth';
 
 const router = Router();
 
-router.get('/auth/authenticate', authenticate);
-router.get('/auth/verify', verify);
+router.get('/auth/authenticate', authenticate, errorHandler);
+router.get('/auth/verify', verify, errorHandler);
 
 export default router;

@@ -83,12 +83,14 @@ describe('The login route', () => {
         nock.cleanAll();
       });
 
-      it('should return 500 error if received secret doesn\t match shared secret', (done) => {
+      it('should redirect to /login/failed if received secret doesn\t match shared secret', (done) => {
         supertest(app)
           .get('/auth/verify')
           .query({ code: 'foo', state: 'foo' })
           .send()
-          .expect(500, done);
+          .expect(302)
+          .expect('location', new RegExp(/login\/failed/g))
+          .end(done);
       });
 
       it('should call GitHub API endpoint to get an auth token', (done) => {
@@ -129,12 +131,14 @@ describe('The login route', () => {
         nock.cleanAll();
       });
 
-      it('should return 500 error', (done) => {
+      it('should redirect to /login/failed', (done) => {
         supertest(app)
           .get('/auth/verify')
           .query({ code: 'foo', state: 'bar' })
           .send()
-          .expect(500, done);
+          .expect(302)
+          .expect('location', new RegExp(/login\/failed/g))
+          .end(done);
       });
     });
   });

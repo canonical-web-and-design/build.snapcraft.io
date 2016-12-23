@@ -44,25 +44,11 @@ const RESPONSE_CREATED = {
   }
 };
 
-export const newIntegration = (req, res) => {
-  const account = req.body.account;
-  const repo = req.body.repo;
+export const createWebhook = (req, res) => {
+  const { account, repo } = req.body;
 
   const uri = `/repos/${account}/${repo}/hooks`;
-  const options = {
-    headers: { 'Authorization': `token ${req.session.token}` },
-    json: {
-      name: 'web',
-      active: true,
-      events: [
-        'push'
-      ],
-      config: {
-        url: conf.get('WEBHOOK_ENDPOINT'),
-        content_type: 'json'
-      }
-    }
-  };
+  const options = getRequest(account, repo, req.session.token);
   requestGitHub.post(uri, options, (err, response, body) => {
     if (response.statusCode !== 201) {
       logger.info(body);
@@ -85,4 +71,23 @@ export const newIntegration = (req, res) => {
 
     return res.status(201).send(RESPONSE_CREATED);
   });
+};
+
+const getRequest = (account, repo, token) => {
+  return {
+    headers: {
+      'Authorization': `token ${token}`
+    },
+    json: {
+      name: 'web',
+      active: true,
+      events: [
+        'push'
+      ],
+      config: {
+        url: conf.get('WEBHOOK_ENDPOINT'),
+        content_type: 'json'
+      }
+    }
+  };
 };

@@ -7,7 +7,7 @@ expect.extend({
       this.actual.filter((action) => {
         return action.type === expected;
       }).length > 0,
-      'to have action %s',
+      'Expected dispatched actions to have action %s',
       expected
     );
 
