@@ -1,6 +1,7 @@
 import { conf } from '../helpers/config';
 import requestGitHub from '../helpers/github';
 import logging from '../logging';
+import { makeWebhookHmac } from './webhook';
 
 const logger = logging.getLogger('express-error');
 
@@ -47,8 +48,21 @@ const RESPONSE_CREATED = {
 export const createWebhook = (req, res) => {
   const { account, repo } = req.body;
 
+  let secret;
+  try {
+    secret = makeWebhookHmac(account, repo).digest('hex');
+  } catch (e) {
+    return res.status(500).send({
+      status: 'error',
+      payload: {
+        code: 'github-unconfigured',
+        message: e.message
+      }
+    });
+  }
+
   const uri = `/repos/${account}/${repo}/hooks`;
-  const options = getRequest(account, repo, req.session.token);
+  const options = getRequest(account, repo, req.session.token, secret);
   requestGitHub.post(uri, options, (err, response, body) => {
     if (response.statusCode !== 201) {
       logger.info(body);
@@ -73,7 +87,7 @@ export const createWebhook = (req, res) => {
   });
 };
 
-const getRequest = (account, repo, token) => {
+const getRequest = (account, repo, token, secret) => {
   return {
     headers: {
       'Authorization': `token ${token}`
@@ -85,8 +99,9 @@ const getRequest = (account, repo, token) => {
         'push'
       ],
       config: {
-        url: conf.get('WEBHOOK_ENDPOINT'),
-        content_type: 'json'
+        url: `${conf.get('BASE_URL')}/${account}/${repo}/webhook/notify`,
+        content_type: 'json',
+        secret: secret
       }
     }
   };

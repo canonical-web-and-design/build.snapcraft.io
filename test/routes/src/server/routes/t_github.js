@@ -1,3 +1,4 @@
+import { createHmac } from 'crypto';
 import Express from 'express';
 import supertest from 'supertest';
 import nock from 'nock';
@@ -18,8 +19,20 @@ describe('The GitHub API endpoint', () => {
   describe('create webhook route', () => {
     context('when webhook does not already exist', () => {
       beforeEach(() => {
+        const hmac = createHmac('sha1', conf.get('GITHUB_WEBHOOK_SECRET'));
+        hmac.update('anaccount');
+        hmac.update('arepo');
         scope = nock(conf.get('GITHUB_API_ENDPOINT'))
-          .post('/repos/anaccount/arepo/hooks')
+          .post('/repos/anaccount/arepo/hooks', {
+            name: 'web',
+            active: true,
+            events: ['push'],
+            config: {
+              url: `${conf.get('BASE_URL')}/anaccount/arepo/webhook/notify`,
+              content_type: 'json',
+              secret: hmac.digest('hex')
+            }
+          })
           .reply(201, '');
       });
 

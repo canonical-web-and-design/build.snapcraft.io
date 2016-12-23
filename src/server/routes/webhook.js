@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import { notify } from '../handlers/webhook';
-import { json } from 'body-parser';
+import { text } from 'body-parser';
 
 const router = Router();
 
-router.use('/webhook/notify', json());
-router.post('/webhook/notify', notify);
+// Really JSON, but we need the raw body to verify its signature.
+router.use('/:account/:repo/webhook/notify',
+           text({ type: 'application/json' }));
+router.post('/:account/:repo/webhook/notify', notify);
 
 export default router;
