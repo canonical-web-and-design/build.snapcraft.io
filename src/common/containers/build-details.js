@@ -4,14 +4,15 @@ import Helmet from 'react-helmet';
 
 import BuildRow from '../components/build-row';
 import BuildLog from '../components/build-log';
-import { fetchBuilds } from '../actions/snap-builds';
+import { Message } from '../components/forms';
+import { fetchSnap } from '../actions/snap-builds';
 
 import styles from './container.css';
 
 class BuildDetails extends Component {
 
   componentWillMount() {
-    this.props.dispatch(fetchBuilds(this.props.fullName));
+    this.props.dispatch(fetchSnap(this.props.fullName));
   }
 
   render() {
@@ -25,6 +26,9 @@ class BuildDetails extends Component {
         <h1>{fullName} build #{buildId}</h1>
         { this.props.isFetching &&
           <span>Loading...</span>
+        }
+        { this.props.error &&
+          <Message status='error'>{ this.props.error.message || this.props.error }</Message>
         }
         { build &&
           <div>
@@ -45,6 +49,7 @@ BuildDetails.propTypes = {
   buildId: PropTypes.string.isRequired,
   build: PropTypes.object,
   isFetching: PropTypes.bool,
+  error: PropTypes.object,
   dispatch: PropTypes.func.isRequired
 };
 
@@ -56,6 +61,7 @@ const mapStateToProps = (state, ownProps) => {
   const fullName = `${account}/${repo}`;
   const build = state.snapBuilds.builds.filter((build) => build.buildId === buildId)[0];
   const isFetching = state.snapBuilds.isFetching;
+  const error = state.snapBuilds.error;
 
   return {
     account,
@@ -63,7 +69,8 @@ const mapStateToProps = (state, ownProps) => {
     fullName,
     buildId,
     build,
-    isFetching
+    isFetching,
+    error
   };
 };
 

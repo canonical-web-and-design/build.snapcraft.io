@@ -582,14 +582,14 @@ describe('The Launchpad API endpoint', () => {
     let lp_api_url;
     let lp_snap_path;
     let lp_builds_path;
-    let lp_snap_link;
+    let lp_snap_url;
 
     before(() => {
       lp_api_url = conf.get('LP_API_URL');
       lp_snap_path = `/devel/~${lp_snap_user}/+snap/${lp_snap_name}`;
       lp_builds_path = `${lp_snap_path}/builds`;
 
-      lp_snap_link = `${lp_api_url}${lp_snap_path}`;
+      lp_snap_url = `${lp_api_url}${lp_snap_path}`;
     });
 
     context('when snap and builds are successfully fetched', () => {
@@ -630,14 +630,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 200 OK response', (done) => {
         supertest(app)
           .get('/launchpad/builds')
-          .query({ snap_link: lp_snap_link })
+          .query({ snap: lp_snap_url })
           .expect(200, done);
       });
 
       it('should return a "success" status', (done) => {
         supertest(app)
           .get('/launchpad/builds')
-          .query({ snap_link: lp_snap_link })
+          .query({ snap: lp_snap_url })
           .expect(hasStatus('success'))
           .end(done);
       });
@@ -645,7 +645,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return body with "snap-builds-found" message', (done) => {
         supertest(app)
           .get('/launchpad/builds')
-          .query({ snap_link: lp_snap_link })
+          .query({ snap: lp_snap_url })
           .expect(hasMessage('snap-builds-found'))
           .end(done);
       });
@@ -653,7 +653,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return builds list in payload', (done) => {
         supertest(app)
           .get('/launchpad/builds')
-          .query({ snap_link: lp_snap_link })
+          .query({ snap: lp_snap_url })
           .end((err, res) => {
             const build = res.body.payload.builds[0];
             // XXX bartaz
@@ -698,7 +698,7 @@ describe('The Launchpad API endpoint', () => {
 
         supertest(app)
           .get('/launchpad/builds')
-          .query({ snap_link: lp_snap_link })
+          .query({ snap: lp_snap_url })
           .expect(200, (err) => {
             lp.done();
             done(err);
@@ -717,7 +717,7 @@ describe('The Launchpad API endpoint', () => {
 
         supertest(app)
           .get('/launchpad/builds')
-          .query({ snap_link: lp_snap_link, size: 42, start: 7 })
+          .query({ snap: lp_snap_url, size: 42, start: 7 })
           .expect(200, (err) => {
             lp.done();
             done(err);
@@ -754,14 +754,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 404 response', (done) => {
         supertest(app)
           .get('/launchpad/builds')
-          .query({ snap_link: lp_snap_link })
+          .query({ snap: lp_snap_url })
           .expect(404, done);
       });
 
       it('should return a "error" status', (done) => {
         supertest(app)
           .get('/launchpad/builds')
-          .query({ snap_link: lp_snap_link })
+          .query({ snap: lp_snap_url })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -769,7 +769,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return body with error message', (done) => {
         supertest(app)
           .get('/launchpad/builds')
-          .query({ snap_link: lp_snap_link })
+          .query({ snap: lp_snap_url })
           .expect(hasMessage('lp-error', 'Not found'))
           .end(done);
       });
@@ -792,14 +792,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 404 response', (done) => {
         supertest(app)
           .get('/launchpad/builds')
-          .query({ snap_link: lp_snap_link })
+          .query({ snap: lp_snap_url })
           .expect(404, done);
       });
 
       it('should return a "error" status', (done) => {
         supertest(app)
           .get('/launchpad/builds')
-          .query({ snap_link: lp_snap_link })
+          .query({ snap: lp_snap_url })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -807,14 +807,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return body with error message', (done) => {
         supertest(app)
           .get('/launchpad/builds')
-          .query({ snap_link: lp_snap_link })
+          .query({ snap: lp_snap_url })
           .expect(hasMessage('lp-error', 'Not found'))
           .end(done);
       });
 
     });
 
-    context('when snap_link parameter is missing', () => {
+    context('when snap parameter is missing', () => {
 
       it('should return a 404 response', (done) => {
         supertest(app)

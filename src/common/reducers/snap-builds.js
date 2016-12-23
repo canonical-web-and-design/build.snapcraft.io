@@ -4,7 +4,7 @@ import { snapBuildFromAPI } from '../helpers/snap-builds';
 export function snapBuilds(state = {
   isFetching: false,
   builds: [],
-  error: false
+  error: null
 }, action) {
   switch(action.type) {
     case ActionTypes.FETCH_BUILDS:
@@ -17,7 +17,7 @@ export function snapBuilds(state = {
         ...state,
         isFetching: false,
         builds: action.payload.map(snapBuildFromAPI),
-        error: false
+        error: null
       };
     case ActionTypes.FETCH_BUILDS_ERROR:
       return {

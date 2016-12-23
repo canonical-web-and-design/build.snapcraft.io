@@ -3,14 +3,15 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 
 import BuildHistory from '../components/build-history';
-import { fetchBuilds } from '../actions/snap-builds';
+import { Message } from '../components/forms';
+import { fetchSnap } from '../actions/snap-builds';
 
 import styles from './container.css';
 
 class Builds extends Component {
 
   componentWillMount() {
-    this.props.dispatch(fetchBuilds(this.props.fullName));
+    this.props.dispatch(fetchSnap(this.props.fullName));
   }
 
   render() {
@@ -26,6 +27,9 @@ class Builds extends Component {
         { this.props.isFetching &&
           <span>Loading...</span>
         }
+        { this.props.error &&
+          <Message status='error'>{ this.props.error.message || this.props.error }</Message>
+        }
       </div>
     );
   }
@@ -37,6 +41,7 @@ Builds.propTypes = {
   repo: PropTypes.string.isRequired,
   fullName: PropTypes.string.isRequired,
   isFetching: PropTypes.bool,
+  error: PropTypes.object,
   dispatch: PropTypes.func.isRequired
 };
 
@@ -46,9 +51,11 @@ const mapStateToProps = (state, ownProps) => {
   const fullName = `${account}/${repo}`;
 
   const isFetching = state.snapBuilds.isFetching;
+  const error = state.snapBuilds.error;
 
   return {
     isFetching,
+    error,
     account,
     repo,
     fullName

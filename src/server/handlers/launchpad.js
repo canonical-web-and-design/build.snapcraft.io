@@ -317,22 +317,22 @@ export const completeSnapAuthorization = async (req, res) => {
 };
 
 export const getSnapBuilds = (req, res) => {
-  const snap_link = req.query.snap_link;
+  const snapUrl = req.query.snap;
 
   const start = typeof req.query.start !== 'undefined' ? req.query.start : 0;
   const size = typeof req.query.size !== 'undefined' ? req.query.size : 10;
 
-  if (!snap_link) {
+  if (!snapUrl) {
     return res.status(404).send({
       status: 'error',
       payload: {
         code: 'missing-snap-link',
-        message: 'Missing query parameter snap_link'
+        message: 'Missing query parameter snap'
       }
     });
   }
 
-  return getLaunchpad().get(snap_link).then(snap => {
+  return getLaunchpad().get(snapUrl).then(snap => {
     return getLaunchpad().get(snap.builds_collection_link, { start: start, size: size })
       .then(builds => {
         return res.status(200).send({

@@ -9,7 +9,7 @@ describe('snapBuilds reducers', () => {
   const initialState = {
     isFetching: false,
     builds: [],
-    error: false
+    error: null
   };
 
   const SNAP_ENTRIES = [{
@@ -125,7 +125,7 @@ describe('snapBuilds reducers', () => {
         payload: SNAP_ENTRIES
       };
 
-      expect(snapBuilds(state, action).error).toBe(false);
+      expect(snapBuilds(state, action).error).toBe(null);
     });
   });
 
