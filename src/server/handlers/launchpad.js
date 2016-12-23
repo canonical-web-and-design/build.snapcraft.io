@@ -192,7 +192,7 @@ const checkAdminPermissions = (req) => {
       if (!response.body.permissions || !response.body.permissions.admin) {
         throw new PreparedError(401, RESPONSE_GITHUB_NO_ADMIN_PERMISSIONS);
       }
-      return [parsed.owner, parsed.name, token];
+      return { owner: parsed.owner, name: parsed.name, token };
     });
 };
 
@@ -224,7 +224,9 @@ export const newSnap = (req, res) => {
   let snapUrl;
   // We need admin permissions in order to be able to install a webhook later.
   checkAdminPermissions(req)
-    .then(([owner, name, token]) => getSnapcraftYaml(owner, name, token))
+    .then((result) => {
+      return getSnapcraftYaml(result.owner, result.name, result.token);
+    })
     .then((snapcraftYaml) => {
       if (!('name' in snapcraftYaml)) {
         throw new PreparedError(400, RESPONSE_SNAPCRAFT_YAML_NO_NAME);
