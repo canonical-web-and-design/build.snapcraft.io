@@ -1,6 +1,7 @@
 import 'isomorphic-fetch';
 
 import conf from '../helpers/config';
+import getGitHubRepoUrl from '../helpers/github-url';
 
 const BASE_URL = conf.get('BASE_URL');
 const GITHUB_API_ENDPOINT = conf.get('GITHUB_API_ENDPOINT');
@@ -39,7 +40,7 @@ export function verifyGitHubRepository(repository) {
 
       return fetch(`${GITHUB_API_ENDPOINT}/repos/${repository}/contents/snapcraft.yaml`)
         .then(checkStatus)
-        .then(() => dispatch(verifyGitHubRepositorySuccess(`https://github.com/${repository}.git`)))
+        .then(() => dispatch(verifyGitHubRepositorySuccess(getGitHubRepoUrl(repository))))
         .catch(error => dispatch(verifyGitHubRepositoryError(error)));
     }
   };
@@ -72,7 +73,7 @@ export function createSnap(repository, location) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          repository_url: `https://github.com/${repository}.git`
+          repository_url: getGitHubRepoUrl(repository)
         }),
         credentials: 'same-origin'
       })

@@ -17,7 +17,7 @@ import * as ActionTypes from '../../../../../src/common/actions/snap-builds';
 const middlewares = [ thunk ];
 const mockStore = configureMockStore(middlewares);
 
-describe('repository input actions', () => {
+describe('snap builds actions', () => {
   const initialState = {
     isFetching: false,
     builds: [],
@@ -145,7 +145,7 @@ describe('repository input actions', () => {
 
     it('should store builds on fetch success', () => {
       const repo = 'foo/bar';
-      const repositoryUrl = `https://github.com/${repo}.git`;
+      const repositoryUrl = `https://github.com/${repo}`;
       const snapUrl = 'https://api.launchpad.net/devel/~foo/+snap/bar';
 
       api.get('/api/launchpad/snaps')
@@ -216,7 +216,7 @@ describe('repository input actions', () => {
 
     context('on snaps call failure', () => {
       const badRepo = 'foo/bad';
-      const repositoryUrl = `https://github.com/${badRepo}.git`;
+      const repositoryUrl = `https://github.com/${badRepo}`;
 
       beforeEach(() => {
         api.get('/api/launchpad/snaps')
