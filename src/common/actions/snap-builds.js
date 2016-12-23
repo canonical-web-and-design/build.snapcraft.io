@@ -1,4 +1,5 @@
 import conf from '../helpers/config';
+import getGitHubRepoUrl from '../helpers/github-url';
 
 const BASE_URL = conf.get('BASE_URL');
 
@@ -42,7 +43,7 @@ export function fetchSnap(repository) {
         type: FETCH_BUILDS
       });
 
-      const repositoryUrl = encodeURIComponent(`https://github.com/${repository}.git`);
+      const repositoryUrl = encodeURIComponent(getGitHubRepoUrl(repository));
       const url = `${BASE_URL}/api/launchpad/snaps?repository_url=${repositoryUrl}`;
       return fetch(url)
         .then(checkStatus)
