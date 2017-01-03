@@ -3,7 +3,6 @@ import Express from 'express';
 import nock from 'nock';
 import supertest from 'supertest';
 
-import { setMemcached } from '../../../../../src/server/handlers/launchpad';
 import { conf } from '../../../../../src/server/helpers/config';
 import github from '../../../../../src/server/routes/webhook';
 
@@ -30,20 +29,7 @@ describe('The WebHook API endpoint', () => {
     overrides.clear('LP_API_TOKEN_SECRET');
   });
 
-  beforeEach(() => {
-    const memcachedStub = { cache: {} };
-    memcachedStub.get = (key, callback) => {
-      callback(undefined, memcachedStub.cache[key]);
-    };
-    memcachedStub.set = (key, value, lifetime, callback) => {
-      memcachedStub.cache[key] = value;
-      callback(undefined, true);
-    };
-    setMemcached(memcachedStub);
-  });
-
   afterEach(() => {
-    setMemcached(null);
     nock.cleanAll();
   });
 

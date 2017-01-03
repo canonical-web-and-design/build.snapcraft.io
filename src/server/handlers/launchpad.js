@@ -1,10 +1,10 @@
 import { createHash } from 'crypto';
 
 import yaml from 'js-yaml';
-import Memcached from 'memcached';
 import parseGitHubUrl from 'parse-github-url';
 
 import { conf } from '../helpers/config';
+import { getMemcached } from '../helpers/memcached';
 import requestGitHub from '../helpers/github';
 import getLaunchpad from '../launchpad';
 import logging from '../logging';
@@ -88,21 +88,6 @@ const RESPONSE_SNAP_NOT_FOUND = {
     code: 'snap-not-found',
     message: 'Cannot find existing snap based on this URL'
   }
-};
-
-let memcached = null;
-
-const getMemcached = () => {
-  if (memcached === null) {
-    memcached = new Memcached(conf.get('MEMCACHED_HOST').split(','),
-                              { namespace: 'lp:' });
-  }
-  return memcached;
-};
-
-// Test affordance.
-export const setMemcached = (value) => {
-  memcached = value;
 };
 
 class PreparedError extends Error {

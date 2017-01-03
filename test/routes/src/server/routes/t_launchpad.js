@@ -3,7 +3,11 @@ import nock from 'nock';
 import supertest from 'supertest';
 import expect from 'expect';
 
-import { setMemcached } from '../../../../../src/server/handlers/launchpad';
+import {
+  getMemcached,
+  resetMemcached,
+  setupInMemoryMemcached
+} from '../../../../../src/server/helpers/memcached';
 import launchpad from '../../../../../src/server/routes/launchpad';
 import { conf } from '../../../../../src/server/helpers/config.js';
 
@@ -315,21 +319,6 @@ describe('The Launchpad API endpoint', () => {
   });
 
   describe('find snap route', () => {
-    beforeEach(() => {
-      const memcachedStub = { cache: {} };
-      memcachedStub.get = (key, callback) => {
-        callback(undefined, memcachedStub.cache[key]);
-      };
-      memcachedStub.set = (key, value, lifetime, callback) => {
-        memcachedStub.cache[key] = value;
-        callback(undefined, true);
-      };
-      setMemcached(memcachedStub);
-    });
-
-    afterEach(() => {
-      setMemcached(null);
-    });
 
     context('when snap exists', () => {
       beforeEach(() => {
@@ -473,24 +462,48 @@ describe('The Launchpad API endpoint', () => {
           .end(done);
       });
     });
+
+    context('when repository is memcached', () => {
+      const repositoryUrl = 'https://github.com/anaccount/arepo';
+      const snapUrl = `${conf.get('LP_API_URL')}/devel/~test-user/+snap/test-snap`;
+
+      before(() => {
+        setupInMemoryMemcached();
+        getMemcached().set(`url:${repositoryUrl}`, snapUrl);
+      });
+
+      after(() => {
+        resetMemcached();
+      });
+
+      it('should return a 200 response', (done) => {
+        supertest(app)
+          .get('/launchpad/snaps')
+          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(200, done);
+      });
+
+      it('should return a "success" status', (done) => {
+        supertest(app)
+          .get('/launchpad/snaps')
+          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(hasStatus('success'))
+          .end(done);
+      });
+
+      it('should return a body with a "snap-found" message with the correct URL', (done) => {
+        supertest(app)
+          .get('/launchpad/snaps')
+          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(hasMessage('snap-found', snapUrl))
+          .end(done);
+      });
+
+    });
+
   });
 
   describe('complete snap authorization route', () => {
-    beforeEach(() => {
-      const memcachedStub = { cache: {} };
-      memcachedStub.get = (key, callback) => {
-        callback(undefined, memcachedStub.cache[key]);
-      };
-      memcachedStub.set = (key, value, lifetime, callback) => {
-        memcachedStub.cache[key] = value;
-        callback(undefined, true);
-      };
-      setMemcached(memcachedStub);
-    });
-
-    afterEach(() => {
-      setMemcached(null);
-    });
 
     context('when snap exists', () => {
       beforeEach(() => {
@@ -935,22 +948,6 @@ describe('The Launchpad API endpoint', () => {
   describe('request snap builds route', () => {
     const lp_snap_user = 'test-user';
     const lp_snap_path = `/~${lp_snap_user}/+snap/test-snap`;
-
-    beforeEach(() => {
-      const memcachedStub = { cache: {} };
-      memcachedStub.get = (key, callback) => {
-        callback(undefined, memcachedStub.cache[key]);
-      };
-      memcachedStub.set = (key, value, lifetime, callback) => {
-        memcachedStub.cache[key] = value;
-        callback(undefined, true);
-      };
-      setMemcached(memcachedStub);
-    });
-
-    afterEach(() => {
-      setMemcached(null);
-    });
 
     context('when snap exists', () => {
       beforeEach(() => {
