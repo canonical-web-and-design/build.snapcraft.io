@@ -5,7 +5,8 @@ import {
   completeSnapAuthorization,
   findSnap,
   getSnapBuilds,
-  newSnap
+  newSnap,
+  requestSnapBuilds
 } from '../handlers/launchpad';
 
 const router = Router();
@@ -20,5 +21,8 @@ router.get('/launchpad/builds', getSnapBuilds);
 router.use('/launchpad/snaps/complete-authorization', json());
 router.post('/launchpad/snaps/complete-authorization',
             completeSnapAuthorization);
+
+router.use('/launchpad/snaps/request-builds', json());
+router.post('/launchpad/snaps/request-builds', requestSnapBuilds);
 
 export default router;

@@ -380,5 +380,27 @@ export const getSnapBuilds = (req, res) => {
       });
   })
   .catch((error) => responseError(res, error));
+};
 
+// This version does not check repository permissions, so use it only in
+// code paths that have already done so.  Returns a Promise.
+export const uncheckedRequestSnapBuilds = (repositoryUrl) => {
+  const lpClient = getLaunchpad();
+  return internalFindSnap(repositoryUrl)
+    .then((snapUrl) => lpClient.named_post(snapUrl, 'requestAutoBuilds'));
+};
+
+export const requestSnapBuilds = (req, res) => {
+  checkAdminPermissions(req)
+    .then(() => uncheckedRequestSnapBuilds(req.body.repository_url))
+    .then((builds) => {
+      return res.status(201).send({
+        status: 'success',
+        payload: {
+          code: 'snap-builds-requested',
+          builds: builds.entries
+        }
+      });
+    })
+    .catch((error) => responseError(res, error));
 };

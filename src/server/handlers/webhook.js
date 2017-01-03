@@ -1,8 +1,10 @@
 import { createHmac } from 'crypto';
 
+import getGitHubRepoUrl from '../../common/helpers/github-url';
 import { conf } from '../helpers/config';
 const logging = require('../logging/').default;
 const logger = logging.getLogger('express');
+import { uncheckedRequestSnapBuilds } from './launchpad';
 
 export const makeWebhookHmac = (account, repo) => {
   const rootSecret = conf.get('GITHUB_WEBHOOK_SECRET');
@@ -47,5 +49,14 @@ export const notify = (req, res) => {
   }
 
   // Acknowledge webhook
-  res.status(200).send();
+  const repositoryUrl = getGitHubRepoUrl(req.params.account, req.params.repo);
+  return uncheckedRequestSnapBuilds(repositoryUrl)
+    .then(() => {
+      logger.debug(`Requested builds of ${repositoryUrl}.`);
+      return res.status(200).send();
+    })
+    .catch((error) => {
+      logger.debug(`Failed to request builds of ${repositoryUrl}: ${error}.`);
+      return res.status(500).send();
+    });
 };

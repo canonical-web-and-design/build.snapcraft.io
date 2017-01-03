@@ -931,6 +931,235 @@ describe('The Launchpad API endpoint', () => {
     });
 
   });
+
+  describe('request snap builds route', () => {
+    const lp_snap_user = 'test-user';
+    const lp_snap_path = `/~${lp_snap_user}/+snap/test-snap`;
+
+    beforeEach(() => {
+      const memcachedStub = { cache: {} };
+      memcachedStub.get = (key, callback) => {
+        callback(undefined, memcachedStub.cache[key]);
+      };
+      memcachedStub.set = (key, value, lifetime, callback) => {
+        memcachedStub.cache[key] = value;
+        callback(undefined, true);
+      };
+      setMemcached(memcachedStub);
+    });
+
+    afterEach(() => {
+      setMemcached(null);
+    });
+
+    context('when snap exists', () => {
+      beforeEach(() => {
+        nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get('/repos/anaccount/arepo')
+          .reply(200, { permissions: { admin: true } });
+        const lp_api_url = conf.get('LP_API_URL');
+        const lp_api_base = `${lp_api_url}/devel`;
+        nock(lp_api_url)
+          .get('/devel/+snaps')
+          .query({
+            'ws.op': 'findByURL',
+            url: 'https://github.com/anaccount/arepo'
+          })
+          .reply(200, {
+            total_size: 1,
+            start: 0,
+            entries: [
+              {
+                resource_type_link: `${lp_api_base}/#snap`,
+                self_link: `${lp_api_base}${lp_snap_path}`,
+                owner_link: `${lp_api_base}/~${lp_snap_user}`
+              }
+            ]
+          });
+        nock(lp_api_url)
+          .post(`/devel${lp_snap_path}`, {
+            'ws.op': 'requestAutoBuilds'
+          })
+          .reply(200, {
+            total_size: 2,
+            start: 0,
+            entries: [
+              {
+                resource_type_link: `${lp_api_base}/#snap_build`,
+                self_link: `${lp_api_base}${lp_snap_path}/+build/1`
+              },
+              {
+                resource_type_link: `${lp_api_base}/#snap_build`,
+                self_link: `${lp_api_base}${lp_snap_path}/+build/2`
+              }
+            ]
+          });
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('returns a 201 Created response', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/request-builds')
+          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(201, done);
+      });
+
+      it('returns a "success" status', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/request-builds')
+          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(hasStatus('success'))
+          .end(done);
+      });
+
+      it('returns body with a "snap-builds-requested" message', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/request-builds')
+          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(hasMessage('snap-builds-requested'))
+          .end(done);
+      });
+
+      it('returns requested builds list in payload', (done) => {
+        const lp_api_base = `${conf.get('LP_API_URL')}/devel`;
+        supertest(app)
+          .post('/launchpad/snaps/request-builds')
+          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect((res) => {
+            const buildUrls = res.body.payload.builds.map((entry) => {
+              return entry.self_link;
+            });
+            expect(buildUrls).toEqual([
+              `${lp_api_base}${lp_snap_path}/+build/1`,
+              `${lp_api_base}${lp_snap_path}/+build/2`
+            ]);
+          })
+          .end(done);
+      });
+    });
+
+    context('when user has no admin permissions on GitHub repository', () => {
+      beforeEach(() => {
+        nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get('/repos/anaccount/arepo')
+          .reply(200, { permissions: { admin: false } });
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should return a 401 Unauthorized response', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/request-builds')
+          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(401, done);
+      });
+
+      it('should return a "error" status', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/request-builds')
+          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(hasStatus('error'))
+          .end(done);
+      });
+
+      it('should return a body with a "github-no-admin-permissions" ' +
+         'message', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/request-builds')
+          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(hasMessage('github-no-admin-permissions'))
+          .end(done);
+      });
+    });
+
+    context('when repo does not exist', () => {
+      beforeEach(() => {
+        nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get('/repos/anaccount/arepo')
+          .reply(404, { message: 'Not Found' });
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should return a 404 Not Found response', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/request-builds')
+          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(404, done);
+      });
+
+      it('should return a "error" status', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/request-builds')
+          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(hasStatus('error'))
+          .end(done);
+      });
+
+      it('should return a body with a "github-snapcraft-yaml-not-found" ' +
+         'message', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/request-builds')
+          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(hasMessage('github-snapcraft-yaml-not-found'))
+          .end(done);
+      });
+    });
+
+    context('when snap does not exist', () => {
+      beforeEach(() => {
+        nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get('/repos/anaccount/arepo')
+          .reply(200, { permissions: { admin: true } });
+        const lp_api_url = conf.get('LP_API_URL');
+        nock(lp_api_url)
+          .get('/devel/+snaps')
+          .query({
+            'ws.op': 'findByURL',
+            url: 'https://github.com/anaccount/arepo'
+          })
+          .reply(200, {
+            total_size: 0,
+            start: 0,
+            entries: []
+          });
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('returns a 404 response', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/request-builds')
+          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(404, done);
+      });
+
+      it('returns an "error" status', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/request-builds')
+          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(hasStatus('error'))
+          .end(done);
+      });
+
+      it('returns body with a "snap-not-found" message', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/request-builds')
+          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .expect(hasMessage('snap-not-found'))
+          .end(done);
+      });
+    });
+  });
 });
 
 const hasStatus = (expected) => {

@@ -57,3 +57,53 @@ To search for an existing snap:
 Successful responses have `status` set to `success` and `code` set to
 `snap-found`; the `message` will be the URL of the snap on the Launchpad
 API.
+
+To search for snap builds:
+
+    GET /api/launchpad/builds?snap_link=:snap
+    Accept: application/json
+
+On success, returns the following, where the items in `builds` are
+[snap\_build entries](https://launchpad.net/+apidoc/devel.html#snap_build)
+as returned by the Launchpad API:
+
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+
+    {
+      "status": "success",
+      "payload": {
+        "code": "snap-builds-found",
+        "builds": [
+          ...
+        ]
+      }
+    }
+
+To request builds of an existing snap:
+
+    POST /api/launchpad/snap/request-builds
+    Cookie: <session cookie>
+    Content-Type: application/json
+    Accept: application/json
+
+    {
+      "repository_url": "https://github.com/:account/:repo"
+    }
+
+On success, returns the following, where the items in `builds` are
+[snap\_build entries](https://launchpad.net/+apidoc/devel.html#snap_build)
+as returned by the Launchpad API:
+
+    HTTP/1.1 201 Created
+    Content-Type: application/json
+
+    {
+      "status": "success",
+      "payload": {
+        "code": "snap-builds-requested",
+        "builds": [
+          ...
+        ]
+      }
+    }
