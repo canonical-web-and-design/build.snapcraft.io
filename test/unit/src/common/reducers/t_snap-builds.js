@@ -9,6 +9,7 @@ describe('snapBuilds reducers', () => {
   const initialState = {
     isFetching: false,
     builds: [],
+    success: false,
     error: null
   };
 
@@ -114,6 +115,20 @@ describe('snapBuilds reducers', () => {
       expect(snapBuilds(state, action).builds).toEqual(SNAP_ENTRIES.map(snapBuildFromAPI));
     });
 
+    it('should store success state', () => {
+      const state = {
+        ...initialState,
+        isFetching: true
+      };
+
+      const action = {
+        type: ActionTypes.FETCH_BUILDS_SUCCESS,
+        payload: SNAP_ENTRIES
+      };
+
+      expect(snapBuilds(state, action).success).toBe(true);
+    });
+
     it('should clean error', () => {
       const state = {
         ...initialState,
@@ -133,6 +148,7 @@ describe('snapBuilds reducers', () => {
     it('should handle fetch builds failure', () => {
       const state = {
         ...initialState,
+        success: true,
         builds: SNAP_ENTRIES,
         isFetching: true
       };
@@ -146,6 +162,7 @@ describe('snapBuilds reducers', () => {
       expect(snapBuilds(state, action)).toEqual({
         ...state,
         isFetching: false,
+        success: false,
         error: action.payload
       });
     });
