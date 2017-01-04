@@ -3,6 +3,8 @@ import 'isomorphic-fetch';
 import conf from '../helpers/config';
 import getGitHubRepoUrl from '../helpers/github-url';
 
+import { resetWebhook } from './webhook';
+
 const BASE_URL = conf.get('BASE_URL');
 const GITHUB_API_ENDPOINT = conf.get('GITHUB_API_ENDPOINT');
 
@@ -14,19 +16,30 @@ export const CREATE_SNAP = 'CREATE_SNAP';
 export const CREATE_SNAP_ERROR = 'CREATE_SNAP_ERROR';
 
 export function setGitHubRepository(value) {
-  return {
-    type: SET_GITHUB_REPOSITORY,
-    payload: value
+  return (dispatch) => {
+    dispatch({
+      type: SET_GITHUB_REPOSITORY,
+      payload: value
+    });
+    dispatch(resetWebhook());
   };
+}
+
+export function getError(response, json) {
+  const message = (json.payload && json.payload.message) || response.statusText;
+  const error = new Error(message);
+  error.response = response;
+  error.json = json;
+  return error;
 }
 
 function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response;
   } else {
-    const error = new Error(response.statusText);
-    error.response = response;
-    throw error;
+    return response.json().then((json) => {
+      throw getError(response, json);
+    });
   }
 }
 
@@ -81,9 +94,7 @@ export function createSnap(repository, location) {
           return response.json().then(result => {
             if (result.status !== 'success' ||
                 result.payload.code !== 'snap-created') {
-              const error = new Error(response.statusText);
-              error.response = response;
-              throw error;
+              throw getError(response, result);
             }
             const startingUrl = `${BASE_URL}/${repository}/setup`;
             (location || window.location).href =

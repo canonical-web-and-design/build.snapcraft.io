@@ -1,14 +1,14 @@
 import React from 'react';
 import expect from 'expect';
 import { shallow } from 'enzyme';
-import configureStore from 'redux-mock-store';
-
+import configureMockStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
 // Workaround for Redux-wrapped components
 // See: https://github.com/airbnb/enzyme/issues/472
 import Component from '../../../../../../src/common/components/repository-input';
 const RepositoryInput = Component.WrappedComponent;
 
-let dispatch = expect.createSpy();
+//let dispatch = expect.createSpy();
 
 const baseProps = {
   auth: {
@@ -21,10 +21,12 @@ const baseProps = {
   webhook: {
     error: false
   },
-  dispatch: dispatch
+//  dispatch: dispatch
 };
 
-const mockStore = configureStore();
+const middlewares = [ thunk ];
+const mockStore = configureMockStore(middlewares);
+//const mockStore = configureStore();
 
 describe('The RepositoryInput component', () => {
   let component;
@@ -104,7 +106,7 @@ describe('The RepositoryInput component', () => {
       const store = mockStore(baseProps);
 
       beforeEach(() => {
-        component = shallow(<RepositoryInput { ...baseProps } store={ store } />);
+        component = shallow(<RepositoryInput { ...baseProps } dispatch={ store.dispatch } store={ store } />);
         component.instance().onChange.call(
           component.instance(),
           { target: { value: 'example/example' } }
@@ -112,29 +114,18 @@ describe('The RepositoryInput component', () => {
       });
 
       it('should dispatch "setGitHubRepository" with new value', () => {
-        expect(dispatch).toHaveBeenCalledWith({
-          type: 'SET_GITHUB_REPOSITORY',
-          payload: 'example/example'
-        });
+        expect(store.getActions()).toHaveActionOfType(
+          'SET_GITHUB_REPOSITORY'
+        );
       });
     });
 
-    context('when form is submitted', () => {
-      beforeEach(() => {
-        const store = mockStore(baseProps);
-        component = shallow(<RepositoryInput { ...baseProps } store={ store } />);
-        component.instance().onSubmit.call(
-          component.instance(),
-          { target: { value: 'example/example' }, preventDefault: () => {} }
-        );
-      });
-
-      it('should dispatch "setGitHubRepository" with new value', () => {
-        expect(dispatch).toHaveBeenCalledWith({
-          type: 'SET_GITHUB_REPOSITORY',
-          payload: 'example/example'
-        });
-      });
+    xcontext('when form is submitted', () => {
+      // TODO:
+      // test that was here before didn't make much sense, as we now call
+      // `createWebhook` when form is subitted, not `setGitHubRepository`
+      // but ideally we should call `createSnap` first, and `createWebhook`
+      // only on success of that...
     });
   });
 });

@@ -3,6 +3,7 @@ import 'isomorphic-fetch';
 export const WEBHOOK = 'WEBHOOK';
 export const WEBHOOK_SUCCESS = 'WEBHOOK_SUCCESS';
 export const WEBHOOK_FAILURE = 'WEBHOOK_FAILURE';
+export const WEBHOOK_RESET = 'WEBHOOK_RESET';
 
 const REQUEST_OPTIONS = {
   method: 'POST',
@@ -27,6 +28,12 @@ export function createWebhookFailure(code, message) {
     action.message = message;
   }
   return action;
+}
+
+export function resetWebhook() {
+  return {
+    type: WEBHOOK_RESET
+  };
 }
 
 export function createWebhook(account, repo) {
