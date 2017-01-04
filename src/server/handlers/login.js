@@ -3,9 +3,9 @@ import qs from 'qs';
 import { conf } from '../helpers/config';
 import RelyingPartyFactory from '../openid/relyingparty';
 import constants from '../constants';
+import { completeSnapAuthorization } from '../handlers/launchpad';
 
 const OPENID_IDENTIFIER = conf.get('UBUNTU_SSO_URL');
-const OPENID_TEAMS = conf.get('OPENID_TEAMS');
 const OPENID_VERIFY_URL = conf.get('OPENID_VERIFY_URL');
 
 const makeRelyingParty = (req) => {
@@ -13,7 +13,7 @@ const makeRelyingParty = (req) => {
   // authenticate and verify, including query string ordering.
   let returnUrl = OPENID_VERIFY_URL;
   const query = qs.stringify(req.query, {
-    filter: ['starting_url', 'caveat_id']
+    filter: ['starting_url', 'caveat_id', 'repository_url']
   });
   if (query.length) {
     returnUrl += '?' + query;
@@ -41,38 +41,57 @@ export const authenticate = (req, res, next) => {
 
 };
 
+export const processVerifiedAssertion = (req, res, next, error, result) => {
+  const OPENID_TEAMS = conf.get('OPENID_TEAMS');
+
+  if (error) {
+    // TODO log errors to sentry
+    return next(error);
+  }
+
+  if (!result.authenticated) {
+    return next(new Error(`${constants.E_SSO_FAIL}`));
+  }
+
+  if (!req.session) {
+    return next(new Error(`${constants.E_NO_SESSION}`));
+  }
+
+  if (OPENID_TEAMS &&
+      (!result.teams || !result.teams.some(team => {
+        return OPENID_TEAMS.indexOf(team) != -1;
+      }))) {
+    return next(new Error(`${constants.E_UNAUTHORIZED}`));
+  }
+
+  req.session.authenticated = result.authenticated;
+  req.session.name = result.fullname;
+  req.session.email = result.email;
+  let completeAuth;
+  if (result.discharge) {
+    completeAuth = completeSnapAuthorization(
+        req.session, req.query.repository_url, result.discharge);
+  } else {
+    // We have no further authorization work to do, but a dummy promise is
+    // handy to avoid duplicating code.
+    completeAuth = Promise.resolve(null);
+  }
+  return completeAuth
+    .then(() => {
+      if (req.query.starting_url) {
+        res.redirect(req.query.starting_url);
+      } else {
+        res.redirect('/');
+      }
+    })
+    .catch((error) => next(new Error(error.body.payload.message)));
+};
+
 export const verify = (req, res, next) => {
   const rp = makeRelyingParty(req);
 
   rp.verifyAssertion(req, (error, result) => {
-    if (error) {
-      // TODO log errors to sentry
-      return next(error);
-    }
-
-    if (!result.authenticated) {
-      return next(new Error(`${constants.E_SSO_FAIL}`));
-    }
-
-    if (OPENID_TEAMS &&
-        (!result.teams || !result.teams.some(team => {
-          return OPENID_TEAMS.indexOf(team) != -1;
-        }))) {
-      return next(new Error(`${constants.E_UNAUTHORIZED}`));
-    }
-
-    if (!req.session) {
-      return next(new Error(`${constants.E_NO_SESSION}`));
-    }
-
-    req.session.authenticated = result.authenticated;
-    req.session.name = result.fullname;
-    req.session.email = result.email;
-    if (req.query.starting_url) {
-      res.redirect(req.query.starting_url);
-    } else {
-      res.redirect('/');
-    }
+    return processVerifiedAssertion(req, res, next, error, result);
   });
 };
 

@@ -35,19 +35,7 @@ On success, returns:
 The caller should proceed to authorize the snap using an OpenID exchange,
 using `:caveat-id` as the parameter to the Macaroon extension.  If
 successful, the result of this OpenID exchange will be a discharge macaroon,
-which it should then store in Launchpad:
-
-    POST /api/launchpad/snaps/complete-authorization
-    Cookie: <session cookie>
-    Content-Type: application/json
-    Accept: application/json
-
-    {
-      "repository_url": "https://github.com/:account/:repo",
-      "discharge_macaroon": ":discharge"
-    }
-
-On success, this returns 200.
+which the `/login/verify` handler will store in Launchpad.
 
 To search for an existing snap:
 

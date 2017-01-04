@@ -98,18 +98,18 @@ class PreparedError extends Error {
   }
 }
 
-const responseError = (res, error) => {
+// Wrap errors in a promise chain so that they always end up as a
+// PreparedError.
+const prepareError = (error) => {
   if (error.status && error.body) {
     // The error comes with a prepared representation.
-    return res.status(error.status).send(error.body);
+    return Promise.resolve(error);
   } else if (error.response) {
     // if it's ResourceError from LP client at least for the moment
     // we just wrap the error we get from LP
-    // XXX cjwatson 2016-12-22: Perhaps refactor to use the PreparedError
-    // system above?
     return error.response.text().then((text) => {
       logger.info('Launchpad API error:', text);
-      return res.status(error.response.status).send({
+      return new PreparedError(error.response.status, {
         status: 'error',
         payload: {
           code: 'lp-error',
@@ -118,14 +118,21 @@ const responseError = (res, error) => {
       });
     });
   } else {
-    return res.status(500).send({
+    return Promise.resolve(new PreparedError(500, {
       status: 'error',
       payload: {
         code: 'internal-error',
         message: error.message
       }
-    });
+    }));
   }
+};
+
+const sendError = (res, error) => {
+  return prepareError(error)
+    .then((preparedError) => {
+      res.status(preparedError.status).send(preparedError.body);
+    });
 };
 
 const checkGitHubStatus = (response) => {
@@ -155,13 +162,12 @@ const checkGitHubStatus = (response) => {
   return response;
 };
 
-const checkAdminPermissions = (req) => {
-  if (!req.session || !req.session.token) {
+const checkAdminPermissions = (session, repositoryUrl) => {
+  if (!session || !session.token) {
     return Promise.reject(new PreparedError(401, RESPONSE_NOT_LOGGED_IN));
   }
-  const token = req.session.token;
+  const token = session.token;
 
-  const repositoryUrl = req.body.repository_url;
   const parsed = parseGitHubUrl(repositoryUrl);
   if (parsed === null || parsed.owner === null || parsed.name === null) {
     logger.info(`Cannot parse "${repositoryUrl}"`);
@@ -208,7 +214,7 @@ export const newSnap = (req, res) => {
   const lpClient = getLaunchpad();
   let snapUrl;
   // We need admin permissions in order to be able to install a webhook later.
-  checkAdminPermissions(req)
+  checkAdminPermissions(req.session, repositoryUrl)
     .then((result) => {
       return getSnapcraftYaml(result.owner, result.name, result.token);
     })
@@ -252,7 +258,7 @@ export const newSnap = (req, res) => {
         }
       });
     })
-    .catch((error) => responseError(res, error));
+    .catch((error) => sendError(res, error));
 };
 
 const internalFindSnap = async (repositoryUrl) => {
@@ -310,30 +316,27 @@ export const findSnap = (req, res) => {
         }
       });
     })
-    .catch((error) => responseError(res, error));
+    .catch((error) => sendError(res, error));
 };
 
-export const completeSnapAuthorization = async (req, res) => {
+// Not a route handler, but kept here so that the beginAuthorization and
+// completeAuthorization calls are close together.  Returns a Promise.
+export const completeSnapAuthorization = (session, repositoryUrl,
+                                          dischargeMacaroon) => {
   let snapUrl;
-  checkAdminPermissions(req)
-    .then(() => internalFindSnap(req.body.repository_url))
+  return checkAdminPermissions(session, repositoryUrl)
+    .then(() => internalFindSnap(repositoryUrl))
     .then((result) => {
       snapUrl = result;
       return getLaunchpad().named_post(snapUrl, 'completeAuthorization', {
-        parameters: { discharge_macaroon: req.body.discharge_macaroon },
+        parameters: { discharge_macaroon: dischargeMacaroon },
       });
     })
-    .then(() => {
-      logger.info(`Completed authorization of ${snapUrl}`);
-      return res.status(200).send({
-        status: 'success',
-        payload: {
-          code: 'snap-authorized',
-          message: snapUrl
-        }
-      });
-    })
-    .catch((error) => responseError(res, error));
+    .then(() => logger.info(`Completed authorization of ${snapUrl}`))
+    .catch((error) => {
+      return prepareError(error)
+	.then((preparedError) => { throw preparedError; });
+    });
 };
 
 export const getSnapBuilds = (req, res) => {
@@ -364,7 +367,7 @@ export const getSnapBuilds = (req, res) => {
         });
       });
   })
-  .catch((error) => responseError(res, error));
+  .catch((error) => sendError(res, error));
 };
 
 // This version does not check repository permissions, so use it only in
@@ -376,7 +379,7 @@ export const uncheckedRequestSnapBuilds = (repositoryUrl) => {
 };
 
 export const requestSnapBuilds = (req, res) => {
-  checkAdminPermissions(req)
+  checkAdminPermissions(req.session, req.body.repository_url)
     .then(() => uncheckedRequestSnapBuilds(req.body.repository_url))
     .then((builds) => {
       return res.status(201).send({
@@ -387,5 +390,5 @@ export const requestSnapBuilds = (req, res) => {
         }
       });
     })
-    .catch((error) => responseError(res, error));
+    .catch((error) => sendError(res, error));
 };

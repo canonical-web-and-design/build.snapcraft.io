@@ -68,13 +68,12 @@ export function createSnap(repository, location) {
         type: CREATE_SNAP,
         payload: repository
       });
+      const repositoryUrl = getGitHubRepoUrl(repository);
 
       return fetch(`${BASE_URL}/api/launchpad/snaps`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          repository_url: getGitHubRepoUrl(repository)
-        }),
+        body: JSON.stringify({ repository_url: repositoryUrl }),
         credentials: 'same-origin'
       })
         .then(checkStatus)
@@ -90,7 +89,8 @@ export function createSnap(repository, location) {
             (location || window.location).href =
               `${BASE_URL}/login/authenticate` +
               `?starting_url=${encodeURIComponent(startingUrl)}` +
-              `&caveat_id=${encodeURIComponent(result.payload.message)}`;
+              `&caveat_id=${encodeURIComponent(result.payload.message)}` +
+              `&repository_url=${encodeURIComponent(repositoryUrl)}`;
           });
         })
         .catch(error => dispatch(createSnapError(error)));
