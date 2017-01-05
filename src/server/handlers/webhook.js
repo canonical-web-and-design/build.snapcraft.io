@@ -6,7 +6,7 @@ const logging = require('../logging/').default;
 const logger = logging.getLogger('express-error');
 import { uncheckedRequestSnapBuilds } from './launchpad';
 
-export const makeWebhookHmac = (account, repo) => {
+export const makeWebhookSecret = (account, repo) => {
   const rootSecret = conf.get('GITHUB_WEBHOOK_SECRET');
   if (!rootSecret) {
     throw new Error('GitHub webhook secret not configured');
@@ -14,7 +14,7 @@ export const makeWebhookHmac = (account, repo) => {
   const hmac = createHmac('sha1', rootSecret);
   hmac.update(account);
   hmac.update(repo);
-  return hmac;
+  return hmac.digest('hex');
 };
 
 // Response bodies won't go anywhere very useful, but at least try to send
@@ -30,16 +30,16 @@ export const notify = (req, res) => {
     logger.info(`Unexpected token ${firstchar}`);
     return res.status(400).send();
   }
-  const body = JSON.parse(req.body);
-  logger.debug('Received webhook: ', body);
+  logger.debug('Received webhook: ', req.body);
 
-  let hmac;
+  let secret;
   try {
-    hmac = makeWebhookHmac(req.params.account, req.params.repo);
+    secret = makeWebhookSecret(req.params.account, req.params.repo);
   } catch (e) {
     logger.info(e.message);
     return res.status(500).send();
   }
+  const hmac = createHmac('sha1', secret);
   hmac.update(req.body);
   const computedSignature = `sha1=${hmac.digest('hex')}`;
   if (signature !== computedSignature) {

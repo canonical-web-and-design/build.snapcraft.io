@@ -1,7 +1,7 @@
 import { conf } from '../helpers/config';
 import requestGitHub from '../helpers/github';
 import logging from '../logging';
-import { makeWebhookHmac } from './webhook';
+import { makeWebhookSecret } from './webhook';
 
 const logger = logging.getLogger('express-error');
 
@@ -50,7 +50,7 @@ export const createWebhook = (req, res) => {
 
   let secret;
   try {
-    secret = makeWebhookHmac(account, repo).digest('hex');
+    secret = makeWebhookSecret(account, repo);
   } catch (e) {
     return res.status(500).send({
       status: 'error',

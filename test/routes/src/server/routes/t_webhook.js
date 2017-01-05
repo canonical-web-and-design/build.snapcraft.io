@@ -55,9 +55,10 @@ describe('The WebHook API endpoint', () => {
 
     it('rejects requests with a bad signature', (done) => {
       const body = JSON.stringify({ ref: 'refs/heads/master' });
-      const hmac = createHmac('sha1', conf.get('GITHUB_WEBHOOK_SECRET'));
+      let hmac = createHmac('sha1', conf.get('GITHUB_WEBHOOK_SECRET'));
       hmac.update('anaccount');
       hmac.update('arepo');
+      hmac = createHmac('sha1', hmac.digest('hex'));
       hmac.update(body + ' ');
       supertest(app)
         .post('/anaccount/arepo/webhook/notify')
@@ -108,9 +109,10 @@ describe('The WebHook API endpoint', () => {
         });
 
       const body = JSON.stringify({ ref: 'refs/heads/master' });
-      const hmac = createHmac('sha1', conf.get('GITHUB_WEBHOOK_SECRET'));
+      let hmac = createHmac('sha1', conf.get('GITHUB_WEBHOOK_SECRET'));
       hmac.update('anaccount');
       hmac.update('arepo');
+      hmac = createHmac('sha1', hmac.digest('hex'));
       hmac.update(body);
       supertest(app)
         .post('/anaccount/arepo/webhook/notify')
@@ -138,9 +140,10 @@ describe('The WebHook API endpoint', () => {
         });
 
       const body = JSON.stringify({ ref: 'refs/heads/master' });
-      const hmac = createHmac('sha1', conf.get('GITHUB_WEBHOOK_SECRET'));
+      let hmac = createHmac('sha1', conf.get('GITHUB_WEBHOOK_SECRET'));
       hmac.update('anaccount');
       hmac.update('arepo');
+      hmac = createHmac('sha1', hmac.digest('hex'));
       hmac.update(body);
       supertest(app)
         .post('/anaccount/arepo/webhook/notify')
