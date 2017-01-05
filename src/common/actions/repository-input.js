@@ -99,7 +99,14 @@ export function createSnap(repository, location) {
               `&repository_url=${encodeURIComponent(repositoryUrl)}`;
           });
         })
-        .catch(error => dispatch(createSnapError(error)));
+        .catch(error => {
+          // if LP error says there is already such snap, just redirect to builds page
+          if (error.message === 'There is already a snap package with the same name and owner.') {
+            (location || window.location).href = `${BASE_URL}/${repository}/builds`;
+          } else {
+            dispatch(createSnapError(error));
+          }
+        });
     }
   };
 }
