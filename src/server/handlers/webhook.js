@@ -3,7 +3,7 @@ import { createHmac } from 'crypto';
 import getGitHubRepoUrl from '../../common/helpers/github-url';
 import { conf } from '../helpers/config';
 const logging = require('../logging/').default;
-const logger = logging.getLogger('express');
+const logger = logging.getLogger('express-error');
 import { uncheckedRequestSnapBuilds } from './launchpad';
 
 export const makeWebhookHmac = (account, repo) => {
@@ -22,12 +22,12 @@ export const makeWebhookHmac = (account, repo) => {
 export const notify = (req, res) => {
   const signature = req.headers['x-hub-signature'];
   if (!signature) {
-    logger.debug('Rejecting unsigned webhook');
+    logger.info('Rejecting unsigned webhook');
     return res.status(400).send();
   }
   const firstchar = req.body.trim()[0];
   if (firstchar !== '{') {
-    logger.debug(`Unexpected token ${firstchar}`);
+    logger.info(`Unexpected token ${firstchar}`);
     return res.status(400).send();
   }
   const body = JSON.parse(req.body);
@@ -37,14 +37,14 @@ export const notify = (req, res) => {
   try {
     hmac = makeWebhookHmac(req.params.account, req.params.repo);
   } catch (e) {
-    logger.debug(e.message);
+    logger.info(e.message);
     return res.status(500).send();
   }
   hmac.update(req.body);
   const computedSignature = `sha1=${hmac.digest('hex')}`;
   if (signature !== computedSignature) {
-    logger.debug('Webhook signature mismatch: ' +
-                 `received ${signature} != computed ${computedSignature}`);
+    logger.info('Webhook signature mismatch: ' +
+                `received ${signature} != computed ${computedSignature}`);
     return res.status(400).send();
   }
 
@@ -52,11 +52,11 @@ export const notify = (req, res) => {
   const repositoryUrl = getGitHubRepoUrl(req.params.account, req.params.repo);
   return uncheckedRequestSnapBuilds(repositoryUrl)
     .then(() => {
-      logger.debug(`Requested builds of ${repositoryUrl}.`);
+      logger.info(`Requested builds of ${repositoryUrl}.`);
       return res.status(200).send();
     })
     .catch((error) => {
-      logger.debug(`Failed to request builds of ${repositoryUrl}: ${error}.`);
+      logger.info(`Failed to request builds of ${repositoryUrl}: ${error}.`);
       return res.status(500).send();
     });
 };
