@@ -17,6 +17,7 @@ const DISTRIBUTION = 'ubuntu';
 const DISTRO_SERIES = 'xenial';
 const ARCHITECTURES = ['amd64', 'armhf'];
 const STORE_SERIES = '16';
+const STORE_CHANNELS = ['edge'];
 
 const RESPONSE_NOT_LOGGED_IN = {
   status: 'error',
@@ -239,7 +240,8 @@ export const newSnap = (req, res) => {
           }),
           store_upload: true,
           store_series: `/+snappy-series/${STORE_SERIES}`,
-          store_name: snapcraftYaml.name
+          store_name: snapcraftYaml.name,
+          store_channels: STORE_CHANNELS
         }
       });
     })
