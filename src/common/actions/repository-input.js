@@ -3,8 +3,6 @@ import 'isomorphic-fetch';
 import conf from '../helpers/config';
 import getGitHubRepoUrl from '../helpers/github-url';
 
-import { resetWebhook } from './webhook';
-
 const BASE_URL = conf.get('BASE_URL');
 const GITHUB_API_ENDPOINT = conf.get('GITHUB_API_ENDPOINT');
 
@@ -16,12 +14,9 @@ export const CREATE_SNAP = 'CREATE_SNAP';
 export const CREATE_SNAP_ERROR = 'CREATE_SNAP_ERROR';
 
 export function setGitHubRepository(value) {
-  return (dispatch) => {
-    dispatch({
-      type: SET_GITHUB_REPOSITORY,
-      payload: value
-    });
-    dispatch(resetWebhook());
+  return {
+    type: SET_GITHUB_REPOSITORY,
+    payload: value
   };
 }
 

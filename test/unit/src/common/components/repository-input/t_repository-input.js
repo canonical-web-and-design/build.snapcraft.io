@@ -8,7 +8,7 @@ import thunk from 'redux-thunk';
 import Component from '../../../../../../src/common/components/repository-input';
 const RepositoryInput = Component.WrappedComponent;
 
-//let dispatch = expect.createSpy();
+import * as ActionTypes from '../../../../../../src/common/actions/repository-input';
 
 const baseProps = {
   auth: {
@@ -21,12 +21,10 @@ const baseProps = {
   webhook: {
     error: false
   },
-//  dispatch: dispatch
 };
 
 const middlewares = [ thunk ];
 const mockStore = configureMockStore(middlewares);
-//const mockStore = configureStore();
 
 describe('The RepositoryInput component', () => {
   let component;
@@ -113,19 +111,39 @@ describe('The RepositoryInput component', () => {
         );
       });
 
-      it('should dispatch "setGitHubRepository" with new value', () => {
+      it('should dispatch "setGitHubRepository" for repository', () => {
         expect(store.getActions()).toHaveActionOfType(
-          'SET_GITHUB_REPOSITORY'
+          ActionTypes.SET_GITHUB_REPOSITORY
         );
       });
     });
 
-    xcontext('when form is submitted', () => {
-      // TODO:
-      // test that was here before didn't make much sense, as we now call
-      // `createWebhook` when form is subitted, not `setGitHubRepository`
-      // but ideally we should call `createSnap` first, and `createWebhook`
-      // only on success of that...
+    context('when form is submitted', () => {
+      let store;
+
+      beforeEach(() => {
+        const props = {
+          ...baseProps,
+          repositoryInput: {
+            success: true,
+            inputValue: 'account/repo',
+            repository: 'account/repo'
+          },
+        };
+        store = mockStore(props);
+
+        component = shallow(<RepositoryInput { ...props } dispatch={ store.dispatch } store={ store } />);
+        component.instance().onSubmit.call(
+          component.instance(),
+          { preventDefault: () => {} } // mocked event object
+        );
+      });
+
+      it('should dispatch "createSnap" for repository', () => {
+        expect(store.getActions()).toHaveActionOfType(
+          ActionTypes.CREATE_SNAP
+        );
+      });
     });
   });
 });

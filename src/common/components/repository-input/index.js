@@ -14,21 +14,14 @@ import { Form, InputField, Message } from '../forms';
 class RepositoryInput extends Component {
   getErrorMessage() {
     const input = this.props.repositoryInput;
-    const webhook = this.props.webhook;
-
-    let message;
 
     if (input.inputValue.length > 2 && !input.repository) {
-      message = 'Please enter a valid GitHub repository name or URL.';
-    } else if (webhook.error) {
-      message = webhook.error.message;
+      return 'Please enter a valid GitHub repository name or URL.';
     } else if (input.error) {
-      message = input.error.message;
-    } else {
-      message = 'Unexpected error. Please make sure you are entering a valid GitHub repository and try again.';
+      return input.error.message;
     }
 
-    return message;
+    return 'Unexpected error. Please make sure you are entering a valid GitHub repository and try again.';
   }
 
   render() {
@@ -57,9 +50,8 @@ class RepositoryInput extends Component {
   step2() {
     const { authenticated } = this.props.auth;
     const input = this.props.repositoryInput;
-    const webhook = this.props.webhook;
     const isTouched = input.inputValue.length > 2;
-    const isValid = !!input.repository && !input.error && !webhook.error;
+    const isValid = !!input.repository && !input.error;
 
     return (
       <Step number="2" complete={ input.success }>
@@ -103,21 +95,18 @@ class RepositoryInput extends Component {
 RepositoryInput.propTypes = {
   repositoryInput: PropTypes.object.isRequired,
   auth: PropTypes.object.isRequired,
-  dispatch: PropTypes.func.isRequired,
-  webhook: PropTypes.object.isRequired
+  dispatch: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
   const {
     repositoryInput,
-    auth,
-    webhook
+    auth
   } = state;
 
   return {
     auth,
-    repositoryInput,
-    webhook
+    repositoryInput
   };
 }
 

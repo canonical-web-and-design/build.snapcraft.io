@@ -14,10 +14,6 @@ const ERROR_MESSAGES = {
 
 export function webhook(state = INITIAL_STATE, action) {
   switch (action.type) {
-    case ActionTypes.WEBHOOK_RESET:
-      return {
-        ...INITIAL_STATE
-      };
     case ActionTypes.WEBHOOK:
       return {
         ...state,
