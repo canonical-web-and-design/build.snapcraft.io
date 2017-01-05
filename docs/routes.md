@@ -70,7 +70,7 @@ as returned by the Launchpad API:
 
 To request builds of an existing snap:
 
-    POST /api/launchpad/snap/request-builds
+    POST /api/launchpad/snaps/request-builds
     Cookie: <session cookie>
     Content-Type: application/json
     Accept: application/json

@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
 import { createWebhook } from '../actions/webhook';
+import { requestBuilds } from '../actions/request-snap-builds';
 import { Message } from '../components/forms';
 import Spinner from '../components/spinner';
 
@@ -11,17 +12,21 @@ import styles from './container.css';
 
 class RepositorySetup extends Component {
   componentDidMount() {
-    const { account, repo, isFetching } = this.props;
+    const { account, repo, fullName, webhook, builds } = this.props;
 
-    if (!isFetching) {
+    if (!webhook.isFetching) {
       this.props.dispatch(createWebhook(account, repo));
+    }
+    if (!builds.isFetching) {
+      this.props.dispatch(requestBuilds(fullName));
     }
   }
 
   render() {
-    const { fullName, isFetching, success, error } = this.props;
+    const { fullName, webhook, builds } = this.props;
+    const isFetching = webhook.isFetching || builds.isFetching;
 
-    if (success) {
+    if (webhook.success && builds.success) {
       this.props.router.replace(`/${fullName}/builds`);
     } else {
       return (
@@ -32,8 +37,11 @@ class RepositorySetup extends Component {
           { isFetching &&
             <div className={styles.spinner}><Spinner /></div>
           }
-          { error &&
-            <Message status='error'>{ this.props.error.message }</Message>
+          { webhook.error &&
+            <Message status='error'>{ webhook.error.message }</Message>
+          }
+          { builds.error &&
+            <Message status='error'>{ builds.error.message }</Message>
           }
         </div>
       );
@@ -45,9 +53,16 @@ RepositorySetup.propTypes = {
   account: PropTypes.string.isRequired,
   repo: PropTypes.string.isRequired,
   fullName: PropTypes.string.isRequired,
-  isFetching: PropTypes.bool,
-  success: PropTypes.bool,
-  error: PropTypes.object,
+  webhook: PropTypes.shape({
+    isFetching: PropTypes.bool,
+    success: PropTypes.bool,
+    error: PropTypes.object
+  }),
+  builds: PropTypes.shape({
+    isFetching: PropTypes.bool,
+    success: PropTypes.bool,
+    error: PropTypes.object
+  }),
   router: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired
 };
@@ -57,17 +72,20 @@ const mapStateToProps = (state, ownProps) => {
   const repo = ownProps.params.repo.toLowerCase();
   const fullName = `${account}/${repo}`;
 
-  const isFetching = state.webhook.isFetching;
-  const success = state.webhook.success;
-  const error = state.webhook.error;
-
   return {
     account,
     repo,
     fullName,
-    isFetching,
-    success,
-    error
+    webhook: {
+      isFetching: state.webhook.isFetching,
+      success: state.webhook.success,
+      error: state.webhook.error
+    },
+    builds: {
+      isFetching: state.requestSnapBuilds.isFetching,
+      success: state.requestSnapBuilds.success,
+      error: state.requestSnapBuilds.error
+    }
   };
 };
 

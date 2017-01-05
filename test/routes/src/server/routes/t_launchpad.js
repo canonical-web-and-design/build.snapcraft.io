@@ -800,20 +800,16 @@ describe('The Launchpad API endpoint', () => {
           .post(`/devel${lp_snap_path}`, {
             'ws.op': 'requestAutoBuilds'
           })
-          .reply(200, {
-            total_size: 2,
-            start: 0,
-            entries: [
-              {
-                resource_type_link: `${lp_api_base}/#snap_build`,
-                self_link: `${lp_api_base}${lp_snap_path}/+build/1`
-              },
-              {
-                resource_type_link: `${lp_api_base}/#snap_build`,
-                self_link: `${lp_api_base}${lp_snap_path}/+build/2`
-              }
-            ]
-          });
+          .reply(200, [
+            {
+              resource_type_link: `${lp_api_base}/#snap_build`,
+              self_link: `${lp_api_base}${lp_snap_path}/+build/1`
+            },
+            {
+              resource_type_link: `${lp_api_base}/#snap_build`,
+              self_link: `${lp_api_base}${lp_snap_path}/+build/2`
+            }
+          ]);
       });
 
       afterEach(() => {

@@ -388,7 +388,7 @@ export const requestSnapBuilds = (req, res) => {
         status: 'success',
         payload: {
           code: 'snap-builds-requested',
-          builds: builds.entries
+          builds: builds
         }
       });
     })
