@@ -25,7 +25,7 @@ class RepositoryInput extends Component {
     } else if (input.error) {
       message = input.error.message;
     } else {
-      message = 'Unexpected error. Please make sure you are entering valid GitHub repository and try again.';
+      message = 'Unexpected error. Please make sure you are entering a valid GitHub repository and try again.';
     }
 
     return message;
