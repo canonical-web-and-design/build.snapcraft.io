@@ -1,9 +1,9 @@
-import { WEBHOOK_FAILURE } from '../actions/webhook';
+import * as ActionTypes from '../actions/webhook';
 
 const INITIAL_STATE = {
-  isPending: false,
+  isFetching: false,
   success: false,
-  error: false
+  error: null
 };
 
 const ERROR_MESSAGES = {
@@ -12,12 +12,26 @@ const ERROR_MESSAGES = {
   'github-error-other': 'A problem occurred while the repository was being built. Please try again later'
 };
 
-export function webhook(state = INITIAL_STATE, code) {
-  switch (code.type) {
-    case WEBHOOK_FAILURE:
+export function webhook(state = INITIAL_STATE, action) {
+  switch (action.type) {
+    case ActionTypes.WEBHOOK:
       return {
         ...state,
-        error: { message:  ERROR_MESSAGES[code.code] }
+        isFetching: true
+      };
+    case ActionTypes.WEBHOOK_SUCCESS:
+      return {
+        ...state,
+        isFetching: false,
+        success: true,
+        error: null
+      };
+    case ActionTypes.WEBHOOK_FAILURE:
+      return {
+        ...state,
+        isFetching: false,
+        success: false,
+        error: { message: ERROR_MESSAGES[action.code] }
       };
     default:
       return state;

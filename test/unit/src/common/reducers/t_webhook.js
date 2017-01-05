@@ -4,71 +4,106 @@ import { webhook } from '../../../../../src/common/reducers/webhook';
 
 describe('webhook reducers', () => {
   const initialState = {
-    isPending: false,
+    isFetching: false,
     success: false,
-    error: false
+    error: null
   };
 
   context('when called with an unknown action', () => {
-    let resultState;
-
-    beforeEach(() => {
-      resultState = webhook(undefined, {});
-    });
-
     it('should return the initial state', () => {
-      expect(resultState).toEqual(initialState);
+      expect(webhook(undefined, {})).toEqual(initialState);
     });
   });
 
-  context('when called with action type WEBHOOK_FAILURE and code github-repository-not-found', () => {
-    let resultState;
+  context('WEBHOOK', () => {
+    const action = { type: 'WEBHOOK' };
 
-    beforeEach(() => {
-      resultState = webhook(initialState, {
+    it('should store fetching state', () => {
+      expect(webhook(initialState, action)).toEqual({
+        ...initialState,
+        isFetching: true
+      });
+    });
+  });
+
+  context('WEBHOOK_SUCCESS', () => {
+    const state = { ...initialState, isFetching: true };
+    const action = { type: 'WEBHOOK_SUCCESS' };
+
+    it('should clear fetching state', () => {
+      expect(webhook(state, action).isFetching).toBe(false);
+    });
+
+    it('should store success state', () => {
+      expect(webhook(state, action).success).toBe(true);
+    });
+  });
+
+  context('WEBHOOK_FAILURE', () => {
+    context('code github-repository-not-found', () => {
+      const state = { ...initialState, isFetching: true };
+      const action = {
         type: 'WEBHOOK_FAILURE',
         code: 'github-repository-not-found'
+      };
+
+      it('should clear fetching state', () => {
+        expect(webhook(state, action).isFetching).toBe(false);
+      });
+
+      it('should clear success state', () => {
+        expect(webhook(state, action).success).toBe(false);
+      });
+
+      it('should store error message beginning "A repository could not be found"', () => {
+        expect(webhook(state, action).error.message).toBe(
+          'A repository could not be found, or access is not granted for given repository details'
+        );
       });
     });
 
-    it('should return a state with an error message beginning "A repository could not be found"', () => {
-      expect(resultState.error.message).toBe(
-        'A repository could not be found, or access is not granted for given repository details'
-      );
-    });
-  });
-
-  context('when called with action type WEBHOOK_FAILURE and code github-authentication-failed', () => {
-    let resultState;
-
-    beforeEach(() => {
-      resultState = webhook(initialState, {
+    context('code github-authentication-failed', () => {
+      const state = { ...initialState, isFetching: true };
+      const action = {
         type: 'WEBHOOK_FAILURE',
         code: 'github-authentication-failed'
+      };
+
+      it('should clear fetching state', () => {
+        expect(webhook(state, action).isFetching).toBe(false);
+      });
+
+      it('should clear success state', () => {
+        expect(webhook(state, action).success).toBe(false);
+      });
+
+      it('should store error message beginning "A problem occurred when accessing repository"', () => {
+        expect(webhook(state, action).error.message).toBe(
+          'A problem occurred when accessing repository. Please try logging in again'
+        );
       });
     });
 
-    it('should return a state with an error message beginning "A problem occurred when accessing repository"', () => {
-      expect(resultState.error.message).toBe(
-        'A problem occurred when accessing repository. Please try logging in again'
-      );
-    });
-  });
-
-  context('when called with action type WEBHOOK_FAILURE and code github-error-other', () => {
-    let resultState;
-
-    beforeEach(() => {
-      resultState = webhook(initialState, {
+    context('code github-error-other', () => {
+      const state = { ...initialState, isFetching: true };
+      const action = {
         type: 'WEBHOOK_FAILURE',
         code: 'github-error-other'
-      });
-    });
+      };
 
-    it('should return a state with an error message beginning "A problem occurred while the repository was being built"', () => {
-      expect(resultState.error.message).toBe(
-        'A problem occurred while the repository was being built. Please try again later'
-      );
+      it('should clear fetching state', () => {
+        expect(webhook(state, action).isFetching).toBe(false);
+      });
+
+      it('should clear success state', () => {
+        expect(webhook(state, action).success).toBe(false);
+      });
+
+      it('should store error message beginning "A problem occurred while the repository was being built"', () => {
+        expect(webhook(state, action).error.message).toBe(
+          'A problem occurred while the repository was being built. Please try again later'
+        );
+      });
     });
   });
 });

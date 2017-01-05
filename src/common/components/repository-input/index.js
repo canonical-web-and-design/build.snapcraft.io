@@ -2,8 +2,10 @@ import 'isomorphic-fetch';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { setGitHubRepository } from '../../actions/repository-input';
-import { createWebhook } from '../../actions/webhook';
+import {
+  createSnap,
+  setGitHubRepository
+} from '../../actions/repository-input';
 import Button from '../button';
 import Step from '../step';
 import { Anchor } from '../button';
@@ -90,7 +92,7 @@ class RepositoryInput extends Component {
     const { repository } = this.props.repositoryInput;
 
     if (repository) {
-      this.props.dispatch(createWebhook(repository));
+      this.props.dispatch(createSnap(repository));
     }
   }
 }

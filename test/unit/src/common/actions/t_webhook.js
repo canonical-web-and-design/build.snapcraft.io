@@ -37,20 +37,19 @@ describe('The createWebhook action creator', () => {
         })
       );
       store = mockStore({
-        isPending: false,
+        isFetching: false,
         success: false,
         error: false
       });
-
     });
 
     afterEach(() => {
       nock.cleanAll();
     });
 
-    it('should dispatch the CREATE_SNAP action', (done) => {
-      store.dispatch(createWebhook('example/example')).then(() => {
-        expect(store.getActions()).toHaveActionOfType('CREATE_SNAP');
+    it('should dispatch the WEBHOOK_SUCCESS action', (done) => {
+      store.dispatch(createWebhook('example', 'example')).then(() => {
+        expect(store.getActions()).toHaveActionOfType('WEBHOOK_SUCCESS');
         done();
       });
     });
@@ -68,7 +67,7 @@ describe('The createWebhook action creator', () => {
         })
       );
       store = mockStore({
-        isPending: false,
+        isFetching: false,
         success: false,
         error: false
       });
@@ -78,9 +77,9 @@ describe('The createWebhook action creator', () => {
       nock.cleanAll();
     });
 
-    it('should dispatch the CREATE_SNAP action', (done) => {
-      store.dispatch(createWebhook('example/example')).then(() => {
-        expect(store.getActions()).toHaveActionOfType('CREATE_SNAP');
+    it('should dispatch the WEBHOOK_SUCCESS', (done) => {
+      store.dispatch(createWebhook('example', 'example')).then(() => {
+        expect(store.getActions()).toHaveActionOfType('WEBHOOK_SUCCESS');
         done();
       });
     });
@@ -98,7 +97,7 @@ describe('The createWebhook action creator', () => {
         })
       );
       store = mockStore({
-        isPending: false,
+        isFetching: false,
         success: false,
         error: false
       });
@@ -109,7 +108,7 @@ describe('The createWebhook action creator', () => {
     });
 
     it('should create an error message action', (done) => {
-      store.dispatch(createWebhook('example/example')).then(() => {
+      store.dispatch(createWebhook('example', 'example')).then(() => {
         expect(store.getActions()).toInclude({
           type: 'WEBHOOK_FAILURE',
           code: 'github-repository-not-found'
@@ -126,7 +125,7 @@ describe('The createWebhook action creator', () => {
         .reply('500', JSON.stringify({}));
 
       store = mockStore({
-        isPending: false,
+        isFetching: false,
         success: false,
         error: false
       });
@@ -137,7 +136,7 @@ describe('The createWebhook action creator', () => {
     });
 
     it('should create an error message action', (done) => {
-      store.dispatch(createWebhook('example/example')).then(() => {
+      store.dispatch(createWebhook('example', 'example')).then(() => {
         expect(store.getActions()).toInclude({
           type: 'WEBHOOK_FAILURE',
           code: 'github-error-other'

@@ -85,7 +85,7 @@ export function createSnap(repository, location) {
               error.response = response;
               throw error;
             }
-            const startingUrl = `${BASE_URL}/${repository}/builds`;
+            const startingUrl = `${BASE_URL}/${repository}/setup`;
             (location || window.location).href =
               `${BASE_URL}/login/authenticate` +
               `?starting_url=${encodeURIComponent(startingUrl)}` +

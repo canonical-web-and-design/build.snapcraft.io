@@ -174,7 +174,7 @@ describe('repository input actions', () => {
           expect(url.parse(location.href, true)).toMatch({
             path: '/login/authenticate',
             query: {
-              starting_url: '/foo/bar/builds',
+              starting_url: '/foo/bar/setup',
               caveat_id: 'dummy-caveat'
             }
           });
