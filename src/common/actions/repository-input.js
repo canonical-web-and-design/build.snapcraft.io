@@ -20,13 +20,21 @@ export function setGitHubRepository(value) {
   };
 }
 
+export function getError(response, json) {
+  const message = (json.payload && json.payload.message) || response.statusText;
+  const error = new Error(message);
+  error.response = response;
+  error.json = json;
+  return error;
+}
+
 function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response;
   } else {
-    const error = new Error(response.statusText);
-    error.response = response;
-    throw error;
+    return response.json().then((json) => {
+      throw getError(response, json);
+    });
   }
 }
 
@@ -81,9 +89,7 @@ export function createSnap(repository, location) {
           return response.json().then(result => {
             if (result.status !== 'success' ||
                 result.payload.code !== 'snap-created') {
-              const error = new Error(response.statusText);
-              error.response = response;
-              throw error;
+              throw getError(response, result);
             }
             const startingUrl = `${BASE_URL}/${repository}/setup`;
             (location || window.location).href =

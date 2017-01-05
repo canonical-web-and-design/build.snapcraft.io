@@ -14,19 +14,14 @@ import { Form, InputField, Message } from '../forms';
 class RepositoryInput extends Component {
   getErrorMessage() {
     const input = this.props.repositoryInput;
-    let message;
 
     if (input.inputValue.length > 2 && !input.repository) {
-      message = 'Please enter a valid GitHub repository name or URL.';
+      return 'Please enter a valid GitHub repository name or URL.';
     } else if (input.error) {
-      if (input.repository) {
-        message = `Repository ${input.repository} doesn't exist, is not public or doesn't contain snapcraft.yaml file.`;
-      } else {
-        message = input.error.message;
-      }
+      return input.error.message;
     }
 
-    return message;
+    return 'Unexpected error. Please make sure you are entering a valid GitHub repository and try again.';
   }
 
   render() {
@@ -100,21 +95,18 @@ class RepositoryInput extends Component {
 RepositoryInput.propTypes = {
   repositoryInput: PropTypes.object.isRequired,
   auth: PropTypes.object.isRequired,
-  dispatch: PropTypes.func.isRequired,
-  webhook: PropTypes.object.isRequired
+  dispatch: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
   const {
     repositoryInput,
-    auth,
-    webhook
+    auth
   } = state;
 
   return {
     auth,
-    repositoryInput,
-    webhook
+    repositoryInput
   };
 }
 

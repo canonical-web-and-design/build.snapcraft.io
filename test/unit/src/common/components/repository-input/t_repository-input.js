@@ -1,14 +1,14 @@
 import React from 'react';
 import expect from 'expect';
 import { shallow } from 'enzyme';
-import configureStore from 'redux-mock-store';
-
+import configureMockStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
 // Workaround for Redux-wrapped components
 // See: https://github.com/airbnb/enzyme/issues/472
 import Component from '../../../../../../src/common/components/repository-input';
 const RepositoryInput = Component.WrappedComponent;
 
-let dispatch = expect.createSpy();
+import * as ActionTypes from '../../../../../../src/common/actions/repository-input';
 
 const baseProps = {
   auth: {
@@ -21,10 +21,10 @@ const baseProps = {
   webhook: {
     error: false
   },
-  dispatch: dispatch
 };
 
-const mockStore = configureStore();
+const middlewares = [ thunk ];
+const mockStore = configureMockStore(middlewares);
 
 describe('The RepositoryInput component', () => {
   let component;
@@ -104,36 +104,45 @@ describe('The RepositoryInput component', () => {
       const store = mockStore(baseProps);
 
       beforeEach(() => {
-        component = shallow(<RepositoryInput { ...baseProps } store={ store } />);
+        component = shallow(<RepositoryInput { ...baseProps } dispatch={ store.dispatch } store={ store } />);
         component.instance().onChange.call(
           component.instance(),
           { target: { value: 'example/example' } }
         );
       });
 
-      it('should dispatch "setGitHubRepository" with new value', () => {
-        expect(dispatch).toHaveBeenCalledWith({
-          type: 'SET_GITHUB_REPOSITORY',
-          payload: 'example/example'
-        });
+      it('should dispatch "setGitHubRepository" for repository', () => {
+        expect(store.getActions()).toHaveActionOfType(
+          ActionTypes.SET_GITHUB_REPOSITORY
+        );
       });
     });
 
     context('when form is submitted', () => {
+      let store;
+
       beforeEach(() => {
-        const store = mockStore(baseProps);
-        component = shallow(<RepositoryInput { ...baseProps } store={ store } />);
+        const props = {
+          ...baseProps,
+          repositoryInput: {
+            success: true,
+            inputValue: 'account/repo',
+            repository: 'account/repo'
+          },
+        };
+        store = mockStore(props);
+
+        component = shallow(<RepositoryInput { ...props } dispatch={ store.dispatch } store={ store } />);
         component.instance().onSubmit.call(
           component.instance(),
-          { target: { value: 'example/example' }, preventDefault: () => {} }
+          { preventDefault: () => {} } // mocked event object
         );
       });
 
-      it('should dispatch "setGitHubRepository" with new value', () => {
-        expect(dispatch).toHaveBeenCalledWith({
-          type: 'SET_GITHUB_REPOSITORY',
-          payload: 'example/example'
-        });
+      it('should dispatch "createSnap" for repository', () => {
+        expect(store.getActions()).toHaveActionOfType(
+          ActionTypes.CREATE_SNAP
+        );
       });
     });
   });
