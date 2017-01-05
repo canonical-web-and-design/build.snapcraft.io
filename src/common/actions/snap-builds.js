@@ -1,3 +1,5 @@
+import 'isomorphic-fetch';
+
 import conf from '../helpers/config';
 import getGitHubRepoUrl from '../helpers/github-url';
 
