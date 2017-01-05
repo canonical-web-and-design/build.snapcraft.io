@@ -10,7 +10,7 @@
     "build": "./scripts/build.sh",
     "lint": "eslint -c .eslintrc.js '**/*.js'",
     "test": "nyc npm run test:unit && npm run test:routes && npm run lint",
-    "test:unit": "BABEL_DISABLE_CACHE=1 NODE_ENV=TEST mocha --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/unit/setup.js ./test/unit/t_*.js ./test/unit/**/*",
+    "test:unit": "BABEL_DISABLE_CACHE=1 NODE_ENV=TEST HTTP_PROXY= HTTPS_PROXY= mocha --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/unit/setup.js ./test/unit/t_*.js ./test/unit/**/*",
     "test:routes": "HTTP_PROXY= HTTPS_PROXY= mocha --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/routes/setup.js ./test/routes/**/*"
   },
   "repository": {
