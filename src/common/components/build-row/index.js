@@ -25,6 +25,25 @@ const BuildRow = (props) => {
     [BuildStatus.PENDING]: styles.pending
   };
 
+  let humanDuration;
+  if (duration !== null) {
+    humanDuration = moment.duration(duration).humanize();
+  } else {
+    humanDuration = '';
+  }
+
+  let humanDateStarted;
+  if (dateStarted !== null) {
+    const momentStarted = moment(dateStarted);
+    humanDateStarted = (
+      <span title={momentStarted.format('YYYY-MM-DD HH:mm:ss UTC')}>
+        {momentStarted.fromNow()}
+      </span>
+    );
+  } else {
+    humanDateStarted = '';
+  }
+
   return (
     <div className={ `${styles.buildRow} ${statusStyle[status]}` }>
       <div className={ styles.item }><Link to={`/${account}/${repo}/builds/${buildId}`}>{`#${buildId}`}</Link> {statusMessage}</div>
@@ -32,10 +51,10 @@ const BuildRow = (props) => {
         {architecture}
       </div>
       <div className={ styles.item }>
-        {moment.duration(duration).humanize()}
+        {humanDuration}
       </div>
       <div className={ styles.item }>
-        <span title={moment(dateStarted).format('DD-MM-YYYY HH:mm:ss')}>{ moment(dateStarted).fromNow() }</span>
+        {humanDateStarted}
       </div>
     </div>
   );
