@@ -83,6 +83,14 @@ const RESPONSE_SNAPCRAFT_YAML_NO_NAME = {
   }
 };
 
+const RESPONSE_SNAP_NAME_NOT_REGISTERED = {
+  status: 'error',
+  payload: {
+    code: 'snap-name-not-registered',
+    message: 'Snap name is not registered in the store'
+  }
+};
+
 const RESPONSE_SNAP_NOT_FOUND = {
   status: 'error',
   payload: {
@@ -210,6 +218,50 @@ const getSnapcraftYaml = (owner, name, token) => {
     });
 };
 
+const verifySnapNameRegistered = (name) => {
+  return fetch(`${conf.get('STORE_API_URL')}/acl/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+      packages: [{ name: name, series: STORE_SERIES }],
+      permissions: ['package_upload']
+    })
+  }).then((response) => response.json().then((json) => {
+    if (response.status === 200 && json.macaroon) {
+      return name;
+    } else {
+      throw new PreparedError(400, RESPONSE_SNAP_NAME_NOT_REGISTERED);
+    }
+  }));
+};
+
+const requestNewSnap = (name, repositoryUrl) => {
+  const lpClient = getLaunchpad();
+  const username = conf.get('LP_API_USERNAME');
+
+  logger.info(`Creating new snap for ${repositoryUrl}`);
+  return lpClient.named_post('/+snaps', 'new', {
+    parameters: {
+      owner: `/~${username}`,
+      distro_series: `/${DISTRIBUTION}/${DISTRO_SERIES}`,
+      name: `${makeSnapName(repositoryUrl)}-${DISTRO_SERIES}`,
+      git_repository_url: repositoryUrl,
+      git_path: 'refs/heads/master',
+      auto_build: true,
+      auto_build_archive: `/${DISTRIBUTION}/+archive/primary`,
+      auto_build_pocket: 'Updates',
+      processors: ARCHITECTURES.map((arch) => `/+processors/${arch}`),
+      store_upload: true,
+      store_series: `/+snappy-series/${STORE_SERIES}`,
+      store_name: name,
+      store_channels: STORE_CHANNELS
+    }
+  });
+};
+
 export const newSnap = (req, res) => {
   const repositoryUrl = req.body.repository_url;
   const lpClient = getLaunchpad();
@@ -223,28 +275,9 @@ export const newSnap = (req, res) => {
       if (!('name' in snapcraftYaml)) {
         throw new PreparedError(400, RESPONSE_SNAPCRAFT_YAML_NO_NAME);
       }
-      const username = conf.get('LP_API_USERNAME');
-      logger.info(`Creating new snap for ${repositoryUrl}`);
-      return lpClient.named_post('/+snaps', 'new', {
-        parameters: {
-          owner: `/~${username}`,
-          distro_series: `/${DISTRIBUTION}/${DISTRO_SERIES}`,
-          name: `${makeSnapName(repositoryUrl)}-${DISTRO_SERIES}`,
-          git_repository_url: repositoryUrl,
-          git_path: 'refs/heads/master',
-          auto_build: true,
-          auto_build_archive: `/${DISTRIBUTION}/+archive/primary`,
-          auto_build_pocket: 'Updates',
-          processors: ARCHITECTURES.map((arch) => {
-            return `/+processors/${arch}`;
-          }),
-          store_upload: true,
-          store_series: `/+snappy-series/${STORE_SERIES}`,
-          store_name: snapcraftYaml.name,
-          store_channels: STORE_CHANNELS
-        }
-      });
+      return verifySnapNameRegistered(snapcraftYaml.name, repositoryUrl);
     })
+    .then((name) => requestNewSnap(name, repositoryUrl))
     .then((result) => {
       snapUrl = result.self_link;
       logger.info(`Authorizing ${snapUrl}`);
