@@ -1,4 +1,5 @@
 import { createHmac } from 'crypto';
+import expect from 'expect';
 import Express from 'express';
 import nock from 'nock';
 import supertest from 'supertest';
@@ -48,6 +49,7 @@ describe('The WebHook API endpoint', () => {
       supertest(app)
         .post('/anaccount/arepo/webhook/notify')
         .type('application/json')
+        .set('X-GitHub-Event', 'push')
         .set('X-Hub-Signature', 'dummy')
         .send('"bad"')
         .expect(400, done);
@@ -63,6 +65,7 @@ describe('The WebHook API endpoint', () => {
       supertest(app)
         .post('/anaccount/arepo/webhook/notify')
         .type('application/json')
+        .set('X-GitHub-Event', 'push')
         .set('X-Hub-Signature', `sha1=${hmac.digest('hex')}`)
         .send(body)
         .expect(400, done);
@@ -117,6 +120,7 @@ describe('The WebHook API endpoint', () => {
       supertest(app)
         .post('/anaccount/arepo/webhook/notify')
         .type('application/json')
+        .set('X-GitHub-Event', 'push')
         .set('X-Hub-Signature', `sha1=${hmac.digest('hex')}`)
         .send(body)
         .expect(200, (err) => {
@@ -148,9 +152,38 @@ describe('The WebHook API endpoint', () => {
       supertest(app)
         .post('/anaccount/arepo/webhook/notify')
         .type('application/json')
+        .set('X-GitHub-Event', 'push')
         .set('X-Hub-Signature', `sha1=${hmac.digest('hex')}`)
         .send(body)
         .expect(500, done);
+    });
+
+    it('returns 200 but does not request builds for a ping event', (done) => {
+      const lp_api_url = conf.get('LP_API_URL');
+      const findByURL = nock(lp_api_url)
+        .get('/devel/+snaps')
+        .reply(500);
+      const requestAutoBuilds = nock(lp_api_url)
+        .post(`/devel${lp_snap_path}`)
+        .reply(500);
+
+      const body = JSON.stringify({ ref: 'refs/heads/master' });
+      let hmac = createHmac('sha1', conf.get('GITHUB_WEBHOOK_SECRET'));
+      hmac.update('anaccount');
+      hmac.update('arepo');
+      hmac = createHmac('sha1', hmac.digest('hex'));
+      hmac.update(body);
+      supertest(app)
+        .post('/anaccount/arepo/webhook/notify')
+        .type('application/json')
+        .set('X-GitHub-Event', 'ping')
+        .set('X-Hub-Signature', `sha1=${hmac.digest('hex')}`)
+        .send(body)
+        .expect(200, (err) => {
+          expect(findByURL.isDone()).toBe(false);
+          expect(requestAutoBuilds.isDone()).toBe(false);
+          done(err);
+        });
     });
   });
 });

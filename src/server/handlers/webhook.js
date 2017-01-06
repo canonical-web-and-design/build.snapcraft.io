@@ -49,14 +49,19 @@ export const notify = (req, res) => {
   }
 
   // Acknowledge webhook
-  const repositoryUrl = getGitHubRepoUrl(req.params.account, req.params.repo);
-  return uncheckedRequestSnapBuilds(repositoryUrl)
-    .then(() => {
-      logger.info(`Requested builds of ${repositoryUrl}.`);
-      return res.status(200).send();
-    })
-    .catch((error) => {
-      logger.info(`Failed to request builds of ${repositoryUrl}: ${error}.`);
-      return res.status(500).send();
-    });
+  if (req.headers['x-github-event'] === 'ping') {
+    return res.status(200).send();
+  } else {
+    const repositoryUrl = getGitHubRepoUrl(req.params.account,
+                                           req.params.repo);
+    return uncheckedRequestSnapBuilds(repositoryUrl)
+      .then(() => {
+        logger.info(`Requested builds of ${repositoryUrl}.`);
+        return res.status(200).send();
+      })
+      .catch((error) => {
+        logger.info(`Failed to request builds of ${repositoryUrl}: ${error}.`);
+        return res.status(500).send();
+      });
+  }
 };
