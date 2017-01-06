@@ -4,10 +4,16 @@ import { conf } from '../helpers/config';
 
 let memcached = null;
 
+// Return a Promise that calls the given callback soon, but not immediately.
+// This helps to exercise asynchronicity bugs in memcached client code.
+const runSoon = (callback) => {
+  return new Promise((resolve) => setTimeout(resolve, 1)).then(callback);
+};
+
 const getMemcachedStub = () => {
   return {
-    get: (key, callback) => callback(),
-    set: (key, value, lifetime, callback) => callback()
+    get: (key, callback) => runSoon(callback),
+    set: (key, value, lifetime, callback) => runSoon(callback)
   };
 };
 
@@ -16,13 +22,13 @@ const getInMemoryMemcachedStub = () => {
 
   memcachedStub.get = (key, callback) => {
     if (callback) {
-      callback(undefined, memcachedStub.cache[key]);
+      runSoon(() => callback(undefined, memcachedStub.cache[key]));
     }
   };
   memcachedStub.set = (key, value, lifetime, callback) => {
     memcachedStub.cache[key] = value;
     if (callback) {
-      callback(undefined, true);
+      runSoon(() => callback(undefined, true));
     }
   };
 

@@ -328,7 +328,7 @@ const internalFindSnap = async (repositoryUrl) => {
         // https://github.com/babel/babel-eslint/issues/415
         for await (const entry of result) { // eslint-disable-line semi
           if (entry.owner_link.endsWith(`/~${username}`)) {
-            getMemcached().set(cacheId, entry.self_link, 3600, () => {
+            return getMemcached().set(cacheId, entry.self_link, 3600, () => {
               return resolve(entry.self_link);
             });
           }
