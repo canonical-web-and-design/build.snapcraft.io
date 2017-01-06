@@ -83,14 +83,6 @@ const RESPONSE_SNAPCRAFT_YAML_NO_NAME = {
   }
 };
 
-const RESPONSE_SNAP_NAME_NOT_REGISTERED = {
-  status: 'error',
-  payload: {
-    code: 'snap-name-not-registered',
-    message: 'Snap name is not registered in the store'
-  }
-};
-
 const RESPONSE_SNAP_NOT_FOUND = {
   status: 'error',
   payload: {
@@ -233,7 +225,14 @@ const verifySnapNameRegistered = (name) => {
     if (response.status === 200 && json.macaroon) {
       return name;
     } else {
-      throw new PreparedError(400, RESPONSE_SNAP_NAME_NOT_REGISTERED);
+      throw new PreparedError(400, {
+        status: 'error',
+        payload: {
+          code: 'snap-name-not-registered',
+          message: 'Snap name is not registered in the store',
+          snap_name: name
+        }
+      });
     }
   }));
 };

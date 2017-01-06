@@ -10,7 +10,8 @@ import dotenv from 'dotenv';
 const CLIENT_SIDE_WHITELIST = [
   'NODE_ENV',
   'BASE_URL',
-  'GITHUB_API_ENDPOINT'
+  'GITHUB_API_ENDPOINT',
+  'STORE_DEVPORTAL_URL'
 ];
 
 let configForClient;

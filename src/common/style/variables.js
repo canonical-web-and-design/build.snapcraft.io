@@ -12,6 +12,7 @@ module.exports = {
   'dark-aubergine':      '#2c001e', // dark aubergine (enterprise)
   'mid-grey':            '#cdcdcd',
   'warm-grey':           '#aea79f', // warm grey
+  'dark-grey':           '#666666', // dark grey
   'cool-grey':           '#333333', // cool grey
   'light-grey':          '#f7f7f7', // light grey
 

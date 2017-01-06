@@ -119,13 +119,28 @@ describe('The Launchpad API endpoint', () => {
             .end(done);
         });
 
-        it('should return a body with an "lp-error" message', (done) => {
+        it('should return a body with a "snap-name-not-registered" ' +
+           'message', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
             .send({ repository_url: 'https://github.com/anaccount/arepo' })
             .expect(hasMessage(
                 'snap-name-not-registered',
                 'Snap name is not registered in the store'))
+            .end(done);
+        });
+
+        it('should include snap name in body', (done) => {
+          supertest(app)
+            .post('/launchpad/snaps')
+            .send({ repository_url: 'https://github.com/anaccount/arepo' })
+            .expect((actual) => {
+              if (typeof actual.body.payload === 'undefined'
+                  || actual.body.payload.snap_name !== snapName) {
+                throw new Error('Response does not have payload with ' +
+                                `snap_name ${snapName}`);
+              }
+            })
             .end(done);
         });
       });

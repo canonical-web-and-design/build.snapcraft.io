@@ -78,6 +78,27 @@ $success-color: $success;
   display: block;
 }
 
+.errorMsg a {
+  border-bottom: 1px solid currentColor;
+  color: inherit;
+  font-weight: 400;
+  text-decoration: none;
+  transition: border-color .2s;
+}
+
+.errorMsg a:focus {
+  outline: thin dotted $mid-grey;
+}
+
+.errorMsg a:hover {
+  border-bottom-color: $mid-grey;
+  cursor: pointer;
+}
+
+.errorMsg a:visited {
+  color: $dark-grey;
+}
+
 .disabled {
   cursor: not-allowed;
   opacity: .5;

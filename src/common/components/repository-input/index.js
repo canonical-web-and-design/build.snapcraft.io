@@ -5,6 +5,7 @@ import {
   createSnap,
   setGitHubRepository
 } from '../../actions/repository-input';
+import conf from '../../helpers/config';
 import Button from '../button';
 import Step from '../step';
 import { Anchor } from '../button';
@@ -17,7 +18,23 @@ class RepositoryInput extends Component {
     if (input.inputValue.length > 2 && !input.repository) {
       return 'Please enter a valid GitHub repository name or URL.';
     } else if (input.error) {
-      return input.error.message;
+      const payload = input.error.json.payload;
+      if (payload.code === 'snap-name-not-registered') {
+        const snapName = payload.snap_name;
+        const devportalUrl = conf.get('STORE_DEVPORTAL_URL');
+        const registerNameUrl = `${devportalUrl}/click-apps/register-name/` +
+                                `?name=${encodeURIComponent(snapName)}`;
+        return (
+          <span>
+            The name provided in the snapcraft.yaml file ({snapName}) is not
+            registered in the store.
+            Please <a href={registerNameUrl}>register it</a> before trying
+            again.
+          </span>
+        );
+      } else {
+        return input.error.message;
+      }
     }
 
     return 'Unexpected error. Please make sure you are entering a valid GitHub repository and try again.';
