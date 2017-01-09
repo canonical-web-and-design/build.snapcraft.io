@@ -1,32 +1,24 @@
 import winston from 'winston';
+import 'winston-daily-rotate-file';
 
+import { conf } from '../helpers/config';
 import { formatter, timestamp } from './lib/log-formatter.js';
 
-// configure the 2 transports, share with all loggers, label from config ...
+// configure the transports, share with all loggers, label from config ...
 // add bug that label should be set in logger
 
+const LOGS_PATH = conf.get('LOGS_PATH');
 const debug = process.env.DEBUGLOG;
-
-// console transport for info level messages, sent to stderr
-const transports = [
-  new winston.transports.Console({
-    colorize: true,
-    formatter: formatter,
-    level: 'info',
-    stderrLevels: ['info'],
-    timestamp: timestamp
-  })
-];
 
 // default logger settings
 const loggerDefaults = {
   exitOnError: false,
   levels: {
-    info: 0,
-    debug: 1
+    error: 0,
+    info: 1,
+    debug: 2
   },
-  rewriters: [ idRewriter ],
-  transports: transports,
+  rewriters: [ idRewriter ]
 };
 
 winston.configure({
@@ -34,21 +26,18 @@ winston.configure({
   id: 'root'
 });
 
+let debugTransport = null;
 if (debug) {
-  enableDebugLogger(debug, formatter, timestamp, winston);
+  debugTransport = getDebugTransport(debug, formatter, timestamp, winston);
 }
 
-export function enableDebugLogger(filename, formatter, timestamp, winston) {
-  // TODO daily rotating log transport
-  const transport = new winston.transports.File({
-    filename: filename,
-    formatter: formatter,
+export function getDebugTransport(filename, formatter, timestamp, winston) {
+  const transport = new winston.transports.DailyRotateFile({
+    filename,
+    formatter,
     json: false,
     level: 'debug',
-    maxFiles: 1,
-    maxsize: 1e+8, // 100MB
-    tailable: true,
-    timestamp: timestamp
+    timestamp
   });
   winston.add(transport, null, true);
   // winston file transport will try and open file (maxRetries) and if it fails,
@@ -61,7 +50,7 @@ export function enableDebugLogger(filename, formatter, timestamp, winston) {
       });
     }
   });
-  transports.push(transport);
+  return transport;
 }
 
 export function idRewriter (level, msg, meta, logger) {
@@ -72,9 +61,31 @@ export function idRewriter (level, msg, meta, logger) {
 }
 
 export function createLogger(name) {
+  const transports = [];
+  if (LOGS_PATH) {
+    transports.push(new winston.transports.DailyRotateFile({
+      filename: `${LOGS_PATH}/${name}.log`,
+      formatter,
+      json: false,
+      level: 'info',
+      timestamp
+    }));
+  } else {
+    transports.push(new winston.transports.Console({
+      colorize: true,
+      formatter,
+      level: 'info',
+      stderrLevels: ['info'],
+      timestamp
+    }));
+  }
+  if (debugTransport !== null) {
+    transports.push(debugTransport);
+  }
   return new winston.Logger({
     ...loggerDefaults,
     id: name,
+    transports
   });
 }
 

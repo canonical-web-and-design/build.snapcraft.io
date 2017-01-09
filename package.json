@@ -63,7 +63,8 @@
     "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",
     "request": "^2.79.0",
-    "winston": "^2.3.0"
+    "winston": "^2.3.0",
+    "winston-daily-rotate-file": "^1.4.2"
   },
   "devDependencies": {
     "assets-webpack-plugin": "^3.5.0",
@@ -106,7 +107,6 @@
     "url-loader": "^0.5.7",
     "webpack": "^1.13.2",
     "webpack-dev-middleware": "^1.8.4",
-    "webpack-hot-middleware": "^2.13.0",
-    "winston": "^2.3.0"
+    "webpack-hot-middleware": "^2.13.0"
   }
 }

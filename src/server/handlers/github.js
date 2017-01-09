@@ -3,7 +3,7 @@ import requestGitHub from '../helpers/github';
 import logging from '../logging';
 import { makeWebhookSecret } from './webhook';
 
-const logger = logging.getLogger('express-error');
+const logger = logging.getLogger('express');
 
 const RESPONSE_NOT_FOUND = {
   status: 'error',
@@ -79,14 +79,14 @@ export const createWebhook = (req, res) => {
             return res.status(422).send(RESPONSE_ALREADY_CREATED);
           default:
             // Something else
-            logger.info('GitHub API error', response.statusCode);
+            logger.error('GitHub API error', response.statusCode);
             return res.status(500).send(RESPONSE_OTHER);
         }
       }
 
       return res.status(201).send(RESPONSE_CREATED);
     }).catch((err) => {
-      logger.info('GitHub API error', err);
+      logger.error('GitHub API error', err);
       return res.status(500).send(err.message);
     });
 };
