@@ -7,24 +7,6 @@ import { conf } from '../../../../../src/server/helpers/config.js';
 describe('completeSnapAuthorization', () => {
   const session = { 'token': 'secret' };
 
-  before(() => {
-    const overrides = conf.stores['test-overrides'];
-    overrides.set('LP_API_URL', 'http://localhost:4000/launchpad');
-    overrides.set('LP_API_USERNAME', 'test-user');
-    overrides.set('LP_API_CONSUMER_KEY', 'consumer key');
-    overrides.set('LP_API_TOKEN', 'token key');
-    overrides.set('LP_API_TOKEN_SECRET', 'token secret');
-  });
-
-  after(() => {
-    const overrides = conf.stores['test-overrides'];
-    overrides.clear('LP_API_URL');
-    overrides.clear('LP_API_USERNAME');
-    overrides.clear('LP_API_CONSUMER_KEY');
-    overrides.clear('LP_API_TOKEN');
-    overrides.clear('LP_API_TOKEN_SECRET');
-  });
-
   context('when snap exists', () => {
     let completeAuthorizationScope;
 
