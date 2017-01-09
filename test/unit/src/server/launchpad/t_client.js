@@ -34,21 +34,12 @@ describe('Launchpad', () => {
   let lp;
 
   beforeEach(() => {
-    conf.add('t_client', {
-      type: 'literal',
-      store: {
-        'LP_API_CONSUMER_KEY': 'consumer key',
-        'LP_API_TOKEN': 'token key',
-        'LP_API_TOKEN_SECRET': 'token secret'
-      }
-    });
     lp = nock(LP_API_URL)
       .defaultReplyHeaders({ 'Content-Type': 'application/json' });
   });
 
   afterEach(() => {
     nock.cleanAll();
-    conf.remove('t_client');
   });
 
   describe('get', () => {
@@ -72,7 +63,7 @@ describe('Launchpad', () => {
                result);
       }, error => {
         expect(error.response.status).toEqual(503);
-        expect(error.uri).toEqual('https://api.launchpad.net/devel/people');
+        expect(error.uri).toEqual(`${LP_API_URL}/devel/people`);
       });
     });
   });
@@ -105,7 +96,7 @@ describe('Launchpad', () => {
       }, error => {
         expect(error.response.status).toEqual(503);
         expect(error.uri).toEqual(
-          'https://api.launchpad.net/devel/people?ws.op=getByEmail');
+          `${LP_API_URL}/devel/people?ws.op=getByEmail`);
       });
     });
   });
@@ -148,7 +139,7 @@ describe('Launchpad', () => {
                result);
       }, error => {
         expect(error.response.status).toEqual(503);
-        expect(error.uri).toEqual('https://api.launchpad.net/devel/people');
+        expect(error.uri).toEqual(`${LP_API_URL}/devel/people`);
       });
     });
   });
@@ -182,7 +173,7 @@ describe('Launchpad', () => {
                  result);
         }, error => {
           expect(error.response.status).toEqual(503);
-          expect(error.uri).toEqual('https://api.launchpad.net/devel/~foo');
+          expect(error.uri).toEqual(`${LP_API_URL}/devel/~foo`);
         });
     });
   });
