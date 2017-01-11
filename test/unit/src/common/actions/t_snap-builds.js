@@ -9,6 +9,7 @@ import { conf } from '../../../../../src/server/helpers/config';
 import {
   fetchSnap,
   fetchBuilds,
+  requestBuilds,
   fetchBuildsSuccess,
   fetchBuildsError
 } from '../../../../../src/common/actions/snap-builds';
@@ -251,6 +252,63 @@ describe('snap builds actions', () => {
 
     });
 
+  });
+
+  context('requestBuilds', () => {
+    let api;
+    const repo = 'foo/bar';
+    const repositoryUrl = `https://github.com/${repo}`;
+
+    beforeEach(() => {
+      api = nock(conf.get('BASE_URL'));
+    });
+
+    afterEach(() => {
+      nock.cleanAll();
+    });
+
+    it('should store builds on request success', () => {
+      api
+        .post('/api/launchpad/snaps/request-builds', {
+          repository_url: repositoryUrl
+        })
+        .reply(201, {
+          status: 'success',
+          payload: {
+            code: 'snap-builds-requested',
+            builds: []
+          }
+        });
+
+      return store.dispatch(requestBuilds(repo))
+        .then(() => {
+          api.done();
+          expect(store.getActions()).toHaveActionOfType(
+            ActionTypes.FETCH_BUILDS_SUCCESS
+          );
+        });
+    });
+
+    it('should store error on Launchpad request failure', () => {
+      api
+        .post('/api/launchpad/snaps/request-builds', {
+          repository_url: repositoryUrl
+        })
+        .reply(404, {
+          status: 'error',
+          payload: {
+            code: 'lp-error',
+            message: 'Something went wrong'
+          }
+        });
+
+      return store.dispatch(requestBuilds(repo))
+        .then(() => {
+          expect(store.getActions()).toHaveActionOfType(
+            ActionTypes.FETCH_BUILDS_ERROR
+          );
+        });
+    });
   });
 
 });

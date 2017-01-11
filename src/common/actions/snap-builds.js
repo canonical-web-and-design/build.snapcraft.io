@@ -9,6 +9,14 @@ export const FETCH_BUILDS = 'FETCH_BUILDS';
 export const FETCH_BUILDS_SUCCESS = 'FETCH_BUILDS_SUCCESS';
 export const FETCH_BUILDS_ERROR = 'FETCH_BUILDS_ERROR';
 
+const REQUEST_POST_OPTIONS = {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  credentials: 'same-origin'
+};
+
 export function fetchBuildsSuccess(builds) {
   return {
     type: FETCH_BUILDS_SUCCESS,
@@ -38,6 +46,7 @@ function checkStatus(response) {
   }
 }
 
+// Fetch snap info (self_link) for given repository
 export function fetchSnap(repository) {
   return (dispatch) => {
     if (repository) {
@@ -56,6 +65,7 @@ export function fetchSnap(repository) {
   };
 }
 
+// Fetch builds list for given snap
 export function fetchBuilds(snapLink) {
   return (dispatch) => {
     if (snapLink) {
@@ -68,6 +78,30 @@ export function fetchBuilds(snapLink) {
       return fetch(url)
         .then(checkStatus)
         .then(response => response.json())
+        .then((json) => dispatch(fetchBuildsSuccess(json.payload.builds)))
+        .catch((error) => dispatch(fetchBuildsError(error)));
+    }
+  };
+}
+
+// Reguest new builds for given repository
+export function requestBuilds(repository) {
+  return (dispatch) => {
+    if (repository) {
+      dispatch({
+        type: FETCH_BUILDS
+      });
+
+      const repositoryUrl = getGitHubRepoUrl(repository);
+      const url = `${BASE_URL}/api/launchpad/snaps/request-builds`;
+      const settings = {
+        ...REQUEST_POST_OPTIONS,
+        body: JSON.stringify({ repository_url: repositoryUrl })
+      };
+
+      return fetch(url, settings)
+        .then(checkStatus)
+        .then((response) => response.json())
         .then((json) => dispatch(fetchBuildsSuccess(json.payload.builds)))
         .catch((error) => dispatch(fetchBuildsError(error)));
     }

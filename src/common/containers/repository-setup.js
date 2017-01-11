@@ -4,13 +4,21 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
 import { createWebhook } from '../actions/webhook';
-import { requestBuilds } from '../actions/request-snap-builds';
+import { requestBuilds } from '../actions/snap-builds';
 import { Message } from '../components/forms';
 import Spinner from '../components/spinner';
 
 import styles from './container.css';
 
 class RepositorySetup extends Component {
+  componentWillReceiveProps(nextProps) {
+    const { fullName, webhook, builds } = nextProps;
+
+    if (webhook.success && builds.success) {
+      this.props.router.replace(`/${fullName}/builds`);
+    }
+  }
+
   componentDidMount() {
     const { account, repo, fullName, webhook, builds } = this.props;
 
@@ -26,26 +34,23 @@ class RepositorySetup extends Component {
     const { fullName, webhook, builds } = this.props;
     const isFetching = webhook.isFetching || builds.isFetching;
 
-    if (webhook.success && builds.success) {
-      this.props.router.replace(`/${fullName}/builds`);
-    } else {
-      return (
-        <div className={styles.container}>
-          <Helmet
-            title={`Setting up ${fullName}`}
-          />
-          { isFetching &&
-            <div className={styles.spinner}><Spinner /></div>
-          }
-          { webhook.error &&
-            <Message status='error'>{ webhook.error.message }</Message>
-          }
-          { builds.error &&
-            <Message status='error'>{ builds.error.message }</Message>
-          }
-        </div>
-      );
-    }
+    return (
+      <div className={styles.container}>
+        <Helmet
+          title={`Setting up ${fullName}`}
+        />
+        { isFetching &&
+          <div className={styles.spinner}><Spinner /></div>
+        }
+        { webhook.error &&
+          <Message status='error'>{ webhook.error.message }</Message>
+        }
+        { builds.error &&
+          <Message status='error'>{ builds.error.message }</Message>
+        }
+      </div>
+    );
+
   }
 }
 
@@ -82,9 +87,9 @@ const mapStateToProps = (state, ownProps) => {
       error: state.webhook.error
     },
     builds: {
-      isFetching: state.requestSnapBuilds.isFetching,
-      success: state.requestSnapBuilds.success,
-      error: state.requestSnapBuilds.error
+      isFetching: state.snapBuilds.isFetching,
+      success: state.snapBuilds.success,
+      error: state.snapBuilds.error
     }
   };
 };
