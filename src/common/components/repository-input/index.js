@@ -80,6 +80,7 @@ class RepositoryInput extends Component {
             valid={isValid}
             onChange={this.onChange.bind(this)}
             errorMsg={this.getErrorMessage()}
+            disabled={!authenticated}
           />
           { input.success &&
             <Message status='info'>
