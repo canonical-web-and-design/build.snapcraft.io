@@ -21,6 +21,7 @@ const mockStore = configureMockStore(middlewares);
 describe('snap builds actions', () => {
   const initialState = {
     isFetching: false,
+    snapLink: null,
     builds: [],
     error: false
   };
@@ -160,23 +161,12 @@ describe('snap builds actions', () => {
             message: snapUrl
           }
         });
-      api.get('/api/launchpad/builds')
-        .query({
-          snap: snapUrl // should match what /api/launchpad/snaps returned
-        })
-        .reply(200, {
-          status: 'success',
-          payload: {
-            code: 'snap-builds-found',
-            builds: []
-          }
-        });
 
       return store.dispatch(fetchSnap('foo/bar'))
         .then(() => {
           api.done();
           expect(store.getActions()).toHaveActionOfType(
-            ActionTypes.FETCH_BUILDS_SUCCESS
+            ActionTypes.FETCH_SNAP_SUCCESS
           );
         });
     });

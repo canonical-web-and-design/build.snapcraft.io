@@ -6,6 +6,7 @@ import getGitHubRepoUrl from '../helpers/github-url';
 const BASE_URL = conf.get('BASE_URL');
 
 export const FETCH_BUILDS = 'FETCH_BUILDS';
+export const FETCH_SNAP_SUCCESS = 'FETCH_SNAP_SUCCESS';
 export const FETCH_BUILDS_SUCCESS = 'FETCH_BUILDS_SUCCESS';
 export const FETCH_BUILDS_ERROR = 'FETCH_BUILDS_ERROR';
 
@@ -59,7 +60,13 @@ export function fetchSnap(repository) {
       return fetch(url)
         .then(checkStatus)
         .then(response => response.json())
-        .then((json) => dispatch(fetchBuilds(json.payload.message)))
+        .then((json) => {
+          const snapLink = json.payload.message;
+          dispatch({
+            type: FETCH_SNAP_SUCCESS,
+            payload: snapLink
+          });
+        })
         .catch((error) => dispatch(fetchBuildsError(error)));
     }
   };

@@ -3,6 +3,7 @@ import { snapBuildFromAPI } from '../helpers/snap-builds';
 
 export function snapBuilds(state = {
   isFetching: false,
+  snapLink: null,
   builds: [],
   success: false,
   error: null
@@ -12,6 +13,12 @@ export function snapBuilds(state = {
       return {
         ...state,
         isFetching: true
+      };
+    case ActionTypes.FETCH_SNAP_SUCCESS:
+      return {
+        ...state,
+        isFetching: false,
+        snapLink: action.payload
       };
     case ActionTypes.FETCH_BUILDS_SUCCESS:
       return {
