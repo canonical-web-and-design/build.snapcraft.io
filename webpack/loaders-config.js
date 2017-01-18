@@ -4,16 +4,16 @@ module.exports = [
   {
     test: /\.js$/i,
     exclude: /node_modules/,
-    loaders: ['babel'],
+    loaders: ['babel-loader'],
   },
   {
     test: /\.css$/i,
-    loader: ExtractTextPlugin.extract(
-      [
+    loader: ExtractTextPlugin.extract({
+      fallbackLoader: [
         'style-loader',
         'postcss-loader'
       ].join('!'),
-      [
+      loader: [
         loader(
           'css-loader',
           [
@@ -24,7 +24,7 @@ module.exports = [
         ),
         'postcss-loader'
       ].join('!')
-    )
+    })
   },
   {
     test: /\.svg$/i,

@@ -19,7 +19,7 @@ module.exports = {
     publicPath: '/static/'
   },
   plugins: [
-    new ExtractTextPlugin('style.[hash].css', { allChunks: true }),
+    new ExtractTextPlugin({ filename: 'style.[hash].css',  allChunks: true }),
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.optimize.DedupePlugin(),
     new webpack.optimize.UglifyJsPlugin({
