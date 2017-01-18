@@ -19,6 +19,13 @@ module.exports = {
     publicPath: '/static/'
   },
   plugins: [
+    new webpack.LoaderOptionsPlugin({
+      options: {
+        postcss: function () {
+          return [ vars({ variables: () => sharedVars }), autoprefixer ];
+        },
+      }
+    }),
     new ExtractTextPlugin({ filename: 'style.[hash].css',  allChunks: true }),
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.optimize.DedupePlugin(),
@@ -36,9 +43,6 @@ module.exports = {
   ],
   module: {
     loaders: require('./loaders-config.js')
-  },
-  postcss: function () {
-    return [ vars({ variables: () => sharedVars }), autoprefixer ];
   },
   stats: {
     colors: true,
