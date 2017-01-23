@@ -14,8 +14,8 @@ import styles from './container.css';
 
 class RepositorySetup extends Component {
 
-  componentWillReceiveProps(nextProps) {
-    const { repository, webhook, builds } = nextProps;
+  fetchData(props) {
+    const { repository, webhook, builds } = props;
 
     if (repository) {
       if (!webhook.isFetching && !webhook.success) {
@@ -29,6 +29,14 @@ class RepositorySetup extends Component {
     if (webhook.success && builds.success) {
       this.props.router.replace(`/${repository.fullName}/builds`);
     }
+  }
+
+  componentDidMount() {
+    this.fetchData(this.props);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.fetchData(nextProps);
   }
 
   render() {
