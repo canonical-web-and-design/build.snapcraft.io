@@ -46,11 +46,11 @@ const RESPONSE_CREATED = {
 };
 
 export const createWebhook = (req, res) => {
-  const { account, repo } = req.body;
+  const { owner, name } = req.body;
 
   let secret;
   try {
-    secret = makeWebhookSecret(account, repo);
+    secret = makeWebhookSecret(owner, name);
   } catch (e) {
     return res.status(500).send({
       status: 'error',
@@ -61,8 +61,8 @@ export const createWebhook = (req, res) => {
     });
   }
 
-  const uri = `/repos/${account}/${repo}/hooks`;
-  const options = getRequest(account, repo, req.session.token, secret);
+  const uri = `/repos/${owner}/${name}/hooks`;
+  const options = getRequest(owner, name, req.session.token, secret);
   requestGitHub.post(uri, options)
     .then((response) => {
       if (response.statusCode !== 201) {
@@ -91,7 +91,7 @@ export const createWebhook = (req, res) => {
     });
 };
 
-const getRequest = (account, repo, token, secret) => {
+const getRequest = (owner, name, token, secret) => {
   return {
     token,
     json: {
@@ -101,7 +101,7 @@ const getRequest = (account, repo, token, secret) => {
         'push'
       ],
       config: {
-        url: `${conf.get('BASE_URL')}/${account}/${repo}/webhook/notify`,
+        url: `${conf.get('BASE_URL')}/${owner}/${name}/webhook/notify`,
         content_type: 'json',
         secret
       }

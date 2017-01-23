@@ -15,12 +15,12 @@ const authoriseLoginResponse = responses.okayPromptForLogin;
 
 const router = Router();
 router.use(json());
-router.post('/repos/:account/:repo/hooks', webhookResponse);
+router.post('/repos/:owner/:name/hooks', webhookResponse);
 router.get('/login/oauth/authorize', authoriseLoginResponse);
 router.post('/login/oauth/access_token', responses.okayAuthenticated);
 
-router.get('/repos/:account/:repo/contents/snapcraft.yaml', (req, res) => {
-  res.status(200).send(`name: ${req.params.repo}\n`);
+router.get('/repos/:owner/:name/contents/snapcraft.yaml', (req, res) => {
+  res.status(200).send(`name: ${req.params.name}\n`);
 });
 
 export default router;

@@ -22,14 +22,14 @@ describe('The WebHook API endpoint', () => {
 
     it('rejects unsigned requests', (done) => {
       supertest(app)
-        .post('/anaccount/arepo/webhook/notify')
+        .post('/anowner/aname/webhook/notify')
         .send({})
         .expect(400, done);
     });
 
     it('rejects requests containing non-object JSON data', (done) => {
       supertest(app)
-        .post('/anaccount/arepo/webhook/notify')
+        .post('/anowner/aname/webhook/notify')
         .type('application/json')
         .set('X-GitHub-Event', 'push')
         .set('X-Hub-Signature', 'dummy')
@@ -40,12 +40,12 @@ describe('The WebHook API endpoint', () => {
     it('rejects requests with a bad signature', (done) => {
       const body = JSON.stringify({ ref: 'refs/heads/master' });
       let hmac = createHmac('sha1', conf.get('GITHUB_WEBHOOK_SECRET'));
-      hmac.update('anaccount');
-      hmac.update('arepo');
+      hmac.update('anowner');
+      hmac.update('aname');
       hmac = createHmac('sha1', hmac.digest('hex'));
       hmac.update(body + ' ');
       supertest(app)
-        .post('/anaccount/arepo/webhook/notify')
+        .post('/anowner/aname/webhook/notify')
         .type('application/json')
         .set('X-GitHub-Event', 'push')
         .set('X-Hub-Signature', `sha1=${hmac.digest('hex')}`)
@@ -61,7 +61,7 @@ describe('The WebHook API endpoint', () => {
         .get('/devel/+snaps')
         .query({
           'ws.op': 'findByURL',
-          url: 'https://github.com/anaccount/arepo'
+          url: 'https://github.com/anowner/aname'
         })
         .reply(200, {
           total_size: 1,
@@ -95,12 +95,12 @@ describe('The WebHook API endpoint', () => {
 
       const body = JSON.stringify({ ref: 'refs/heads/master' });
       let hmac = createHmac('sha1', conf.get('GITHUB_WEBHOOK_SECRET'));
-      hmac.update('anaccount');
-      hmac.update('arepo');
+      hmac.update('anowner');
+      hmac.update('aname');
       hmac = createHmac('sha1', hmac.digest('hex'));
       hmac.update(body);
       supertest(app)
-        .post('/anaccount/arepo/webhook/notify')
+        .post('/anowner/aname/webhook/notify')
         .type('application/json')
         .set('X-GitHub-Event', 'push')
         .set('X-Hub-Signature', `sha1=${hmac.digest('hex')}`)
@@ -117,7 +117,7 @@ describe('The WebHook API endpoint', () => {
         .get('/devel/+snaps')
         .query({
           'ws.op': 'findByURL',
-          url: 'https://github.com/anaccount/arepo'
+          url: 'https://github.com/anowner/aname'
         })
         .reply(200, {
           total_size: 0,
@@ -127,12 +127,12 @@ describe('The WebHook API endpoint', () => {
 
       const body = JSON.stringify({ ref: 'refs/heads/master' });
       let hmac = createHmac('sha1', conf.get('GITHUB_WEBHOOK_SECRET'));
-      hmac.update('anaccount');
-      hmac.update('arepo');
+      hmac.update('anowner');
+      hmac.update('aname');
       hmac = createHmac('sha1', hmac.digest('hex'));
       hmac.update(body);
       supertest(app)
-        .post('/anaccount/arepo/webhook/notify')
+        .post('/anowner/aname/webhook/notify')
         .type('application/json')
         .set('X-GitHub-Event', 'push')
         .set('X-Hub-Signature', `sha1=${hmac.digest('hex')}`)
@@ -151,12 +151,12 @@ describe('The WebHook API endpoint', () => {
 
       const body = JSON.stringify({ ref: 'refs/heads/master' });
       let hmac = createHmac('sha1', conf.get('GITHUB_WEBHOOK_SECRET'));
-      hmac.update('anaccount');
-      hmac.update('arepo');
+      hmac.update('anowner');
+      hmac.update('aname');
       hmac = createHmac('sha1', hmac.digest('hex'));
       hmac.update(body);
       supertest(app)
-        .post('/anaccount/arepo/webhook/notify')
+        .post('/anowner/aname/webhook/notify')
         .type('application/json')
         .set('X-GitHub-Event', 'ping')
         .set('X-Hub-Signature', `sha1=${hmac.digest('hex')}`)

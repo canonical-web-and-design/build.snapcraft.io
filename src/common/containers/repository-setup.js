@@ -5,39 +5,40 @@ import { withRouter } from 'react-router';
 
 import { createWebhook } from '../actions/webhook';
 import { requestBuilds } from '../actions/snap-builds';
+import withRepository from './with-repository';
+
 import { Message } from '../components/forms';
 import Spinner from '../components/spinner';
 
 import styles from './container.css';
 
 class RepositorySetup extends Component {
+
   componentWillReceiveProps(nextProps) {
-    const { fullName, webhook, builds } = nextProps;
+    const { repository, webhook, builds } = nextProps;
+
+    if (repository) {
+      if (!webhook.isFetching && !webhook.success) {
+        this.props.dispatch(createWebhook(repository.owner, repository.name));
+      }
+      if (!builds.isFetching && !builds.success) {
+        this.props.dispatch(requestBuilds(repository.url));
+      }
+    }
 
     if (webhook.success && builds.success) {
-      this.props.router.replace(`/${fullName}/builds`);
-    }
-  }
-
-  componentDidMount() {
-    const { account, repo, fullName, webhook, builds } = this.props;
-
-    if (!webhook.isFetching) {
-      this.props.dispatch(createWebhook(account, repo));
-    }
-    if (!builds.isFetching) {
-      this.props.dispatch(requestBuilds(fullName));
+      this.props.router.replace(`/${repository.fullName}/builds`);
     }
   }
 
   render() {
-    const { fullName, webhook, builds } = this.props;
-    const isFetching = webhook.isFetching || builds.isFetching;
+    const { repository, webhook, builds } = this.props;
+    const isFetching = !repository || webhook.isFetching || builds.isFetching;
 
     return (
       <div className={styles.container}>
         <Helmet
-          title={`Setting up ${fullName}`}
+          title={`Setting up ${repository.fullName}`}
         />
         { isFetching &&
           <div className={styles.spinner}><Spinner /></div>
@@ -55,9 +56,12 @@ class RepositorySetup extends Component {
 }
 
 RepositorySetup.propTypes = {
-  account: PropTypes.string.isRequired,
-  repo: PropTypes.string.isRequired,
-  fullName: PropTypes.string.isRequired,
+  repository: PropTypes.shape({
+    owner: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    fullName: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired
+  }).isRequired,
   webhook: PropTypes.shape({
     isFetching: PropTypes.bool,
     success: PropTypes.bool,
@@ -73,25 +77,16 @@ RepositorySetup.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const account = ownProps.params.account.toLowerCase();
-  const repo = ownProps.params.repo.toLowerCase();
-  const fullName = `${account}/${repo}`;
+  const owner = ownProps.params.owner.toLowerCase();
+  const name = ownProps.params.name.toLowerCase();
+  const fullName = `${owner}/${name}`;
 
   return {
-    account,
-    repo,
     fullName,
-    webhook: {
-      isFetching: state.webhook.isFetching,
-      success: state.webhook.success,
-      error: state.webhook.error
-    },
-    builds: {
-      isFetching: state.snapBuilds.isFetching,
-      success: state.snapBuilds.success,
-      error: state.snapBuilds.error
-    }
+    repository: state.repository,
+    webhook: state.webhook,
+    builds: state.snapBuilds
   };
 };
 
-export default connect(mapStateToProps)(withRouter(RepositorySetup));
+export default connect(mapStateToProps)(withRepository(withRouter(RepositorySetup)));

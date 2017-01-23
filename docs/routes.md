@@ -16,7 +16,7 @@ To create a snap:
     Accept: application/json
 
     {
-      "repository_url": "https://github.com/:account/:repo"
+      "repository_url": "https://github.com/:owner/:name"
     }
 
 On success, returns:
@@ -76,7 +76,7 @@ To request builds of an existing snap:
     Accept: application/json
 
     {
-      "repository_url": "https://github.com/:account/:repo"
+      "repository_url": "https://github.com/:owner/:name"
     }
 
 On success, returns the following, where the items in `builds` are

@@ -87,7 +87,7 @@ describe('processVerifiedAssertion', () => {
 
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .get('/repos/anaccount/arepo')
+          .get('/repos/anowner/aname')
           .reply(200, { permissions: { admin: true } });
         const lp_api_url = conf.get('LP_API_URL');
         const lp_api_base = `${lp_api_url}/devel`;
@@ -95,7 +95,7 @@ describe('processVerifiedAssertion', () => {
           .get('/devel/+snaps')
           .query({
             'ws.op': 'findByURL',
-            url: 'https://github.com/anaccount/arepo'
+            url: 'https://github.com/anowner/aname'
           })
           .reply(200, {
             total_size: 1,
@@ -125,7 +125,7 @@ describe('processVerifiedAssertion', () => {
       it('completes the authorization', () => {
         const req = {
           session,
-          query: { repository_url: 'https://github.com/anaccount/arepo' }
+          query: { repository_url: 'https://github.com/anowner/aname' }
         };
         const result = { authenticated: true, discharge: 'dummy-discharge' };
         return processVerifiedAssertion(req, res, next, null, result)
@@ -135,7 +135,7 @@ describe('processVerifiedAssertion', () => {
       it('redirects', () => {
         const req = {
           session,
-          query: { repository_url: 'https://github.com/anaccount/arepo' }
+          query: { repository_url: 'https://github.com/anowner/aname' }
         };
         const result = { authenticated: true, discharge: 'dummy-discharge' };
         return processVerifiedAssertion(req, res, next, null, result)
@@ -146,7 +146,7 @@ describe('processVerifiedAssertion', () => {
     context('when completing authorization throws an error', () => {
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .get('/repos/anaccount/arepo')
+          .get('/repos/anowner/aname')
           .reply(200, { permissions: { admin: false } });
       });
 
@@ -157,7 +157,7 @@ describe('processVerifiedAssertion', () => {
       it('passes through error', () => {
         const req = {
           session,
-          query: { repository_url: 'https://github.com/anaccount/arepo' }
+          query: { repository_url: 'https://github.com/anowner/aname' }
         };
         const result = { authenticated: true, discharge: 'dummy-discharge' };
         return processVerifiedAssertion(req, res, next, null, result)

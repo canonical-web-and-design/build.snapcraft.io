@@ -162,7 +162,7 @@ describe('snap builds actions', () => {
           }
         });
 
-      return store.dispatch(fetchSnap('foo/bar'))
+      return store.dispatch(fetchSnap(repositoryUrl))
         .then(() => {
           api.done();
           expect(store.getActions()).toHaveActionOfType(
@@ -224,7 +224,7 @@ describe('snap builds actions', () => {
       });
 
       it('should dispatch error action', () => {
-        return store.dispatch(fetchSnap(badRepo))
+        return store.dispatch(fetchSnap(repositoryUrl))
           .then(() => {
             expect(store.getActions()).toHaveActionOfType(
               ActionTypes.FETCH_BUILDS_ERROR
@@ -233,7 +233,7 @@ describe('snap builds actions', () => {
       });
 
       it('should pass error message from repsponse to action', () => {
-        return store.dispatch(fetchSnap(badRepo))
+        return store.dispatch(fetchSnap(repositoryUrl))
           .then(() => {
             const action = store.getActions().filter(a => a.type === ActionTypes.FETCH_BUILDS_ERROR)[0];
             expect(action.payload.message).toBe('Bad repo URL');
@@ -270,7 +270,7 @@ describe('snap builds actions', () => {
           }
         });
 
-      return store.dispatch(requestBuilds(repo))
+      return store.dispatch(requestBuilds(repositoryUrl))
         .then(() => {
           api.done();
           expect(store.getActions()).toHaveActionOfType(
@@ -292,7 +292,7 @@ describe('snap builds actions', () => {
           }
         });
 
-      return store.dispatch(requestBuilds(repo))
+      return store.dispatch(requestBuilds(repositoryUrl))
         .then(() => {
           expect(store.getActions()).toHaveActionOfType(
             ActionTypes.FETCH_BUILDS_ERROR

@@ -16,7 +16,7 @@ export function okayNewHookCreated(req, res) {
     'hook_id': 'anid',
     'hook': req.body.config
   });
-  const hmac = makeWebhookHmac(req.params.account, req.params.repo);
+  const hmac = makeWebhookHmac(req.params.owner, req.params.name);
   hmac.update(body);
   request.post({
     url: req.body.config.url,

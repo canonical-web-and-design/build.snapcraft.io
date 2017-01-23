@@ -12,7 +12,7 @@ describe('completeSnapAuthorization', () => {
 
     beforeEach(() => {
       nock(conf.get('GITHUB_API_ENDPOINT'))
-        .get('/repos/anaccount/arepo')
+        .get('/repos/anowner/aname')
         .reply(200, { permissions: { admin: true } });
       const lp_api_url = conf.get('LP_API_URL');
       const lp_api_base = `${lp_api_url}/devel`;
@@ -20,7 +20,7 @@ describe('completeSnapAuthorization', () => {
         .get('/devel/+snaps')
         .query({
           'ws.op': 'findByURL',
-          url: 'https://github.com/anaccount/arepo'
+          url: 'https://github.com/anowner/aname'
         })
         .reply(200, {
           total_size: 1,
@@ -49,7 +49,7 @@ describe('completeSnapAuthorization', () => {
 
     it('completes the authorization', () => {
       return completeSnapAuthorization(
-          session, 'https://github.com/anaccount/arepo', 'dummy-discharge')
+          session, 'https://github.com/anowner/aname', 'dummy-discharge')
         .then(() => completeAuthorizationScope.done());
     });
   });
@@ -57,14 +57,14 @@ describe('completeSnapAuthorization', () => {
   context('when snap does not exist', () => {
     beforeEach(() => {
       nock(conf.get('GITHUB_API_ENDPOINT'))
-        .get('/repos/anaccount/arepo')
+        .get('/repos/anowner/aname')
         .reply(200, { permissions: { admin: true } });
       const lp_api_url = conf.get('LP_API_URL');
       nock(lp_api_url)
         .get('/devel/+snaps')
         .query({
           'ws.op': 'findByURL',
-          url: 'https://github.com/anaccount/arepo'
+          url: 'https://github.com/anowner/aname'
         })
         .reply(200, {
           total_size: 0,
@@ -79,7 +79,7 @@ describe('completeSnapAuthorization', () => {
 
     it('returns a "snap-not-found" error', () => {
       return completeSnapAuthorization(
-          session, 'https://github.com/anaccount/arepo', 'dummy-discharge')
+          session, 'https://github.com/anowner/aname', 'dummy-discharge')
         .then(() => expect('unexpected success').toNotExist())
         .catch((error) => expect(error).toMatch({
           status: 404,
@@ -91,7 +91,7 @@ describe('completeSnapAuthorization', () => {
   context('when user has no admin permissions on GitHub repository', () => {
     beforeEach(() => {
       nock(conf.get('GITHUB_API_ENDPOINT'))
-        .get('/repos/anaccount/arepo')
+        .get('/repos/anowner/aname')
         .reply(200, { permissions: { admin: false } });
     });
 
@@ -101,7 +101,7 @@ describe('completeSnapAuthorization', () => {
 
     it('returns a "github-no-admin-permissions" error', () => {
       return completeSnapAuthorization(
-          session, 'https://github.com/anaccount/arepo', 'dummy-discharge')
+          session, 'https://github.com/anowner/aname', 'dummy-discharge')
         .then(() => expect('unexpected success').toNotExist())
         .catch((error) => expect(error).toMatch({
           status: 401,

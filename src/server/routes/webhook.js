@@ -5,8 +5,8 @@ import { text } from 'body-parser';
 const router = Router();
 
 // Really JSON, but we need the raw body to verify its signature.
-router.use('/:account/:repo/webhook/notify',
+router.use('/:owner/:name/webhook/notify',
            text({ type: 'application/json' }));
-router.post('/:account/:repo/webhook/notify', notify);
+router.post('/:owner/:name/webhook/notify', notify);
 
 export default router;

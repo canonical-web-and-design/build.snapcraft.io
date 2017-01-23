@@ -6,6 +6,7 @@ import BuildHistory from '../components/build-history';
 import { Message } from '../components/forms';
 import Spinner from '../components/spinner';
 
+import withRepository from './with-repository';
 import { fetchBuilds, fetchSnap } from '../actions/snap-builds';
 
 import styles from './container.css';
@@ -13,15 +14,15 @@ import styles from './container.css';
 class Builds extends Component {
   fetchInterval = null
 
-  fetchData({ snapLink, repoFullName }) {
+  fetchData({ snapLink, repository }) {
     if (snapLink) {
       this.props.dispatch(fetchBuilds(snapLink));
-    } else {
-      this.props.dispatch(fetchSnap(repoFullName));
+    } else if (repository) {
+      this.props.dispatch(fetchSnap(repository.url));
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.fetchData(this.props);
 
     this.fetchInterval = setInterval(() => {
@@ -34,30 +35,34 @@ class Builds extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    // if snap link or repo name changed, fetch new data
-    if ((this.props.snapLink !== nextProps.snapLink) ||
-        (this.props.repoFullName !== nextProps.repoFullName)) {
+    const currentSnapLink = this.props.snapLink;
+    const nextSnapLink = nextProps.snapLink;
+    const currentRepository = this.props.repository.fullName;
+    const nextRepository = nextProps.repository.fullName;
+
+    if ((currentSnapLink !== nextSnapLink) || (currentRepository !== nextRepository)) {
+      // if snap link or repo changed, fetch new data
       this.fetchData(nextProps);
     }
   }
 
   render() {
-    const { account, repo, repoFullName } = this.props;
+    const { repository, error } = this.props;
     // only show spinner when data is loading for the first time
     const isLoading = this.props.isFetching && !this.props.success;
 
     return (
       <div className={ styles.container }>
         <Helmet
-          title={`${repoFullName} builds`}
+          title={`${repository.fullName} builds`}
         />
-        <h1>{repoFullName} builds</h1>
-        <BuildHistory account={account} repo={repo}/>
+        <h1>{repository.fullName} builds</h1>
+        <BuildHistory repository={repository} />
         { isLoading &&
           <div className={styles.spinner}><Spinner /></div>
         }
-        { this.props.error &&
-          <Message status='error'>{ this.props.error.message || this.props.error }</Message>
+        { error &&
+          <Message status='error'>{ error.message || error }</Message>
         }
       </div>
     );
@@ -66,9 +71,12 @@ class Builds extends Component {
 }
 
 Builds.propTypes = {
-  account: PropTypes.string.isRequired,
-  repo: PropTypes.string.isRequired,
-  repoFullName: PropTypes.string.isRequired,
+  repository: PropTypes.shape({
+    owner: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    fullName: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired
+  }).isRequired,
   isFetching: PropTypes.bool,
   snapLink: PropTypes.string,
   success: PropTypes.bool,
@@ -77,24 +85,16 @@ Builds.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const account = ownProps.params.account.toLowerCase();
-  const repo = ownProps.params.repo.toLowerCase();
-  const repoFullName = `${account}/${repo}`;
-
-  const isFetching = state.snapBuilds.isFetching;
-  const snapLink = state.snapBuilds.snapLink;
-  const success = state.snapBuilds.success;
-  const error = state.snapBuilds.error;
+  const owner = ownProps.params.owner.toLowerCase();
+  const name = ownProps.params.name.toLowerCase();
+  const fullName = `${owner}/${name}`;
+  const repository = state.repository;
 
   return {
-    isFetching,
-    snapLink,
-    success,
-    error,
-    account,
-    repo,
-    repoFullName
+    fullName,
+    repository,
+    ...state.snapBuilds
   };
 };
 
-export default connect(mapStateToProps)(Builds);
+export default connect(mapStateToProps)(withRepository(Builds));

@@ -9,8 +9,7 @@ import styles from './buildRow.css';
 const BuildRow = (props) => {
 
   const {
-    account,
-    repo,
+    repository,
     architecture,
     buildId,
     duration,
@@ -46,7 +45,7 @@ const BuildRow = (props) => {
 
   return (
     <div className={ `${styles.buildRow} ${statusStyle[status]}` }>
-      <div className={ styles.item }><Link to={`/${account}/${repo}/builds/${buildId}`}>{`#${buildId}`}</Link> {statusMessage}</div>
+      <div className={ styles.item }><Link to={`/${repository.fullName}/builds/${buildId}`}>{`#${buildId}`}</Link> {statusMessage}</div>
       <div className={ styles.item }>
         {architecture}
       </div>
@@ -62,8 +61,10 @@ const BuildRow = (props) => {
 
 BuildRow.propTypes = {
   // params from URL
-  account: PropTypes.string,
-  repo: PropTypes.string,
+  repository: PropTypes.shape({
+    owner: PropTypes.string,
+    name: PropTypes.string
+  }),
 
   // build properties
   buildId:  PropTypes.string,

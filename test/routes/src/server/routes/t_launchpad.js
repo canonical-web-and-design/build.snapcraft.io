@@ -35,14 +35,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 401 Unauthorized response', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(401, done);
       });
 
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -50,7 +50,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a body with a "not-logged-in" message', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('not-logged-in'))
           .end(done);
       });
@@ -61,10 +61,10 @@ describe('The Launchpad API endpoint', () => {
 
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .get('/repos/anaccount/arepo')
+          .get('/repos/anowner/aname')
           .reply(200, { permissions: { admin: true } });
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .get('/repos/anaccount/arepo/contents/snapcraft.yaml')
+          .get('/repos/anowner/aname/contents/snapcraft.yaml')
           .reply(200, `name: ${snapName}\n`);
       });
 
@@ -89,14 +89,14 @@ describe('The Launchpad API endpoint', () => {
         it('should return a 400 Bad Request response', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
-            .send({ repository_url: 'https://github.com/anaccount/arepo' })
+            .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(400, done);
         });
 
         it('should return a "error" status', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
-            .send({ repository_url: 'https://github.com/anaccount/arepo' })
+            .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasStatus('error'))
             .end(done);
         });
@@ -105,7 +105,7 @@ describe('The Launchpad API endpoint', () => {
            'message', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
-            .send({ repository_url: 'https://github.com/anaccount/arepo' })
+            .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasMessage(
                 'snap-name-not-registered',
                 'Snap name is not registered in the store'))
@@ -115,7 +115,7 @@ describe('The Launchpad API endpoint', () => {
         it('should include snap name in body', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
-            .send({ repository_url: 'https://github.com/anaccount/arepo' })
+            .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect((actual) => {
               if (typeof actual.body.payload === 'undefined'
                   || actual.body.payload.snap_name !== snapName) {
@@ -152,14 +152,14 @@ describe('The Launchpad API endpoint', () => {
           it('should return a 400 Bad Request response', (done) => {
             supertest(app)
               .post('/launchpad/snaps')
-              .send({ repository_url: 'https://github.com/anaccount/arepo' })
+              .send({ repository_url: 'https://github.com/anowner/aname' })
               .expect(400, done);
           });
 
           it('should return a "error" status', (done) => {
             supertest(app)
               .post('/launchpad/snaps')
-              .send({ repository_url: 'https://github.com/anaccount/arepo' })
+              .send({ repository_url: 'https://github.com/anowner/aname' })
               .expect(hasStatus('error'))
               .end(done);
           });
@@ -167,7 +167,7 @@ describe('The Launchpad API endpoint', () => {
           it('should return a body with an "lp-error" message', (done) => {
             supertest(app)
               .post('/launchpad/snaps')
-              .send({ repository_url: 'https://github.com/anaccount/arepo' })
+              .send({ repository_url: 'https://github.com/anowner/aname' })
               .expect(hasMessage(
                   'lp-error',
                   'There is already a snap package with the same name and owner.'))
@@ -183,7 +183,7 @@ describe('The Launchpad API endpoint', () => {
             nock(lp_api_url)
               .post('/devel/+snaps', {
                 'ws.op': 'new',
-                git_repository_url: 'https://github.com/anaccount/arepo',
+                git_repository_url: 'https://github.com/anowner/aname',
                 processors: ['/+processors/amd64', '/+processors/armhf'],
                 store_name: snapName
               })
@@ -208,14 +208,14 @@ describe('The Launchpad API endpoint', () => {
           it('should return a 201 Created response', (done) => {
             supertest(app)
               .post('/launchpad/snaps')
-              .send({ repository_url: 'https://github.com/anaccount/arepo' })
+              .send({ repository_url: 'https://github.com/anowner/aname' })
               .expect(201, done);
           });
 
           it('should return a "success" status', (done) => {
             supertest(app)
               .post('/launchpad/snaps')
-              .send({ repository_url: 'https://github.com/anaccount/arepo' })
+              .send({ repository_url: 'https://github.com/anowner/aname' })
               .expect(hasStatus('success'))
               .end(done);
           });
@@ -223,7 +223,7 @@ describe('The Launchpad API endpoint', () => {
           it('should return a body with an appropriate caveat ID', (done) => {
             supertest(app)
               .post('/launchpad/snaps')
-              .send({ repository_url: 'https://github.com/anaccount/arepo' })
+              .send({ repository_url: 'https://github.com/anowner/aname' })
               .expect(hasMessage('snap-created', caveatId))
               .end(done);
           });
@@ -259,7 +259,7 @@ describe('The Launchpad API endpoint', () => {
     context('when user has no admin permissions on GitHub repository', () => {
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .get('/repos/anaccount/arepo')
+          .get('/repos/anowner/aname')
           .reply(200, { permissions: { admin: false } });
       });
 
@@ -270,14 +270,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 401 Unauthorized response', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(401, done);
       });
 
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -286,7 +286,7 @@ describe('The Launchpad API endpoint', () => {
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('github-no-admin-permissions'))
           .end(done);
       });
@@ -295,7 +295,7 @@ describe('The Launchpad API endpoint', () => {
     context('when repo does not exist', () => {
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .get('/repos/anaccount/arepo')
+          .get('/repos/anowner/aname')
           .reply(404, { message: 'Not Found' });
       });
 
@@ -306,14 +306,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 404 Not Found response', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(404, done);
       });
 
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -322,7 +322,7 @@ describe('The Launchpad API endpoint', () => {
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('github-snapcraft-yaml-not-found'))
           .end(done);
       });
@@ -331,7 +331,7 @@ describe('The Launchpad API endpoint', () => {
     context('when authentication has failed', () => {
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .get('/repos/anaccount/arepo')
+          .get('/repos/anowner/aname')
           .reply(401, { message: 'Bad credentials' });
       });
 
@@ -342,14 +342,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 401 Unauthorized response', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(401, done);
       });
 
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -358,7 +358,7 @@ describe('The Launchpad API endpoint', () => {
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('github-authentication-failed'))
           .end(done);
       });
@@ -375,7 +375,7 @@ describe('The Launchpad API endpoint', () => {
           .get('/devel/+snaps')
           .query({
             'ws.op': 'findByURL',
-            url: 'https://github.com/anaccount/arepo'
+            url: 'https://github.com/anowner/aname'
           })
           .reply(200, {
             total_size: 2,
@@ -402,14 +402,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 200 response', (done) => {
         supertest(app)
           .get('/launchpad/snaps')
-          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .query({ repository_url: 'https://github.com/anowner/aname' })
           .expect(200, done);
       });
 
       it('should return a "success" status', (done) => {
         supertest(app)
           .get('/launchpad/snaps')
-          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .query({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('success'))
           .end(done);
       });
@@ -418,7 +418,7 @@ describe('The Launchpad API endpoint', () => {
          'URL', (done) => {
         supertest(app)
           .get('/launchpad/snaps')
-          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .query({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage(
             'snap-found',
             `${conf.get('LP_API_URL')}/devel/~test-user/+snap/test-snap`))
@@ -433,7 +433,7 @@ describe('The Launchpad API endpoint', () => {
           .get('/devel/+snaps')
           .query({
             'ws.op': 'findByURL',
-            url: 'https://github.com/anaccount/arepo'
+            url: 'https://github.com/anowner/aname'
           })
           .reply(200, {
             total_size: 0,
@@ -449,14 +449,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 404 response', (done) => {
         supertest(app)
           .get('/launchpad/snaps')
-          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .query({ repository_url: 'https://github.com/anowner/aname' })
           .expect(404, done);
       });
 
       it('should return an "error" status', (done) => {
         supertest(app)
           .get('/launchpad/snaps')
-          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .query({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -464,7 +464,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a body with a "snap-not-found" message', (done) => {
         supertest(app)
           .get('/launchpad/snaps')
-          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .query({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('snap-not-found'))
           .end(done);
       });
@@ -477,7 +477,7 @@ describe('The Launchpad API endpoint', () => {
           .get('/devel/+snaps')
           .query({
             'ws.op': 'findByURL',
-            url: 'https://github.com/anaccount/arepo'
+            url: 'https://github.com/anowner/aname'
           })
           .reply(401, 'Bad OAuth token.');
       });
@@ -489,14 +489,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 401 response', (done) => {
         supertest(app)
           .get('/launchpad/snaps')
-          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .query({ repository_url: 'https://github.com/anowner/aname' })
           .expect(401, done);
       });
 
       it('should return an "error" status', (done) => {
         supertest(app)
           .get('/launchpad/snaps')
-          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .query({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -504,14 +504,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a body with an "lp-error" message', (done) => {
         supertest(app)
           .get('/launchpad/snaps')
-          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .query({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('lp-error', 'Bad OAuth token.'))
           .end(done);
       });
     });
 
     context('when repository is memcached', () => {
-      const repositoryUrl = 'https://github.com/anaccount/arepo';
+      const repositoryUrl = 'https://github.com/anowner/aname';
       const snapUrl = `${conf.get('LP_API_URL')}/devel/~test-user/+snap/test-snap`;
 
       before(() => {
@@ -526,14 +526,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 200 response', (done) => {
         supertest(app)
           .get('/launchpad/snaps')
-          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .query({ repository_url: 'https://github.com/anowner/aname' })
           .expect(200, done);
       });
 
       it('should return a "success" status', (done) => {
         supertest(app)
           .get('/launchpad/snaps')
-          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .query({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('success'))
           .end(done);
       });
@@ -541,7 +541,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a body with a "snap-found" message with the correct URL', (done) => {
         supertest(app)
           .get('/launchpad/snaps')
-          .query({ repository_url: 'https://github.com/anaccount/arepo' })
+          .query({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('snap-found', snapUrl))
           .end(done);
       });
@@ -822,7 +822,7 @@ describe('The Launchpad API endpoint', () => {
     context('when snap exists', () => {
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .get('/repos/anaccount/arepo')
+          .get('/repos/anowner/aname')
           .reply(200, { permissions: { admin: true } });
         const lp_api_url = conf.get('LP_API_URL');
         const lp_api_base = `${lp_api_url}/devel`;
@@ -830,7 +830,7 @@ describe('The Launchpad API endpoint', () => {
           .get('/devel/+snaps')
           .query({
             'ws.op': 'findByURL',
-            url: 'https://github.com/anaccount/arepo'
+            url: 'https://github.com/anowner/aname'
           })
           .reply(200, {
             total_size: 1,
@@ -866,14 +866,14 @@ describe('The Launchpad API endpoint', () => {
       it('returns a 201 Created response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(201, done);
       });
 
       it('returns a "success" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('success'))
           .end(done);
       });
@@ -881,7 +881,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns body with a "snap-builds-requested" message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('snap-builds-requested'))
           .end(done);
       });
@@ -890,7 +890,7 @@ describe('The Launchpad API endpoint', () => {
         const lp_api_base = `${conf.get('LP_API_URL')}/devel`;
         supertest(app)
           .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect((res) => {
             const buildUrls = res.body.payload.builds.map((entry) => {
               return entry.self_link;
@@ -907,7 +907,7 @@ describe('The Launchpad API endpoint', () => {
     context('when user has no admin permissions on GitHub repository', () => {
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .get('/repos/anaccount/arepo')
+          .get('/repos/anowner/aname')
           .reply(200, { permissions: { admin: false } });
       });
 
@@ -918,14 +918,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 401 Unauthorized response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(401, done);
       });
 
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -934,7 +934,7 @@ describe('The Launchpad API endpoint', () => {
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('github-no-admin-permissions'))
           .end(done);
       });
@@ -943,7 +943,7 @@ describe('The Launchpad API endpoint', () => {
     context('when repo does not exist', () => {
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .get('/repos/anaccount/arepo')
+          .get('/repos/anowner/aname')
           .reply(404, { message: 'Not Found' });
       });
 
@@ -954,14 +954,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 404 Not Found response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(404, done);
       });
 
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -970,7 +970,7 @@ describe('The Launchpad API endpoint', () => {
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('github-snapcraft-yaml-not-found'))
           .end(done);
       });
@@ -979,14 +979,14 @@ describe('The Launchpad API endpoint', () => {
     context('when snap does not exist', () => {
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .get('/repos/anaccount/arepo')
+          .get('/repos/anowner/aname')
           .reply(200, { permissions: { admin: true } });
         const lp_api_url = conf.get('LP_API_URL');
         nock(lp_api_url)
           .get('/devel/+snaps')
           .query({
             'ws.op': 'findByURL',
-            url: 'https://github.com/anaccount/arepo'
+            url: 'https://github.com/anowner/aname'
           })
           .reply(200, {
             total_size: 0,
@@ -1002,14 +1002,14 @@ describe('The Launchpad API endpoint', () => {
       it('returns a 404 response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(404, done);
       });
 
       it('returns an "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -1017,7 +1017,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns body with a "snap-not-found" message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anaccount/arepo' })
+          .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('snap-not-found'))
           .end(done);
       });

@@ -20,15 +20,15 @@ describe('The GitHub API endpoint', () => {
     context('when webhook does not already exist', () => {
       beforeEach(() => {
         const hmac = createHmac('sha1', conf.get('GITHUB_WEBHOOK_SECRET'));
-        hmac.update('anaccount');
-        hmac.update('arepo');
+        hmac.update('anowner');
+        hmac.update('aname');
         scope = nock(conf.get('GITHUB_API_ENDPOINT'))
-          .post('/repos/anaccount/arepo/hooks', {
+          .post('/repos/anowner/aname/hooks', {
             name: 'web',
             active: true,
             events: ['push'],
             config: {
-              url: `${conf.get('BASE_URL')}/anaccount/arepo/webhook/notify`,
+              url: `${conf.get('BASE_URL')}/anowner/aname/webhook/notify`,
               content_type: 'json',
               secret: hmac.digest('hex')
             }
@@ -43,7 +43,7 @@ describe('The GitHub API endpoint', () => {
       it('should call GitHub API endpoint to create new webhook', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .end((err) => {
             scope.done();
             done(err);
@@ -54,14 +54,14 @@ describe('The GitHub API endpoint', () => {
       it('should return a 201 created response', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(201, done);
       });
 
       it('should return a "success" status', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(hasStatus('success'))
           .end(done);
       });
@@ -69,7 +69,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a "github-webhook-created" message', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(hasMessage('github-webhook-created'))
           .end(done);
       });
@@ -78,7 +78,7 @@ describe('The GitHub API endpoint', () => {
     context('when webhook already exists', () => {
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .post('/repos/anaccount/arepo/hooks')
+          .post('/repos/anowner/aname/hooks')
           .reply(422, { message: 'Validation Failed' });
       });
 
@@ -89,14 +89,14 @@ describe('The GitHub API endpoint', () => {
       it('should return a 422 Unprocessable Entity response', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(422, done);
       });
 
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -104,7 +104,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a body with a "github-already-created" message', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(hasMessage('github-already-created'))
           .end(done);
       });
@@ -113,7 +113,7 @@ describe('The GitHub API endpoint', () => {
     context('when repo does not exist', () => {
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .post('/repos/anaccount/arepo/hooks')
+          .post('/repos/anowner/aname/hooks')
           .reply(404, { message: 'Not Found' });
       });
 
@@ -124,14 +124,14 @@ describe('The GitHub API endpoint', () => {
       it('should return a 404 Not Found response', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(404, done);
       });
 
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -139,7 +139,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a body with a "github-repository-not-found" message', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(hasMessage('github-repository-not-found'))
           .end(done);
       });
@@ -148,7 +148,7 @@ describe('The GitHub API endpoint', () => {
     context('when authentication has failed', () => {
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .post('/repos/anaccount/arepo/hooks')
+          .post('/repos/anowner/aname/hooks')
           .reply(401, { message: 'Bad credentials' });
       });
 
@@ -159,14 +159,14 @@ describe('The GitHub API endpoint', () => {
       it('should return a 401 Unauthorized response', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(401, done);
       });
 
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -174,7 +174,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a body with a github-authentication-failed message', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(hasMessage('github-authentication-failed'))
           .end(done);
       });
@@ -183,7 +183,7 @@ describe('The GitHub API endpoint', () => {
     context('when any other response is received', () => {
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
-          .post('/repos/anaccount/arepo/hooks')
+          .post('/repos/anowner/aname/hooks')
           .reply(418, { message: 'I\'m a teapot' });
       });
 
@@ -194,14 +194,14 @@ describe('The GitHub API endpoint', () => {
       it('should return a 500 Internal Server Error response', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(500, done);
       });
 
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(hasStatus('error'))
           .end(done);
       });
@@ -209,7 +209,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a body with a github-error-other message', (done) => {
         supertest(app)
           .post('/github/webhook')
-          .send({ account: 'anaccount', repo: 'arepo' })
+          .send({ owner: 'anowner', name: 'aname' })
           .expect(hasMessage('github-error-other'))
           .end(done);
       });

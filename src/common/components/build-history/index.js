@@ -5,10 +5,10 @@ import BuildRow from '../build-row';
 import { Message } from '../forms';
 
 const BuildHistory = (props) => {
-  const { account, repo, success } = props;
+  const { repository, success } = props;
 
   const builds = props.builds.map((build) => (
-    <BuildRow key={build.buildId} {...build} account={account} repo={repo} />
+    <BuildRow key={build.buildId} {...build} repository={repository} />
   ));
 
   return success ? (
@@ -22,8 +22,10 @@ const BuildHistory = (props) => {
 };
 
 BuildHistory.propTypes = {
-  account: PropTypes.string,
-  repo: PropTypes.string,
+  repository: PropTypes.shape({
+    owner: PropTypes.string,
+    name: PropTypes.string
+  }),
   success: PropTypes.bool,
   builds: React.PropTypes.arrayOf(React.PropTypes.object)
 };

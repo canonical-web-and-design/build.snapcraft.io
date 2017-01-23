@@ -1,7 +1,6 @@
 import 'isomorphic-fetch';
 
 import conf from '../helpers/config';
-import getGitHubRepoUrl from '../helpers/github-url';
 
 const BASE_URL = conf.get('BASE_URL');
 
@@ -48,14 +47,14 @@ function checkStatus(response) {
 }
 
 // Fetch snap info (self_link) for given repository
-export function fetchSnap(repository) {
+export function fetchSnap(repositoryUrl) {
   return (dispatch) => {
-    if (repository) {
+    if (repositoryUrl) {
       dispatch({
         type: FETCH_BUILDS
       });
 
-      const repositoryUrl = encodeURIComponent(getGitHubRepoUrl(repository));
+      repositoryUrl = encodeURIComponent(repositoryUrl);
       const url = `${BASE_URL}/api/launchpad/snaps?repository_url=${repositoryUrl}`;
       return fetch(url)
         .then(checkStatus)
@@ -92,14 +91,13 @@ export function fetchBuilds(snapLink) {
 }
 
 // Reguest new builds for given repository
-export function requestBuilds(repository) {
+export function requestBuilds(repositoryUrl) {
   return (dispatch) => {
-    if (repository) {
+    if (repositoryUrl) {
       dispatch({
         type: FETCH_BUILDS
       });
 
-      const repositoryUrl = getGitHubRepoUrl(repository);
       const url = `${BASE_URL}/api/launchpad/snaps/request-builds`;
       const settings = {
         ...REQUEST_POST_OPTIONS,

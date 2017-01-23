@@ -1,20 +1,20 @@
 import { createHmac } from 'crypto';
 
-import getGitHubRepoUrl from '../../common/helpers/github-url';
+import { getGitHubRepoUrl } from '../../common/helpers/github-url';
 import { conf } from '../helpers/config';
 import logging from '../logging';
 import { uncheckedRequestSnapBuilds } from './launchpad';
 
 const logger = logging.getLogger('express');
 
-export const makeWebhookSecret = (account, repo) => {
+export const makeWebhookSecret = (owner, name) => {
   const rootSecret = conf.get('GITHUB_WEBHOOK_SECRET');
   if (!rootSecret) {
     throw new Error('GitHub webhook secret not configured');
   }
   const hmac = createHmac('sha1', rootSecret);
-  hmac.update(account);
-  hmac.update(repo);
+  hmac.update(owner);
+  hmac.update(name);
   return hmac.digest('hex');
 };
 
@@ -22,6 +22,8 @@ export const makeWebhookSecret = (account, repo) => {
 // meaningful codes.
 export const notify = (req, res) => {
   const signature = req.headers['x-hub-signature'];
+  const { owner, name } = req.params;
+
   if (!signature) {
     logger.info('Rejecting unsigned webhook');
     return res.status(400).send();
@@ -35,7 +37,7 @@ export const notify = (req, res) => {
 
   let secret;
   try {
-    secret = makeWebhookSecret(req.params.account, req.params.repo);
+    secret = makeWebhookSecret(owner, name);
   } catch (e) {
     logger.error(e.message);
     return res.status(500).send();
@@ -53,8 +55,7 @@ export const notify = (req, res) => {
   if (req.headers['x-github-event'] === 'ping') {
     return res.status(200).send();
   } else {
-    const repositoryUrl = getGitHubRepoUrl(req.params.account,
-                                           req.params.repo);
+    const repositoryUrl = getGitHubRepoUrl(owner, name);
     return uncheckedRequestSnapBuilds(repositoryUrl)
       .then(() => {
         logger.info(`Requested builds of ${repositoryUrl}.`);
