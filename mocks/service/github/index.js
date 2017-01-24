@@ -23,4 +23,19 @@ router.get('/repos/:owner/:name/contents/snapcraft.yaml', (req, res) => {
   res.status(200).send(`name: ${req.params.name}\n`);
 });
 
+router.get('/user/repos', (req, res) => {
+  res.status(200).send([
+    {
+      full_name: 'anowner/aname',
+      name: 'aname',
+      owner: { login: 'anowner' }
+    },
+    {
+      full_name: 'test/test',
+      name: 'test',
+      owner: { login: 'test' }
+    }
+  ]);
+});
+
 export default router;

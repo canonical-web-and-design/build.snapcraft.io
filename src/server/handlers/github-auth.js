@@ -3,7 +3,7 @@ import logging from '../logging';
 
 import { conf } from '../helpers/config';
 
-const AUTH_SCOPE = 'admin:repo_hook';
+const AUTH_SCOPE = 'admin:repo_hook'; // another scope (like 'public_repo') may be needed to list organisations' repositories
 const GITHUB_AUTH_LOGIN_URL = conf.get('GITHUB_AUTH_LOGIN_URL');
 const GITHUB_AUTH_VERIFY_URL = conf.get('GITHUB_AUTH_VERIFY_URL');
 const GITHUB_AUTH_CLIENT_ID = conf.get('GITHUB_AUTH_CLIENT_ID');

@@ -45,6 +45,35 @@ const RESPONSE_CREATED = {
   }
 };
 
+export const listRepositories = (req, res) => {
+  const uri = '/user/repos';
+
+  if (!req.session || !req.session.token) {
+    return res.status(401).send(RESPONSE_AUTHENTICATION_FAILED);
+  }
+
+  requestGitHub.get(uri, { token: req.session.token, json: true })
+    .then((response) => {
+      if (response.statusCode !== 200) {
+        return res.status(response.statusCode).send({
+          status: 'error',
+          payload: {
+            code: 'github-list-repositories-error',
+            message: response.body.message
+          }
+        });
+      }
+
+      return res.status(response.statusCode).send({
+        status: 'success',
+        payload: {
+          code: 'github-list-repositories',
+          repos: response.body
+        }
+      });
+    });
+};
+
 export const createWebhook = (req, res) => {
   const { owner, name } = req.body;
 

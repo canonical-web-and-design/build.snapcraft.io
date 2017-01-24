@@ -95,3 +95,45 @@ as returned by the Launchpad API:
         ]
       }
     }
+
+
+## GitHub
+
+### GitHub auth
+
+TODO
+
+### GitHub webhook
+
+TODO
+
+### Listing GitHub repositories
+
+To get a list of repositories for current user (user needs to be authorised to GH before) use:
+
+    GET /api/github/repos
+    Cookie: <session cookie>
+    Accept: application/json
+
+On success, returns the following where the items in `repos` are GitHub repositories as returned by [GitHub API](https://developer.github.com/v3/repos/#list-your-repositories):
+
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+
+    {
+      "status": "success",
+      "payload": {
+        "code": "github-list-repositories",
+        "repos": [
+          {
+            "full_name": "anowner/aname",
+            "name": "aname",
+            "owner": {
+              "login":"anowner"
+              ...
+            }
+            ...
+          }
+        ]
+      }
+    }

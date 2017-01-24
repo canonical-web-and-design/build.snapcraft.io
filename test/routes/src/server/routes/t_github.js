@@ -2,19 +2,140 @@ import { createHmac } from 'crypto';
 import Express from 'express';
 import supertest from 'supertest';
 import nock from 'nock';
+import expect from 'expect';
 
 import github from '../../../../../src/server/routes/github';
 import { conf } from '../../../../../src/server/helpers/config.js';
 
 describe('The GitHub API endpoint', () => {
-  let app;
+  const app = Express();
+  const session = { 'token': 'secret' };
+
   let scope;
-  app = Express();
+
   app.use((req, res, next) => {
-    req.session = {};
+    req.session = session;
     next();
   });
   app.use(github);
+
+  describe('list repositories route', () => {
+
+    context('when user is not logged in', () => {
+      const oldToken = session.token;
+
+      before(() => {
+        delete session.token;
+      });
+
+      after(() => {
+        session.token = oldToken;
+      });
+
+      it('should return a 401 Unauthorized response', (done) => {
+        supertest(app)
+          .get('/github/repos')
+          .expect(401, done);
+      });
+
+      it('should return a "error" status', (done) => {
+        supertest(app)
+          .get('/github/repos')
+          .expect(hasStatus('error'))
+          .end(done);
+      });
+
+      it('should return a body with a "github-authentication-failed" message', (done) => {
+        supertest(app)
+          .get('/github/repos')
+          .expect(hasMessage('github-authentication-failed'))
+          .end(done);
+      });
+    });
+
+    context('when user is logged in', () => {
+
+      context('when GitHub returns an error', () => {
+        const errorCode = 404;
+        const errorMessage = 'Test error message';
+
+        beforeEach(() => {
+          scope = nock(conf.get('GITHUB_API_ENDPOINT'))
+            .get('/user/repos', )
+            .reply(errorCode, { message: errorMessage });
+        });
+
+        afterEach(() => {
+          nock.cleanAll();
+        });
+
+        it('should return with same error code', (done) => {
+          supertest(app)
+          .post('/github/repos')
+          .expect(errorCode, done);
+        });
+
+        it('should return a "error" status', (done) => {
+          supertest(app)
+            .get('/github/repos')
+            .expect(hasStatus('error'))
+            .end(done);
+        });
+
+        it('should return a body with a error message from GitHub', (done) => {
+          supertest(app)
+            .get('/github/repos')
+            .expect(hasMessage('github-list-repositories-error', errorMessage))
+            .end(done);
+        });
+      });
+
+      context('when GitHub returns repositories', () => {
+        const repos = [ { name: 'repo1' }, { name: 'repo2' }];
+
+        beforeEach(() => {
+          scope = nock(conf.get('GITHUB_API_ENDPOINT'))
+            .get('/user/repos', )
+            .reply(200, repos);
+        });
+
+        afterEach(() => {
+          nock.cleanAll();
+        });
+
+        it('should return with 200', (done) => {
+          supertest(app)
+          .get('/github/repos')
+          .expect(200, done);
+        });
+
+        it('should return a "success" status', (done) => {
+          supertest(app)
+            .get('/github/repos')
+            .expect(hasStatus('success'))
+            .end(done);
+        });
+
+        it('should return a body with a "github-list-repositories" code', (done) => {
+          supertest(app)
+            .get('/github/repos')
+            .expect(hasMessage('github-list-repositories'))
+            .end(done);
+        });
+
+        it('should return user repositories', (done) => {
+          supertest(app)
+            .get('/github/repos')
+            .end((err, res) => {
+              expect(res.body.payload.repos).toEqual(repos);
+              done(err);
+            });
+        });
+
+      });
+    });
+
+  });
 
   describe('create webhook route', () => {
     context('when webhook does not already exist', () => {
