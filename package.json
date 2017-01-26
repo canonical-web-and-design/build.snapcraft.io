@@ -41,12 +41,11 @@
     "express-winston": "^2.0.0",
     "helmet": "^3.1.0",
     "images-require-hook": "^1.0.3",
+    "immutable": "^3.8.1",
     "isomorphic-fetch": "^2.2.1",
     "js-yaml": "^3.7.0",
     "memcached": "^2.2.2",
     "moment": "^2.17.1",
-    "nconf": "^0.8.4",
-    "nconf-yaml": "^1.0.2",
     "normalize.css": "^5.0.0",
     "oauth": "^0.9.14",
     "openid": "^2.0.6",
@@ -64,7 +63,8 @@
     "redux-thunk": "^2.1.0",
     "request": "^2.79.0",
     "winston": "^2.3.0",
-    "winston-daily-rotate-file": "^1.4.2"
+    "winston-daily-rotate-file": "^1.4.2",
+    "yargs": "^6.4.0"
   },
   "devDependencies": {
     "assets-webpack-plugin": "^3.5.0",

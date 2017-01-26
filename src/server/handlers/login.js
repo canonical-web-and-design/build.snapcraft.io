@@ -61,6 +61,7 @@ export const processVerifiedAssertion = (req, res, next, error, result) => {
       (!result.teams || !result.teams.some(team => {
         return OPENID_TEAMS.indexOf(team) != -1;
       }))) {
+
     return next(new Error(`${constants.E_UNAUTHORIZED}`));
   }
 

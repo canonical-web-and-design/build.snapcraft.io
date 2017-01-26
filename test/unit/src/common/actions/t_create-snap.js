@@ -11,7 +11,7 @@ import {
   setGitHubRepository
 } from '../../../../../src/common/actions/create-snap';
 import * as ActionTypes from '../../../../../src/common/actions/create-snap';
-import conf from '../../../../../src/common/helpers/config';
+import { conf } from '../../../../../src/common/helpers/config';
 
 const middlewares = [ thunk ];
 const mockStore = configureMockStore(middlewares);

@@ -1,3 +1,4 @@
+require('babel-register');
 const path = require('path');
 const webpack = require('webpack');
 const AssetsPlugin = require('assets-webpack-plugin');
@@ -6,7 +7,6 @@ const vars = require('postcss-simple-vars');
 const autoprefixer = require('autoprefixer');
 
 const sharedVars = require('../src/common/style/variables');
-
 
 module.exports = {
   context: path.resolve(__dirname, '..'),
@@ -29,9 +29,7 @@ module.exports = {
     }),
     new AssetsPlugin(),
     new webpack.DefinePlugin({
-      'process.env': {
-        'NODE_ENV': JSON.stringify('production')
-      }
+      'process.env.NODE_ENV': JSON.stringify('production')
     })
   ],
   module: {

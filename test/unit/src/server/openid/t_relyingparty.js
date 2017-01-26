@@ -1,6 +1,8 @@
 import expect from 'expect';
+import proxyquire from 'proxyquire';
+import { Map } from 'immutable';
 import { conf } from '../../../../../src/server/helpers/config';
-import RelyingPartyFactory, {
+import {
   saveAssociation,
   loadAssociation,
   removeAssociation
@@ -13,6 +15,7 @@ describe('RelyingParty', () => {
   let rp;
 
   before(() => {
+    const RelyingPartyFactory = require('../../../../../src/server/openid/relyingparty').default;
     rp = RelyingPartyFactory({}, VERIFY_URL);
   });
 
@@ -37,12 +40,19 @@ describe('RelyingParty default extensions', () => {
   let rp;
 
   before(() => {
-    conf.stores['test-overrides'].set('OPENID_TEAMS', 'null');
-    rp = RelyingPartyFactory({}, VERIFY_URL);
-  });
+    const RelyingPartyFactory = proxyquire(
+      '../../../../../src/server/openid/relyingparty',
+      {
+        '../helpers/config': {
+          conf: Map({
+            OPENID_TEAMS: null
+          }),
+          '@noCallThru': true
+        }
+      }
+    ).default;
 
-  after(() => {
-    conf.stores['test-overrides'].clear('OPENID_TEAMS');
+    rp = RelyingPartyFactory({}, VERIFY_URL);
   });
 
   it('should not include teams extension if no teams set in config', () => {
@@ -56,12 +66,19 @@ describe('RelyingParty with teams extension', () => {
   let rp;
 
   before(() => {
-    conf.stores['test-overrides'].set('OPENID_TEAMS', '["test1", "test2"]');
-    rp = RelyingPartyFactory({}, VERIFY_URL);
-  });
+    const RelyingPartyFactory = proxyquire(
+      '../../../../../src/server/openid/relyingparty',
+      {
+        '../helpers/config': {
+          conf: Map({
+            OPENID_TEAMS: '["test1", "test2"]'
+          }),
+          '@noCallThru': true
+        }
+      }
+    ).default;
 
-  after(() => {
-    conf.stores['test-overrides'].clear('OPENID_TEAMS');
+    rp = RelyingPartyFactory({}, VERIFY_URL);
   });
 
   it('should add teams extension if teams set in config', () => {

@@ -1,12 +1,13 @@
-import path from 'path';
-import nconf from 'nconf';
+import { Map } from 'immutable';
+import { argv } from 'yargs';
 import dotenv from 'dotenv';
 
-/**
- * Whitelist config items that are safe to send
- * to the client.
- * DO NOT ADD SENSITIVE DATA TO THIS LIST
- */
+// Whitelist for client-side config
+// Add settings to this list to use them in
+// the client.
+// ANY SETTINGS ADDED TO THIS LIST WILL BE
+// VISIBLE TO THE WORLD.
+//
 const CLIENT_SIDE_WHITELIST = [
   'NODE_ENV',
   'BASE_URL',
@@ -14,38 +15,28 @@ const CLIENT_SIDE_WHITELIST = [
   'STORE_DEVPORTAL_URL'
 ];
 
-let configForClient;
-
-// Install an empty store for use (only!) by tests.  Values in this store
-// override everything else.
-nconf.add('test-overrides', { type: 'memory' });
-
-// Load settings from CLI arguments
-nconf.argv();
-
-// Load settings from env file
-let envFile = 'environments/development.env';
-if (nconf.get('env')) {
-  envFile = path.resolve('./', nconf.get('env'));
+// Add envfile variables to environment
+if (argv.env) {
+  dotenv.config({ path: argv.env });
 }
 
-// Load settings from environment variables
-dotenv.config({ path: envFile });
-nconf.env({
-  separator: '__'
-});
+// Compile config from the following sources
+// in order of precedence
+global.__CONFIG__ = Object.assign(
+  {},
+  require('../../config/defaults').default,  // development site defaults
+  process.env,                               // environment variables, including envfile
+  argv                                       // CLI arguments
+);
 
-export const conf = nconf;
+export const conf = Map(global.__CONFIG__);
 
-export const getClientConfig = () => {
-  // Return memoized config if it has been built
-  if (configForClient) {
-    return configForClient;
-  }
-
-  configForClient = {};
+export const getClientConfig = (config) => {
+  let configForClient = {};
   CLIENT_SIDE_WHITELIST.forEach(item => {
-    configForClient[item] = nconf.get(item);
+    if (config.get(item)) {
+      configForClient[item] = config.get(item);
+    }
   });
 
   return configForClient;
