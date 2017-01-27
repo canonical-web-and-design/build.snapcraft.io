@@ -1,40 +1,12 @@
-export class Config {
-  constructor(config) {
-    // https://github.com/purposeindustries/window-or-global/blob/master/lib/index.js
-    // Establish the root object, `window` in the browser, or `global` on the server.
-    let root = typeof self == 'object' && self.Object == Object && self;
-    // root is window, we expect it to have config
-    if (root && !root.__CONFIG__) {
-      throw new ReferenceError('Client config: no config defined.');
-    }
-    // root is not window; test for node global and assign to avoid ref error
-    // we don't expect config here, this is client side only, but we can set it
-    // for unit tests
-    root = root || (typeof global == 'object' && global.Object == Object && global);
+import { Map } from 'immutable';
 
-    this._store = config || root.__CONFIG__;
-  }
+export const conf = Map(getGlobal().__CONFIG__);
 
-  get(key) {
-    let target = this._store;
-    const path = this._path(key);
-
-    while (path.length > 0) {
-      key = path.shift();
-
-      if (target && target.hasOwnProperty(key)) {
-        target = target[key];
-        continue;
-      }
-      return undefined;
-    }
-
-    return target;
-  }
-
-  _path(key) {
-    return (key == null) ? [] : key.split(':');
-  }
+function getGlobal() {
+  // window-or-global helper:
+  // returns global in Node.JS, returns window in browser
+  // https://github.com/purposeindustries/window-or-global/blob/master/lib/index.js
+  return (typeof self === 'object' && self.self === self && self) ||
+    (typeof global === 'object' && global.global === global && global) ||
+    this;
 }
-
-export default new Config();

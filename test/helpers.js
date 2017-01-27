@@ -1,4 +1,6 @@
 import expect from 'expect';
+import proxyquire from 'proxyquire';
+import { Map } from 'immutable';
 
 // Custom assertions
 expect.extend({
@@ -14,3 +16,12 @@ expect.extend({
     return this;
   }
 });
+
+export function requireWithMockConfigHelper(requirePath, modulePath, stub) {
+  return proxyquire(requirePath, {
+    [modulePath]: {
+      conf: Map(stub),
+      '@noCallThru': true
+    }
+  });
+}

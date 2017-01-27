@@ -5,11 +5,9 @@ const webpack = require('webpack');
 const url = require('url');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware  = require('webpack-hot-middleware');
-
 const webpackConfig = require('./dev-config');
 const { conf } = require('../src/server/helpers/config');
 const logging = require('../src/server/logging').default;
-
 const logger = logging.getLogger('webpack');
 const webpackDevUrl = url.parse(conf.get('WEBPACK_DEV_URL'));
 const app = Express();

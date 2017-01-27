@@ -1,18 +1,27 @@
 import expect from 'expect';
+import path from 'path';
+
 import { conf } from '../../../../../src/server/helpers/config';
-import RelyingPartyFactory, {
+import {
   saveAssociation,
   loadAssociation,
   removeAssociation
 } from '../../../../../src/server/openid/relyingparty';
+import { requireWithMockConfigHelper } from '../../../../helpers';
 
 const VERIFY_URL = conf.get('OPENID_VERIFY_URL');
 const BASE_URL = conf.get('BASE_URL');
+const requireWithMockConfig = requireWithMockConfigHelper.bind(
+  null,
+  path.resolve(__dirname, '../../../../../src/server/openid/relyingparty'),
+  '../helpers/config'
+);
 
 describe('RelyingParty', () => {
   let rp;
 
   before(() => {
+    const RelyingPartyFactory = require('../../../../../src/server/openid/relyingparty').default;
     rp = RelyingPartyFactory({}, VERIFY_URL);
   });
 
@@ -37,12 +46,8 @@ describe('RelyingParty default extensions', () => {
   let rp;
 
   before(() => {
-    conf.stores['test-overrides'].set('OPENID_TEAMS', 'null');
+    const RelyingPartyFactory = requireWithMockConfig({ OPENID_TEAMS: null }).default;
     rp = RelyingPartyFactory({}, VERIFY_URL);
-  });
-
-  after(() => {
-    conf.stores['test-overrides'].clear('OPENID_TEAMS');
   });
 
   it('should not include teams extension if no teams set in config', () => {
@@ -56,12 +61,11 @@ describe('RelyingParty with teams extension', () => {
   let rp;
 
   before(() => {
-    conf.stores['test-overrides'].set('OPENID_TEAMS', '["test1", "test2"]');
-    rp = RelyingPartyFactory({}, VERIFY_URL);
-  });
+    const RelyingPartyFactory = requireWithMockConfig({
+      OPENID_TEAMS: '["test1", "test2"]'
+    }).default;
 
-  after(() => {
-    conf.stores['test-overrides'].clear('OPENID_TEAMS');
+    rp = RelyingPartyFactory({}, VERIFY_URL);
   });
 
   it('should add teams extension if teams set in config', () => {
