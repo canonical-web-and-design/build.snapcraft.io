@@ -1,15 +1,21 @@
 import expect from 'expect';
-import proxyquire from 'proxyquire';
-import { Map } from 'immutable';
+import path from 'path';
+
 import { conf } from '../../../../../src/server/helpers/config';
 import {
   saveAssociation,
   loadAssociation,
   removeAssociation
 } from '../../../../../src/server/openid/relyingparty';
+import { requireWithMockConfigHelper } from '../../../../helpers';
 
 const VERIFY_URL = conf.get('OPENID_VERIFY_URL');
 const BASE_URL = conf.get('BASE_URL');
+const requireWithMockConfig = requireWithMockConfigHelper.bind(
+  null,
+  path.resolve(__dirname, '../../../../../src/server/openid/relyingparty'),
+  '../helpers/config'
+);
 
 describe('RelyingParty', () => {
   let rp;
@@ -40,18 +46,7 @@ describe('RelyingParty default extensions', () => {
   let rp;
 
   before(() => {
-    const RelyingPartyFactory = proxyquire(
-      '../../../../../src/server/openid/relyingparty',
-      {
-        '../helpers/config': {
-          conf: Map({
-            OPENID_TEAMS: null
-          }),
-          '@noCallThru': true
-        }
-      }
-    ).default;
-
+    const RelyingPartyFactory = requireWithMockConfig({ OPENID_TEAMS: null }).default;
     rp = RelyingPartyFactory({}, VERIFY_URL);
   });
 
@@ -66,17 +61,9 @@ describe('RelyingParty with teams extension', () => {
   let rp;
 
   before(() => {
-    const RelyingPartyFactory = proxyquire(
-      '../../../../../src/server/openid/relyingparty',
-      {
-        '../helpers/config': {
-          conf: Map({
-            OPENID_TEAMS: '["test1", "test2"]'
-          }),
-          '@noCallThru': true
-        }
-      }
-    ).default;
+    const RelyingPartyFactory = requireWithMockConfig({
+      OPENID_TEAMS: '["test1", "test2"]'
+    }).default;
 
     rp = RelyingPartyFactory({}, VERIFY_URL);
   });

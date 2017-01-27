@@ -8,6 +8,7 @@ const autoprefixer = require('autoprefixer');
 
 const sharedVars = require('../src/common/style/variables');
 
+
 module.exports = {
   context: path.resolve(__dirname, '..'),
   entry: [
@@ -29,7 +30,9 @@ module.exports = {
     }),
     new AssetsPlugin(),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production')
+      'process.env': {
+        'NODE_ENV': JSON.stringify('production')
+      }
     })
   ],
   module: {

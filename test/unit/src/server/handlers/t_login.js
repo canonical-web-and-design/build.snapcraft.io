@@ -1,8 +1,8 @@
 import expect from 'expect';
 import nock from 'nock';
-import { requireWithMockConfigHelper } from '../../../../helpers';
 import path from 'path';
 
+import { requireWithMockConfigHelper } from '../../../../helpers';
 import constants from '../../../../../src/server/constants';
 
 const UBUNTU_SSO_URL = 'https://login.ubuntu.com';
