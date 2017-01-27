@@ -1,4 +1,4 @@
-import * as ActionTypes from '../actions/repository-input';
+import * as ActionTypes from '../actions/create-snap';
 import { parseGitHubRepoUrl } from '../helpers/github-url';
 
 export function repository(state = null, action) {

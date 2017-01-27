@@ -1,0 +1,34 @@
+$border-color: $mid-grey;
+$hover-color: rgba(255,255,255,0.8);
+$error-color: $error;
+
+.repositoryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid $border-color;
+  padding: 10px;
+  position: relative;
+}
+
+.repositoryRow:hover {
+  background-color: $hover-color;
+}
+
+.repositoryRow::before {
+  content: '';
+  display: block;
+  width: 5px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+}
+
+.repositoryRow.error::before {
+  background-color: $error-color;
+}
+
+.errorMessage {
+  color: $error-color;
+}

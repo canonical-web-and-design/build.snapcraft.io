@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Helmet from 'react-helmet';
 
-import RepositoryInput from '../components/repository-input';
+import RepositoriesHome from '../components/repositories-home';
 import styles from './container.css';
 
 class Home extends Component {
@@ -11,7 +11,7 @@ class Home extends Component {
         <Helmet
           title='Home'
         />
-        <RepositoryInput />
+        <RepositoriesHome />
       </div>
     );
   }

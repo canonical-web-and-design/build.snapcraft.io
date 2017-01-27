@@ -9,8 +9,8 @@ import {
   createSnap,
   createSnapError,
   setGitHubRepository
-} from '../../../../../src/common/actions/repository-input';
-import * as ActionTypes from '../../../../../src/common/actions/repository-input';
+} from '../../../../../src/common/actions/create-snap';
+import * as ActionTypes from '../../../../../src/common/actions/create-snap';
 import conf from '../../../../../src/common/helpers/config';
 
 const middlewares = [ thunk ];
@@ -115,17 +115,18 @@ describe('repository input actions', () => {
   });
 
   context('createSnapError', () => {
-    let payload = 'Something went wrong!';
+    let error = 'Something went wrong!';
+    let id = 'foo/bar';
 
     beforeEach(() => {
-      action = createSnapError(payload);
+      action = createSnapError(id, error);
     });
 
     it('creates an action to store error on failure', () => {
       const expectedAction = {
         type: ActionTypes.CREATE_SNAP_ERROR,
         error: true,
-        payload
+        payload: { id, error }
       };
 
       store.dispatch(action);

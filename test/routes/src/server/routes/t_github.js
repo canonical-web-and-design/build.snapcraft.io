@@ -34,7 +34,7 @@ describe('The GitHub API endpoint', () => {
 
       it('should return a 401 Unauthorized response', (done) => {
         supertest(app)
-          .get('/github/repos')
+          .get('/github/repos', { affiliation: 'owner' })
           .expect(401, done);
       });
 
@@ -61,7 +61,8 @@ describe('The GitHub API endpoint', () => {
 
         beforeEach(() => {
           scope = nock(conf.get('GITHUB_API_ENDPOINT'))
-            .get('/user/repos', )
+            .get('/user/repos')
+            .query({ affiliation: 'owner' })
             .reply(errorCode, { message: errorMessage });
         });
 
@@ -95,7 +96,8 @@ describe('The GitHub API endpoint', () => {
 
         beforeEach(() => {
           scope = nock(conf.get('GITHUB_API_ENDPOINT'))
-            .get('/user/repos', )
+            .get('/user/repos')
+            .query({ affiliation: 'owner' })
             .reply(200, repos);
         });
 

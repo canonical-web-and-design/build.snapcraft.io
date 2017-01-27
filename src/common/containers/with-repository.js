@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 
-import { setGitHubRepository } from '../actions/repository-input';
+import { setGitHubRepository } from '../actions/create-snap';
 
 function withRepository(WrappedComponent) {
 

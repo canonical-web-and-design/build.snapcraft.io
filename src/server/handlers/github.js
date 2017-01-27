@@ -46,7 +46,7 @@ const RESPONSE_CREATED = {
 };
 
 export const listRepositories = (req, res) => {
-  const uri = '/user/repos';
+  const uri = '/user/repos?affiliation=owner';
 
   if (!req.session || !req.session.token) {
     return res.status(401).send(RESPONSE_AUTHENTICATION_FAILED);

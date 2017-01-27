@@ -40,7 +40,10 @@ export function createSnap(repositoryUrl, location) { // location for tests
       const { fullName } = parseGitHubRepoUrl(repositoryUrl);
 
       dispatch({
-        type: CREATE_SNAP
+        type: CREATE_SNAP,
+        payload: {
+          id: fullName
+        }
       });
 
       return fetch(`${BASE_URL}/api/launchpad/snaps`, {
@@ -69,17 +72,20 @@ export function createSnap(repositoryUrl, location) { // location for tests
           if (error.message === 'There is already a snap package with the same name and owner.') {
             (location || window.location).href = `${BASE_URL}/${fullName}/builds`;
           } else {
-            dispatch(createSnapError(error));
+            dispatch(createSnapError(fullName, error));
           }
         });
     }
   };
 }
 
-export function createSnapError(error) {
+export function createSnapError(id, error) {
   return {
     type: CREATE_SNAP_ERROR,
-    payload: error,
+    payload: {
+      id,
+      error
+    },
     error: true
   };
 }

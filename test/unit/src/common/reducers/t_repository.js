@@ -1,7 +1,7 @@
 import expect from 'expect';
 
 import { repository } from '../../../../../src/common/reducers/repository';
-import * as ActionTypes from '../../../../../src/common/actions/repository-input';
+import * as ActionTypes from '../../../../../src/common/actions/create-snap';
 
 describe('repository reducers', () => {
   const initialState = null;
