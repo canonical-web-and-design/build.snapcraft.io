@@ -1,7 +1,7 @@
 import expect from 'expect';
 import nock from 'nock';
-import { Map } from 'immutable';
-import proxyquire from 'proxyquire';
+import { requireWithMockConfigHelper } from '../../../../helpers';
+import path from 'path';
 
 import constants from '../../../../../src/server/constants';
 
@@ -10,6 +10,11 @@ const OPENID_VERIFY_URL = 'http://localhost:8000/login/verify';
 const OPENID_TEAMS = ['team-name'];
 const GITHUB_API_ENDPOINT = 'http://localhost:4000/github';
 const LP_API_URL = 'http://localhost:4000/launchpad';
+const requireWithMockConfig = requireWithMockConfigHelper.bind(
+  null,
+  path.resolve(__dirname, '../../../../../src/server/handlers/login'),
+  '../helpers/config'
+);
 
 describe('processVerifiedAssertion', () => {
   const res = {
@@ -33,15 +38,12 @@ describe('processVerifiedAssertion', () => {
     let processVerifiedAssertion;
 
     beforeEach(() => {
-      processVerifiedAssertion = proxyquire(
-        '../../../../../src/server/handlers/login',
-        {
-          '../helpers/config': {
-            conf: Map({ UBUNTU_SSO_URL, OPENID_VERIFY_URL, OPENID_TEAMS, GITHUB_API_ENDPOINT }),
-            '@noCallThru': true
-          }
-        }
-      ).processVerifiedAssertion;
+      ({ processVerifiedAssertion } = requireWithMockConfig({
+        UBUNTU_SSO_URL,
+        OPENID_VERIFY_URL,
+        OPENID_TEAMS,
+        GITHUB_API_ENDPOINT
+      }));
     });
 
     it('produces E_UNAUTHORIZED error if not in any of required teams', () => {
@@ -63,15 +65,11 @@ describe('processVerifiedAssertion', () => {
     let processVerifiedAssertion;
 
     beforeEach(() => {
-      processVerifiedAssertion = proxyquire(
-        '../../../../../src/server/handlers/login',
-        {
-          '../helpers/config': {
-            conf: Map({ UBUNTU_SSO_URL, OPENID_VERIFY_URL, GITHUB_API_ENDPOINT }),
-            '@noCallThru': true
-          }
-        }
-      ).processVerifiedAssertion;
+      ({ processVerifiedAssertion } = requireWithMockConfig({
+        UBUNTU_SSO_URL,
+        OPENID_VERIFY_URL,
+        GITHUB_API_ENDPOINT
+      }));
     });
 
     it('passes through verification errors', () => {
