@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import conf from '../../helpers/config';
+import { conf } from '../../helpers/config';
 import { createSnap } from '../../actions/create-snap';
 import RepositoryRow from '../repository-row';
 import Spinner from '../spinner';
