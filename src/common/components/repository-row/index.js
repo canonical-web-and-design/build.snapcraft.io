@@ -34,7 +34,7 @@ const RepositoryRow = (props) => {
 };
 
 RepositoryRow.propTypes = {
-  errorMsg: PropTypes.string,
+  errorMsg: PropTypes.node,
   repository: PropTypes.shape({
     fullName: PropTypes.string
   }),
