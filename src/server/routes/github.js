@@ -10,5 +10,6 @@ router.post('/github/webhook', createWebhook);
 
 router.use('/github/repos', json());
 router.get('/github/repos', listRepositories);
+router.get('/github/repos/page/:page', listRepositories);
 
 export default router;

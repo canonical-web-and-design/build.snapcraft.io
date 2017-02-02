@@ -93,12 +93,20 @@ describe('The GitHub API endpoint', () => {
 
       context('when GitHub returns repositories', () => {
         const repos = [ { name: 'repo1' }, { name: 'repo2' }];
+        const pageLinks = { first: 1, prev: 1, next: 3, last: 3 };
 
         beforeEach(() => {
           scope = nock(conf.get('GITHUB_API_ENDPOINT'))
             .get('/user/repos')
             .query({ affiliation: 'owner' })
-            .reply(200, repos);
+            .reply(200, repos, {
+              Link: [
+                '<https://api.github.com?&page=1&per_page=30>; rel="first"',
+                '<https://api.github.com?&page=1&per_page=30>; rel="prev"',
+                '<https://api.github.com?&page=3&per_page=30>; rel="next"',
+                '<https://api.github.com?&page=3&per_page=30>; rel="last"'
+              ].join(',')
+            });
         });
 
         afterEach(() => {
@@ -130,6 +138,15 @@ describe('The GitHub API endpoint', () => {
             .get('/github/repos')
             .end((err, res) => {
               expect(res.body.payload.repos).toEqual(repos);
+              done(err);
+            });
+        });
+
+        it('should return pagelinks', (done) => {
+          supertest(app)
+            .get('/github/repos')
+            .end((err, res) => {
+              expect(res.body.pageLinks).toEqual(pageLinks);
               done(err);
             });
         });

@@ -5,9 +5,12 @@ import { conf } from '../../helpers/config';
 import { createSnap } from '../../actions/create-snap';
 import RepositoryRow from '../repository-row';
 import Spinner from '../spinner';
+import PageLinks from '../page-links';
+import { fetchUserRepositories } from '../../actions/repositories';
+import styles from './styles.css';
 
 // loading container styles not to duplicate .spinner class
-import styles from '../../containers/container.css';
+import { spinner as spinnerStyles } from '../../containers/container.css';
 
 const SNAP_NAME_NOT_REGISTERED_ERROR_CODE = 'snap-name-not-registered';
 
@@ -59,16 +62,33 @@ class RepositoriesList extends Component {
     }
   }
 
+  onPageLinkClick(pageNumber) {
+    this.props.dispatch(fetchUserRepositories(pageNumber));
+  }
+
   render() {
     const isLoading = this.props.repositories.isFetching;
+    const pageLinks = this.props.repositories.pageLinks;
 
     return (
       <div>
+        { this.props.repositories.success && pageLinks &&
+          <div className={ styles['page-links-container'] }>
+            Pages: <PageLinks { ...pageLinks } onClick={ this.onPageLinkClick.bind(this) } />
+          </div>
+        }
         { isLoading &&
-          <div className={styles.spinner}><Spinner /></div>
+          <div className={ spinnerStyles }>
+            <Spinner />
+          </div>
         }
         { this.props.repositories.success &&
           this.props.repositories.repos.map(this.renderRepository.bind(this))
+        }
+        { this.props.repositories.success && pageLinks &&
+          <div className={ styles['page-links-container'] }>
+            Pages: <PageLinks { ...pageLinks } onClick={ this.onPageLinkClick.bind(this) } />
+          </div>
         }
       </div>
     );
