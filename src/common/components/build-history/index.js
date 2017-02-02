@@ -4,21 +4,26 @@ import { connect } from 'react-redux';
 import BuildRow from '../build-row';
 import { Message } from '../forms';
 
-const BuildHistory = (props) => {
-  const { repository, success } = props;
+export const BuildHistory = (props) => {
+  const { repository, success, builds } = props;
 
-  const builds = props.builds.map((build) => (
-    <BuildRow key={build.buildId} {...build} repository={repository} />
-  ));
+  const hasBuilds = (builds && builds.length > 0);
 
-  return success ? (
-    <div>
-      {builds.length > 0
-        ? builds
-        : <Message status='info'>This snap has not been built yet.</Message>
-      }
-    </div>
-  ) : null;
+  if (!success) {
+    return null;
+  }
+
+  if (!hasBuilds) {
+    return <Message status='info'>This snap has not been built yet.</Message>;
+  }
+
+  const buildRows = builds
+    .sort((a,b) => ((+b.buildId) - (+a.buildId)))
+    .map((build) => (
+      <BuildRow key={build.buildId} {...build} repository={repository} />
+    ));
+
+  return <div>{ buildRows }</div>;
 };
 
 BuildHistory.propTypes = {
