@@ -52,3 +52,4 @@ version-info.txt
 
 # Environment variables
 .env
+environments/development.env
