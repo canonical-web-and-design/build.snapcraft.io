@@ -7,6 +7,7 @@ import Dashboard from './containers/dashboard.js';
 import Landing from './containers/landing.js';
 import LoginFailed from './containers/login-failed.js';
 import RepositorySetup from './containers/repository-setup.js';
+import SelectRepositories from './containers/select-repositories.js';
 
 export default (
   <Route component={App}>
@@ -16,5 +17,6 @@ export default (
     <Route path="/:owner/:name/builds" component={Builds}/>
     <Route path="/:owner/:name/builds/:buildId" component={BuildDetails}/>
     <Route path="/login/failed" component={LoginFailed}/>
+    <Route path="/dashboard/select-repositories" component={SelectRepositories}/>
   </Route>
 );

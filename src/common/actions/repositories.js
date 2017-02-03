@@ -3,6 +3,7 @@ import 'isomorphic-fetch';
 import { conf } from '../helpers/config';
 
 const BASE_URL = conf.get('BASE_URL');
+const log = console;
 
 export const FETCH_REPOSITORIES = 'FETCH_REPOSITORIES';
 export const FETCH_REPOSITORIES_SUCCESS = 'FETCH_REPOSITORIES_SUCCESS';
@@ -67,9 +68,15 @@ export function fetchUserRepositories(pageNumber) {
           if (result.pageLinks) {
             dispatch(setPageLinks(result.pageLinks));
           }
+        })
+        .catch(error => {
+          return Promise.reject(error);
         });
       })
-      .catch(error => dispatch(fetchRepositoriesError(error)));
+      .catch(error => {
+        log.warn(error);
+        dispatch(fetchRepositoriesError(error));
+      });
   };
 }
 
