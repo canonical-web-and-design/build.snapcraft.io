@@ -219,7 +219,8 @@ const verifySnapNameRegistered = (name) => {
     },
     body: JSON.stringify({
       packages: [{ name: name, series: STORE_SERIES }],
-      permissions: ['package_upload']
+      permissions: ['package_upload'],
+      channels: STORE_CHANNELS
     })
   }).then((response) => response.json().then((json) => {
     if (response.status === 200 && json.macaroon) {
