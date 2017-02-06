@@ -1,4 +1,5 @@
 import React, { PropTypes, Component } from 'react';
+import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 
 import Header from '../components/header';
@@ -16,7 +17,7 @@ export class App extends Component {
             { 'name': 'description', 'content': 'build.snapcraft.io' },
           ]}
         />
-        <Header />
+        <Header authenticated={this.props.auth.authenticated}/>
         { this.props.children }
         <Footer />
       </div>
@@ -26,6 +27,17 @@ export class App extends Component {
 
 App.propTypes = {
   children: PropTypes.node,
+  auth: PropTypes.object
 };
 
-export default App;
+function mapStateToProps(state) {
+  const {
+    auth
+  } = state;
+
+  return {
+    auth
+  };
+}
+
+export default connect(mapStateToProps)(App);
