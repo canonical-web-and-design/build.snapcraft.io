@@ -17,6 +17,20 @@ expect.extend({
   }
 });
 
+expect.extend({
+  notToHaveActionOfType(expected) {
+    expect.assert(
+      this.actual.filter((action) => {
+        return action.type === expected;
+      }).length === 0,
+      'Expected dispatched actions not to have action %s',
+      expected
+    );
+
+    return this;
+  }
+});
+
 export function requireWithMockConfigHelper(requirePath, modulePath, stub) {
   return proxyquire(requirePath, {
     [modulePath]: {

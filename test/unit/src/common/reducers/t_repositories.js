@@ -8,6 +8,7 @@ describe('repositories reducers', () => {
   const initialState = {
     isFetching: false,
     success: false,
+    pageLinks: {},
     error: null,
     repos: null
   };
@@ -53,10 +54,6 @@ describe('repositories reducers', () => {
       payload: REPOS
     };
 
-    it('should stop fetching', () => {
-      expect(repositories(state, action).isFetching).toBe(false);
-    });
-
     it('should store parsed repository data', () => {
       repositories(state, action).repos.forEach((repo, i) => {
         expect(repo.fullName).toEqual(REPOS[i].full_name);
@@ -70,6 +67,22 @@ describe('repositories reducers', () => {
         expect(repo.repo).toEqual(REPOS[i]);
       });
     });
+  });
+
+  context('FETCH_REPOSITORIES_SUCCESS', () => {
+    const state = {
+      ...initialState,
+      isFetching: true,
+      error: 'Previous error'
+    };
+
+    const action = {
+      type: ActionTypes.FETCH_REPOSITORIES_SUCCESS
+    };
+
+    it('should stop fetching', () => {
+      expect(repositories(state, action).isFetching).toBe(false);
+    });
 
     it('should store success state', () => {
       expect(repositories(state, action).success).toBe(true);
@@ -79,6 +92,7 @@ describe('repositories reducers', () => {
       expect(repositories(state, action).error).toBe(null);
     });
   });
+
 
   context('FETCH_REPOSITORIES_ERROR', () => {
     const state = {

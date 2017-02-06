@@ -24,7 +24,11 @@ router.get('/repos/:owner/:name/contents/snapcraft.yaml', (req, res) => {
 });
 
 router.get('/user/repos', (req, res) => {
-  res.status(200).send([
+  const headers = {
+    Link: ''
+  };
+
+  res.set(headers).status(200).send([
     {
       full_name: 'anowner/aname',
       name: 'aname',

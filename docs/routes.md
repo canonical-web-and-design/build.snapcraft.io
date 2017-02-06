@@ -115,7 +115,11 @@ To get a list of repositories for current user (user needs to be authorised to G
     Cookie: <session cookie>
     Accept: application/json
 
-On success, returns the following where the items in `repos` are GitHub repositories as returned by [GitHub API](https://developer.github.com/v3/repos/#list-your-repositories):
+    GET /api/github/repos/page/1
+    Cookie: <session cookie>
+    Accept: application/json
+
+On success, returns the following where the items in `repos` are GitHub repositories as returned by [GitHub API](https://developer.github.com/v3/repos/#list-your-repositories). Pagination parameter is optional. `pageLinks` for first, previous, next and last pages are supplied if results are paginated by the GitHub API. This happens when more than 30 repositories are returned.
 
     HTTP/1.1 200 OK
     Content-Type: application/json
@@ -135,5 +139,11 @@ On success, returns the following where the items in `repos` are GitHub reposito
             ...
           }
         ]
+      },
+      pageLinks: {
+        first: 1,
+        prev: 1,
+        next: 3,
+        last: 3
       }
     }

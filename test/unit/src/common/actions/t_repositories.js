@@ -87,25 +87,68 @@ describe('repositories actions', () => {
       nock.cleanAll();
     });
 
-    it('should store repositories on fetch success', () => {
+    context('when repository data successfully retrieved', () => {
+      beforeEach(() => {
+        api.get('/api/github/repos')
+          .reply(200, {
+            status: 'success',
+            payload: {
+              code: 'snap-builds-found',
+              repos: []
+            },
+            pageLinks: {
+              first: '1',
+              prev: '1',
+              next: '3',
+              last: '3'
+            }
+          });
+      });
 
-      api.get('/api/github/repos')
-        .reply(200, {
-          status: 'success',
-          payload: {
-            code: 'snap-builds-found',
-            repos: []
-          }
-        });
+      it('should store repositories on fetch success', () => {
+        return store.dispatch(fetchUserRepositories())
+          .then(() => {
+            api.done();
+            expect(store.getActions()).toHaveActionOfType(
+              ActionTypes.SET_REPOSITORIES
+            );
+          });
+      });
 
-      return store.dispatch(fetchUserRepositories())
-        .then(() => {
-          api.done();
-          expect(store.getActions()).toHaveActionOfType(
-            ActionTypes.SET_REPOSITORIES
-          );
-        });
+      it('should store pageLinks', () => {
+        return store.dispatch(fetchUserRepositories())
+          .then(() => {
+            api.done();
+            expect(store.getActions()).toHaveActionOfType(
+              ActionTypes.SET_REPOSITORY_PAGE_LINKS
+            );
+          });
+      });
     });
+
+    context('when one page of repo data successfully retrieved', () => {
+      beforeEach(() => {
+        api.get('/api/github/repos')
+          .reply(200, {
+            status: 'success',
+            payload: {
+              code: 'snap-builds-found',
+              repos: []
+            }
+          });
+      });
+
+      it('should store no pageLinks', () => {
+        return store.dispatch(fetchUserRepositories())
+          .then(() => {
+            api.done();
+            expect(store.getActions()).notToHaveActionOfType(
+              ActionTypes.SET_REPOSITORY_PAGE_LINKS
+            );
+          });
+      });
+    });
+
 
     it('should store error on Launchpad request failure', () => {
 

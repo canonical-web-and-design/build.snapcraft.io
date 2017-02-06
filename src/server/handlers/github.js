@@ -1,9 +1,13 @@
+import qs from 'qs';
+import url from 'url';
+
 import { conf } from '../helpers/config';
 import requestGitHub from '../helpers/github';
 import logging from '../logging';
 import { makeWebhookSecret } from './webhook';
 
 const logger = logging.getLogger('express');
+const REPOSITORY_ENDPOINT = '/user/repos';
 
 const RESPONSE_NOT_FOUND = {
   status: 'error',
@@ -46,12 +50,19 @@ const RESPONSE_CREATED = {
 };
 
 export const listRepositories = (req, res) => {
-  const uri = '/user/repos?affiliation=owner';
+  const params = {
+    affiliation: 'owner'
+  };
 
   if (!req.session || !req.session.token) {
     return res.status(401).send(RESPONSE_AUTHENTICATION_FAILED);
   }
 
+  if (req.params.page) {
+    params.page = req.params.page;
+  }
+
+  const uri = REPOSITORY_ENDPOINT + '?' + qs.stringify(params);
   requestGitHub.get(uri, { token: req.session.token, json: true })
     .then((response) => {
       if (response.statusCode !== 200) {
@@ -64,13 +75,19 @@ export const listRepositories = (req, res) => {
         });
       }
 
-      return res.status(response.statusCode).send({
+      const body = {
         status: 'success',
         payload: {
           code: 'github-list-repositories',
           repos: response.body
         }
-      });
+      };
+
+      if (response.headers.link) {
+        body.pageLinks = parseLinkHeader(response.headers.link);
+      }
+
+      return res.status(response.statusCode).send(body);
     });
 };
 
@@ -136,4 +153,34 @@ const getRequest = (owner, name, token, secret) => {
       }
     }
   };
+};
+
+/*
+ * parse_link_header()
+ *
+ * Parse the Github Link HTTP header used for pageination
+ * http://developer.github.com/v3/#pagination
+ *
+ * Modified by kfenn to return page numbers instead of urls
+ */
+const parseLinkHeader = (header) => {
+  if (header.length == 0) {
+    throw new Error('input must not be of zero length');
+  }
+
+  // Split parts by comma
+  let parts = header.split(',');
+  let links = {};
+  // Parse each part into a named link
+  for (let index=0; index<parts.length; index++) {
+    let section = parts[index].split(';');
+    if (section.length != 2) {
+      throw new Error('section could not be split on ";"');
+    }
+    let number = parseInt(url.parse(section[0], true).query.page);
+    let name = section[1].replace(/rel="(.*)"/, '$1').trim();
+    links[name] = number;
+  }
+
+  return links;
 };
