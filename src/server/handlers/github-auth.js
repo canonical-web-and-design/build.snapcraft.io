@@ -71,7 +71,13 @@ export const verify = (req, res, next) => {
 };
 
 export const errorHandler = (error, req, res, next) => {
-  req.session.error = 'Authentication with GitHub failed. Please try again later.';
+  let errMsg = 'Authentication with GitHub failed. Please try again later.';
+
+  if (error && error.message) {
+    errMsg = error.message;
+  }
+
+  req.session.error = errMsg;
   res.redirect(302, '/login/failed');
   next();
 };
