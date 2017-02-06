@@ -9,12 +9,12 @@ export default class Header extends Component {
       <div className={ styles.header }>
         <nav className={ styles.container }>
           <Link className={ styles.logo } to="/">
-            snapcraft
+            Snapcraft
           </Link>
           <div className={ styles.sideNav }>
             { this.props.authenticated
-              ? <a href="/auth/logout" className={ styles.link }>Logout</a>
-              : <a href="/auth/authenticate" className={ styles.link }>Login</a>
+              ? <a href="/auth/logout" className={ styles.link }>Log out</a>
+              : <a href="/auth/authenticate" className={ styles.link }>Log in</a>
             }
           </div>
         </nav>

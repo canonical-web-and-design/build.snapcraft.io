@@ -85,7 +85,7 @@ export const errorHandler = (error, req, res, next) => {
 export const logout = (req, res, next) => {
   req.session.destroy((err) => {
     if (err) {
-      return next(new Error('Logout failed.'));
+      return next(new Error('Failed to log out.'));
     }
     // FIXME redirect to page that initiated the sign in request
     res.redirect('/');
