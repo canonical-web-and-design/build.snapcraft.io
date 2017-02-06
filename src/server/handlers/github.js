@@ -1,3 +1,6 @@
+import qs from 'qs';
+import url from 'url';
+
 import { conf } from '../helpers/config';
 import requestGitHub from '../helpers/github';
 import logging from '../logging';
@@ -47,17 +50,19 @@ const RESPONSE_CREATED = {
 };
 
 export const listRepositories = (req, res) => {
-  let params = ['affiliation=owner'];
+  const params = {
+    affiliation: 'owner'
+  };
 
   if (!req.session || !req.session.token) {
     return res.status(401).send(RESPONSE_AUTHENTICATION_FAILED);
   }
 
   if (req.params.page) {
-    params.push('page=' + req.params.page);
+    params.page = req.params.page;
   }
 
-  const uri = REPOSITORY_ENDPOINT + '?' + params.join('&');
+  const uri = REPOSITORY_ENDPOINT + '?' + qs.stringify(params);
   requestGitHub.get(uri, { token: req.session.token, json: true })
     .then((response) => {
       if (response.statusCode !== 200) {
@@ -70,7 +75,7 @@ export const listRepositories = (req, res) => {
         });
       }
 
-      let body = {
+      const body = {
         status: 'success',
         payload: {
           code: 'github-list-repositories',
@@ -172,9 +177,7 @@ const parseLinkHeader = (header) => {
     if (section.length != 2) {
       throw new Error('section could not be split on ";"');
     }
-    let number = parseInt(section[0]
-                  .replace(/per_page=(\d+)/, '') // Make sure per_page does not match
-                  .match(/page=(\d+)/)[1]);
+    let number = parseInt(url.parse(section[0], true).query.page);
     let name = section[1].replace(/rel="(.*)"/, '$1').trim();
     links[name] = number;
   }

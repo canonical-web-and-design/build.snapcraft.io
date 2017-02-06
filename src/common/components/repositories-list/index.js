@@ -74,7 +74,7 @@ class RepositoriesList extends Component {
       <div>
         { this.props.repositories.success && pageLinks &&
           <div className={ styles['page-links-container'] }>
-            Pages: <PageLinks { ...pageLinks } onClick={ this.onPageLinkClick.bind(this) } />
+            <PageLinks { ...pageLinks } onClick={ this.onPageLinkClick.bind(this) } />
           </div>
         }
         { isLoading &&

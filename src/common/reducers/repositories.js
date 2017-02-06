@@ -40,7 +40,7 @@ export function repositories(state = {
         success: false,
         error: action.payload
       };
-    case ActionTypes.SET_PAGE_LINKS:
+    case ActionTypes.SET_REPOSITORY_PAGE_LINKS:
       return {
         ...state,
         pageLinks: action.payload

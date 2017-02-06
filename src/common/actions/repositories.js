@@ -8,7 +8,7 @@ export const FETCH_REPOSITORIES = 'FETCH_REPOSITORIES';
 export const FETCH_REPOSITORIES_SUCCESS = 'FETCH_REPOSITORIES_SUCCESS';
 export const FETCH_REPOSITORIES_ERROR = 'FETCH_REPOSITORIES_ERROR';
 export const SET_REPOSITORIES = 'SET_REPOSITORIES';
-export const SET_PAGE_LINKS = 'SET_REPOSITORY_PAGE_LINKS';
+export const SET_REPOSITORY_PAGE_LINKS = 'SET_REPOSITORY_PAGE_LINKS';
 
 export function setRepositories(repos) {
   return {
@@ -89,7 +89,7 @@ export function fetchRepositoriesError(error) {
 
 export function setPageLinks(pageLinks) {
   return {
-    type: SET_PAGE_LINKS,
+    type: SET_REPOSITORY_PAGE_LINKS,
     payload: pageLinks
   };
 }

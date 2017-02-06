@@ -120,7 +120,7 @@ describe('repositories actions', () => {
           .then(() => {
             api.done();
             expect(store.getActions()).toHaveActionOfType(
-              ActionTypes.SET_PAGE_LINKS
+              ActionTypes.SET_REPOSITORY_PAGE_LINKS
             );
           });
       });
@@ -143,7 +143,7 @@ describe('repositories actions', () => {
           .then(() => {
             api.done();
             expect(store.getActions()).notToHaveActionOfType(
-              ActionTypes.SET_PAGE_LINKS
+              ActionTypes.SET_REPOSITORY_PAGE_LINKS
             );
           });
       });

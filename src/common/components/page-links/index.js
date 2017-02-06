@@ -26,10 +26,16 @@ export default class PageLinks extends Component {
   renderLink(item, label) {
     let url;
 
+    // If item is a string, treat it as a URL and
+    // add it to the href attribute on the anchor.
+    // This will also be suppled to the onClick
+    // handler when a link is clicked.
     if (typeof item == 'string') {
       url = item;
     }
 
+    // If item is undefined, show only an unlinked
+    // label
     if (typeof item == 'undefined') {
       return (
         <li key={ label } className={ styles.link }>
