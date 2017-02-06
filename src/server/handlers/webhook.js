@@ -2,8 +2,9 @@ import { createHmac } from 'crypto';
 
 import { getGitHubRepoUrl } from '../../common/helpers/github-url';
 import { conf } from '../helpers/config';
+import getLaunchpad from '../launchpad';
 import logging from '../logging';
-import { uncheckedRequestSnapBuilds } from './launchpad';
+import { getSnapcraftYaml, internalFindSnap } from './launchpad';
 
 const logger = logging.getLogger('express');
 
@@ -56,7 +57,28 @@ export const notify = (req, res) => {
     return res.status(200).send();
   } else {
     const repositoryUrl = getGitHubRepoUrl(owner, name);
-    return uncheckedRequestSnapBuilds(repositoryUrl)
+    const lpClient = getLaunchpad();
+    return internalFindSnap(repositoryUrl)
+      .then((snapUrl) => lpClient.get(snapUrl))
+      .then((snap) => {
+        if (!snap.auto_build) {
+          return getSnapcraftYaml(owner, name)
+            .then(() => {
+              snap.auto_build = true;
+              return snap.lp_save();
+            })
+            .then(() => snap);
+        } else {
+          return snap;
+        }
+      })
+      .then((snap) => {
+        if (snap.auto_build) {
+          return lpClient.named_post(snap.self_link, 'requestAutoBuilds');
+        } else {
+          throw 'Cannot build snap until snapcraft.yaml exists';
+        }
+      })
       .then(() => {
         logger.info(`Requested builds of ${repositoryUrl}.`);
         return res.status(200).send();

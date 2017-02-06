@@ -192,7 +192,7 @@ const makeSnapName = (url) => {
   return createHash('md5').update(url).digest('hex');
 };
 
-const getSnapcraftYaml = (owner, name, token) => {
+export const getSnapcraftYaml = (owner, name, token) => {
   const uri = `/repos/${owner}/${name}/contents/snapcraft.yaml`;
   const options = {
     token,
@@ -296,7 +296,7 @@ export const newSnap = (req, res) => {
     .catch((error) => sendError(res, error));
 };
 
-const internalFindSnap = async (repositoryUrl) => {
+export const internalFindSnap = async (repositoryUrl) => {
   const cacheId = `url:${repositoryUrl}`;
 
   return new Promise((resolve, reject) => {
@@ -405,17 +405,11 @@ export const getSnapBuilds = (req, res) => {
   .catch((error) => sendError(res, error));
 };
 
-// This version does not check repository permissions, so use it only in
-// code paths that have already done so.  Returns a Promise.
-export const uncheckedRequestSnapBuilds = (repositoryUrl) => {
-  const lpClient = getLaunchpad();
-  return internalFindSnap(repositoryUrl)
-    .then((snapUrl) => lpClient.named_post(snapUrl, 'requestAutoBuilds'));
-};
-
 export const requestSnapBuilds = (req, res) => {
+  const lpClient = getLaunchpad();
   checkAdminPermissions(req.session, req.body.repository_url)
-    .then(() => uncheckedRequestSnapBuilds(req.body.repository_url))
+    .then(() => internalFindSnap(req.body.repository_url))
+    .then((snapUrl) => lpClient.named_post(snapUrl, 'requestAutoBuilds'))
     .then((builds) => {
       return res.status(201).send({
         status: 'success',

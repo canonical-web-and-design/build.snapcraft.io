@@ -5,6 +5,7 @@
  */
 
 import request from 'request';
+import url from 'url';
 
 import { conf } from '../helpers/config';
 
@@ -24,6 +25,17 @@ export const requestGitHub = (options) => {
     if (params.token) {
       params.headers['Authorization'] = `token ${params.token}`;
       delete params.token;
+    } else {
+      // Make request with service authorisation rather than user
+      // authorisation.  This should be kept to a minimum because GitHub
+      // imposes a rate limit on each authorisation token, and so a central
+      // service-level authorisation token doesn't scale well to a large
+      // number of users.
+      const parsedUri = url.parse(params.uri, true);
+      delete parsedUri.search;
+      parsedUri.query.client_id = conf.get('GITHUB_AUTH_CLIENT_ID');
+      parsedUri.query.client_secret = conf.get('GITHUB_AUTH_CLIENT_SECRET');
+      params.uri = url.format(parsedUri);
     }
     params.headers['User-Agent'] = 'SnapcraftBuild';
     request(params, (err, response) => {
