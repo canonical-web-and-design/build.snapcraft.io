@@ -9,10 +9,9 @@ export default class Header extends Component {
       <div className={ styles.header }>
         <nav className={ styles.container }>
           <Link className={ styles.logo } to="/">
-            build.snapcraft.io
+            snapcraft
           </Link>
           <div className={ styles.sideNav }>
-            <a href="http://snapcraft.io" className={ styles.link }>snapcraft.io</a>
             { this.props.authenticated
               ? <a href="/auth/logout" className={ styles.link }>Logout</a>
               : <a href="/auth/authenticate" className={ styles.link }>Login</a>
