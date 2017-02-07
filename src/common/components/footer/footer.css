@@ -21,7 +21,7 @@ body {
   box-sizing: border-box;
 
   font-size: 12px;
-  padding: 10px;
+  padding: 2em 1em 1em;
 }
 
 .container {
@@ -36,5 +36,61 @@ body {
 }
 
 .copyright {
-  margin-bottom: 0.3em;
+  margin-bottom: 1em;
+}
+
+.social {
+  float: right;
+}
+
+.heading {
+  color: $warm-grey;
+  font-size: 1em;
+  letter-spacing: .05em;
+  margin-bottom: 0;
+  padding-bottom: .75em;
+  text-transform: uppercase;
+}
+
+.socialList {
+  overflow: hidden;
+  clear: both;
+}
+
+.socialListItem {
+  margin-right: 20px;
+  float: left;
+}
+
+.socialListItemTwitter,
+.socialListItemGoogle,
+.socialListItemFacebook {
+  text-indent: -99999px;
+  background-image: url(./icon-social.svg);
+  background-repeat: no-repeat;
+  height: 44px;
+  width: 44px;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.socialListItemGoogle {
+  background-position: -45px 0;
+}
+
+.socialListItemFacebook {
+  background-position: -90px 0;
+}
+
+.socialListItemTwitter:hover,
+.socialListItemGoogle:hover,
+.socialListItemFacebook:hover {
+  background-position-y: -45px;
+}
+
+.note {
+  margin-top: 1em;
+  width: 50%;
+  color: $warm-grey;
+  font-size: .813em;
 }
