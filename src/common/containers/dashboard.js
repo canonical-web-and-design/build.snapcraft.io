@@ -4,7 +4,7 @@ import Helmet from 'react-helmet';
 import RepositoriesHome from '../components/repositories-home';
 import styles from './container.css';
 
-class Home extends Component {
+class Dashboard extends Component {
   render() {
     return (
       <div className={ styles.container }>
@@ -17,4 +17,4 @@ class Home extends Component {
   }
 }
 
-export default Home;
+export default Dashboard;

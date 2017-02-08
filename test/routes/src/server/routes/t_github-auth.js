@@ -105,14 +105,14 @@ describe('The login route', () => {
         );
       });
 
-      it('should redirect request to site homepage', (done) => {
+      it('should redirect request to dashboard', (done) => {
         supertest(app)
           .get('/auth/verify')
           .query({ code: 'foo', state: 'bar' })
           .send()
           .end((err, res) => {
             expect(res.statusCode).toEqual(302);
-            expect(res.headers.location).toEqual('/');
+            expect(res.headers.location).toEqual('/dashboard');
             done(err);
           });
       });
