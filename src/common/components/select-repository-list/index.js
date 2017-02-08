@@ -7,7 +7,8 @@ import { toggleRepository } from '../../actions/select-repositories-form';
 import SelectRepositoryRow from '../select-repository-row';
 import Spinner from '../spinner';
 import PageLinks from '../page-links';
-import Button from '../button';
+import { ButtonPositive } from '../vanilla/button';
+import { HeadingThree } from '../vanilla/heading';
 import { fetchUserRepositories } from '../../actions/repositories';
 import { hasRepository } from '../../helpers/repositories';
 import styles from './styles.css';
@@ -94,14 +95,23 @@ class SelectRepositoryList extends Component {
         { this.props.repositories.success &&
           this.props.repositories.repos.map(this.renderRepository.bind(this))
         }
-        <Button onClick={ this.onSubmit.bind(this) }>
-          Enable repos
-        </Button>
         { this.props.repositories.success && pageLinks &&
           <div className={ styles['page-links-container'] }>
             <PageLinks { ...pageLinks } onClick={ this.onPageLinkClick.bind(this) } />
           </div>
         }
+        <div className={ styles.footer }>
+          <div className={ styles.left }>
+            <HeadingThree>
+              In order to enable your repositories, you need to sign in to your Ubuntu One account.
+            </HeadingThree>
+          </div>
+          <div className={ styles.right }>
+            <ButtonPositive onClick={ this.onSubmit.bind(this) }>
+              Enable repos
+            </ButtonPositive>
+          </div>
+        </div>
       </div>
     );
   }

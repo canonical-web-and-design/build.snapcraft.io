@@ -1,0 +1,5 @@
+.heading-three {
+  composes: heading from './heading.css';
+  font-size: 1.75rem;
+  line-height: 1.286;
+}
