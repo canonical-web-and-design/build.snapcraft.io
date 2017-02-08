@@ -1,5 +1,6 @@
 import 'isomorphic-fetch';
 
+import { checkStatus } from '../helpers/api';
 import { conf } from '../helpers/config';
 
 const BASE_URL = conf.get('BASE_URL');
@@ -30,20 +31,6 @@ export function fetchBuildsError(error) {
     payload: error,
     error: true
   };
-}
-
-function checkStatus(response) {
-  if (response.status >= 200 && response.status < 300) {
-    return response;
-  } else {
-    return response.json().then((json) => {
-      // throw an error based on message from response body or status text
-      const error = new Error(json.payload.message || response.statusText);
-      error.status = response.status;
-      error.response = response;
-      throw error;
-    });
-  }
 }
 
 // Fetch snap info (self_link) for given repository

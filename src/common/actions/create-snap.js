@@ -1,5 +1,6 @@
 import 'isomorphic-fetch';
 
+import { checkStatus, getError } from '../helpers/api';
 import { conf } from '../helpers/config';
 import { parseGitHubRepoUrl } from '../helpers/github-url';
 
@@ -14,24 +15,6 @@ export function setGitHubRepository(value) {
     type: SET_GITHUB_REPOSITORY,
     payload: value
   };
-}
-
-export function getError(response, json) {
-  const message = (json.payload && json.payload.message) || response.statusText;
-  const error = new Error(message);
-  error.response = response;
-  error.json = json;
-  return error;
-}
-
-function checkStatus(response) {
-  if (response.status >= 200 && response.status < 300) {
-    return response;
-  } else {
-    return response.json().then((json) => {
-      throw getError(response, json);
-    });
-  }
 }
 
 export function createSnap(repositoryUrl, location) { // location for tests
