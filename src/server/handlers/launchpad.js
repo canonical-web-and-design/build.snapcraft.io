@@ -99,6 +99,13 @@ class PreparedError extends Error {
   }
 }
 
+// helper function to get URL prefix for given repo owner
+const getRepoUrlPrefix = (owner) => `https://github.com/${owner}/`;
+
+// memcached cache id helpers
+export const getUrlPrefixCacheId = (urlPrefix) => `url_prefix:${urlPrefix}`;
+export const getRepositoryUrlCacheId = (repositoryUrl) => `url:${repositoryUrl}`;
+
 // Wrap errors in a promise chain so that they always end up as a
 // PreparedError.
 const prepareError = (error) => {
@@ -265,10 +272,13 @@ const requestNewSnap = (name, repositoryUrl) => {
 export const newSnap = (req, res) => {
   const repositoryUrl = req.body.repository_url;
   const lpClient = getLaunchpad();
+
+  let owner;
   let snapUrl;
   // We need admin permissions in order to be able to install a webhook later.
   checkAdminPermissions(req.session, repositoryUrl)
     .then((result) => {
+      owner = result.owner;
       return getSnapcraftYaml(result.owner, result.name, result.token);
     })
     .then((snapcraftYaml) => {
@@ -279,6 +289,16 @@ export const newSnap = (req, res) => {
     })
     .then((name) => requestNewSnap(name, repositoryUrl))
     .then((result) => {
+      // as new snap is created we need to clear list of snaps from cache
+      const urlPrefix = getRepoUrlPrefix(owner);
+      const cacheId = getUrlPrefixCacheId(urlPrefix);
+
+      getMemcached().del(cacheId, (err) => {
+        if (err) {
+          logger.error(`Error deleting ${cacheId} from memcached:`, err);
+        }
+      });
+
       snapUrl = result.self_link;
       logger.info(`Authorizing ${snapUrl}`);
       return lpClient.named_post(snapUrl, 'beginAuthorization');
@@ -297,7 +317,7 @@ export const newSnap = (req, res) => {
 };
 
 export const internalFindSnap = async (repositoryUrl) => {
-  const cacheId = `url:${repositoryUrl}`;
+  const cacheId = getRepositoryUrlCacheId(repositoryUrl);
 
   return new Promise((resolve, reject) => {
     getMemcached().get(cacheId, (err, result) => {
@@ -338,6 +358,62 @@ export const internalFindSnap = async (repositoryUrl) => {
       });
     });
   });
+};
+
+const internalFindSnapsByPrefix = (urlPrefix) => {
+  const username = conf.get('LP_API_USERNAME');
+  const cacheId = getUrlPrefixCacheId(urlPrefix);
+
+  return new Promise((resolve, reject) => {
+    getMemcached().get(cacheId, (err, result) => {
+      if (!err && result !== undefined) {
+        return resolve(result);
+      }
+
+      getLaunchpad().named_get('/+snaps', 'findByURLPrefix', {
+        parameters: {
+          url_prefix: urlPrefix,
+          owner: `/~${username}`
+        }
+      })
+      .then(result => {
+        return getMemcached().set(cacheId, result.entries, 3600, () => {
+          return resolve(result.entries);
+        });
+      })
+      .catch((error) => {
+        // At least for the moment, we just wrap the error we get from
+        // Launchpad.
+        error.response.text().then((text) => {
+          return reject(new PreparedError(error.response.status, {
+            status: 'error',
+            payload: {
+              code: 'lp-error',
+              message: text
+            }
+          }));
+        });
+      });
+
+
+    });
+  });
+
+};
+
+export const findSnaps = (req, res) => {
+  const urlPrefix = getRepoUrlPrefix(req.query.owner);
+  internalFindSnapsByPrefix(urlPrefix)
+    .then((snaps) => {
+      return res.status(200).send({
+        status: 'success',
+        payload: {
+          code: 'snaps-found',
+          snaps: snaps
+        }
+      });
+    })
+    .catch((error) => sendError(res, error));
 };
 
 export const findSnap = (req, res) => {

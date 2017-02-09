@@ -13,7 +13,8 @@ const runSoon = (callback) => {
 const getMemcachedStub = () => {
   return {
     get: (key, callback) => runSoon(callback),
-    set: (key, value, lifetime, callback) => runSoon(callback)
+    set: (key, value, lifetime, callback) => runSoon(callback),
+    del: (key, callback) => runSoon(callback)
   };
 };
 
@@ -29,6 +30,13 @@ const getInMemoryMemcachedStub = () => {
     memcachedStub.cache[key] = value;
     if (callback) {
       runSoon(() => callback(undefined, true));
+    }
+  };
+  memcachedStub.del = (key, callback) => {
+    delete memcachedStub.cache[key];
+
+    if (callback) {
+      runSoon(() => callback(undefined));
     }
   };
 

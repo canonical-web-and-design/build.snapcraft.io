@@ -9,6 +9,10 @@ import {
   setupInMemoryMemcached
 } from '../../../../../src/server/helpers/memcached';
 import launchpad from '../../../../../src/server/routes/launchpad';
+import {
+  getUrlPrefixCacheId,
+  getRepositoryUrlCacheId
+} from '../../../../../src/server/handlers/launchpad';
 import { conf } from '../../../../../src/server/helpers/config.js';
 
 describe('The Launchpad API endpoint', () => {
@@ -367,6 +371,267 @@ describe('The Launchpad API endpoint', () => {
     });
   });
 
+  describe('list snaps route', () => {
+
+    context('when snaps exist', () => {
+      let testSnaps;
+
+      beforeEach(() => {
+        const lp_api_url = conf.get('LP_API_URL');
+        const lp_api_base = `${lp_api_url}/devel`;
+
+        testSnaps = [
+          {
+            resource_type_link: `${lp_api_base}/#snap`,
+            self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
+            owner_link: `${lp_api_base}/~another-user`
+          },
+          {
+            resource_type_link: `${lp_api_base}/#snap`,
+            self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
+            owner_link: `${lp_api_base}/~test-user`
+          }
+        ];
+
+        nock(lp_api_url)
+          .get('/devel/+snaps')
+          .query({
+            'ws.op': 'findByURLPrefix',
+            url_prefix: 'https://github.com/anowner/',
+            owner: `/~${conf.get('LP_API_USERNAME')}`
+          })
+          .reply(200, {
+            total_size: 2,
+            start: 0,
+            entries: testSnaps
+          });
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should return a 200 response', (done) => {
+        supertest(app)
+          .get('/launchpad/snaps/list')
+          .query({ owner: 'anowner' })
+          .expect(200, done);
+      });
+
+      it('should return a "success" status', (done) => {
+        supertest(app)
+          .get('/launchpad/snaps/list')
+          .query({ owner: 'anowner' })
+          .expect(hasStatus('success'))
+          .end(done);
+      });
+
+      it('should return "snaps-found" message with the correct snaps', (done) => {
+        supertest(app)
+          .get('/launchpad/snaps/list')
+          .query({ owner: 'anowner' })
+          .end((err, res) => {
+            const responseSnaps = res.body.payload.snaps;
+
+            expect(responseSnaps.length).toEqual(testSnaps.length);
+            expect(responseSnaps[0]).toContain(testSnaps[0]);
+
+            done(err);
+          });
+      });
+
+      context('using memcached', () => {
+        beforeEach(() => {
+          setupInMemoryMemcached();
+        });
+
+        afterEach(() => {
+          resetMemcached();
+        });
+
+        it('should store snaps in memcached', (done) => {
+
+          const urlPrefix = 'https://github.com/anowner/';
+          const cacheId = getUrlPrefixCacheId(urlPrefix);
+
+          supertest(app)
+          .get('/launchpad/snaps/list')
+          .query({ owner: 'anowner' })
+          .end((err) => {
+            if (err) {
+              done(err);
+            }
+            getMemcached().get(cacheId, (err, memcachedSnaps) => {
+              expect(memcachedSnaps.length).toEqual(testSnaps.length);
+              expect(memcachedSnaps[0]).toContain(testSnaps[0]);
+
+              done(err);
+            });
+          });
+        });
+
+      });
+
+    });
+
+    context('when snaps don\'t exist', () => {
+
+
+      beforeEach(() => {
+        const lp_api_url = conf.get('LP_API_URL');
+
+        nock(lp_api_url)
+          .get('/devel/+snaps')
+          .query({
+            'ws.op': 'findByURLPrefix',
+            url_prefix: 'https://github.com/anowner/',
+            owner: `/~${conf.get('LP_API_USERNAME')}`
+          })
+          .reply(200, {
+            total_size: 2,
+            start: 0,
+            entries: []
+          });
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should return a 200 response', (done) => {
+        supertest(app)
+          .get('/launchpad/snaps/list')
+          .query({ owner: 'anowner' })
+          .expect(200, done);
+      });
+
+      it('should return a "success" status', (done) => {
+        supertest(app)
+          .get('/launchpad/snaps/list')
+          .query({ owner: 'anowner' })
+          .expect(hasStatus('success'))
+          .end(done);
+      });
+
+      it('should return "snaps-found" message with empty list', (done) => {
+        supertest(app)
+          .get('/launchpad/snaps/list')
+          .query({ owner: 'anowner' })
+          .end((err, res) => {
+            const responseSnaps = res.body.payload.snaps;
+
+            expect(responseSnaps.length).toEqual(0);
+
+            done(err);
+          });
+      });
+    });
+
+    context('when LP returns error', () => {
+      beforeEach(() => {
+        const lp_api_url = conf.get('LP_API_URL');
+        nock(lp_api_url)
+          .get('/devel/+snaps')
+          .query({
+            'ws.op': 'findByURLPrefix',
+            url_prefix: 'https://github.com/anowner/',
+            owner: `/~${conf.get('LP_API_USERNAME')}`
+          })
+          .reply(501, 'Something went quite wrong.');
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should return an error response', (done) => {
+        supertest(app)
+          .get('/launchpad/snaps/list')
+          .query({ owner: 'anowner' })
+          .expect(501, done);
+      });
+
+      it('should return an "error" status', (done) => {
+        supertest(app)
+          .get('/launchpad/snaps/list')
+          .query({ owner: 'anowner' })
+          .expect(hasStatus('error'))
+          .end(done);
+      });
+
+      it('should return a body with an "lp-error" message', (done) => {
+        supertest(app)
+          .get('/launchpad/snaps/list')
+          .query({ owner: 'anowner' })
+          .expect(hasMessage('lp-error', 'Something went quite wrong.'))
+          .end(done);
+      });
+    });
+
+
+    context('when snaps are memcached', () => {
+      const urlPrefix = 'https://github.com/anowner/';
+      let testSnaps;
+
+      before(() => {
+
+        const lp_api_url = conf.get('LP_API_URL');
+        const lp_api_base = `${lp_api_url}/devel`;
+
+        testSnaps = [
+          {
+            resource_type_link: `${lp_api_base}/#snap`,
+            self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
+            owner_link: `${lp_api_base}/~another-user`
+          },
+          {
+            resource_type_link: `${lp_api_base}/#snap`,
+            self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
+            owner_link: `${lp_api_base}/~test-user`
+          }
+        ];
+
+        setupInMemoryMemcached();
+        getMemcached().set(getUrlPrefixCacheId(urlPrefix), testSnaps);
+      });
+
+      after(() => {
+        resetMemcached();
+      });
+
+      it('should return a 200 response', (done) => {
+        supertest(app)
+        .get('/launchpad/snaps/list')
+        .query({ owner: 'anowner' })
+          .expect(200, done);
+      });
+
+      it('should return a "success" status', (done) => {
+        supertest(app)
+        .get('/launchpad/snaps/list')
+        .query({ owner: 'anowner' })
+          .expect(hasStatus('success'))
+          .end(done);
+      });
+
+      it('should return "snaps-found" message with the correct snaps', (done) => {
+        supertest(app)
+          .get('/launchpad/snaps/list')
+          .query({ owner: 'anowner' })
+          .end((err, res) => {
+            const responseSnaps = res.body.payload.snaps;
+
+            expect(responseSnaps.length).toEqual(testSnaps.length);
+            expect(responseSnaps[0]).toContain(testSnaps[0]);
+
+            done(err);
+          });
+      });
+
+    });
+
+  });
+
   describe('find snap route', () => {
 
     context('when snap exists', () => {
@@ -518,7 +783,7 @@ describe('The Launchpad API endpoint', () => {
 
       before(() => {
         setupInMemoryMemcached();
-        getMemcached().set(`url:${repositoryUrl}`, snapUrl);
+        getMemcached().set(getRepositoryUrlCacheId(repositoryUrl), snapUrl);
       });
 
       after(() => {

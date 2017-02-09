@@ -3,6 +3,7 @@ import { json } from 'body-parser';
 
 import {
   findSnap,
+  findSnaps,
   getSnapBuilds,
   newSnap,
   requestSnapBuilds
@@ -13,6 +14,9 @@ const router = Router();
 router.use('/launchpad/snaps', json());
 router.post('/launchpad/snaps', newSnap);
 router.get('/launchpad/snaps', findSnap);
+
+router.use('/launchpad/snaps/list', json());
+router.get('/launchpad/snaps/list', findSnaps);
 
 router.use('/launchpad/builds', json());
 router.get('/launchpad/builds', getSnapBuilds);
