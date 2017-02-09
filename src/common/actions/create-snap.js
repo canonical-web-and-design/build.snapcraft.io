@@ -2,7 +2,6 @@ import 'isomorphic-fetch';
 
 import { checkStatus, getError } from '../helpers/api';
 import { conf } from '../helpers/config';
-import { parseGitHubRepoUrl } from '../helpers/github-url';
 
 const BASE_URL = conf.get('BASE_URL');
 
@@ -54,10 +53,11 @@ function getSnapName(owner, name) {
     }));
 }
 
-export function createSnap(repositoryUrl, location) { // location for tests
+export function createSnap(repository) {
   return (dispatch) => {
+    const repositoryUrl = repository.url;
     if (repositoryUrl) {
-      const { owner, name, fullName } = parseGitHubRepoUrl(repositoryUrl);
+      const { owner, name, fullName } = repository;
 
       dispatch({
         type: CREATE_SNAP,
@@ -81,27 +81,42 @@ export function createSnap(repositoryUrl, location) { // location for tests
         .then(checkStatus)
         .then(response => {
           return response.json().then(result => {
-            if (result.status !== 'success' ||
-                result.payload.code !== 'snap-created') {
-              throw getError(response, result);
+            if (result.status !== 'success' || result.payload.code !== 'snap-created') {
+              return Promise.reject(getError(response, result));
             }
-            const startingUrl = `${BASE_URL}/${fullName}/setup`;
-            (location || window.location).href =
-              `${BASE_URL}/login/authenticate` +
-              `?starting_url=${encodeURIComponent(startingUrl)}` +
-              `&caveat_id=${encodeURIComponent(result.payload.message)}` +
-              `&repository_url=${encodeURIComponent(repositoryUrl)}`;
+
+            return Promise.resolve(result);
           });
-        })
-        .catch(error => {
-          // if LP error says there is already such snap, just redirect to builds page
-          if (error.message === 'There is already a snap package with the same name and owner.') {
-            (location || window.location).href = `${BASE_URL}/${fullName}/builds`;
-          } else {
-            dispatch(createSnapError(fullName, error));
-          }
         });
     }
+  };
+}
+
+export function createSnaps(repositories, location) { // location for tests
+  return (dispatch) => {
+    // Patch the creation of multiple snaps
+    // until auth supports it. Until then,
+    // only process the first selected repo
+    repositories = [ repositories[0] ];
+    const { fullName, url } = repositories[0];
+
+    const promises = repositories.map((repository) => dispatch(createSnap(repository)));
+    return Promise.all(promises)
+      .then((results) => {
+        // Redirect to Launchpad auth for the first
+        // selected repo until auth supports batched
+        // creation of snaps
+        const startingUrl = `${BASE_URL}/${fullName}/setup`;
+
+        (location || window.location).href =
+          `${BASE_URL}/login/authenticate` +
+          `?starting_url=${encodeURIComponent(startingUrl)}` +
+          `&caveat_id=${encodeURIComponent(results[0].payload.message)}` +
+          `&repository_url=${encodeURIComponent(url)}`;
+      })
+      .catch(error => {
+        dispatch(createSnapError(fullName, error));
+      });
   };
 }
 

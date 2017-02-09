@@ -6,7 +6,7 @@ import { isFSA } from 'flux-standard-action';
 import url from 'url';
 
 import {
-  createSnap,
+  createSnaps,
   createSnapError,
   setGitHubRepository
 } from '../../../../../src/common/actions/create-snap';
@@ -57,8 +57,13 @@ describe('repository input actions', () => {
     });
   });
 
-  context('createSnap', () => {
-    const repositoryUrl = 'https://github.com/foo/bar';
+  context('createSnaps', () => {
+    const repository = {
+      url: 'https://github.com/foo/bar',
+      fullName: 'foo/bar',
+      owner: 'foo',
+      name: 'bar'
+    };
     const BASE_URL = conf.get('BASE_URL');
     let scope;
 
@@ -81,7 +86,7 @@ describe('repository input actions', () => {
         });
       scope
         .post('/api/launchpad/snaps', {
-          repository_url: repositoryUrl,
+          repository_url: repository.url,
           snap_name: 'test-snap',
           series: '16',
           channels: ['edge']
@@ -95,7 +100,7 @@ describe('repository input actions', () => {
         });
 
       const location = {};
-      return store.dispatch(createSnap(repositoryUrl, location))
+      return store.dispatch(createSnaps([ repository ], location))
         .then(() => {
           expect(url.parse(location.href, true)).toMatch({
             path: '/login/authenticate',
@@ -118,7 +123,7 @@ describe('repository input actions', () => {
         });
 
       const location = {};
-      return store.dispatch(createSnap(repositoryUrl, location))
+      return store.dispatch(createSnaps([ repository ], location))
         .then(() => {
           expect(location).toExcludeKey('href');
           expect(store.getActions()).toHaveActionOfType(

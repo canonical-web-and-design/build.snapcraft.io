@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { conf } from '../../helpers/config';
-import { createSnap } from '../../actions/create-snap';
+import { createSnaps } from '../../actions/create-snap';
 import { toggleRepository } from '../../actions/select-repositories-form';
 import SelectRepositoryRow from '../select-repository-row';
 import Spinner from '../spinner';
@@ -69,8 +69,7 @@ class SelectRepositoryList extends Component {
   onSubmit() {
     const { selectedRepos } = this.props.selectRepositoriesForm;
     if (selectedRepos.length) {
-      // TODO: Switch to batched repository action
-      this.props.dispatch(createSnap(selectedRepos[0].url));
+      this.props.dispatch(createSnaps(selectedRepos));
     }
   }
 

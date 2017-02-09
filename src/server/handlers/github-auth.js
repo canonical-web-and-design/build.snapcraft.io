@@ -66,7 +66,7 @@ export const verify = (req, res, next) => {
     logger.info('User successfully authenticated');
 
     // Redirect to logged in URL
-    res.redirect('/dashboard');
+    res.redirect('/dashboard/select-repositories');
   });
 };
 
