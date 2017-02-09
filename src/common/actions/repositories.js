@@ -3,7 +3,6 @@ import 'isomorphic-fetch';
 import { conf } from '../helpers/config';
 
 const BASE_URL = conf.get('BASE_URL');
-const log = console;
 
 export const FETCH_REPOSITORIES = 'FETCH_REPOSITORIES';
 export const FETCH_REPOSITORIES_SUCCESS = 'FETCH_REPOSITORIES_SUCCESS';
@@ -74,7 +73,10 @@ export function fetchUserRepositories(pageNumber) {
         });
       })
       .catch(error => {
-        log.warn(error);
+        // TODO: Replace with logging helper
+        /* eslint-disable no-console */
+        console.warn(error);
+        /* eslint-enable no-console */
         dispatch(fetchRepositoriesError(error));
       });
   };

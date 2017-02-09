@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { Anchor } from '../components/button';
+import { Anchor } from '../components/vanilla/button';
 
 import styles from './container.css';
 

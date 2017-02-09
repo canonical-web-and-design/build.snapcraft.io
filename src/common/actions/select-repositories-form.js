@@ -1,4 +1,4 @@
-export const TOGGLE_REPOSITORY = 'SELECT_REPOSITORY_FORM_TOGGLE_REPOSITORY';
+export const TOGGLE_REPOSITORY = 'TOGGLE_REPOSITORY';
 
 export const toggleRepository = (repository) => {
   return {

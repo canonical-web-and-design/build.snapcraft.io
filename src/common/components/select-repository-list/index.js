@@ -7,7 +7,7 @@ import { toggleRepository } from '../../actions/select-repositories-form';
 import SelectRepositoryRow from '../select-repository-row';
 import Spinner from '../spinner';
 import PageLinks from '../page-links';
-import { ButtonPositive } from '../vanilla/button';
+import Button from '../vanilla/button';
 import { HeadingThree } from '../vanilla/heading';
 import { fetchUserRepositories } from '../../actions/repositories';
 import { hasRepository } from '../../helpers/repositories';
@@ -80,26 +80,17 @@ class SelectRepositoryList extends Component {
 
   render() {
     const isLoading = this.props.repositories.isFetching;
-    const pageLinks = this.props.repositories.pageLinks;
 
     return (
       <div>
-        { this.props.repositories.success && pageLinks &&
-          <div className={ styles['page-links-container'] }>
-            <PageLinks { ...pageLinks } onClick={ this.onPageLinkClick.bind(this) } />
-          </div>
-        }
+        { this.renderPageLinks.call(this) }
         { isLoading &&
           <div className={ spinnerStyles }><Spinner /></div>
         }
         { this.props.repositories.success &&
           this.props.repositories.repos.map(this.renderRepository.bind(this))
         }
-        { this.props.repositories.success && pageLinks &&
-          <div className={ styles['page-links-container'] }>
-            <PageLinks { ...pageLinks } onClick={ this.onPageLinkClick.bind(this) } />
-          </div>
-        }
+        { this.renderPageLinks.call(this) }
         <div className={ styles.footer }>
           <div className={ styles.left }>
             <HeadingThree>
@@ -107,13 +98,24 @@ class SelectRepositoryList extends Component {
             </HeadingThree>
           </div>
           <div className={ styles.right }>
-            <ButtonPositive onClick={ this.onSubmit.bind(this) }>
+            <Button onClick={ this.onSubmit.bind(this) } appearance={ 'positive' }>
               Enable repos
-            </ButtonPositive>
+            </Button>
           </div>
         </div>
       </div>
     );
+  }
+
+  renderPageLinks() {
+    const pageLinks = this.props.repositories.pageLinks;
+    if (this.props.repositories.success && pageLinks) {
+      return (
+        <div className={ styles['page-links-container'] }>
+          <PageLinks { ...pageLinks } onClick={ this.onPageLinkClick.bind(this) } />
+        </div>
+      );
+    }
   }
 }
 

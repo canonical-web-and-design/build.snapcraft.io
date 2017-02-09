@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 
-import Button from '../button';
+import Button from '../vanilla/button';
 
 import styles from './repositoryRow.css';
 

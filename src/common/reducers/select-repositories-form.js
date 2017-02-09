@@ -11,9 +11,9 @@ export function selectRepositoriesForm(state = initialState, action) {
       if (hasRepository(state.selectedRepos, action.payload)) {
         return {
           ...state,
-          selectedRepos: state.selectedRepos.filter(
-            (repo) => repo.fullName !== action.payload.fullName
-          )
+          selectedRepos: state.selectedRepos.filter((repo) => {
+            return repo.fullName !== action.payload.fullName;
+          })
         };
       }
 

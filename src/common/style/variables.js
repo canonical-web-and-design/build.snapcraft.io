@@ -21,7 +21,7 @@ module.exports = {
   'success':             '#0f8420', // success notifications
   'information':         '#007aa6', // information notifications
 
-  'base-font-family':    'Ubuntu, Arial, "libra sans", sans-serif',
+  'base-font-family':    '"Ubuntu", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
   'base-font-weight':    '300',
   'base-font-size':      '16px',
   'base-line-height':    '1.5',
