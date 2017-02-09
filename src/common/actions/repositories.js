@@ -48,9 +48,18 @@ export function fetchUserRepositories(pageNumber) {
           if (result.pageLinks) {
             dispatch(setPageLinks(result.pageLinks));
           }
+        })
+        .catch(error => {
+          return Promise.reject(error);
         });
       })
-      .catch(error => dispatch(fetchRepositoriesError(error)));
+      .catch(error => {
+        // TODO: Replace with logging helper
+        /* eslint-disable no-console */
+        console.warn(error);
+        /* eslint-enable no-console */
+        dispatch(fetchRepositoriesError(error));
+      });
   };
 }
 

@@ -7,7 +7,13 @@ $secondary-button-color-hover: #EFEFEF;
 $secondary-button-text-color: $ubuntu-orange;
 $secondary-border-color: $mid-grey;
 
+$positive-button-color: $success;
+$positive-button-color-hover: #0a5615;
+$positive-button-text-color: #FFF;
+$positive-border-color: $success;
+
 .button {
+  font-family: $base-font-family;
   font-smoothing: subpixel-antialiased;
   font-size: 1em;
   display: inline-block;
@@ -53,6 +59,20 @@ $secondary-border-color: $mid-grey;
 .secondary:focus,
 .secondary:hover {
   background-color: $secondary-button-color-hover;
+}
+
+.positive {
+  composes: button;
+
+  color: $positive-button-text-color;
+  background-color: $positive-button-color;
+  border: 1px solid $positive-border-color;
+}
+
+.positive:active,
+.positive:focus,
+.positive:hover {
+  background-color: $positive-button-color-hover;
 }
 
 .button:disabled {

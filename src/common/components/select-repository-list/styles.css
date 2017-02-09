@@ -1,0 +1,17 @@
+.page-links-container {
+  margin: 20px auto;
+  display: flex;
+  justify-content: center;
+}
+
+.footer {
+  display: flex;
+  margin: 60px 0;
+}
+
+.right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 400px;
+}

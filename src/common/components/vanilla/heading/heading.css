@@ -1,0 +1,6 @@
+.heading {
+  font-family: $base-font-family;
+  font-weight: 300;
+  margin-bottom: 1.2rem;
+  margin-top: 0;
+}

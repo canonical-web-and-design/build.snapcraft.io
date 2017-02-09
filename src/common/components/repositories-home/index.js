@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { fetchUserRepositories } from '../../actions/repositories';
-import { Anchor } from '../button';
+import { Anchor } from '../vanilla/button';
 import Step from '../step';
 import RepositoriesList from '../repositories-list';
 

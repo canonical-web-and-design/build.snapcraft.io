@@ -68,7 +68,7 @@ describe('The PageLinks component', () => {
 
     it('should render an unclickable label', () => {
       let component = shallow(<PageLinks { ...props } />);
-      expect(component.containsMatchingElement(<div>first</div>));
+      expect(component.containsMatchingElement(<div>first</div>)).toEqual(true);
     });
   });
 });
