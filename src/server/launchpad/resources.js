@@ -9,11 +9,21 @@ import { normalizeURI } from './uri';
 /** The base class for objects retrieved from Launchpad's web service. */
 export class Resource {
   /** Initialize a resource with its representation and URI. */
-  init(client, representation, uri) {
-    this.lp_client = client;
-    this.uri = uri;
-    for (const key of Object.keys(representation)) {
-      this[key] = representation[key];
+  init(client, uri, representation) {
+    // defining internal properties as non-enumerable not to leak any secrets
+    Object.defineProperty(this, 'lp_client', {
+      value: client,
+      enumerable: false
+    });
+    Object.defineProperty(this, 'uri', {
+      value: uri,
+      enumerable: false
+    });
+
+    if (representation) {
+      for (const key of Object.keys(representation)) {
+        this[key] = representation[key];
+      }
     }
   }
 
@@ -30,19 +40,19 @@ export class Resource {
 
 /** The root of the Launchpad web service. */
 export class Root extends Resource {
-  constructor(client, representation, uri) {
+  constructor(client, uri, representation) {
     super();
-    this.init(client, representation, uri);
+    this.init(client, uri, representation);
   }
 }
 
 /** A grouped collection of objects from the Launchpad web service. */
 export class Collection extends Resource {
-  constructor(client, representation, uri) {
+  constructor(client, uri, representation) {
     super();
-    this.init(client, representation, uri);
+    this.init(client, uri, representation);
     this.entries.forEach((entry, i) => {
-      this.entries[i] = new Entry(client, entry, entry.self_link);
+      this.entries[i] = new Entry(client, entry.self_link, entry);
     });
   }
 
@@ -73,12 +83,20 @@ export class Collection extends Resource {
 
 /** A single object from the Launchpad web service. */
 export class Entry extends Resource {
-  constructor(client, representation, uri) {
+  constructor(client, uri, representation) {
     super();
-    this.lp_client = client;
-    this.uri = uri;
-    this.lp_attributes = {};
-    this.dirty_attributes = [];
+    this.init(client, uri);
+
+    // defining internal properties as non-enumerable not to leak any secrets
+    Object.defineProperty(this, 'lp_attributes', {
+      value: {},
+      enumerable: false
+    });
+    Object.defineProperty(this, 'dirty_attributes', {
+      value: [],
+      writable: true,
+      enumerable: false
+    });
 
     // Copy the representation keys into our own set of attributes, and add
     // an attribute-change event listener for caching purposes.

@@ -34,7 +34,7 @@ describe('Resources', () => {
         entries: [{ name: 'one' }, { name: 'two' }]
       };
       const collection = new Collection(
-        getLaunchpad(), representation, `${LP_API_URL}/devel/~foo/ppas`);
+        getLaunchpad(), `${LP_API_URL}/devel/~foo/ppas`, representation);
       expect(collection.total_size).toEqual(2);
       expect(collection.entries.length).toEqual(2);
       expect(collection.entries[0].name).toEqual('one');
@@ -64,7 +64,7 @@ describe('Resources', () => {
         entries: entries.slice(0, 75)
       };
       const collection = new Collection(
-        getLaunchpad(), representation, `${LP_API_URL}/devel/~foo/ppas`);
+        getLaunchpad(), `${LP_API_URL}/devel/~foo/ppas`, representation);
       expect(collection.total_size).toEqual(100);
       expect(collection.entries.length).toEqual(75);
       return collection.lp_slice(75, 25).then(slice => {
@@ -97,13 +97,28 @@ describe('Resources', () => {
         entries: entries.slice(0, 75)
       };
       const collection = new Collection(
-        getLaunchpad(), representation, `${LP_API_URL}/devel/~foo/ppas`);
+        getLaunchpad(), `${LP_API_URL}/devel/~foo/ppas`, representation);
       let copied_entries = [];
       // https://github.com/babel/babel-eslint/issues/415
       for await (const entry of collection) { // eslint-disable-line semi
         copied_entries.push({ name: entry.name });
       }
       expect(copied_entries).toEqual(entries);
+    });
+
+    it('doesn\'t expose internal properties', () => {
+      const representation = {
+        total_size: 2,
+        start: 0,
+        entries: [{ name: 'one' }, { name: 'two' }]
+      };
+      const collection = new Collection(
+        getLaunchpad(), `${LP_API_URL}/devel/~foo/ppas`, representation);
+
+      const serialized = JSON.parse(JSON.stringify(collection));
+      expect(serialized).toNotIncludeKeys([
+        'lp_client', 'uri', 'lp_attributes', 'dirty_attributes'
+      ]);
     });
   });
 
@@ -125,7 +140,7 @@ describe('Resources', () => {
         name: 'foo'
       };
       const entry = new Entry(
-        getLaunchpad(), representation, `${LP_API_URL}/devel/~foo`);
+        getLaunchpad(), `${LP_API_URL}/devel/~foo`, representation);
       expect(entry.resource_type_link)
         .toEqual(`${LP_API_URL}/devel/#person`);
       expect(entry.name).toEqual('foo');
@@ -149,11 +164,26 @@ describe('Resources', () => {
         display_name: 'Foo'
       };
       let entry = new Entry(
-        getLaunchpad(), representation, `${LP_API_URL}/devel/~foo`);
+        getLaunchpad(), `${LP_API_URL}/devel/~foo`, representation);
       entry.display_name = 'Bar';
       expect(entry.dirty_attributes).toEqual(['display_name']);
       return entry.lp_save()
         .then(() => { expect(entry.dirty_attributes).toEqual([]); });
     });
+
+    it('doesn\'t expose internal properties', () => {
+      const representation = {
+        resource_type_link: `${LP_API_URL}/devel/#person`,
+        name: 'foo'
+      };
+      const entry = new Entry(
+        getLaunchpad(), `${LP_API_URL}/devel/~foo`, representation);
+
+      const serialized = JSON.parse(JSON.stringify(entry));
+      expect(serialized).toNotIncludeKeys([
+        'lp_client', 'uri', 'lp_attributes', 'dirty_attributes'
+      ]);
+    });
+
   });
 });

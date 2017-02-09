@@ -170,7 +170,7 @@ export class Launchpad {
       if (representation.total_size !== undefined
         || representation.total_size_link !== undefined) {
         // It's a list.  Treat it as a collection; it should be sliceable.
-        return new Collection(this, representation, uri);
+        return new Collection(this, uri, representation);
       } else if (typeof representation === 'object') {
         // It's an Array or mapping.  Recurse into it.
         let new_representation;
@@ -193,11 +193,11 @@ export class Launchpad {
       }
     } else if (representation.resource_type_link.search(
         /\/#service-root$/) !== -1) {
-      return new Root(this, representation, uri);
+      return new Root(this, uri, representation);
     } else if (representation.total_size === undefined) {
-      return new Entry(this, representation, uri);
+      return new Entry(this, uri, representation);
     } else {
-      return new Collection(this, representation, uri);
+      return new Collection(this, uri, representation);
     }
   }
 
