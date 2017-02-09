@@ -4,7 +4,7 @@ import { getGitHubRepoUrl } from '../../common/helpers/github-url';
 import { conf } from '../helpers/config';
 import getLaunchpad from '../launchpad';
 import logging from '../logging';
-import { getSnapcraftYaml, internalFindSnap } from './launchpad';
+import { internalFindSnap, internalGetSnapcraftYaml } from './launchpad';
 
 const logger = logging.getLogger('express');
 
@@ -62,7 +62,7 @@ export const notify = (req, res) => {
       .then((snapUrl) => lpClient.get(snapUrl))
       .then((snap) => {
         if (!snap.auto_build) {
-          return getSnapcraftYaml(owner, name)
+          return internalGetSnapcraftYaml(owner, name)
             .then(() => {
               snap.auto_build = true;
               return snap.lp_save();

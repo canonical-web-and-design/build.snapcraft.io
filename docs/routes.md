@@ -17,6 +17,9 @@ To create a snap:
 
     {
       "repository_url": "https://github.com/:owner/:name"
+      "snap_name": ":snap-name",
+      "series": ":series",
+      "channels": [":channel", ...]
     }
 
 On success, returns:
@@ -145,5 +148,30 @@ On success, returns the following where the items in `repos` are GitHub reposito
         prev: 1,
         next: 3,
         last: 3
+      }
+    }
+
+### Getting snapcraft.yaml
+
+To get a parsed version of the `snapcraft.yaml` file in a GitHub repository:
+
+    GET /api/github/snapcraft-yaml/:owner/:name
+    Cookie: <session cookie>
+    Accept: application/json
+
+On success, returns the following, where `contents` is a JSON representation
+of the parsed YAML file:
+
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+
+    {
+      "status": "success",
+      "payload": {
+        "code": "github-snapcraft-yaml-found",
+        "contents": {
+          "name": ":snap-name",
+          ...
+        }
       }
     }

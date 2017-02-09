@@ -3,6 +3,10 @@ import { createHash } from 'crypto';
 import yaml from 'js-yaml';
 import parseGitHubUrl from 'parse-github-url';
 
+import {
+  STORE_SERIES,
+  STORE_CHANNELS
+} from '../../common/actions/create-snap';
 import { conf } from '../helpers/config';
 import { getMemcached } from '../helpers/memcached';
 import requestGitHub from '../helpers/github';
@@ -16,8 +20,6 @@ const logger = logging.getLogger('express');
 const DISTRIBUTION = 'ubuntu';
 const DISTRO_SERIES = 'xenial';
 const ARCHITECTURES = ['amd64', 'armhf'];
-const STORE_SERIES = '16';
-const STORE_CHANNELS = ['edge'];
 
 const RESPONSE_NOT_LOGGED_IN = {
   status: 'error',
@@ -72,14 +74,6 @@ const RESPONSE_SNAPCRAFT_YAML_PARSE_FAILED = {
   payload: {
     code: 'snapcraft-yaml-parse-failed',
     message: 'Failed to parse snapcraft.yaml'
-  }
-};
-
-const RESPONSE_SNAPCRAFT_YAML_NO_NAME = {
-  status: 'error',
-  payload: {
-    code: 'snapcraft-yaml-no-name',
-    message: 'snapcraft.yaml has no top-level "name" attribute'
   }
 };
 
@@ -199,7 +193,10 @@ const makeSnapName = (url) => {
   return createHash('md5').update(url).digest('hex');
 };
 
-export const getSnapcraftYaml = (owner, name, token) => {
+// XXX cjwatson 2017-02-08: internalGetSnapcraftYaml and getSnapcraftYaml
+// really belong in src/server/handlers/github.js instead, but moving them
+// around is a bit cumbersome at the moment.
+export const internalGetSnapcraftYaml = (owner, name, token) => {
   const uri = `/repos/${owner}/${name}/contents/snapcraft.yaml`;
   const options = {
     token,
@@ -217,6 +214,25 @@ export const getSnapcraftYaml = (owner, name, token) => {
     });
 };
 
+export const getSnapcraftYaml = (req, res) => {
+  if (!req.session || !req.session.token) {
+    return Promise.reject(new PreparedError(401, RESPONSE_NOT_LOGGED_IN));
+  }
+  const token = req.session.token;
+
+  return internalGetSnapcraftYaml(req.params.owner, req.params.name, token)
+    .then((snapcraftYaml) => {
+      return res.status(200).send({
+        status: 'success',
+        payload: {
+          code: 'snapcraft-yaml-found',
+          contents: snapcraftYaml
+        }
+      });
+    })
+    .catch((error) => sendError(res, error));
+};
+
 const verifySnapNameRegistered = (name) => {
   return fetch(`${conf.get('STORE_API_URL')}/acl/`, {
     method: 'POST',
@@ -230,9 +246,7 @@ const verifySnapNameRegistered = (name) => {
       channels: STORE_CHANNELS
     })
   }).then((response) => response.json().then((json) => {
-    if (response.status === 200 && json.macaroon) {
-      return name;
-    } else {
+    if (response.status !== 200 || !json.macaroon) {
       throw new PreparedError(400, {
         status: 'error',
         payload: {
@@ -245,7 +259,7 @@ const verifySnapNameRegistered = (name) => {
   }));
 };
 
-const requestNewSnap = (name, repositoryUrl) => {
+const requestNewSnap = (repositoryUrl, name, series, channels) => {
   const lpClient = getLaunchpad();
   const username = conf.get('LP_API_USERNAME');
 
@@ -262,15 +276,18 @@ const requestNewSnap = (name, repositoryUrl) => {
       auto_build_pocket: 'Updates',
       processors: ARCHITECTURES.map((arch) => `/+processors/${arch}`),
       store_upload: true,
-      store_series: `/+snappy-series/${STORE_SERIES}`,
+      store_series: `/+snappy-series/${series}`,
       store_name: name,
-      store_channels: STORE_CHANNELS
+      store_channels: channels
     }
   });
 };
 
 export const newSnap = (req, res) => {
   const repositoryUrl = req.body.repository_url;
+  const snapName = req.body.snap_name;
+  const series = req.body.series;
+  const channels = req.body.channels;
   const lpClient = getLaunchpad();
 
   let owner;
@@ -279,15 +296,9 @@ export const newSnap = (req, res) => {
   checkAdminPermissions(req.session, repositoryUrl)
     .then((result) => {
       owner = result.owner;
-      return getSnapcraftYaml(result.owner, result.name, result.token);
+      return verifySnapNameRegistered(snapName, repositoryUrl);
     })
-    .then((snapcraftYaml) => {
-      if (!('name' in snapcraftYaml)) {
-        throw new PreparedError(400, RESPONSE_SNAPCRAFT_YAML_NO_NAME);
-      }
-      return verifySnapNameRegistered(snapcraftYaml.name, repositoryUrl);
-    })
-    .then((name) => requestNewSnap(name, repositoryUrl))
+    .then(() => requestNewSnap(repositoryUrl, snapName, series, channels))
     .then((result) => {
       // as new snap is created we need to clear list of snaps from cache
       const urlPrefix = getRepoUrlPrefix(owner);

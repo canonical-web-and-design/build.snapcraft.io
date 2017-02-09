@@ -71,7 +71,21 @@ describe('repository input actions', () => {
     });
 
     it('redirects to /login/authenticate on successful creation', () => {
-      scope.post('/api/launchpad/snaps')
+      scope.get('/api/github/snapcraft-yaml/foo/bar')
+        .reply(200, {
+          status: 'success',
+          payload: {
+            code: 'snapcraft-yaml-found',
+            contents: { name: 'test-snap' }
+          }
+        });
+      scope
+        .post('/api/launchpad/snaps', {
+          repository_url: repositoryUrl,
+          snap_name: 'test-snap',
+          series: '16',
+          channels: ['edge']
+        })
         .reply(201, {
           status: 'success',
           payload: {

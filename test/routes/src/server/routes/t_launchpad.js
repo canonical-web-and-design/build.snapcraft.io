@@ -60,16 +60,13 @@ describe('The Launchpad API endpoint', () => {
       });
     });
 
-    context('when repo contains valid snapcraft.yaml', () => {
+    context('when user has admin permissions on repository', () => {
       const snapName = 'dummy-test-snap';
 
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
           .get('/repos/anowner/aname')
           .reply(200, { permissions: { admin: true } });
-        nock(conf.get('GITHUB_API_ENDPOINT'))
-          .get('/repos/anowner/aname/contents/snapcraft.yaml')
-          .reply(200, `name: ${snapName}\n`);
       });
 
       afterEach(() => {
@@ -94,14 +91,24 @@ describe('The Launchpad API endpoint', () => {
         it('should return a 400 Bad Request response', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
-            .send({ repository_url: 'https://github.com/anowner/aname' })
+            .send({
+              repository_url: 'https://github.com/anowner/aname',
+              snap_name: snapName,
+              series: '16',
+              channels: ['edge']
+            })
             .expect(400, done);
         });
 
         it('should return a "error" status', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
-            .send({ repository_url: 'https://github.com/anowner/aname' })
+            .send({
+              repository_url: 'https://github.com/anowner/aname',
+              snap_name: snapName,
+              series: '16',
+              channels: ['edge']
+            })
             .expect(hasStatus('error'))
             .end(done);
         });
@@ -110,7 +117,12 @@ describe('The Launchpad API endpoint', () => {
            'message', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
-            .send({ repository_url: 'https://github.com/anowner/aname' })
+            .send({
+              repository_url: 'https://github.com/anowner/aname',
+              snap_name: snapName,
+              series: '16',
+              channels: ['edge']
+            })
             .expect(hasMessage(
                 'snap-name-not-registered',
                 'Snap name is not registered in the store'))
@@ -120,7 +132,12 @@ describe('The Launchpad API endpoint', () => {
         it('should include snap name in body', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
-            .send({ repository_url: 'https://github.com/anowner/aname' })
+            .send({
+              repository_url: 'https://github.com/anowner/aname',
+              snap_name: snapName,
+              series: '16',
+              channels: ['edge']
+            })
             .expect((actual) => {
               if (typeof actual.body.payload === 'undefined'
                   || actual.body.payload.snap_name !== snapName) {
@@ -158,14 +175,24 @@ describe('The Launchpad API endpoint', () => {
           it('should return a 400 Bad Request response', (done) => {
             supertest(app)
               .post('/launchpad/snaps')
-              .send({ repository_url: 'https://github.com/anowner/aname' })
+              .send({
+                repository_url: 'https://github.com/anowner/aname',
+                snap_name: snapName,
+                series: '16',
+                channels: ['edge']
+              })
               .expect(400, done);
           });
 
           it('should return a "error" status', (done) => {
             supertest(app)
               .post('/launchpad/snaps')
-              .send({ repository_url: 'https://github.com/anowner/aname' })
+              .send({
+                repository_url: 'https://github.com/anowner/aname',
+                snap_name: snapName,
+                series: '16',
+                channels: ['edge']
+              })
               .expect(hasStatus('error'))
               .end(done);
           });
@@ -173,7 +200,12 @@ describe('The Launchpad API endpoint', () => {
           it('should return a body with an "lp-error" message', (done) => {
             supertest(app)
               .post('/launchpad/snaps')
-              .send({ repository_url: 'https://github.com/anowner/aname' })
+              .send({
+                repository_url: 'https://github.com/anowner/aname',
+                snap_name: snapName,
+                series: '16',
+                channels: ['edge']
+              })
               .expect(hasMessage(
                   'lp-error',
                   'There is already a snap package with the same name and owner.'))
@@ -191,7 +223,9 @@ describe('The Launchpad API endpoint', () => {
                 'ws.op': 'new',
                 git_repository_url: 'https://github.com/anowner/aname',
                 processors: ['/+processors/amd64', '/+processors/armhf'],
-                store_name: snapName
+                store_series: '/+snappy-series/16',
+                store_name: snapName,
+                store_channels: 'edge'
               })
               .reply(201, 'Created', {
                 Location: `${lp_api_url}/devel/~test-user/+snap/${snapName}`
@@ -214,14 +248,24 @@ describe('The Launchpad API endpoint', () => {
           it('should return a 201 Created response', (done) => {
             supertest(app)
               .post('/launchpad/snaps')
-              .send({ repository_url: 'https://github.com/anowner/aname' })
+              .send({
+                repository_url: 'https://github.com/anowner/aname',
+                snap_name: snapName,
+                series: '16',
+                channels: ['edge']
+              })
               .expect(201, done);
           });
 
           it('should return a "success" status', (done) => {
             supertest(app)
               .post('/launchpad/snaps')
-              .send({ repository_url: 'https://github.com/anowner/aname' })
+              .send({
+                repository_url: 'https://github.com/anowner/aname',
+                snap_name: snapName,
+                series: '16',
+                channels: ['edge']
+              })
               .expect(hasStatus('success'))
               .end(done);
           });
@@ -229,7 +273,12 @@ describe('The Launchpad API endpoint', () => {
           it('should return a body with an appropriate caveat ID', (done) => {
             supertest(app)
               .post('/launchpad/snaps')
-              .send({ repository_url: 'https://github.com/anowner/aname' })
+              .send({
+                repository_url: 'https://github.com/anowner/aname',
+                snap_name: snapName,
+                series: '16',
+                channels: ['edge']
+              })
               .expect(hasMessage('snap-created', caveatId))
               .end(done);
           });
