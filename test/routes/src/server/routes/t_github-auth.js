@@ -105,14 +105,14 @@ describe('The login route', () => {
         );
       });
 
-      it('should redirect request to dashboard', (done) => {
+      it('should redirect request to the dashboard select repositories view', (done) => {
         supertest(app)
           .get('/auth/verify')
           .query({ code: 'foo', state: 'bar' })
           .send()
           .end((err, res) => {
             expect(res.statusCode).toEqual(302);
-            expect(res.headers.location).toEqual('/dashboard');
+            expect(res.headers.location).toEqual('/dashboard/select-repositories');
             done(err);
           });
       });
