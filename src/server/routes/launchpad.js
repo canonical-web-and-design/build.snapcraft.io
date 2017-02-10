@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { json } from 'body-parser';
 
 import {
+  authorizeSnap,
   findSnap,
   findSnaps,
   getSnapBuilds,
@@ -17,6 +18,9 @@ router.get('/launchpad/snaps', findSnap);
 
 router.use('/launchpad/snaps/list', json());
 router.get('/launchpad/snaps/list', findSnaps);
+
+router.use('/launchpad/snaps/authorize', json());
+router.post('/launchpad/snaps/authorize', authorizeSnap);
 
 router.use('/launchpad/builds', json());
 router.get('/launchpad/builds', getSnapBuilds);

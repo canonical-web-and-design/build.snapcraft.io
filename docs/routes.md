@@ -16,7 +16,7 @@ To create a snap:
     Accept: application/json
 
     {
-      "repository_url": "https://github.com/:owner/:name"
+      "repository_url": "https://github.com/:owner/:name",
       "snap_name": ":snap-name",
       "series": ":series",
       "channels": [":channel", ...]
@@ -39,6 +39,34 @@ The caller should proceed to authorize the snap using an OpenID exchange,
 using `:caveat-id` as the parameter to the Macaroon extension.  If
 successful, the result of this OpenID exchange will be a discharge macaroon,
 which the `/login/verify` handler will store in Launchpad.
+
+We're moving to a slightly different arrangement for authorizing snaps.  In
+this, the caller should acquire a pre-authorized macaroon from the store (on
+the authority of a `package_upload_request` macaroon which has itself been
+authorized using OpenID) and tell Launchpad to use that for uploads.  This
+can be done using this API method:
+
+    POST /api/launchpad/snaps/authorize
+    Cookie: <session cookie>
+    Content-Type: application/json
+
+    {
+      "repository_url": "https://github.com/:owner/:name",
+      "macaroon": ":macaroon"
+    }
+
+On success, returns:
+
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+
+    {
+      "status": "success",
+      "payload": {
+        "code": "snap-authorized",
+        "message": "Snap uploads authorized"
+      }
+    }
 
 To search for an existing snap:
 

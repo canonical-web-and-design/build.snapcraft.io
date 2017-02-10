@@ -461,6 +461,31 @@ export const completeSnapAuthorization = (session, repositoryUrl,
     });
 };
 
+export const authorizeSnap = (req, res) => {
+  const repositoryUrl = req.body.repository_url;
+  const macaroon = req.body.macaroon;
+  let snapUrl;
+  return checkAdminPermissions(req.session, repositoryUrl)
+    .then(() => internalFindSnap(repositoryUrl))
+    .then((result) => {
+      snapUrl = result;
+      return getLaunchpad().named_post(snapUrl, 'completeAuthorization', {
+        parameters: { root_macaroon: macaroon }
+      });
+    })
+    .then(() => {
+      logger.info(`Completed authorization of ${snapUrl}`);
+      return res.status(200).send({
+        status: 'success',
+        payload: {
+          code: 'snap-authorized',
+          message: 'Snap uploads authorized'
+        }
+      });
+    })
+    .catch((error) => sendError(res, error));
+};
+
 export const getSnapBuilds = (req, res) => {
   const snapUrl = req.query.snap;
 
