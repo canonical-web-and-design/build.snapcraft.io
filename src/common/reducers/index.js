@@ -6,7 +6,8 @@ import * as repositories from './repositories';
 import * as repositoriesStatus from './repositories-status';
 import * as authError from './auth-error';
 import * as selectRepositoriesForm from './select-repositories-form';
-import * as snapBuilds from '../reducers/snap-builds';
+import * as snapBuilds from './snap-builds';
+import * as snaps from './snaps';
 import * as auth from './auth';
 import * as webhook from './webhook';
 
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   ...authError,
   ...selectRepositoriesForm,
   ...snapBuilds,
+  ...snaps,
   ...auth,
   ...webhook,
   routing: routerReducer
