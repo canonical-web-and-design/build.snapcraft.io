@@ -33,7 +33,7 @@ export default class Header extends Component {
 
 Header.propTypes = {
   authenticated: PropTypes.bool,
-  user: PropTypes.object({
+  user: PropTypes.shape({
     login: PropTypes.string,
     name: PropTypes.string
   })
