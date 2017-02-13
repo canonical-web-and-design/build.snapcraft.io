@@ -9,16 +9,15 @@ export const FETCH_SNAPS = 'FETCH_REPOSITORIES';
 export const FETCH_SNAPS_SUCCESS = 'FETCH_SNAPS_SUCCESS';
 export const FETCH_SNAPS_ERROR = 'FETCH_SNAPS_ERROR';
 
-export function fetchUserSnaps(owner) {
+export function fetchUserSnaps() {
   return (dispatch) => {
     const url = `${BASE_URL}/api/launchpad/snaps/list`;
-    const query = `owner=${encodeURIComponent(owner)}`;
 
     dispatch({
       type: FETCH_SNAPS
     });
 
-    return fetch(`${url}?${query}`, {
+    return fetch(url, {
       headers: { 'Content-Type': 'application/json' },
       credentials: 'same-origin'
     })

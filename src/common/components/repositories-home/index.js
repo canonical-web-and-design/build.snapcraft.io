@@ -1,49 +1,31 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { fetchUserRepositories } from '../../actions/repositories';
+import { fetchUserSnaps } from '../../actions/snaps';
 import { Anchor } from '../vanilla/button';
-import Step from '../step';
 import RepositoriesList from '../repositories-list';
+import styles from './repositories-home.css';
 
 class RepositoriesHome extends Component {
   componentDidMount() {
     const { authenticated } = this.props.auth;
 
     if (authenticated) {
-      this.props.dispatch(fetchUserRepositories());
+      this.props.dispatch(fetchUserSnaps());
     }
   }
 
   render() {
     return (
       <div>
-        <h2>Welcome</h2>
-        <p>To get started building snaps, sign in with GitHub and tell us about your repository.</p>
-        <ol>
-          { this.step1.call(this) }
-          { this.step2.call(this) }
-        </ol>
-      </div>
-    );
-  }
-
-  step1() {
-    const { authenticated } = this.props.auth;
-
-    return (
-      <Step number="1" complete={ authenticated }>
-        <Anchor href="/auth/authenticate">Log in with GitHub</Anchor>
-      </Step>
-    );
-  }
-
-  step2() {
-    return (
-      <Step number="2">
-        Choose one of your repositories
+        <h2>Repos to build and publish</h2>
+        <div className={ styles['button-container'] }>
+          <Anchor appearance="neutral" href="dashboard/select-repositories/">
+            Add new repository
+          </Anchor>
+        </div>
         <RepositoriesList />
-      </Step>
+      </div>
     );
   }
 }

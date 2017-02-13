@@ -1,0 +1,43 @@
+$table-head-row-color: $dark-grey;
+$table-body-row-color: $mid-grey;
+
+.table {
+  border: 0;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.th, .td {
+  padding: 1rem .75rem;
+}
+
+.td {
+  font-weight: 300;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.thead .th {
+  border-collapse: separate;
+  border-spacing: 0 .5rem;
+  font-weight: 400;
+  text-align: left;
+  color: #888;
+  font-size: 13px;
+  display: table-cell;
+}
+
+.thead .tr {
+  border-bottom: 1px solid $table-head-row-color;
+}
+
+.tbody .tr {
+  border-bottom: 1px solid $table-body-row-color;
+}
+
+.tbody .th {
+  font-weight: 400;
+  text-align: left;
+}
