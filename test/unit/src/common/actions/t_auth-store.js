@@ -1,9 +1,11 @@
 import expect from 'expect';
 import { MacaroonsBuilder } from 'macaroons.js';
+import moment from 'moment';
 import nock from 'nock';
 import proxyquire from 'proxyquire';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import tmatch from 'tmatch';
 import url from 'url';
 
 import { conf } from '../../../../../src/common/helpers/config';
@@ -17,7 +19,8 @@ const authStoreModule = proxyquire.noCallThru().load(
 const {
   extractSSOCaveat,
   getCaveats,
-  getSSODischarge
+  getSSODischarge,
+  signIntoStore
 } = authStoreModule;
 const ActionTypes = authStoreModule;
 
@@ -227,6 +230,98 @@ describe('store authentication actions', () => {
             expect(store.getActions()).toHaveActionOfType(
               ActionTypes.GET_SSO_DISCHARGE_SUCCESS
             );
+          });
+      });
+    });
+  });
+
+  context('signIntoStore', () => {
+    let storeApi;
+
+    beforeEach(() => {
+      storeApi = nock(conf.get('STORE_API_URL'));
+    });
+
+    afterEach(() => {
+      nock.cleanAll();
+      localForageStub.clear();
+    });
+
+    context('when store request fails', () => {
+      beforeEach(() => {
+        storeApi.post('/acl/')
+          .reply(400, {
+            status: 404,
+            error_code: 'something-went-wrong'
+          });
+      });
+
+      it('stores an error', () => {
+        const expectedMessage = 'The store did not return a valid macaroon.';
+
+        const location = {};
+        return store.dispatch(signIntoStore(location))
+          .then(() => {
+            expect(location).toExcludeKey('href');
+            storeApi.done();
+            const action = store.getActions().filter(
+              (a) => a.type === ActionTypes.SIGN_INTO_STORE_ERROR)[0];
+            expect(action.payload.message).toBe(expectedMessage);
+          });
+      });
+    });
+
+    context('when store request returns a valid macaroon', () => {
+      let root;
+
+      beforeEach(() => {
+        root = new MacaroonsBuilder('location', 'key', 'id')
+          .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
+          .getMacaroon();
+        storeApi.post('/acl/', (body) => {
+          if (!tmatch(body, {
+            permissions: ['package_upload_request'],
+            channels: ['edge'],
+          })) {
+            return false;
+          }
+          const expectedLifetime = conf.get(
+            'STORE_PACKAGE_UPLOAD_REQUEST_LIFETIME'
+          );
+          const now = moment();
+          const expires = moment(body.expires);
+          return expires.isBetween(
+            // Allow a bit of slack for slow tests.
+            now.clone().add(expectedLifetime - 5, 'seconds'),
+            // Add a millisecond to cope with isBetween using exclusive
+            // bounds.
+            now.clone().add(expectedLifetime * 1000 + 1, 'milliseconds'));
+        })
+          .reply(200, { macaroon: root.serialize() });
+      });
+
+      it('stores the macaroon in local storage', () => {
+        const location = {};
+        return store.dispatch(signIntoStore(location))
+          .then(() => {
+            expect(localForageStub.store.package_upload_request).toEqual({
+              root: root.serialize()
+            });
+          });
+      });
+
+      it('redirects to /login/authenticate', () => {
+        const startingUrl = `${conf.get('BASE_URL')}/dashboard`;
+        const location = { href: startingUrl };
+        return store.dispatch(signIntoStore(location))
+          .then(() => {
+            expect(url.parse(location.href, true)).toMatch({
+              path: '/login/authenticate',
+              query: {
+                starting_url: startingUrl,
+                caveat_id: 'sso caveat'
+              }
+            });
           });
       });
     });

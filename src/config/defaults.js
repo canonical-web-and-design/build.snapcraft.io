@@ -9,6 +9,8 @@ export default {
   LP_API_URL: 'https://api.launchpad.net',
   STORE_API_URL: 'https://myapps.developer.ubuntu.com/dev/api',
   STORE_DEVPORTAL_URL: 'https://myapps.developer.ubuntu.com/dev',
+  STORE_ALLOWED_CHANNELS: ['edge'],
+  STORE_PACKAGE_UPLOAD_REQUEST_LIFETIME: '7200',
   GITHUB_API_ENDPOINT: 'http://localhost:4000/github',
   GITHUB_AUTH_LOGIN_URL: 'http://localhost:4000/github/login/oauth/authorize',
   GITHUB_AUTH_VERIFY_URL: 'http://localhost:4000/github/login/oauth/access_token',

@@ -69,21 +69,24 @@ export const processVerifiedAssertion = (req, res, next, error, result) => {
   req.session.name = result.fullname;
   req.session.email = result.email;
   let completeAuth;
-  if (result.discharge) {
+  if (req.query.repository_url && result.discharge) {
+    // Old-style authorization of a single snap.
     completeAuth = completeSnapAuthorization(
         req.session, req.query.repository_url, result.discharge);
   } else {
+    if (result.discharge) {
+      // New-style authorization of a package_upload_request macaroon.
+      // Temporarily stash the discharge macaroon in the session.  The
+      // client will pick this up later and move it to local storage.
+      req.session.ssoDischarge = result.discharge;
+    }
     // We have no further authorization work to do, but a dummy promise is
     // handy to avoid duplicating code.
     completeAuth = Promise.resolve(null);
   }
   return completeAuth
     .then(() => {
-      if (req.query.starting_url) {
-        res.redirect(req.query.starting_url);
-      } else {
-        res.redirect('/');
-      }
+      res.redirect(req.query.starting_url || '/');
     })
     .catch((error) => next(new Error(error.body.payload.message)));
 };

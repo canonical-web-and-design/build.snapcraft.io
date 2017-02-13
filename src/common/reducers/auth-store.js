@@ -7,6 +7,24 @@ export function authStore(state = {
   error: null
 }, action) {
   switch (action.type) {
+    case ActionTypes.SIGN_INTO_STORE:
+      return {
+        ...state,
+        isFetching: true,
+        authenticated: false
+      };
+    case ActionTypes.SIGN_INTO_STORE_SUCCESS:
+      return {
+        ...state,
+        isFetching: false,
+        error: null
+      };
+    case ActionTypes.SIGN_INTO_STORE_ERROR:
+      return {
+        ...state,
+        isFetching: false,
+        error: action.payload
+      };
     case ActionTypes.GET_SSO_DISCHARGE:
       return {
         ...state,

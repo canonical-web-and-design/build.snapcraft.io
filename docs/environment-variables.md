@@ -82,6 +82,19 @@ The URL of the Ubuntu Store API service.
 
 The URL of the Ubuntu Store developer portal.
 
+### STORE\_ALLOWED\_CHANNELS
+
+- **Example**: `["edge"]`
+
+A JSON array of the store channels that this service may upload to.
+
+### STORE\_PACKAGE\_UPLOAD\_REQUEST\_LIFETIME
+
+- **Example**: 7200
+
+The number of seconds for which `package_upload_request` macaroons requested
+from the store by this service are valid.
+
 
 ## GitHub settings
 

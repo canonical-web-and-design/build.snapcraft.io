@@ -1,6 +1,8 @@
 import 'isomorphic-fetch';
 import localforage from 'localforage';
 import { MacaroonsBuilder } from 'macaroons.js';
+import moment from 'moment';
+import qs from 'qs';
 import url from 'url';
 
 import { checkStatus } from '../helpers/api';
@@ -8,6 +10,9 @@ import { conf } from '../helpers/config';
 
 const BASE_URL = conf.get('BASE_URL');
 
+export const SIGN_INTO_STORE = 'SIGN_INTO_STORE';
+export const SIGN_INTO_STORE_SUCCESS = 'SIGN_INTO_STORE_SUCCESS';
+export const SIGN_INTO_STORE_ERROR = 'SIGN_INTO_STORE_ERROR';
 export const GET_SSO_DISCHARGE = 'GET_SSO_DISCHARGE';
 export const GET_SSO_DISCHARGE_SUCCESS = 'GET_SSO_DISCHARGE_SUCCESS';
 export const GET_SSO_DISCHARGE_ERROR = 'GET_SSO_DISCHARGE_ERROR';
@@ -58,6 +63,65 @@ export function extractSSOCaveat(macaroon) {
     throw new Error('Macaroon has multiple SSO caveats.');
   }
   return ssoCaveats[0].caveatId;
+}
+
+function getPackageUploadRequestPermission() {
+  const lifetime = conf.get('STORE_PACKAGE_UPLOAD_REQUEST_LIFETIME');
+  let caveatId;
+
+  return fetch(`${conf.get('STORE_API_URL')}/acl/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+      permissions: ['package_upload_request'],
+      channels: conf.get('STORE_ALLOWED_CHANNELS'),
+      expires: moment()
+        .add(lifetime, 'seconds')
+        .format('YYYY-MM-DD[T]HH:mm:ss.SSS')
+    })
+  })
+    .then((response) => response.json().then((json) => {
+      if (response.status !== 200 || !json.macaroon) {
+        throw new Error('The store did not return a valid macaroon.');
+      }
+      const rootRaw = json['macaroon'];
+      const root = MacaroonsBuilder.deserialize(rootRaw);
+      caveatId = extractSSOCaveat(root);
+      return localforage.setItem('package_upload_request', {
+        root: rootRaw,
+      });
+    }))
+    .then(() => caveatId);
+}
+
+export function signIntoStore(location) { // location for tests
+  return (dispatch) => {
+    dispatch({ type: SIGN_INTO_STORE });
+
+    return getPackageUploadRequestPermission()
+      .then((caveatId) => {
+        const loginQuery = {
+          starting_url: (location || window.location).href,
+          caveat_id: caveatId
+        };
+        (location || window.location).href =
+          `${BASE_URL}/login/authenticate?${qs.stringify(loginQuery)}`;
+      })
+      .catch((error) => {
+        dispatch(signIntoStoreError(error));
+      });
+  };
+}
+
+export function signIntoStoreError(error) {
+  return {
+    type: SIGN_INTO_STORE_ERROR,
+    payload: error,
+    error: true
+  };
 }
 
 export function getSSODischarge() {

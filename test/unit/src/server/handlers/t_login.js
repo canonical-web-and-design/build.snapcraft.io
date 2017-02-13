@@ -103,88 +103,122 @@ describe('processVerifiedAssertion', () => {
     });
 
     context('with discharge macaroon', () => {
-      const session = { 'token': 'secret' };
+      const session = { token: 'secret' };
 
-      context('when snap exists', () => {
-        let completeAuthorizationScope;
+      context('for a single snap', () => {
+        context('when snap exists', () => {
+          let completeAuthorizationScope;
 
-        beforeEach(() => {
-          nock(GITHUB_API_ENDPOINT)
-            .get('/repos/anowner/aname')
-            .reply(200, { permissions: { admin: true } });
-          const lp_api_base = `${LP_API_URL}/devel`;
-          nock(LP_API_URL)
-            .get('/devel/+snaps')
-            .query({
-              'ws.op': 'findByURL',
-              url: 'https://github.com/anowner/aname'
-            })
-            .reply(200, {
-              total_size: 1,
-              start: 0,
-              entries: [
-                {
-                  resource_type_link: `${lp_api_base}/#snap`,
-                  self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
-                  owner_link: `${lp_api_base}/~test-user`
-                }
-              ]
-            });
-          completeAuthorizationScope = nock(LP_API_URL)
-            .post('/devel/~test-user/+snap/test-snap', {
-              'ws.op': 'completeAuthorization',
-              'discharge_macaroon': 'dummy-discharge'
-            })
-            .reply(200, 'null', {
-              'Content-Type': 'application/json'
-            });
+          beforeEach(() => {
+            nock(GITHUB_API_ENDPOINT)
+              .get('/repos/anowner/aname')
+              .reply(200, { permissions: { admin: true } });
+            const lp_api_base = `${LP_API_URL}/devel`;
+            nock(LP_API_URL)
+              .get('/devel/+snaps')
+              .query({
+                'ws.op': 'findByURL',
+                url: 'https://github.com/anowner/aname'
+              })
+              .reply(200, {
+                total_size: 1,
+                start: 0,
+                entries: [
+                  {
+                    resource_type_link: `${lp_api_base}/#snap`,
+                    self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
+                    owner_link: `${lp_api_base}/~test-user`
+                  }
+                ]
+              });
+            completeAuthorizationScope = nock(LP_API_URL)
+              .post('/devel/~test-user/+snap/test-snap', {
+                'ws.op': 'completeAuthorization',
+                'discharge_macaroon': 'dummy-discharge'
+              })
+              .reply(200, 'null', {
+                'Content-Type': 'application/json'
+              });
+          });
+
+          afterEach(() => {
+            nock.cleanAll();
+          });
+
+          it('completes the authorization', () => {
+            const req = {
+              session,
+              query: { repository_url: 'https://github.com/anowner/aname' }
+            };
+            const result = {
+              authenticated: true,
+              discharge: 'dummy-discharge'
+            };
+            return processVerifiedAssertion(req, res, next, null, result)
+              .then(() => completeAuthorizationScope.done());
+          });
+
+          it('redirects', () => {
+            const req = {
+              session,
+              query: { repository_url: 'https://github.com/anowner/aname' }
+            };
+            const result = {
+              authenticated: true,
+              discharge: 'dummy-discharge'
+            };
+            return processVerifiedAssertion(req, res, next, null, result)
+              .then(() => expect(res.redirectedUrl).toBe('/'));
+          });
         });
 
-        afterEach(() => {
-          nock.cleanAll();
-        });
+        context('when completing authorization throws an error', () => {
+          beforeEach(() => {
+            nock(GITHUB_API_ENDPOINT)
+              .get('/repos/anowner/aname')
+              .reply(200, { permissions: { admin: false } });
+          });
 
-        it('completes the authorization', () => {
+          afterEach(() => {
+            nock.cleanAll();
+          });
+
+          it('passes through error', () => {
+            const req = {
+              session,
+              query: { repository_url: 'https://github.com/anowner/aname' }
+            };
+            const result = {
+              authenticated: true,
+              discharge: 'dummy-discharge'
+            };
+            return processVerifiedAssertion(req, res, next, null, result)
+              .then(() => expect(processedError.message).toBe(
+                'You do not have admin permissions for this GitHub ' +
+                'repository'));
+          });
+        });
+      });
+
+      context('for a package_upload_request macaroon', () => {
+        it('stores the discharge macaroon', () => {
           const req = {
             session,
-            query: { repository_url: 'https://github.com/anowner/aname' }
+            query: {}
           };
           const result = { authenticated: true, discharge: 'dummy-discharge' };
           return processVerifiedAssertion(req, res, next, null, result)
-            .then(() => completeAuthorizationScope.done());
+            .then(() => expect(session.ssoDischarge).toBe('dummy-discharge'));
         });
 
-        it('redirects', () => {
+        it('redirects to /', () => {
           const req = {
             session,
-            query: { repository_url: 'https://github.com/anowner/aname' }
+            query: {}
           };
           const result = { authenticated: true, discharge: 'dummy-discharge' };
           return processVerifiedAssertion(req, res, next, null, result)
             .then(() => expect(res.redirectedUrl).toBe('/'));
-        });
-      });
-
-      context('when completing authorization throws an error', () => {
-        beforeEach(() => {
-          nock(GITHUB_API_ENDPOINT)
-            .get('/repos/anowner/aname')
-            .reply(200, { permissions: { admin: false } });
-        });
-
-        afterEach(() => {
-          nock.cleanAll();
-        });
-
-        it('passes through error', () => {
-          const req = {
-            session,
-            query: { repository_url: 'https://github.com/anowner/aname' }
-          };
-          const result = { authenticated: true, discharge: 'dummy-discharge' };
-          return processVerifiedAssertion(req, res, next, null, result)
-            .then(() => expect(processedError.message).toBe(
-              'You do not have admin permissions for this GitHub repository'));
         });
       });
     });
