@@ -42,4 +42,12 @@ router.get('/user/repos', (req, res) => {
   ]);
 });
 
+router.get('/user', (req, res) => {
+  res.status(200).send({
+    login: 'anowner',
+    name: 'Ann Owner',
+    html_url: 'http://github.com/anowner'
+  });
+});
+
 export default router;
