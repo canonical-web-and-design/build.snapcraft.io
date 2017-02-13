@@ -1,13 +1,20 @@
 import { Router } from 'express';
 import { json } from 'body-parser';
 
-import { createWebhook, listRepositories } from '../handlers/github';
+import {
+  getUser,
+  createWebhook,
+  listRepositories
+} from '../handlers/github';
 import { getSnapcraftYaml } from '../handlers/launchpad';
 
 const router = Router();
 
 router.use('/github/webhook', json());
 router.post('/github/webhook', createWebhook);
+
+router.use('/github/user', json());
+router.get('/github/user', getUser);
 
 router.use('/github/repos', json());
 router.get('/github/repos', listRepositories);

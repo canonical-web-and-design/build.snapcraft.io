@@ -19,6 +19,127 @@ describe('The GitHub API endpoint', () => {
   });
   app.use(github);
 
+  describe('get user route', () => {
+
+    context('when user is not logged in', () => {
+      const oldToken = session.token;
+
+      before(() => {
+        delete session.token;
+      });
+
+      after(() => {
+        session.token = oldToken;
+      });
+
+      it('should return a 401 Unauthorized response', (done) => {
+        supertest(app)
+          .get('/github/user')
+          .expect(401, done);
+      });
+
+      it('should return a "error" status', (done) => {
+        supertest(app)
+          .get('/github/user')
+          .expect(hasStatus('error'))
+          .end(done);
+      });
+
+      it('should return a body with a "github-authentication-failed" message', (done) => {
+        supertest(app)
+          .get('/github/repos')
+          .expect(hasMessage('github-authentication-failed'))
+          .end(done);
+      });
+    });
+
+    context('when user is logged in', () => {
+
+      context('when GitHub returns an error', () => {
+        const errorCode = 404;
+        const errorMessage = 'Test error message';
+
+        beforeEach(() => {
+          scope = nock(conf.get('GITHUB_API_ENDPOINT'))
+            .get('/user')
+            .reply(errorCode, { message: errorMessage });
+        });
+
+        afterEach(() => {
+          nock.cleanAll();
+        });
+
+        it('should return with same error code', (done) => {
+          supertest(app)
+          .post('/github/user')
+          .expect(errorCode, done);
+        });
+
+        it('should return a "error" status', (done) => {
+          supertest(app)
+            .get('/github/user')
+            .expect(hasStatus('error'))
+            .end(done);
+        });
+
+        it('should return a body with a error message from GitHub', (done) => {
+          supertest(app)
+            .get('/github/user')
+            .expect(hasMessage('github-user-error', errorMessage))
+            .end(done);
+        });
+      });
+
+      context('when GitHub returns user data', () => {
+        const user = {
+          id: 1234,
+          login: 'johndoe',
+          name: 'John Doe'
+        };
+
+        beforeEach(() => {
+          scope = nock(conf.get('GITHUB_API_ENDPOINT'))
+            .get('/user')
+            .reply(200, user);
+        });
+
+        afterEach(() => {
+          nock.cleanAll();
+        });
+
+        it('should return with 200', (done) => {
+          supertest(app)
+          .get('/github/user')
+          .expect(200, done);
+        });
+
+        it('should return a "success" status', (done) => {
+          supertest(app)
+            .get('/github/user')
+            .expect(hasStatus('success'))
+            .end(done);
+        });
+
+        it('should return a body with a "github-user" code', (done) => {
+          supertest(app)
+            .get('/github/user')
+            .expect(hasMessage('github-user'))
+            .end(done);
+        });
+
+        it('should return user', (done) => {
+          supertest(app)
+            .get('/github/user')
+            .end((err, res) => {
+              expect(res.body.payload.user).toEqual(user);
+              done(err);
+            });
+        });
+
+      });
+    });
+  });
+
   describe('list repositories route', () => {
 
     context('when user is not logged in', () => {

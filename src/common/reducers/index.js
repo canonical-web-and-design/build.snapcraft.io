@@ -8,6 +8,7 @@ import * as authError from './auth-error';
 import * as selectRepositoriesForm from './select-repositories-form';
 import * as snapBuilds from './snap-builds';
 import * as snaps from './snaps';
+import * as user from './user';
 import * as auth from './auth';
 import * as authStore from './auth-store';
 import * as webhook from './webhook';
@@ -20,6 +21,7 @@ const rootReducer = combineReducers({
   ...selectRepositoriesForm,
   ...snapBuilds,
   ...snaps,
+  ...user,
   ...auth,
   ...authStore,
   ...webhook,

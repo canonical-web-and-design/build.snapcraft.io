@@ -5,18 +5,26 @@ import styles from './header.css';
 
 export default class Header extends Component {
   render() {
+    const { authenticated, user } = this.props;
+
     return (
       <div className={ styles.header }>
         <nav className={ styles.container }>
           <Link className={ styles.logo } to="/">
             Snapcraft
           </Link>
-          <div className={ styles.sideNav }>
-            { this.props.authenticated
-              ? <a href="/auth/logout" className={ styles.link }>Log out</a>
-              : <a href="/auth/authenticate" className={ styles.link }>Log in</a>
-            }
-          </div>
+          { authenticated
+            ?
+              <div className={ styles.sideNav }>
+                { user && <a href={user.html_url} className={ styles.link }>{user.name}</a> }
+                <Link to="/dashboard" className={ styles.link }>Dashboard</Link>
+                <a href="/auth/logout" className={ styles.link }>Log out</a>
+              </div>
+            :
+              <div className={ styles.sideNav }>
+                <a href="/auth/authenticate" className={ styles.link }>Log in</a>
+              </div>
+          }
         </nav>
       </div>
     );
@@ -24,5 +32,9 @@ export default class Header extends Component {
 }
 
 Header.propTypes = {
-  authenticated: PropTypes.bool
+  authenticated: PropTypes.bool,
+  user: PropTypes.object({
+    login: PropTypes.string,
+    name: PropTypes.string
+  })
 };

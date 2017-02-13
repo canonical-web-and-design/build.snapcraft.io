@@ -49,6 +49,33 @@ const RESPONSE_CREATED = {
   }
 };
 
+export const getUser = (req, res) => {
+  if (!req.session || !req.session.token) {
+    return res.status(401).send(RESPONSE_AUTHENTICATION_FAILED);
+  }
+
+  requestGitHub.get('/user', { token: req.session.token, json: true })
+    .then((response) => {
+      if (response.statusCode !== 200) {
+        return res.status(response.statusCode).send({
+          status: 'error',
+          payload: {
+            code: 'github-user-error',
+            message: response.body.message
+          }
+        });
+      }
+
+      res.status(response.statusCode).send({
+        status: 'success',
+        payload: {
+          code: 'github-user',
+          user: response.body
+        }
+      });
+    });
+};
+
 export const listRepositories = (req, res) => {
   const params = {
     affiliation: 'owner'

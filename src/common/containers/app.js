@@ -5,7 +5,23 @@ import Helmet from 'react-helmet';
 import Header from '../components/header';
 import Footer from '../components/footer';
 
+import { fetchUser } from '../actions/user';
+
 export class App extends Component {
+  fetchData(props) {
+    if (props.auth.authenticated && !props.user.user && !props.user.isFetching) {
+      this.props.dispatch(fetchUser());
+    }
+  }
+
+  componentDidMount() {
+    this.fetchData(this.props);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.fetchData(nextProps);
+  }
+
   render() {
     return (
       <div>
@@ -17,7 +33,10 @@ export class App extends Component {
             { 'name': 'description', 'content': 'build.snapcraft.io' },
           ]}
         />
-        <Header authenticated={this.props.auth.authenticated}/>
+        <Header
+          authenticated={this.props.auth.authenticated}
+          user={this.props.user.user}
+        />
         { this.props.children }
         <Footer />
       </div>
@@ -27,16 +46,20 @@ export class App extends Component {
 
 App.propTypes = {
   children: PropTypes.node,
-  auth: PropTypes.object
+  auth: PropTypes.object,
+  user: PropTypes.object,
+  dispatch: PropTypes.func
 };
 
 function mapStateToProps(state) {
   const {
-    auth
+    auth,
+    user
   } = state;
 
   return {
-    auth
+    auth,
+    user
   };
 }
 
