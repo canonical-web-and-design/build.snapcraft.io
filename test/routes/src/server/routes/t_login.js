@@ -12,8 +12,9 @@ const OPENID_VERIFY_URL = conf.get('OPENID_VERIFY_URL');
 
 describe('login routes', () => {
   const app = Express();
+  const session = {};
   app.use((req, res, next) => {
-    req.session = {};
+    req.session = session;
     next();
   });
   app.use(login);
@@ -147,6 +148,76 @@ describe('login routes', () => {
               .toEqual('http://ns.login.ubuntu.com/2016/openid-macaroon');
             expect(parsedLocation.query['openid.macaroon.caveat_id'])
               .toEqual(expectedCaveatId);
+          })
+          .end(done);
+      });
+    });
+  });
+
+  describe('sso-discharge', () => {
+    context('if session has discharge macaroon', () => {
+      beforeEach(() => {
+        session.ssoDischarge = 'dummy macaroon';
+      });
+
+      afterEach(() => {
+        delete session.ssoDischarge;
+      });
+
+      it('GET returns the macaroon', (done) => {
+        supertest(app)
+          .get('/login/sso-discharge')
+          .expect((res) => {
+            expect(res.statusCode).toEqual(200);
+            expect(res.body).toEqual({
+              status: 'success',
+              payload: {
+                code: 'discharge-found',
+                discharge: 'dummy macaroon'
+              }
+            });
+          })
+          .end(done);
+      });
+
+      it('DELETE deletes the macaroon', (done) => {
+        supertest(app)
+          .delete('/login/sso-discharge')
+          .expect((res) => {
+            expect(res.statusCode).toEqual(204);
+            expect(session.ssoDischarge).toNotExist();
+          })
+          .end(done);
+      });
+    });
+
+    context('if user is logged in but has no SSO discharge', (done) => {
+      beforeEach(() => {
+        delete session.ssoDischarge;
+      });
+
+      it('GET returns 404', () => {
+        supertest(app)
+          .get('/login/sso-discharge')
+          .expect((res) => {
+            expect(res.statusCode).toEqual(404);
+            expect(res.body).toEqual({
+              status: 'error',
+              payload: {
+                code: 'discharge-not-found',
+                message: 'No SSO discharge macaroon stored'
+              }
+            });
+          })
+          .end(done);
+      });
+
+      it('DELETE does nothing', (done) => {
+        supertest(app)
+          .delete('/login/sso-discharge')
+          .expect((res) => {
+            expect(res.statusCode).toEqual(204);
+            expect(session.ssoDischarge).toNotExist();
           })
           .end(done);
       });

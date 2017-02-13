@@ -36,6 +36,8 @@ module.exports = {
     })
   ],
   module: {
+    // https://github.com/localForage/localForage/issues/577
+    noParse: /node_modules\/localforage\/dist\/localforage\.js$/,
     loaders: require('./loaders-config.js')
   },
   postcss: function () {

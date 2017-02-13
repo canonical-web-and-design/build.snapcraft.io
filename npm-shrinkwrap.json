@@ -5,6 +5,9 @@
     "accepts": {
       "version": "1.3.3"
     },
+    "acorn": {
+      "version": "1.2.2"
+    },
     "amdefine": {
       "version": "1.0.1"
     },
@@ -28,6 +31,9 @@
     },
     "assert-plus": {
       "version": "0.2.0"
+    },
+    "ast-types": {
+      "version": "0.8.15"
     },
     "asynckit": {
       "version": "0.4.0"
@@ -71,6 +77,9 @@
     },
     "babylon": {
       "version": "6.14.1"
+    },
+    "base62": {
+      "version": "0.1.1"
     },
     "base64-url": {
       "version": "1.3.3"
@@ -227,6 +236,9 @@
       "version": "0.1.1",
       "optional": true
     },
+    "ecma-nacl": {
+      "version": "2.4.0"
+    },
     "ee-first": {
       "version": "1.1.1"
     },
@@ -245,6 +257,14 @@
     "error-stack-parser": {
       "version": "1.3.6"
     },
+    "es3ify": {
+      "version": "0.1.4",
+      "dependencies": {
+        "esprima-fb": {
+          "version": "3001.1.0-dev-harmony-fb"
+        }
+      }
+    },
     "es6-promise": {
       "version": "4.0.5"
     },
@@ -253,6 +273,9 @@
     },
     "escape-string-regexp": {
       "version": "1.0.5"
+    },
+    "esmangle-evaluator": {
+      "version": "1.0.1"
     },
     "esprima": {
       "version": "2.7.3"
@@ -297,6 +320,9 @@
     "eyes": {
       "version": "0.1.8"
     },
+    "falafel": {
+      "version": "1.2.0"
+    },
     "fastparse": {
       "version": "1.1.1"
     },
@@ -308,6 +334,9 @@
     },
     "find-up": {
       "version": "1.1.2"
+    },
+    "foreach": {
+      "version": "2.0.5"
     },
     "forever-agent": {
       "version": "0.6.1"
@@ -419,6 +448,9 @@
     "images-require-hook": {
       "version": "1.0.3"
     },
+    "immediate": {
+      "version": "3.0.6"
+    },
     "immutable": {
       "version": "3.8.1"
     },
@@ -427,6 +459,9 @@
     },
     "inherits": {
       "version": "2.0.3"
+    },
+    "inline-process-browser": {
+      "version": "1.0.0"
     },
     "invariant": {
       "version": "2.2.2"
@@ -460,6 +495,9 @@
     },
     "is-utf8": {
       "version": "0.2.1"
+    },
+    "isarray": {
+      "version": "0.0.1"
     },
     "isomorphic-fetch": {
       "version": "2.2.1"
@@ -505,8 +543,22 @@
     "jsprim": {
       "version": "1.3.1"
     },
+    "jstransform": {
+      "version": "3.0.0",
+      "dependencies": {
+        "esprima-fb": {
+          "version": "3001.1.0-dev-harmony-fb"
+        },
+        "source-map": {
+          "version": "0.1.31"
+        }
+      }
+    },
     "lcid": {
       "version": "1.0.0"
+    },
+    "lie": {
+      "version": "3.0.2"
     },
     "load-json-file": {
       "version": "1.1.0",
@@ -518,6 +570,9 @@
     },
     "loader-utils": {
       "version": "0.2.16"
+    },
+    "localforage": {
+      "version": "1.4.3"
     },
     "lodash": {
       "version": "4.11.2"
@@ -557,6 +612,9 @@
     },
     "lsmod": {
       "version": "1.0.0"
+    },
+    "macaroons.js": {
+      "version": "0.3.6"
     },
     "md5-file": {
       "version": "3.1.1"
@@ -617,6 +675,9 @@
     },
     "object-assign": {
       "version": "4.1.0"
+    },
+    "object-keys": {
+      "version": "1.0.11"
     },
     "on-finished": {
       "version": "2.3.0"
@@ -685,6 +746,9 @@
     },
     "postcss-modules-values": {
       "version": "1.2.2"
+    },
+    "private": {
+      "version": "0.1.7"
     },
     "process": {
       "version": "0.5.2"
@@ -759,6 +823,20 @@
     },
     "read-pkg-up": {
       "version": "1.0.1"
+    },
+    "readable-stream": {
+      "version": "1.0.34"
+    },
+    "recast": {
+      "version": "0.10.43",
+      "dependencies": {
+        "esprima-fb": {
+          "version": "15001.1001.0-dev-harmony-fb"
+        },
+        "source-map": {
+          "version": "0.5.6"
+        }
+      }
     },
     "redbox-react": {
       "version": "1.3.3"
@@ -866,6 +944,9 @@
     "strict-uri-encode": {
       "version": "1.1.0"
     },
+    "string_decoder": {
+      "version": "0.10.31"
+    },
     "string-width": {
       "version": "1.0.2"
     },
@@ -880,6 +961,12 @@
     },
     "symbol-observable": {
       "version": "1.0.4"
+    },
+    "through": {
+      "version": "2.3.8"
+    },
+    "through2": {
+      "version": "0.6.5"
     },
     "to-fast-properties": {
       "version": "1.0.2"
@@ -897,6 +984,9 @@
     "type-is": {
       "version": "1.6.14"
     },
+    "typedarray-to-buffer": {
+      "version": "3.1.2"
+    },
     "ua-parser-js": {
       "version": "0.7.12"
     },
@@ -905,6 +995,9 @@
     },
     "unpipe": {
       "version": "1.0.0"
+    },
+    "unreachable-branch-transform": {
+      "version": "0.3.0"
     },
     "utils-merge": {
       "version": "1.0.0"

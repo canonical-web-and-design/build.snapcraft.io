@@ -9,6 +9,7 @@ import * as selectRepositoriesForm from './select-repositories-form';
 import * as snapBuilds from './snap-builds';
 import * as snaps from './snaps';
 import * as auth from './auth';
+import * as authStore from './auth-store';
 import * as webhook from './webhook';
 
 const rootReducer = combineReducers({
@@ -20,6 +21,7 @@ const rootReducer = combineReducers({
   ...snapBuilds,
   ...snaps,
   ...auth,
+  ...authStore,
   ...webhook,
   routing: routerReducer
 });

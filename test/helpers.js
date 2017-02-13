@@ -39,3 +39,31 @@ export function requireWithMockConfigHelper(requirePath, modulePath, stub) {
     }
   });
 }
+
+export function makeLocalForageStub() {
+  const store = {};
+  return {
+    store,
+    getItem: (key) => {
+      return new Promise((resolve) => setTimeout(resolve, 1))
+        .then(() => {
+          if (key in store) {
+            return store[key];
+          } else {
+            return null;
+          }
+        });
+    },
+    setItem: (key, value) => {
+      return new Promise((resolve) => setTimeout(resolve, 1))
+        .then(() => {
+          store[key] = value;
+        });
+    },
+    clear: () => {
+      for (const key of Object.keys(store)) {
+        delete store[key];
+      }
+    }
+  };
+}

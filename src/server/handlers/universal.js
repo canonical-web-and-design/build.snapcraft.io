@@ -52,6 +52,12 @@ export const handleMatch = (req, res, error, redirectLocation, renderProps) => {
       return;
     }
 
+    if (req.session.ssoDischarge) {
+      // Tell the client that it can pick up a discharge macaroon from the
+      // session and move it to local storage.
+      initialState.authStore = { hasDischarge: true };
+    }
+
     const store = configureStore(initialState);
 
     // You can also check renderProps.components or renderProps.routes for

@@ -96,6 +96,33 @@ export const verify = (req, res, next) => {
   });
 };
 
+export const getSSODischarge = (req, res) => {
+  if (req.session && req.session.ssoDischarge) {
+    return res.status(200).send({
+      status: 'success',
+      payload: {
+        code: 'discharge-found',
+        discharge: req.session.ssoDischarge
+      }
+    });
+  } else {
+    return res.status(404).send({
+      status: 'error',
+      payload: {
+        code: 'discharge-not-found',
+        message: 'No SSO discharge macaroon stored'
+      }
+    });
+  }
+};
+
+export const deleteSSODischarge = (req, res) => {
+  if (req.session) {
+    delete req.session.ssoDischarge;
+  }
+  return res.status(204).end();
+};
+
 export const logout = (req, res, next) => {
   req.session.destroy((err) => {
     if (err) {
