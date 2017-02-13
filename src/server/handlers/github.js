@@ -49,12 +49,16 @@ const RESPONSE_CREATED = {
   }
 };
 
+export const requestUser = (token) => {
+  return requestGitHub.get('/user', { token, json: true });
+};
+
 export const getUser = (req, res) => {
   if (!req.session || !req.session.token) {
     return res.status(401).send(RESPONSE_AUTHENTICATION_FAILED);
   }
 
-  requestGitHub.get('/user', { token: req.session.token, json: true })
+  requestUser(req.session.token)
     .then((response) => {
       if (response.statusCode !== 200) {
         return res.status(response.statusCode).send({

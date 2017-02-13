@@ -42,6 +42,7 @@ export const handleMatch = (req, res, error, redirectLocation, renderProps) => {
 
     if (req.session.githubAuthenticated) {
       initialState.auth.authenticated = true;
+      initialState.user = req.session.user;
     }
 
     if (req.session.error) {

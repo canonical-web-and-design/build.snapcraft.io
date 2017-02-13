@@ -76,7 +76,7 @@ describe('The login route', () => {
         const { protocol, host, path } = url.parse(GITHUB_AUTH_VERIFY_URL);
         scope = nock(`${protocol}//${host}`)
           .post(path)
-          .reply(200, 'access_token=baz');
+          .reply(200, { access_token: 'baz' });
       });
 
       afterEach(() => {
@@ -93,30 +93,37 @@ describe('The login route', () => {
           .end(done);
       });
 
-      it('should call GitHub API endpoint to get an auth token', (done) => {
-        supertest(app)
-          .get('/auth/verify')
-          .query({ code: 'foo', state: 'bar' })
-          .send()
-          .end((err) => {
-            scope.done();
-            done(err);
-          }
-        );
-      });
+      context('when user data retrieved from GH', () => {
+        beforeEach(() => {
+          nock(conf.get('GITHUB_API_ENDPOINT'))
+            .get('/user')
+            .reply(200, { login: 'anowner' });
+        });
 
-      it('should redirect request to the dashboard select repositories view', (done) => {
-        supertest(app)
-          .get('/auth/verify')
-          .query({ code: 'foo', state: 'bar' })
-          .send()
-          .end((err, res) => {
-            expect(res.statusCode).toEqual(302);
-            expect(res.headers.location).toEqual('/dashboard/select-repositories');
-            done(err);
-          });
-      });
+        it('should call GitHub API endpoint to get an auth token', (done) => {
+          supertest(app)
+            .get('/auth/verify')
+            .query({ code: 'foo', state: 'bar' })
+            .send()
+            .end((err) => {
+              scope.done();
+              done(err);
+            }
+          );
+        });
 
+        it('should redirect request to the dashboard select repositories view', (done) => {
+          supertest(app)
+            .get('/auth/verify')
+            .query({ code: 'foo', state: 'bar' })
+            .send()
+            .end((err, res) => {
+              expect(res.statusCode).toEqual(302);
+              expect(res.headers.location).toEqual('/dashboard/select-repositories');
+              done(err);
+            });
+        });
+      });
     });
 
     context('when token exchange fails', () => {

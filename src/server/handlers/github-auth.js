@@ -2,6 +2,7 @@ import request from 'request';
 import logging from '../logging';
 
 import { conf } from '../helpers/config';
+import { requestUser } from './github';
 
 const AUTH_SCOPE = 'admin:repo_hook'; // another scope (like 'public_repo') may be needed to list organisations' repositories
 const GITHUB_AUTH_LOGIN_URL = conf.get('GITHUB_AUTH_LOGIN_URL');
@@ -60,13 +61,24 @@ export const verify = (req, res, next) => {
       return next(new Error(`Authentication token exchange failed. ${(body && body.error_message) || ''}`));
     }
 
-    // Save auth token to session
-    req.session.githubAuthenticated = true;
-    req.session.token = body.access_token;
     logger.info('User successfully authenticated');
+    return requestUser(body.access_token)
+      .then((response) => {
+        if (response.statusCode !== 200) {
+          return next(new Error(`Authentication failed. ${response.body.message}`));
+        }
 
-    // Redirect to logged in URL
-    res.redirect('/dashboard/select-repositories');
+        logger.info('User info successfully fetched');
+
+        // Save auth token and user info to session
+        req.session.githubAuthenticated = true;
+        req.session.token = body.access_token;
+        req.session.user = response.body;
+
+        // Redirect to logged in URL
+        res.redirect('/dashboard/select-repositories');
+      });
+
   });
 };
 
