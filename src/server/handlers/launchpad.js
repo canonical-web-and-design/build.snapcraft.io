@@ -3,10 +3,6 @@ import { createHash } from 'crypto';
 import yaml from 'js-yaml';
 import parseGitHubUrl from 'parse-github-url';
 
-import {
-  STORE_SERIES,
-  STORE_CHANNELS
-} from '../../common/actions/create-snap';
 import { conf } from '../helpers/config';
 import { getMemcached } from '../helpers/memcached';
 import requestGitHub from '../helpers/github';
@@ -233,32 +229,6 @@ export const getSnapcraftYaml = (req, res) => {
     .catch((error) => sendError(res, error));
 };
 
-const verifySnapNameRegistered = (name) => {
-  return fetch(`${conf.get('STORE_API_URL')}/acl/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify({
-      packages: [{ name: name, series: STORE_SERIES }],
-      permissions: ['package_upload'],
-      channels: STORE_CHANNELS
-    })
-  }).then((response) => response.json().then((json) => {
-    if (response.status !== 200 || !json.macaroon) {
-      throw new PreparedError(400, {
-        status: 'error',
-        payload: {
-          code: 'snap-name-not-registered',
-          message: 'Snap name is not registered in the store',
-          snap_name: name
-        }
-      });
-    }
-  }));
-};
-
 const requestNewSnap = (repositoryUrl, name, series, channels) => {
   const lpClient = getLaunchpad();
   const username = conf.get('LP_API_USERNAME');
@@ -288,7 +258,6 @@ export const newSnap = (req, res) => {
   const snapName = req.body.snap_name;
   const series = req.body.series;
   const channels = req.body.channels;
-  const lpClient = getLaunchpad();
 
   let owner;
   let snapUrl;
@@ -296,9 +265,8 @@ export const newSnap = (req, res) => {
   checkAdminPermissions(req.session, repositoryUrl)
     .then((result) => {
       owner = result.owner;
-      return verifySnapNameRegistered(snapName, repositoryUrl);
+      return requestNewSnap(repositoryUrl, snapName, series, channels);
     })
-    .then(() => requestNewSnap(repositoryUrl, snapName, series, channels))
     .then((result) => {
       // as new snap is created we need to clear list of snaps from cache
       const urlPrefix = getRepoUrlPrefix(owner);
@@ -311,16 +279,12 @@ export const newSnap = (req, res) => {
       });
 
       snapUrl = result.self_link;
-      logger.info(`Authorizing ${snapUrl}`);
-      return lpClient.named_post(snapUrl, 'beginAuthorization');
-    })
-    .then((caveatId) => {
-      logger.info(`Began authorization of ${snapUrl}`);
+      logger.info(`Created ${snapUrl}`);
       return res.status(201).send({
         status: 'success',
         payload: {
           code: 'snap-created',
-          message: caveatId
+          message: snapUrl
         }
       });
     })

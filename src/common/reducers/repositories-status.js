@@ -5,10 +5,13 @@ export function repositoriesStatus(state = {}, action) {
 
   const initialStatus = {
     isFetching: false,
+    success: false,
     error: null
   };
 
   switch(action.type) {
+    case ActionTypes.CREATE_SNAPS_START:
+      return {};
     case ActionTypes.CREATE_SNAP:
       return {
         ...state,
@@ -18,11 +21,21 @@ export function repositoriesStatus(state = {}, action) {
           isFetching: true
         }
       };
+    case ActionTypes.CREATE_SNAP_SUCCESS:
+      return {
+        ...state,
+        [payload.id]: {
+          ...state[payload.id],
+          isFetching: false,
+          success: true,
+          error: null
+        }
+      };
     case ActionTypes.CREATE_SNAP_ERROR:
       return {
         ...state,
         [payload.id]: {
-          ... state[payload.id],
+          ...state[payload.id],
           isFetching: false,
           success: false,
           error: payload.error

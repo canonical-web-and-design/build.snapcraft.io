@@ -1,4 +1,6 @@
 import 'isomorphic-fetch';
+import localforage from 'localforage';
+import { MacaroonsBuilder } from 'macaroons.js';
 
 import { checkStatus, getError } from '../helpers/api';
 import { conf } from '../helpers/config';
@@ -6,14 +8,15 @@ import { conf } from '../helpers/config';
 const BASE_URL = conf.get('BASE_URL');
 
 export const SET_GITHUB_REPOSITORY = 'SET_GITHUB_REPOSITORY';
+export const CREATE_SNAPS_START = 'CREATE_SNAPS_START';
 export const CREATE_SNAP = 'CREATE_SNAP';
 export const CREATE_SNAP_SUCCESS = 'CREATE_SNAP_SUCCESS';
 export const CREATE_SNAP_ERROR = 'CREATE_SNAP_ERROR';
 
 // XXX cjwatson 2017-02-08: Hardcoded for now, but should eventually be
 // configurable.
-export const STORE_SERIES = '16';
-export const STORE_CHANNELS = ['edge'];
+const STORE_SERIES = '16';
+const STORE_CHANNELS = ['edge'];
 
 export function setGitHubRepository(value) {
   return {
@@ -53,6 +56,60 @@ function getSnapName(owner, name) {
     }));
 }
 
+function getPackageUploadMacaroon(snapName) {
+  return localforage.getItem('package_upload_request')
+    .catch(() => {
+      throw new APICompatibleError({
+        code: 'not-logged-into-store',
+        message: 'Not logged into store',
+        detail: 'No package_upload_request macaroons in local storage'
+      });
+    })
+    .then((packageUploadRequest) => {
+      let rootMacaroon;
+      let dischargeMacaroon;
+      try {
+        rootMacaroon = MacaroonsBuilder.deserialize(packageUploadRequest.root);
+        dischargeMacaroon = MacaroonsBuilder.deserialize(
+            packageUploadRequest.discharge);
+      } catch (e) {
+        throw new APICompatibleError({
+          code: 'not-logged-into-store',
+          message: 'Not logged into store',
+          detail: `Cannot deserialise package_upload_request macaroons: ${e}`
+        });
+      }
+      const root = rootMacaroon.serialize();
+      const discharge = MacaroonsBuilder.modify(rootMacaroon)
+        .prepare_for_request(dischargeMacaroon)
+        .getMacaroon()
+        .serialize();
+      return fetch(`${conf.get('STORE_API_URL')}/acl/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Macaroon root="${root}" discharge="${discharge}"`
+        },
+        body: JSON.stringify({
+          packages: [{ name: snapName, series: STORE_SERIES }],
+          permissions: ['package_upload'],
+          channels: STORE_CHANNELS
+        })
+      });
+    })
+    .then((response) => response.json().then((json) => {
+      if (response.status !== 200 || !json.macaroon) {
+        throw new APICompatibleError({
+          code: 'snap-name-not-registered',
+          message: 'Snap name is not registered in the store',
+          snap_name: snapName
+        });
+      }
+      return json.macaroon;
+    }));
+}
+
 export function createSnap(repository) {
   return (dispatch) => {
     const repositoryUrl = repository.url;
@@ -64,8 +121,15 @@ export function createSnap(repository) {
         payload: { id: fullName }
       });
 
+      let snapName;
+      let packageUploadMacaroon;
       return getSnapName(owner, name)
-        .then((snapName) => {
+        .then((foundSnapName) => {
+          snapName = foundSnapName;
+          return getPackageUploadMacaroon(snapName);
+        })
+        .then((macaroon) => {
+          packageUploadMacaroon = macaroon;
           return fetch(`${BASE_URL}/api/launchpad/snaps`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -79,44 +143,39 @@ export function createSnap(repository) {
           });
         })
         .then(checkStatus)
-        .then(response => {
-          return response.json().then(result => {
-            if (result.status !== 'success' || result.payload.code !== 'snap-created') {
-              return Promise.reject(getError(response, result));
-            }
-
-            return Promise.resolve(result);
+        .then(() => {
+          return fetch(`${BASE_URL}/api/launchpad/snaps/authorize`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              repository_url: repositoryUrl,
+              macaroon: packageUploadMacaroon
+            }),
+            credentials: 'same-origin'
           });
-        });
+        })
+        .then(checkStatus)
+        .then(() => dispatch(createSnapSuccess(fullName)))
+        .catch((error) => dispatch(createSnapError(fullName, error)));
     }
   };
 }
 
-export function createSnaps(repositories, location) { // location for tests
+export function createSnaps(repositories) {
   return (dispatch) => {
-    // Patch the creation of multiple snaps
-    // until auth supports it. Until then,
-    // only process the first selected repo
-    repositories = [ repositories[0] ];
-    const { fullName, url } = repositories[0];
+    // Clear out any previous batch-creation state.
+    dispatch({ type: CREATE_SNAPS_START });
+    const promises = repositories.map(
+      (repository) => dispatch(createSnap(repository))
+    );
+    return Promise.all(promises);
+  };
+}
 
-    const promises = repositories.map((repository) => dispatch(createSnap(repository)));
-    return Promise.all(promises)
-      .then((results) => {
-        // Redirect to Launchpad auth for the first
-        // selected repo until auth supports batched
-        // creation of snaps
-        const startingUrl = `${BASE_URL}/${fullName}/setup`;
-
-        (location || window.location).href =
-          `${BASE_URL}/login/authenticate` +
-          `?starting_url=${encodeURIComponent(startingUrl)}` +
-          `&caveat_id=${encodeURIComponent(results[0].payload.message)}` +
-          `&repository_url=${encodeURIComponent(url)}`;
-      })
-      .catch(error => {
-        dispatch(createSnapError(fullName, error));
-      });
+export function createSnapSuccess(id) {
+  return {
+    type: CREATE_SNAP_SUCCESS,
+    payload: { id }
   };
 }
 
