@@ -1,11 +1,24 @@
-.container {
+.wrapper {
   box-sizing: border-box;
   max-width: 940px;
-  margin: 0 auto 60px;
+  margin: 0 auto;
   padding: 10px;
+}
+
+.container {
+  composes: wrapper;
+  margin-bottom: 60px;
 }
 
 .spinner {
   width: 20px;
   margin: 5px auto;
+}
+
+.lightStrip {
+  background-color: $light-grey;
+  padding: 2rem 0;
+  width: 100%;
+  clear: both;
+  position: relative;
 }
