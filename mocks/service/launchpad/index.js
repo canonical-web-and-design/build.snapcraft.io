@@ -15,6 +15,34 @@ router.post('/+snaps', (req, res) => {
   }
 });
 
+// we use * instead of + because router treats + as regexp pattern
+// and doesn't actually match +snaps
+router.get('/devel/*snaps', (req, res) => {
+  const base = `${req.protocol}://${req.hostname}${req.baseUrl}`;
+  if (req.query['ws.op'] == 'findByURLPrefix') {
+    const owner = req.query.owner.replace(/^\/+/, '');
+    const prefix = req.query.url_prefix;
+    res.status(200).send({
+      total_size: 2,
+      start: 0,
+      entries: [
+        {
+          resource_type_link: `${base}/#snap`,
+          git_repository_url: `${prefix}mock-repo-1`,
+          self_link: `${base}/${owner}/+snap/mock-snap-1`
+        },
+        {
+          resource_type_link: `${base}/#snap`,
+          git_repository_url: `${prefix}mock-repo-2`,
+          self_link: `${base}/${owner}/+snap/mock-snap-1`
+        }
+      ]
+    });
+  } else {
+    res.status(400).send(`No such operation: ${req.query['ws.op']}`);
+  }
+});
+
 router.post('/~:owner/+snap/:name', (req, res) => {
   const base = `${req.protocol}://${req.hostname}${req.baseUrl}`;
   if (req.query['ws.op'] == 'beginAuthorization') {
