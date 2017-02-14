@@ -17,6 +17,7 @@ const authStoreModule = proxyquire.noCallThru().load(
   { 'localforage': localForageStub }
 );
 const {
+  checkSignedIntoStore,
   extractSSOCaveat,
   getCaveats,
   getSSODischarge,
@@ -323,6 +324,93 @@ describe('store authentication actions', () => {
               }
             });
           });
+      });
+    });
+  });
+
+  context('checkSignedIntoStore', () => {
+    afterEach(() => {
+      localForageStub.clear();
+    });
+
+    context('when local storage throws an error', () => {
+      beforeEach(() => {
+        localForageStub.store['package_upload_request'] = new Error(
+          'Something went wrong!'
+        );
+      });
+
+      it('stores an error', () => {
+        const expectedMessage = 'Something went wrong!';
+
+        return store.dispatch(checkSignedIntoStore())
+          .then(() => {
+            const action = store.getActions().filter(
+              (a) => a.type === ActionTypes.CHECK_SIGNED_INTO_STORE_ERROR)[0];
+            expect(action.payload.message).toBe(expectedMessage);
+          });
+      });
+    });
+
+    context('when local storage does not contain root macaroon', () => {
+      it('stores unauthenticated status', () => {
+        const expectedAction = {
+          type: ActionTypes.CHECK_SIGNED_INTO_STORE_SUCCESS,
+          payload: false
+        };
+
+        return store.dispatch(checkSignedIntoStore())
+          .then(() => expect(store.getActions()).toInclude(expectedAction));
+      });
+    });
+
+    context('when local storage contains mismatching macaroons', () => {
+      beforeEach(() => {
+        const root = new MacaroonsBuilder('location', 'key', 'id')
+          .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
+          .getMacaroon();
+        const discharge = MacaroonsBuilder.create(
+          ssoLocation, 'wrong', 'wrong'
+        );
+        localForageStub.store['package_upload_request'] = {
+          root: root.serialize(),
+          discharge: discharge.serialize()
+        };
+      });
+
+      it('stores unauthenticated status', () => {
+        const expectedAction = {
+          type: ActionTypes.CHECK_SIGNED_INTO_STORE_SUCCESS,
+          payload: false
+        };
+
+        return store.dispatch(checkSignedIntoStore())
+          .then(() => expect(store.getActions()).toInclude(expectedAction));
+      });
+    });
+
+    context('when local storage contains matching macaroons', () => {
+      beforeEach(() => {
+        const root = new MacaroonsBuilder('location', 'key', 'id')
+          .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
+          .getMacaroon();
+        const discharge = MacaroonsBuilder.create(
+          ssoLocation, 'sso key', 'sso caveat'
+        );
+        localForageStub.store['package_upload_request'] = {
+          root: root.serialize(),
+          discharge: discharge.serialize()
+        };
+      });
+
+      it('stores authenticated status', () => {
+        const expectedAction = {
+          type: ActionTypes.CHECK_SIGNED_INTO_STORE_SUCCESS,
+          payload: true
+        };
+
+        return store.dispatch(checkSignedIntoStore())
+          .then(() => expect(store.getActions()).toInclude(expectedAction));
       });
     });
   });

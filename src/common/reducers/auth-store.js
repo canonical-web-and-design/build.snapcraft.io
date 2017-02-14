@@ -3,7 +3,7 @@ import * as ActionTypes from '../actions/auth-store';
 export function authStore(state = {
   isFetching: false,
   hasDischarge: false,
-  authenticated: false,
+  authenticated: null,
   error: null
 }, action) {
   switch (action.type) {
@@ -43,6 +43,25 @@ export function authStore(state = {
         ...state,
         isFetching: false,
         hasDischarge: false,
+        error: action.payload
+      };
+    case ActionTypes.CHECK_SIGNED_INTO_STORE:
+      return {
+        ...state,
+        isFetching: true
+      };
+    case ActionTypes.CHECK_SIGNED_INTO_STORE_SUCCESS:
+      return {
+        ...state,
+        isFetching: false,
+        authenticated: action.payload,
+        error: null
+      };
+    case ActionTypes.CHECK_SIGNED_INTO_STORE_ERROR:
+      return {
+        ...state,
+        isFetching: false,
+        authenticated: false,
         error: action.payload
       };
     default:

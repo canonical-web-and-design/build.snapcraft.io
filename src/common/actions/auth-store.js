@@ -16,6 +16,9 @@ export const SIGN_INTO_STORE_ERROR = 'SIGN_INTO_STORE_ERROR';
 export const GET_SSO_DISCHARGE = 'GET_SSO_DISCHARGE';
 export const GET_SSO_DISCHARGE_SUCCESS = 'GET_SSO_DISCHARGE_SUCCESS';
 export const GET_SSO_DISCHARGE_ERROR = 'GET_SSO_DISCHARGE_ERROR';
+export const CHECK_SIGNED_INTO_STORE = 'CHECK_SIGNED_INTO_STORE';
+export const CHECK_SIGNED_INTO_STORE_SUCCESS = 'CHECK_SIGNED_INTO_STORE_SUCCESS';
+export const CHECK_SIGNED_INTO_STORE_ERROR = 'CHECK_SIGNED_INTO_STORE_ERROR';
 
 // Hardcoded since macaroons.js doesn't export these.
 const CAVEAT_PACKET_TYPE_CID = 3;
@@ -124,6 +127,19 @@ export function signIntoStoreError(error) {
   };
 }
 
+function checkPackageUploadRequest(rootRaw, dischargeRaw) {
+  // We can't do full verification here, but at least make sure that the
+  // caveat ID matches.
+  const root = MacaroonsBuilder.deserialize(rootRaw);
+  const caveatId = extractSSOCaveat(root);
+  const discharge = MacaroonsBuilder.deserialize(dischargeRaw);
+  if (discharge.identifier !== caveatId) {
+    throw new Error('SSO discharge macaroon does not match store root ' +
+                    'macaroon.');
+  }
+  // XXX cjwatson 2017-02-13: Check expires caveat?
+}
+
 export function getSSODischarge() {
   let dischargeRaw;
   return (dispatch) => {
@@ -140,18 +156,10 @@ export function getSSODischarge() {
         return localforage.getItem('package_upload_request');
       })
       .then((packageUploadRequest) => {
-        // We can't do full verification here, but at least make sure that
-        // the caveat ID matches.
         if (packageUploadRequest === null) {
           throw new Error('No store root macaroon saved in local storage.');
         }
-        const root = MacaroonsBuilder.deserialize(packageUploadRequest.root);
-        const caveatId = extractSSOCaveat(root);
-        const discharge = MacaroonsBuilder.deserialize(dischargeRaw);
-        if (discharge.identifier !== caveatId) {
-          throw new Error('SSO discharge macaroon does not match store root ' +
-                          'macaroon.');
-        }
+        checkPackageUploadRequest(packageUploadRequest.root, dischargeRaw);
         return localforage.setItem('package_upload_request', {
           ...packageUploadRequest,
           discharge: dischargeRaw
@@ -180,6 +188,45 @@ export function getSSODischargeSuccess() {
 export function getSSODischargeError(error) {
   return {
     type: GET_SSO_DISCHARGE_ERROR,
+    payload: error,
+    error: true
+  };
+}
+
+export function checkSignedIntoStore() {
+  return (dispatch) => {
+    dispatch({ type: CHECK_SIGNED_INTO_STORE });
+    return localforage.getItem('package_upload_request')
+      .then((packageUploadRequest) => {
+        let authenticated;
+        if (packageUploadRequest === null) {
+          authenticated = false;
+        } else {
+          try {
+            checkPackageUploadRequest(
+              packageUploadRequest.root, packageUploadRequest.discharge
+            );
+            authenticated = true;
+          } catch (e) {
+            authenticated = false;
+          }
+        }
+        return dispatch(checkSignedIntoStoreSuccess(authenticated));
+      })
+      .catch((error) => dispatch(checkSignedIntoStoreError(error)));
+  };
+}
+
+function checkSignedIntoStoreSuccess(authenticated) {
+  return {
+    type: CHECK_SIGNED_INTO_STORE_SUCCESS,
+    payload: authenticated
+  };
+}
+
+function checkSignedIntoStoreError(error) {
+  return {
+    type: CHECK_SIGNED_INTO_STORE_ERROR,
     payload: error,
     error: true
   };

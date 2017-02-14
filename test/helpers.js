@@ -48,7 +48,12 @@ export function makeLocalForageStub() {
       return new Promise((resolve) => setTimeout(resolve, 1))
         .then(() => {
           if (key in store) {
-            return store[key];
+            const value = store[key];
+            if (value instanceof Error) {
+              throw value;
+            } else {
+              return value;
+            }
           } else {
             return null;
           }
