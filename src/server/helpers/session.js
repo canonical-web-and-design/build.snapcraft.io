@@ -9,6 +9,7 @@ const SESSION_DEFAULTS = {
   name : 'sessionId',
   cookie: {
     maxAge: 2 * 60 * 60 * 1000, // 2 hours, macaroon life span
+    secure: false
   },
   resave: false,
   saveUninitialized: false
@@ -17,7 +18,8 @@ const SESSION_DEFAULTS = {
 export default function sessionStorageConfig(config) {
   let settings = { ...SESSION_DEFAULTS };
 
-  if (config.get('COOKIE_SECURE')) {
+  if (config.get('COOKIE_SECURE') === 'true') {
+    logger.info('Setting secure cookies, ensure https.');
     settings.cookie.secure = true;
   }
 
