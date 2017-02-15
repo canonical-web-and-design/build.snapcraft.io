@@ -1,0 +1,9 @@
+.listDivided li {
+  padding: 8px 0;
+  border-bottom: 1px dotted $mid-grey;
+  list-style: none;
+}
+
+.listDivided li:last-child {
+  border-bottom: none;
+}

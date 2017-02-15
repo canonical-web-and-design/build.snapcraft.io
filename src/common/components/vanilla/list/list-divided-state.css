@@ -1,0 +1,10 @@
+.listDividedState {
+  composes: listDivided from './list-divided.css';
+}
+
+.listDividedState li {
+  background-image: url(./icon-tick-grey.svg);
+  background-repeat: no-repeat;
+  background-position: 0 13px;
+  padding-left: 26px;
+}

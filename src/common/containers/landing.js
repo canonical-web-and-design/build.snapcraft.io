@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import { Anchor } from '../components/vanilla/button';
 import { HeadingOne } from '../components/vanilla/heading';
+import { ListDividedState } from '../components/vanilla/list';
 
 import containerStyles from './container.css';
 import styles from './landing.css';
@@ -39,29 +40,33 @@ class Landing extends Component {
             </div>
           </div>
         </div>
-        <div className={ styles.container }>
 
-          {/* TODO brand logos */}
-
-          {/* TODO workflow */}
-
-          <div>
-            {/* TODO 2 columns */}
-            <ul>
+        <section className={styles.section}>
+          <div className={ `${styles.row} ${containerStyles.wrapper}` }>
+            <ListDividedState className={ styles.rowItem }>
               <li>Scale to millions of installs</li>
               <li>Available on all clouds and Linux OSes</li>
               <li>No need for build infrastructure</li>
+            </ListDividedState>
+
+            <ListDividedState className={ styles.rowItem }>
               <li>Automatic updates for everyone</li>
               <li>Roll back versions effortlessly</li>
               <li>FREE for open source projects</li>
-            </ul>
+            </ListDividedState>
           </div>
+        </section>
+
+        <div className={styles.container}>
+          {/* TODO brand logos */}
+          {/* TODO workflow */}
 
           <div>
             <p>Snaps are secure, sandboxed, containerised applications, packaged with their dependencies for predictable behavior. With the Snap Store, people can safely install apps from any vendor on mission-critical devices and PCs.</p>
             <Anchor href="http://snapcraft.io">More about snaps</Anchor>
-            {/* TODO testimonials */}
           </div>
+
+          {/* TODO testimonials */}
         </div>
       </div>
     );

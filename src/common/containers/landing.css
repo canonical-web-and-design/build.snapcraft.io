@@ -26,3 +26,21 @@
   bottom: 0;
   transform: translate(-50%,50%);
 }
+
+.row {
+  display: flex;
+}
+
+.rowItem {
+  margin-left: 20px;
+  flex-grow: 1;
+}
+
+.rowItem:first-child {
+  margin-left: 0;
+}
+
+.section {
+  padding: 80px 60px;
+  border-bottom: 1px dotted $dark-grey;
+}
