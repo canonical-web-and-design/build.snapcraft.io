@@ -4,7 +4,8 @@ import { connect } from 'react-redux';
 import { Anchor } from '../components/vanilla/button';
 import { HeadingOne } from '../components/vanilla/heading';
 
-import styles from './container.css';
+import containerStyles from './container.css';
+import styles from './landing.css';
 
 import 'isomorphic-fetch';
 
@@ -12,19 +13,31 @@ class Landing extends Component {
   render() {
     return (
       <div>
-        <div className={ styles.lightStrip }>
+        <div className={ containerStyles.lightStrip }>
           <div>
-            <div className={ styles.wrapper }>
+            <div className={ containerStyles.wrapper }>
               <HeadingOne>
               Auto-build and publish software for any Linux system or device.
               </HeadingOne>
 
-              <div>
-                {/* TODO image placeholders */}
-                <h3>Push to GitHub. • Built automatically. • Published for your users.</h3>
+              <div className={ styles.bannerList }>
+                <div className={ styles.bannerItem }>
+                  <img src="http://placehold.it/200" />
+                  <p>Push to GitHub.</p>
+                </div>
+                <div className={ styles.bannerItem }>
+                  <img src="http://placehold.it/200" />
+                  <p>Built automatically.</p>
+                </div>
+                <div className={ styles.bannerItem }>
+                  <img src="http://placehold.it/200" />
+                  <p>Published for your users.</p>
+                </div>
               </div>
 
-              <Anchor href="/auth/authenticate">Set Up in Minutes</Anchor>
+              <div className={ styles.bannerButton }>
+                <Anchor  href="/auth/authenticate">Set Up in Minutes</Anchor>
+              </div>
             </div>
           </div>
         </div>
