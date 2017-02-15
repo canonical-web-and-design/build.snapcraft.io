@@ -7,8 +7,6 @@ import { HeadingOne } from '../components/vanilla/heading';
 import containerStyles from './container.css';
 import styles from './landing.css';
 
-import 'isomorphic-fetch';
-
 class Landing extends Component {
   render() {
     return (
