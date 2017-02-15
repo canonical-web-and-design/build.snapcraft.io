@@ -405,26 +405,6 @@ export const findSnap = (req, res) => {
     .catch((error) => sendError(res, error));
 };
 
-// Not a route handler, but kept here so that the beginAuthorization and
-// completeAuthorization calls are close together.  Returns a Promise.
-export const completeSnapAuthorization = (session, repositoryUrl,
-                                          dischargeMacaroon) => {
-  let snapUrl;
-  return checkAdminPermissions(session, repositoryUrl)
-    .then(() => internalFindSnap(repositoryUrl))
-    .then((result) => {
-      snapUrl = result;
-      return getLaunchpad().named_post(snapUrl, 'completeAuthorization', {
-        parameters: { discharge_macaroon: dischargeMacaroon },
-      });
-    })
-    .then(() => logger.info(`Completed authorization of ${snapUrl}`))
-    .catch((error) => {
-      return prepareError(error)
-	.then((preparedError) => { throw preparedError; });
-    });
-};
-
 export const authorizeSnap = (req, res) => {
   const repositoryUrl = req.body.repository_url;
   const macaroon = req.body.macaroon;

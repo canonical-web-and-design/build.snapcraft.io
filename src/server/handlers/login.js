@@ -3,7 +3,6 @@ import qs from 'qs';
 import { conf } from '../helpers/config';
 import RelyingPartyFactory from '../openid/relyingparty';
 import constants from '../constants';
-import { completeSnapAuthorization } from '../handlers/launchpad';
 
 const OPENID_IDENTIFIER = conf.get('UBUNTU_SSO_URL');
 const OPENID_VERIFY_URL = conf.get('OPENID_VERIFY_URL');
@@ -13,7 +12,7 @@ const makeRelyingParty = (req) => {
   // authenticate and verify, including query string ordering.
   let returnUrl = OPENID_VERIFY_URL;
   const query = qs.stringify(req.query, {
-    filter: ['starting_url', 'caveat_id', 'repository_url']
+    filter: ['starting_url', 'caveat_id']
   });
   if (query.length) {
     returnUrl += '?' + query;
@@ -68,27 +67,13 @@ export const processVerifiedAssertion = (req, res, next, error, result) => {
   req.session.authenticated = result.authenticated;
   req.session.name = result.fullname;
   req.session.email = result.email;
-  let completeAuth;
-  if (req.query.repository_url && result.discharge) {
-    // Old-style authorization of a single snap.
-    completeAuth = completeSnapAuthorization(
-        req.session, req.query.repository_url, result.discharge);
-  } else {
-    if (result.discharge) {
-      // New-style authorization of a package_upload_request macaroon.
-      // Temporarily stash the discharge macaroon in the session.  The
-      // client will pick this up later and move it to local storage.
-      req.session.ssoDischarge = result.discharge;
-    }
-    // We have no further authorization work to do, but a dummy promise is
-    // handy to avoid duplicating code.
-    completeAuth = Promise.resolve(null);
+  if (result.discharge) {
+    // Temporarily stash the discharge macaroon in the session.  The client
+    // will pick this up later and move it to local storage.
+    req.session.ssoDischarge = result.discharge;
   }
-  return completeAuth
-    .then(() => {
-      res.redirect(req.query.starting_url || '/');
-    })
-    .catch((error) => next(new Error(error.body.payload.message)));
+  res.redirect(req.query.starting_url || '/');
+  next();
 };
 
 export const verify = (req, res, next) => {

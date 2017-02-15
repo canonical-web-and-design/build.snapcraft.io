@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.post('/+snaps', (req, res) => {
+router.post('/\\+snaps', (req, res) => {
   const base = `${req.protocol}://${req.hostname}${req.baseUrl}`;
   if (req.query['ws.op'] == 'new') {
     const owner = req.query.owner.replace(/^\/+/, '');
@@ -15,9 +15,7 @@ router.post('/+snaps', (req, res) => {
   }
 });
 
-// we use * instead of + because router treats + as regexp pattern
-// and doesn't actually match +snaps
-router.get('/devel/*snaps', (req, res) => {
+router.get('/devel/\\+snaps', (req, res) => {
   const base = `${req.protocol}://${req.hostname}${req.baseUrl}`;
   if (req.query['ws.op'] == 'findByURLPrefix') {
     const owner = req.query.owner.replace(/^\/+/, '');
@@ -43,11 +41,8 @@ router.get('/devel/*snaps', (req, res) => {
   }
 });
 
-router.post('/~:owner/+snap/:name', (req, res) => {
-  const base = `${req.protocol}://${req.hostname}${req.baseUrl}`;
-  if (req.query['ws.op'] == 'beginAuthorization') {
-    res.status(200).json(`${base}${req.url}/+authorize/+login`);
-  } else if (req.query['ws.op'] == 'completeAuthorization') {
+router.post('/~:owner/\\+snap/:name', (req, res) => {
+  if (req.query['ws.op'] == 'completeAuthorization') {
     res.status(200).json(null);
   } else {
     res.status(400).send(`No such operation: ${req.query['ws.op']}`);
