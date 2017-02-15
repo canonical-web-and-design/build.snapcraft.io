@@ -9,9 +9,10 @@ import styles from './repositories-home.css';
 class RepositoriesHome extends Component {
   componentDidMount() {
     const { authenticated } = this.props.auth;
+    const owner = this.props.user.login;
 
     if (authenticated) {
-      this.props.dispatch(fetchUserSnaps());
+      this.props.dispatch(fetchUserSnaps(owner));
     }
   }
 
@@ -32,16 +33,19 @@ class RepositoriesHome extends Component {
 
 RepositoriesHome.propTypes = {
   auth: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
   const {
-    auth
+    auth,
+    user
   } = state;
 
   return {
-    auth
+    auth,
+    user
   };
 }
 

@@ -1,14 +1,14 @@
 import React, { PropTypes } from 'react';
 import styles from './table.css';
 
-export default function Table(props) {
+export default function Row(props) {
   return (
-    <table className={ styles.table }>
+    <div className={ styles.row }>
       { props.children }
-    </table>
+    </div>
   );
 }
 
-Table.propTypes = {
+Row.propTypes = {
   children: PropTypes.node
 };

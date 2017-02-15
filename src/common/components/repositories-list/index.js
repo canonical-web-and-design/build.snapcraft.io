@@ -5,8 +5,7 @@ import { conf } from '../../helpers/config';
 import { createSnap } from '../../actions/create-snap';
 import RepositoryRow from '../repository-row';
 import Spinner from '../spinner';
-import { fetchUserSnaps } from '../../actions/snaps';
-import { Table, THead, TBody, TR, TH } from '../vanilla/table';
+import { Table, Head, Body, Row, Header } from '../vanilla/table-interactive';
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
 
 // loading container styles not to duplicate .spinner class
@@ -15,15 +14,6 @@ import { spinner as spinnerStyles } from '../../containers/container.css';
 const SNAP_NAME_NOT_REGISTERED_ERROR_CODE = 'snap-name-not-registered';
 
 class RepositoriesList extends Component {
-
-  componentDidMount() {
-    const { authenticated } = this.props.auth;
-
-    if (authenticated) {
-      this.props.dispatch(fetchUserSnaps());
-    }
-  }
-
   getSnapNotRegisteredMessage(snapName) {
     const devportalUrl = conf.get('STORE_DEVPORTAL_URL');
     const registerNameUrl = `${devportalUrl}/click-apps/register-name/` +
@@ -52,7 +42,7 @@ class RepositoriesList extends Component {
     const { fullName } = parseGitHubRepoUrl(snap.git_repository_url);
     return (
       <RepositoryRow
-        key={ `snap_${fullName}` }
+        key={ `repo_${fullName}` }
         snap={ snap }
       />
     );
@@ -75,19 +65,19 @@ class RepositoriesList extends Component {
           </div>
         }
         <Table>
-          <THead>
-            <TR>
-              <TH>Name</TH>
-              <TH>Configured</TH>
-              <TH>Registered for publishing</TH>
-              <TH>Latest build</TH>
-            </TR>
-          </THead>
-          <TBody>
+          <Head>
+            <Row>
+              <Header col="30">Name</Header>
+              <Header col="20">Configured</Header>
+              <Header col="20">Registered for publishing</Header>
+              <Header col="30">Latest build</Header>
+            </Row>
+          </Head>
+          <Body>
             { this.props.snaps.success &&
               this.props.snaps.snaps.map(this.renderRow.bind(this))
             }
-          </TBody>
+          </Body>
         </Table>
       </div>
     );

@@ -1,14 +1,14 @@
 import React, { PropTypes } from 'react';
 import styles from './table.css';
 
-export default function TD(props) {
+export default function Head(props) {
   return (
-    <td className={ styles.td }>
+    <header className={ styles.head }>
       { props.children }
-    </td>
+    </header>
   );
 }
 
-TD.propTypes = {
+Head.propTypes = {
   children: PropTypes.node
 };

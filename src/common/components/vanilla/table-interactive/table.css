@@ -1,0 +1,73 @@
+$table-border-color: $dark-grey;
+$table-header-color: $dark-grey;
+$table-row-border-color: $dark-grey;
+
+.table {
+  display: table;
+  border-color: $table-border-color;
+  border-spacing: 0;
+  margin: 0 0 20px;
+  width: 100%;
+  text-align: left;
+  border-collapse: separate;
+}
+
+.cell {
+  padding: 10px;
+  box-sizing: border-box;
+  min-height: 21px;
+  background: none;
+  border: 0;
+  text-align: left;
+  border-collapse: separate;
+  vertical-align: top;
+  backface-visibility: hidden;
+  position: relative;
+}
+
+.header, .data {
+  composes: cell;
+  display: table-cell;
+  float: left;
+}
+
+.data {
+  font-weight: 300;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.head {
+  display: table-header-group;
+  width: 100%;
+}
+
+.head .header {
+  background: none;
+  color: $table-header-color;
+  font-size: 13px;
+  display: table-cell;
+}
+
+.row {
+  display: table-row;
+  float: left;
+  width: 100%;
+  border-color: rgb(178, 178, 178);
+  border-bottom-style: dotted;
+  border-bottom-width: 1px;
+}
+
+.head .row {
+  border-bottom: 1px solid;
+}
+
+.row:hover {
+  background-color: #FFF;
+}
+
+.body {
+  display: table-row-group;
+  width: 100%;
+  float: left;
+}
