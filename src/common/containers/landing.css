@@ -1,0 +1,28 @@
+.container {
+  composes: container from './container.css';
+  margin-top: 2em;
+  font-size: 1.2em;
+}
+
+.bannerList {
+  display: flex;
+  justify-content: space-around;
+  margin: 50px 0 30px;
+}
+
+.bannerItem {
+  text-align: center;
+  font-size: 1.5em;
+  width: 30%;
+}
+
+.bannerItem img {
+  border-radius: 50%;
+}
+
+.bannerButton {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%,50%);
+}

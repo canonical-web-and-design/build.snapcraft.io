@@ -11,7 +11,7 @@ export default class Header extends Component {
       <div className={ styles.header }>
         <nav className={ styles.container }>
           <Link className={ styles.logo } to="/">
-            Snapcraft
+            snapcraft.io
           </Link>
           { authenticated
             ?

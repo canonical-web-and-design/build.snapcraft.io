@@ -1,7 +1,9 @@
-import HeadingTwo from './heading-two.js';
-import HeadingThree from './heading-three.js';
+import HeadingOne from './heading-one';
+import HeadingTwo from './heading-two';
+import HeadingThree from './heading-three';
 
 export {
+  HeadingOne,
   HeadingTwo,
   HeadingThree
 };
