@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const AssetsPlugin = require('assets-webpack-plugin');
@@ -37,7 +38,12 @@ module.exports = {
       'process.env': {
         'NODE_ENV': JSON.stringify('development')
       }
-    })
+    }),
+    function() {
+      this.plugin('done', function(stats) {
+        fs.writeFileSync(__dirname + '/stats.json', JSON.stringify(stats.toJson()))
+      })
+    }
   ],
   module: {
     // https://github.com/localForage/localForage/issues/577
