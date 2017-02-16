@@ -30,7 +30,6 @@ export function fetchUserSnaps(owner) {
           }
 
           dispatch(fetchSnapsSuccess(result.payload.snaps));
-
         })
         .catch(error => {
           return Promise.reject(error);

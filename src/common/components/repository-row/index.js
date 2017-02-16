@@ -1,46 +1,28 @@
 import React, { PropTypes } from 'react';
 
-import Button from '../vanilla/button';
-
-import styles from './repositoryRow.css';
+import { Row, Data } from '../vanilla/table-interactive';
+import { parseGitHubRepoUrl } from '../../helpers/github-url';
 
 const RepositoryRow = (props) => {
-
-  const {
-    errorMsg,
-    repository,
-    buttonLabel,
-    buttonDisabled,
-    onButtonClick
-  } = props;
+  const { snap } = props;
+  const { fullName } = parseGitHubRepoUrl(snap.git_repository_url);
 
   return (
-    <div className={ `${styles.repositoryRow} ${errorMsg && styles.error}` }>
-      <div>
-        {repository.fullName}
-      </div>
-      { errorMsg &&
-        <div className={ styles.errorMessage }>
-          { errorMsg }
-        </div>
-      }
-      { onButtonClick &&
-        <Button disabled={buttonDisabled} onClick={onButtonClick}>
-          { buttonLabel }
-        </Button>
-      }
-    </div>
+    <Row>
+      <Data col="30"><a href={ `/${fullName}/builds` }>{ fullName }</a></Data>
+      <Data col="20"> </Data>
+      <Data col="20"> </Data>
+      <Data col="30"> </Data>
+    </Row>
   );
 };
 
 RepositoryRow.propTypes = {
-  errorMsg: PropTypes.node,
-  repository: PropTypes.shape({
-    fullName: PropTypes.string
-  }),
-  buttonLabel: PropTypes.string.isRequired,
-  buttonDisabled: PropTypes.bool,
-  onButtonClick: PropTypes.func
+  snap: PropTypes.shape({
+    resource_type_link: PropTypes.string,
+    git_repository_url: PropTypes.string,
+    self_link: PropTypes.string
+  })
 };
 
 export default RepositoryRow;

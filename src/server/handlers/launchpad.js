@@ -377,7 +377,8 @@ const internalFindSnapsByPrefix = (urlPrefix) => {
 };
 
 export const findSnaps = (req, res) => {
-  const urlPrefix = getRepoUrlPrefix(req.query.owner);
+  const owner = req.query.owner || req.session.user.login;
+  const urlPrefix = getRepoUrlPrefix(owner);
   internalFindSnapsByPrefix(urlPrefix)
     .then((snaps) => {
       return res.status(200).send({
