@@ -1,0 +1,4 @@
+// can't use magic webpack ~vanilla-framework/scss... syntax here as is also
+// parsed on node side
+@import '../../../node_modules/vanilla-framework/scss/build.scss';
+

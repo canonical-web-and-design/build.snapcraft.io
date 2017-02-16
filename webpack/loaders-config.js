@@ -1,14 +1,6 @@
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-module.exports = [
-  {
-    test: /\.js$/i,
-    exclude: /node_modules/,
-    loaders: ['babel'],
-  },
-  {
-    test: /\.css$/i,
-    loader: ExtractTextPlugin.extract(
+console.log(
       [
         'style-loader',
         'postcss-loader'
@@ -24,6 +16,17 @@ module.exports = [
         ),
         'postcss-loader'
       ].join('!')
+);
+
+module.exports = [
+  {
+    test: /\.js$/i,
+    exclude: /node_modules/,
+    loaders: ['babel'],
+  },
+  {
+    test: /\.css$/i,
+    loader: ExtractTextPlugin.extract(
     )
   },
   {
