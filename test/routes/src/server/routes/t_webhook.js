@@ -4,7 +4,13 @@ import Express from 'express';
 import nock from 'nock';
 import supertest from 'supertest';
 
+import { getSnapNameCacheId } from '../../../../../src/server/handlers/github';
 import { conf } from '../../../../../src/server/helpers/config';
+import {
+  getMemcached,
+  resetMemcached,
+  setupInMemoryMemcached
+} from '../../../../../src/server/helpers/memcached';
 import github from '../../../../../src/server/routes/webhook';
 
 describe('The WebHook API endpoint', () => {
@@ -68,9 +74,18 @@ describe('The WebHook API endpoint', () => {
         signature = hmac.digest('hex');
       });
 
+      beforeEach(() => {
+        setupInMemoryMemcached();
+      });
+
+      afterEach(() => {
+        resetMemcached();
+      });
+
       describe('if auto_build is true', () => {
         let findByURL;
         let getSnap;
+        let requestAutoBuilds;
 
         beforeEach(() => {
           findByURL = nock(lp_api_url)
@@ -97,10 +112,7 @@ describe('The WebHook API endpoint', () => {
               self_link: `${lp_api_base}${lp_snap_path}`,
               auto_build: true
             });
-        });
-
-        it('returns 200 OK and requests builds', (done) => {
-          const requestAutoBuilds = nock(lp_api_url)
+          requestAutoBuilds = nock(lp_api_url)
             .post(`/devel${lp_snap_path}`, { 'ws.op': 'requestAutoBuilds' })
             .reply(200, {
               total_size: 2,
@@ -116,7 +128,9 @@ describe('The WebHook API endpoint', () => {
                 }
               ]
             });
+        });
 
+        it('returns 200 OK and requests builds', (done) => {
           supertest(app)
             .post('/anowner/aname/webhook/notify')
             .type('application/json')
@@ -127,6 +141,23 @@ describe('The WebHook API endpoint', () => {
               findByURL.done();
               getSnap.done();
               requestAutoBuilds.done();
+              done(err);
+            });
+        });
+
+        it('clears snap name from memcached', (done) => {
+          const cacheId = getSnapNameCacheId(
+            'https://github.com/anowner/aname'
+          );
+          getMemcached().cache[cacheId] = 'snap1';
+          supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-GitHub-Event', 'push')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body)
+            .expect(200, (err) => {
+              expect(getMemcached().cache).toExcludeKey(cacheId);
               done(err);
             });
         });
@@ -190,10 +221,29 @@ describe('The WebHook API endpoint', () => {
                 done(err);
               });
           });
+
+          it('clears snap name from memcached', (done) => {
+            const cacheId = getSnapNameCacheId(
+              'https://github.com/anowner/aname'
+            );
+            getMemcached().cache[cacheId] = 'snap1';
+            supertest(app)
+              .post('/anowner/aname/webhook/notify')
+              .type('application/json')
+              .set('X-GitHub-Event', 'push')
+              .set('X-Hub-Signature', `sha1=${signature}`)
+              .send(body)
+              .expect(500, (err) => {
+                expect(getMemcached().cache).toExcludeKey(cacheId);
+                done(err);
+              });
+          });
         });
 
         describe('if snapcraft.yaml is present', () => {
           let getSnapcraftYaml;
+          let patchSnapAutoBuild;
+          let requestAutoBuilds;
 
           beforeEach(() => {
             getSnapcraftYaml = nock(conf.get('GITHUB_API_ENDPOINT'))
@@ -203,17 +253,14 @@ describe('The WebHook API endpoint', () => {
                 client_secret: conf.get('GITHUB_AUTH_CLIENT_SECRET')
               })
               .reply(200, 'name: dummy-test-snap\n');
-          });
-
-          it('returns 200 OK and requests builds', (done) => {
-            const patchSnapAutoBuild = nock(lp_api_url)
+            patchSnapAutoBuild = nock(lp_api_url)
               .post(`/devel${lp_snap_path}`, { auto_build: true })
               .reply(200, {
                 resource_type_link: `${lp_api_base}/#snap`,
                 self_link: `${lp_api_base}${lp_snap_path}`,
                 auto_build: true
               });
-            const requestAutoBuilds = nock(lp_api_url)
+            requestAutoBuilds = nock(lp_api_url)
               .post(`/devel${lp_snap_path}`, { 'ws.op': 'requestAutoBuilds' })
               .reply(200, {
                 total_size: 2,
@@ -229,7 +276,9 @@ describe('The WebHook API endpoint', () => {
                   }
                 ]
               });
+          });
 
+          it('returns 200 OK and requests builds', (done) => {
             supertest(app)
               .post('/anowner/aname/webhook/notify')
               .type('application/json')
@@ -242,6 +291,25 @@ describe('The WebHook API endpoint', () => {
                 getSnapcraftYaml.done();
                 patchSnapAutoBuild.done();
                 requestAutoBuilds.done();
+                done(err);
+              });
+          });
+
+          // XXX cjwatson 2017-02-16: The code under test should cache the
+          // returned snap name instead, but this will do for now.
+          it('clears snap name from memcached', (done) => {
+            const cacheId = getSnapNameCacheId(
+              'https://github.com/anowner/aname'
+            );
+            getMemcached().cache[cacheId] = 'snap1';
+            supertest(app)
+              .post('/anowner/aname/webhook/notify')
+              .type('application/json')
+              .set('X-GitHub-Event', 'push')
+              .set('X-Hub-Signature', `sha1=${signature}`)
+              .send(body)
+              .expect(200, (err) => {
+                expect(getMemcached().cache).toExcludeKey(cacheId);
                 done(err);
               });
           });

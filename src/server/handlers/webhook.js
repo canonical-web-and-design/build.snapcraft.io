@@ -2,8 +2,10 @@ import { createHmac } from 'crypto';
 
 import { getGitHubRepoUrl } from '../../common/helpers/github-url';
 import { conf } from '../helpers/config';
+import { getMemcached } from '../helpers/memcached';
 import getLaunchpad from '../launchpad';
 import logging from '../logging';
+import { getSnapNameCacheId } from './github';
 import { internalFindSnap, internalGetSnapcraftYaml } from './launchpad';
 
 const logger = logging.getLogger('express');
@@ -58,12 +60,17 @@ export const notify = (req, res) => {
   } else {
     const repositoryUrl = getGitHubRepoUrl(owner, name);
     const lpClient = getLaunchpad();
-    return internalFindSnap(repositoryUrl)
+    // Clear snap name cache before starting.
+    // XXX cjwatson 2017-02-16: We could be smarter about this by looking at
+    // the content of the push event.
+    return getMemcached().del(getSnapNameCacheId(repositoryUrl))
+      .then(() => internalFindSnap(repositoryUrl))
       .then((snapUrl) => lpClient.get(snapUrl))
       .then((snap) => {
         if (!snap.auto_build) {
           return internalGetSnapcraftYaml(owner, name)
             .then(() => {
+              // XXX cjwatson 2017-02-16: Cache returned snap name, if any.
               snap.auto_build = true;
               return snap.lp_save();
             })

@@ -23,20 +23,26 @@ const getInMemoryMemcachedStub = () => {
 
   memcachedStub.get = (key, callback) => {
     if (callback) {
-      runSoon(() => callback(undefined, memcachedStub.cache[key]));
+      return runSoon(() => callback(undefined, memcachedStub.cache[key]));
+    } else {
+      return Promise.resolve();
     }
   };
   memcachedStub.set = (key, value, lifetime, callback) => {
     memcachedStub.cache[key] = value;
     if (callback) {
-      runSoon(() => callback(undefined, true));
+      return runSoon(() => callback(undefined, true));
+    } else {
+      return Promise.resolve();
     }
   };
   memcachedStub.del = (key, callback) => {
     delete memcachedStub.cache[key];
 
     if (callback) {
-      runSoon(() => callback(undefined));
+      return runSoon(() => callback(undefined));
+    } else {
+      return Promise.resolve();
     }
   };
 
