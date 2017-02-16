@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 
+import { snapBuildsInitialStatus } from '../../reducers/snap-builds';
 import BuildRow from '../build-row';
 import { Message } from '../forms';
 
@@ -29,15 +30,19 @@ export const BuildHistory = (props) => {
 BuildHistory.propTypes = {
   repository: PropTypes.shape({
     owner: PropTypes.string,
-    name: PropTypes.string
+    name: PropTypes.string,
+    fullName: PropTypes.string
   }),
   success: PropTypes.bool,
   builds: React.PropTypes.arrayOf(React.PropTypes.object)
 };
 
-function mapStateToProps(state) {
-  const builds = state.snapBuilds.builds;
-  const success = state.snapBuilds.success;
+function mapStateToProps(state, ownProps) {
+  const { fullName } = ownProps.repository;
+
+  // get builds for given repo from the store or set default empty values
+  const repoBuilds = state.snapBuilds[fullName] || snapBuildsInitialStatus;
+  const { builds, success } = repoBuilds;
 
   return {
     builds,

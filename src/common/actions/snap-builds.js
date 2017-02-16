@@ -3,6 +3,8 @@ import 'isomorphic-fetch';
 import { checkStatus } from '../helpers/api';
 import { conf } from '../helpers/config';
 
+import { parseGitHubRepoUrl } from '../helpers/github-url';
+
 const BASE_URL = conf.get('BASE_URL');
 
 export const FETCH_BUILDS = 'FETCH_BUILDS';
@@ -18,27 +20,38 @@ const REQUEST_POST_OPTIONS = {
   credentials: 'same-origin'
 };
 
-export function fetchBuildsSuccess(builds) {
+export function fetchBuildsSuccess(id, builds) {
   return {
     type: FETCH_BUILDS_SUCCESS,
-    payload: builds
+    payload: {
+      id,
+      builds
+    }
   };
 }
 
-export function fetchBuildsError(error) {
+export function fetchBuildsError(id, error) {
   return {
     type: FETCH_BUILDS_ERROR,
-    payload: error,
+    payload: {
+      id,
+      error
+    },
     error: true
   };
 }
 
 // Fetch snap info (self_link) for given repository
 export function fetchSnap(repositoryUrl) {
+  const { fullName } = parseGitHubRepoUrl(repositoryUrl);
+
   return (dispatch) => {
     if (repositoryUrl) {
       dispatch({
-        type: FETCH_BUILDS
+        type: FETCH_BUILDS,
+        payload: {
+          id: fullName
+        }
       });
 
       repositoryUrl = encodeURIComponent(repositoryUrl);
@@ -50,20 +63,28 @@ export function fetchSnap(repositoryUrl) {
           const snapLink = json.payload.message;
           dispatch({
             type: FETCH_SNAP_SUCCESS,
-            payload: snapLink
+            payload: {
+              id: fullName,
+              snapLink
+            }
           });
         })
-        .catch((error) => dispatch(fetchBuildsError(error)));
+        .catch((error) => dispatch(fetchBuildsError(fullName, error)));
     }
   };
 }
 
 // Fetch builds list for given snap
-export function fetchBuilds(snapLink) {
+export function fetchBuilds(repositoryUrl, snapLink) {
+  const { fullName } = parseGitHubRepoUrl(repositoryUrl);
+
   return (dispatch) => {
     if (snapLink) {
       dispatch({
-        type: FETCH_BUILDS
+        type: FETCH_BUILDS,
+        payload: {
+          id: fullName
+        }
       });
 
       snapLink = encodeURIComponent(snapLink);
@@ -71,18 +92,23 @@ export function fetchBuilds(snapLink) {
       return fetch(url)
         .then(checkStatus)
         .then(response => response.json())
-        .then((json) => dispatch(fetchBuildsSuccess(json.payload.builds)))
-        .catch((error) => dispatch(fetchBuildsError(error)));
+        .then((json) => dispatch(fetchBuildsSuccess(fullName, json.payload.builds)))
+        .catch((error) => dispatch(fetchBuildsError(fullName, error)));
     }
   };
 }
 
 // Reguest new builds for given repository
 export function requestBuilds(repositoryUrl) {
+  const { fullName } = parseGitHubRepoUrl(repositoryUrl);
+
   return (dispatch) => {
     if (repositoryUrl) {
       dispatch({
-        type: FETCH_BUILDS
+        type: FETCH_BUILDS,
+        payload: {
+          id: fullName
+        }
       });
 
       const url = `${BASE_URL}/api/launchpad/snaps/request-builds`;
@@ -94,8 +120,8 @@ export function requestBuilds(repositoryUrl) {
       return fetch(url, settings)
         .then(checkStatus)
         .then((response) => response.json())
-        .then((json) => dispatch(fetchBuildsSuccess(json.payload.builds)))
-        .catch((error) => dispatch(fetchBuildsError(error)));
+        .then((json) => dispatch(fetchBuildsSuccess(fullName, json.payload.builds)))
+        .catch((error) => dispatch(fetchBuildsError(fullName, error)));
     }
   };
 }

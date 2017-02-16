@@ -8,6 +8,7 @@ import Spinner from '../components/spinner';
 
 import withRepository from './with-repository';
 import { fetchBuilds, fetchSnap } from '../actions/snap-builds';
+import { snapBuildsInitialStatus } from '../reducers/snap-builds';
 
 import styles from './container.css';
 
@@ -16,7 +17,7 @@ class Builds extends Component {
 
   fetchData({ snapLink, repository }) {
     if (snapLink) {
-      this.props.dispatch(fetchBuilds(snapLink));
+      this.props.dispatch(fetchBuilds(repository.url, snapLink));
     } else if (repository) {
       this.props.dispatch(fetchSnap(repository.url));
     }
@@ -89,11 +90,13 @@ const mapStateToProps = (state, ownProps) => {
   const name = ownProps.params.name.toLowerCase();
   const fullName = `${owner}/${name}`;
   const repository = state.repository;
+  // get builds for given repo from the store or set default empty values
+  const repoBuilds = state.snapBuilds[fullName] || snapBuildsInitialStatus;
 
   return {
     fullName,
     repository,
-    ...state.snapBuilds
+    ...repoBuilds
   };
 };
 

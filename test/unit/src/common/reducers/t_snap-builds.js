@@ -1,18 +1,13 @@
 import expect from 'expect';
 
-import { snapBuilds } from '../../../../../src/common/reducers/snap-builds';
+import { snapBuilds, snapBuildsInitialStatus } from '../../../../../src/common/reducers/snap-builds';
 import * as ActionTypes from '../../../../../src/common/actions/snap-builds';
 
 import { snapBuildFromAPI } from '../../../../../src/common/helpers/snap-builds';
 
 describe('snapBuilds reducers', () => {
-  const initialState = {
-    isFetching: false,
-    snapLink: null,
-    builds: [],
-    success: false,
-    error: null
-  };
+  const initialState = {};
+  const initialStatus = snapBuildsInitialStatus;
 
   const SNAP_ENTRIES = [{
     'can_be_rescored': false,
@@ -68,6 +63,8 @@ describe('snapBuilds reducers', () => {
     'upload_log_url': null
   }];
 
+  const id = 'dummy/repo';
+
   it('should return the initial state', () => {
     expect(snapBuilds(undefined, {})).toEqual(initialState);
   });
@@ -75,12 +72,12 @@ describe('snapBuilds reducers', () => {
   context('FETCH_BUILDS', () => {
     const action = {
       type: ActionTypes.FETCH_BUILDS,
-      payload: 'test'
+      payload: { id }
     };
 
     it('should store fetching status when fetching builds', () => {
-      expect(snapBuilds(initialState, action)).toEqual({
-        ...initialState,
+      expect(snapBuilds(initialState, action)[id]).toEqual({
+        ...initialStatus,
         isFetching: true
       });
     });
@@ -91,71 +88,89 @@ describe('snapBuilds reducers', () => {
 
     const state = {
       ...initialState,
-      isFetching: true
+      [id]: {
+        ...initialStatus,
+        isFetching: true
+      }
     };
     const action = {
       type: ActionTypes.FETCH_SNAP_SUCCESS,
-      payload: SNAP_LINK
+      payload: {
+        id,
+        snapLink: SNAP_LINK
+      }
     };
 
     it('should stop fetching', () => {
-      expect(snapBuilds(state, action).isFetching).toBe(false);
+      expect(snapBuilds(state, action)[id].isFetching).toBe(false);
     });
 
     it('should store snap link', () => {
-      expect(snapBuilds(state, action).snapLink).toEqual(SNAP_LINK);
+      expect(snapBuilds(state, action)[id].snapLink).toEqual(SNAP_LINK);
     });
   });
 
   context('FETCH_BUILDS_SUCCESS', () => {
     const state = {
       ...initialState,
-      isFetching: true,
-      error: 'Previous error'
+      [id]: {
+        ...initialStatus,
+        isFetching: true,
+        error: 'Previous error'
+      }
     };
 
     const action = {
       type: ActionTypes.FETCH_BUILDS_SUCCESS,
-      payload: SNAP_ENTRIES
+      payload: {
+        id,
+        builds: SNAP_ENTRIES
+      }
     };
 
     it('should stop fetching', () => {
-      expect(snapBuilds(state, action).isFetching).toBe(false);
+      expect(snapBuilds(state, action)[id].isFetching).toBe(false);
     });
 
     it('should store builds on fetch success', () => {
-      expect(snapBuilds(state, action).builds).toEqual(SNAP_ENTRIES.map(snapBuildFromAPI));
+      expect(snapBuilds(state, action)[id].builds).toEqual(SNAP_ENTRIES.map(snapBuildFromAPI));
     });
 
     it('should store success state', () => {
-      expect(snapBuilds(state, action).success).toBe(true);
+      expect(snapBuilds(state, action)[id].success).toBe(true);
     });
 
     it('should clean error', () => {
-      expect(snapBuilds(state, action).error).toBe(null);
+      expect(snapBuilds(state, action)[id].error).toBe(null);
     });
   });
 
   context('FETCH_BUILDS_ERROR', () => {
     const state = {
       ...initialState,
-      success: true,
-      builds: SNAP_ENTRIES,
-      isFetching: true
+      [id]: {
+        ...initialStatus,
+        success: true,
+        builds: SNAP_ENTRIES,
+        isFetching: true
+      }
     };
 
     const action = {
       type: ActionTypes.FETCH_BUILDS_ERROR,
-      payload: 'Something went wrong!',
+      payload: {
+        id,
+        error: 'Something went wrong!',
+      },
       error: true
     };
 
     it('should handle fetch builds failure', () => {
-      expect(snapBuilds(state, action)).toEqual({
-        ...state,
+      expect(snapBuilds(state, action)[id]).toEqual({
+        ...state[id],
         isFetching: false,
         success: false,
-        error: action.payload
+        error: action.payload.error
       });
     });
   });
