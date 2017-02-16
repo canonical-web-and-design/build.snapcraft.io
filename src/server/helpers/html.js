@@ -20,7 +20,7 @@ export default class Html extends Component {
           {head.meta.toComponent()}
           {head.link.toComponent()}
           {head.script.toComponent()}
-          <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu" />
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:300,400" />
           <link rel="stylesheet" href={ assets.main.css } />
           {
            /*
