@@ -64,6 +64,11 @@ export function authStore(state = {
         authenticated: false,
         error: action.payload
       };
+    case ActionTypes.SIGN_OUT_OF_STORE_ERROR:
+      return {
+        ...state,
+        error: action.payload
+      };
     default:
       return state;
   }

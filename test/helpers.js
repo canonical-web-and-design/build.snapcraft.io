@@ -65,6 +65,16 @@ export function makeLocalForageStub() {
           store[key] = value;
         });
     },
+    removeItem: (key) => {
+      return new Promise((resolve) => setTimeout(resolve, 1))
+        .then(() => {
+          if (key in store && store[key] instanceof Error) {
+            throw store[key];
+          } else {
+            delete store[key];
+          }
+        });
+    },
     clear: () => {
       for (const key of Object.keys(store)) {
         delete store[key];

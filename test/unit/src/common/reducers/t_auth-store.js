@@ -139,4 +139,16 @@ describe('authStore reducers', () => {
       expect(authStore(state, action).error).toEqual(action.payload);
     });
   });
+
+  context('SIGN_OUT_OF_STORE_ERROR', () => {
+    const action = {
+      type: ActionTypes.SIGN_OUT_OF_STORE_ERROR,
+      payload: 'Something went wrong!',
+      error: true
+    };
+
+    it('stores error', () => {
+      expect(authStore(initialState, action).error).toEqual(action.payload);
+    });
+  });
 });

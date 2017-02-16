@@ -21,7 +21,8 @@ const {
   extractSSOCaveat,
   getCaveats,
   getSSODischarge,
-  signIntoStore
+  signIntoStore,
+  signOut
 } = authStoreModule;
 const ActionTypes = authStoreModule;
 
@@ -411,6 +412,66 @@ describe('store authentication actions', () => {
 
         return store.dispatch(checkSignedIntoStore())
           .then(() => expect(store.getActions()).toInclude(expectedAction));
+      });
+    });
+  });
+
+  context('signOut', () => {
+    afterEach(() => {
+      localForageStub.clear();
+    });
+
+    context('when local storage throws an error', () => {
+      beforeEach(() => {
+        localForageStub.store['package_upload_request'] = new Error(
+          'Something went wrong!'
+        );
+      });
+
+      it('stores an error', () => {
+        const expectedMessage = 'Something went wrong!';
+
+        const location = {};
+        return store.dispatch(signOut(location))
+          .then(() => {
+            const action = store.getActions().filter(
+              (a) => a.type === ActionTypes.SIGN_OUT_OF_STORE_ERROR)[0];
+            expect(action.payload.message).toBe(expectedMessage);
+          });
+      });
+
+      it('does not redirect', () => {
+        const location = {};
+        return store.dispatch(signOut(location))
+          .then(() => {
+            expect(location).toExcludeKey('href');
+          });
+      });
+    });
+
+    context('when local storage succeeds', () => {
+      beforeEach(() => {
+        localForageStub.store['package_upload_request'] = 'dummy';
+      });
+
+      it('removes the item', () => {
+        const location = {};
+        return store.dispatch(signOut(location))
+          .then(() => {
+            expect(localForageStub.store).toExcludeKey(
+              'package_upload_request'
+            );
+          });
+      });
+
+      it('redirects to /auth/logout', () => {
+        const location = {};
+        return store.dispatch(signOut(location))
+          .then(() => {
+            expect(url.parse(location.href, true)).toMatch({
+              path: '/auth/logout'
+            });
+          });
       });
     });
   });

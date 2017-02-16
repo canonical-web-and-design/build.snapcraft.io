@@ -19,6 +19,7 @@ export const GET_SSO_DISCHARGE_ERROR = 'GET_SSO_DISCHARGE_ERROR';
 export const CHECK_SIGNED_INTO_STORE = 'CHECK_SIGNED_INTO_STORE';
 export const CHECK_SIGNED_INTO_STORE_SUCCESS = 'CHECK_SIGNED_INTO_STORE_SUCCESS';
 export const CHECK_SIGNED_INTO_STORE_ERROR = 'CHECK_SIGNED_INTO_STORE_ERROR';
+export const SIGN_OUT_OF_STORE_ERROR = 'SIGN_OUT_OF_STORE_ERROR';
 
 // Hardcoded since macaroons.js doesn't export these.
 const CAVEAT_PACKET_TYPE_CID = 3;
@@ -227,6 +228,24 @@ function checkSignedIntoStoreSuccess(authenticated) {
 function checkSignedIntoStoreError(error) {
   return {
     type: CHECK_SIGNED_INTO_STORE_ERROR,
+    payload: error,
+    error: true
+  };
+}
+
+export function signOut(location) { // location for tests
+  return (dispatch) => {
+    return localforage.removeItem('package_upload_request')
+      .then(() => {
+        (location || window.location).href = `${BASE_URL}/auth/logout`;
+      })
+      .catch((error) => dispatch(signOutError(error)));
+  };
+}
+
+function signOutError(error) {
+  return {
+    type: SIGN_OUT_OF_STORE_ERROR,
     payload: error,
     error: true
   };
