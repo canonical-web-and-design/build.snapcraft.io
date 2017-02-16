@@ -19,31 +19,30 @@ const middlewares = [ thunk ];
 const mockStore = configureMockStore(middlewares);
 
 describe('snap builds actions', () => {
-  const initialState = {
-    isFetching: false,
-    snapLink: null,
-    builds: [],
-    error: false
-  };
-
   let store;
   let action;
 
+  const repo = 'dummy/repo';
+  const repositoryUrl = `https://github.com/${repo}`;
+
   beforeEach(() => {
-    store = mockStore(initialState);
+    store = mockStore({});
   });
 
   context('fetchBuildsSuccess', () => {
-    let payload = [ { build: 'test1' }, { build: 'test2' }];
+    let builds = [ { build: 'test1' }, { build: 'test2' }];
 
     beforeEach(() => {
-      action = fetchBuildsSuccess(payload);
+      action = fetchBuildsSuccess(repo, builds);
     });
 
     it('should create an action to store snap builds', () => {
       const expectedAction = {
         type: ActionTypes.FETCH_BUILDS_SUCCESS,
-        payload
+        payload: {
+          id: repo,
+          builds
+        }
       };
 
       store.dispatch(action);
@@ -56,17 +55,20 @@ describe('snap builds actions', () => {
   });
 
   context('fetchBuildsError', () => {
-    let payload = 'Something went wrong!';
+    let error = 'Something went wrong!';
 
     beforeEach(() => {
-      action = fetchBuildsError(payload);
+      action = fetchBuildsError(repo, error);
     });
 
     it('should create an action to store request error on failure', () => {
       const expectedAction = {
         type: ActionTypes.FETCH_BUILDS_ERROR,
         error: true,
-        payload
+        payload: {
+          id: repo,
+          error
+        }
       };
 
       store.dispatch(action);
@@ -102,7 +104,7 @@ describe('snap builds actions', () => {
           }
         });
 
-      return store.dispatch(fetchBuilds(snapUrl))
+      return store.dispatch(fetchBuilds(repositoryUrl, snapUrl))
         .then(() => {
           api.done();
           expect(store.getActions()).toHaveActionOfType(
@@ -124,7 +126,7 @@ describe('snap builds actions', () => {
           }
         });
 
-      return store.dispatch(fetchBuilds(barUrl))
+      return store.dispatch(fetchBuilds(repositoryUrl, barUrl))
         .then(() => {
           expect(store.getActions()).toHaveActionOfType(
             ActionTypes.FETCH_BUILDS_ERROR
@@ -187,7 +189,7 @@ describe('snap builds actions', () => {
       });
 
       it('should dispatch error action', () => {
-        return store.dispatch(fetchBuilds(barUrl))
+        return store.dispatch(fetchBuilds(repositoryUrl, barUrl))
           .then(() => {
             expect(store.getActions()).toHaveActionOfType(
               ActionTypes.FETCH_BUILDS_ERROR
@@ -196,10 +198,10 @@ describe('snap builds actions', () => {
       });
 
       it('should pass error message from repsponse to action', () => {
-        return store.dispatch(fetchBuilds(barUrl))
+        return store.dispatch(fetchBuilds(repositoryUrl, barUrl))
           .then(() => {
             const action = store.getActions().filter(a => a.type === ActionTypes.FETCH_BUILDS_ERROR)[0];
-            expect(action.payload.message).toBe('Bad snap URL');
+            expect(action.payload.error.message).toBe('Bad snap URL');
           });
       });
 
@@ -236,7 +238,7 @@ describe('snap builds actions', () => {
         return store.dispatch(fetchSnap(repositoryUrl))
           .then(() => {
             const action = store.getActions().filter(a => a.type === ActionTypes.FETCH_BUILDS_ERROR)[0];
-            expect(action.payload.message).toBe('Bad repo URL');
+            expect(action.payload.error.message).toBe('Bad repo URL');
           });
       });
 

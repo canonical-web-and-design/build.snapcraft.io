@@ -6,6 +6,7 @@ import { withRouter } from 'react-router';
 import { createWebhook } from '../actions/webhook';
 import { requestBuilds } from '../actions/snap-builds';
 import withRepository from './with-repository';
+import { snapBuildsInitialStatus } from '../reducers/snap-builds';
 
 import { Message } from '../components/forms';
 import Spinner from '../components/spinner';
@@ -93,7 +94,8 @@ const mapStateToProps = (state, ownProps) => {
     fullName,
     repository: state.repository,
     webhook: state.webhook,
-    builds: state.snapBuilds
+    // get builds for given repo from the store or set default empty values
+    builds: state.snapBuilds[fullName] || snapBuildsInitialStatus
   };
 };
 

@@ -1,39 +1,58 @@
 import * as ActionTypes from '../actions/snap-builds';
 import { snapBuildFromAPI } from '../helpers/snap-builds';
 
-export function snapBuilds(state = {
+export const snapBuildsInitialStatus = {
   isFetching: false,
   snapLink: null,
   builds: [],
   success: false,
   error: null
-}, action) {
+};
+
+export function snapBuilds(state = {}, action) {
+  const { payload } = action;
+
+  const initialStatus = snapBuildsInitialStatus;
+
   switch(action.type) {
     case ActionTypes.FETCH_BUILDS:
       return {
         ...state,
-        isFetching: true
+        [payload.id]: {
+          ...initialStatus,
+          ...state[payload.id],
+          isFetching: true
+        }
       };
     case ActionTypes.FETCH_SNAP_SUCCESS:
       return {
         ...state,
-        isFetching: false,
-        snapLink: action.payload
+        [payload.id]: {
+          ...state[payload.id],
+          isFetching: false,
+          snapLink: payload.snapLink
+        }
       };
     case ActionTypes.FETCH_BUILDS_SUCCESS:
       return {
         ...state,
-        isFetching: false,
-        success: true,
-        builds: action.payload.map(snapBuildFromAPI),
-        error: null
+        [payload.id]: {
+          ...state[payload.id],
+          isFetching: false,
+          success: true,
+          builds: payload.builds.map(snapBuildFromAPI),
+          error: null
+        }
       };
     case ActionTypes.FETCH_BUILDS_ERROR:
       return {
         ...state,
-        isFetching: false,
-        success: false,
-        error: action.payload
+        [payload.id]: {
+          ...state[payload.id],
+          isFetching: false,
+          success: false,
+          error: payload.error
+        }
       };
     default:
       return state;

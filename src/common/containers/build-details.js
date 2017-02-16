@@ -8,6 +8,7 @@ import { Message } from '../components/forms';
 
 import withRepository from './with-repository';
 import { fetchBuilds, fetchSnap } from '../actions/snap-builds';
+import { snapBuildsInitialStatus } from '../reducers/snap-builds';
 
 import styles from './container.css';
 
@@ -15,7 +16,7 @@ class BuildDetails extends Component {
 
   fetchData({ snapLink, repository }) {
     if (snapLink) {
-      this.props.dispatch(fetchBuilds(snapLink));
+      this.props.dispatch(fetchBuilds(repository.url, snapLink));
     } else if (repository) {
       this.props.dispatch(fetchSnap(repository.url));
     }
@@ -87,10 +88,13 @@ const mapStateToProps = (state, ownProps) => {
 
   const buildId = ownProps.params.buildId.toLowerCase();
 
-  const build = state.snapBuilds.builds.filter((build) => build.buildId === buildId)[0];
-  const isFetching = state.snapBuilds.isFetching;
-  const error = state.snapBuilds.error;
-  const snapLink = state.snapBuilds.snapLink;
+  // get builds for given repo from the store or set default empty values
+  const repoBuilds = state.snapBuilds[fullName] || snapBuildsInitialStatus;
+
+  const build = repoBuilds.builds.filter((build) => build.buildId === buildId)[0];
+  const isFetching = repoBuilds.isFetching;
+  const error = repoBuilds.error;
+  const snapLink = repoBuilds.snapLink;
 
   return {
     fullName,
