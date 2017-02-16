@@ -1,0 +1,3 @@
+.container {
+  composes: container from './container.css';
+}

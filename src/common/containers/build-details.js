@@ -5,11 +5,12 @@ import Helmet from 'react-helmet';
 import BuildRow from '../components/build-row';
 import BuildLog from '../components/build-log';
 import { Message } from '../components/forms';
+import { HeadingOne } from '../components/vanilla/heading';
 
 import withRepository from './with-repository';
 import { fetchBuilds, fetchSnap } from '../actions/snap-builds';
 
-import styles from './container.css';
+import styles from './build-details.css';
 
 class BuildDetails extends Component {
 
@@ -45,7 +46,8 @@ class BuildDetails extends Component {
         <Helmet
           title={`${repository.fullName} builds`}
         />
-        <h1>{repository.fullName} build #{buildId}</h1>
+
+        <HeadingOne>{repository.fullName} build #{buildId}</HeadingOne>
         { isFetching &&
           <span>Loading...</span>
         }
