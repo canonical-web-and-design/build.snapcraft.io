@@ -1,5 +1,0 @@
-.heading-four {
-  composes: heading from './heading.css';
-  font-size: 1.5rem;
-  line-height: 1.25;
-}

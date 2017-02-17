@@ -4,3 +4,39 @@
   margin-bottom: 1.2rem;
   margin-top: 0;
 }
+
+.h1 {
+  composes: heading;
+  font-size: 3rem;
+  line-height: 1.25;
+}
+
+.h2 {
+  composes: heading;
+  font-size: 2.25rem;
+  line-height: 1.167;
+}
+
+.h3 {
+  composes: heading;
+  font-size: 1.75rem;
+  line-height: 1.286;
+}
+
+.h4 {
+  composes: heading;
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+
+.h5 {
+  composes: heading;
+  font-size: 1.313rem;
+  line-height: 1.143;
+}
+
+.h6 {
+  composes: heading;
+  font-size: 1.063rem;
+  line-height: 1.412;
+}

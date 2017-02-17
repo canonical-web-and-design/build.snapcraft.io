@@ -1,5 +1,0 @@
-.heading-two {
-  composes: heading from './heading.css';
-  font-size: 2.25rem;
-  line-height: 1.167;
-}
