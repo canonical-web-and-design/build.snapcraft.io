@@ -1,0 +1,5 @@
+.heading-five {
+  composes: heading from './heading.css';
+  font-size: 1.313rem;
+  line-height: 1.143;
+}

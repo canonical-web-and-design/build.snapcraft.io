@@ -1,0 +1,5 @@
+.heading-six {
+  composes: heading from './heading.css';
+  font-size: 1.063rem;
+  line-height: 1.412;
+}

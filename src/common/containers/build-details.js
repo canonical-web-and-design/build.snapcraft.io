@@ -5,6 +5,7 @@ import Helmet from 'react-helmet';
 import BuildRow from '../components/build-row';
 import BuildLog from '../components/build-log';
 import { Message } from '../components/forms';
+import HelpInstallSnap from '../components/help/install-snap';
 
 import withRepository from './with-repository';
 import { fetchBuilds, fetchSnap } from '../actions/snap-builds';
@@ -60,6 +61,7 @@ class BuildDetails extends Component {
             <BuildLog logUrl={build.buildLogUrl} />
           </div>
         }
+        <HelpInstallSnap name='foo' revision='1' />
       </div>
     );
   }
