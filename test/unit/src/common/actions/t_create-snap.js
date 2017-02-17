@@ -25,7 +25,7 @@ const ActionTypes = createSnapModule;
 const middlewares = [ thunk ];
 const mockStore = configureMockStore(middlewares);
 
-describe('repository input actions', () => {
+describe('create snap actions', () => {
   const initialState = {
     isFetching: false,
     inputValue: '',
@@ -89,11 +89,15 @@ describe('repository input actions', () => {
     });
 
     it('stores a CREATE_SNAPS_START action', () => {
+      scope.get('/api/github/snapcraft-yaml/foo/bar')
+        .reply(200);
+
       return store.dispatch(createSnaps([ repository ]))
         .then(() => {
           expect(store.getActions()).toHaveActionOfType(
             ActionTypes.CREATE_SNAPS_START
           );
+          scope.done();
         });
     });
 
@@ -117,6 +121,7 @@ describe('repository input actions', () => {
             code: 'snapcraft-yaml-no-name',
             message: 'snapcraft.yaml has no top-level "name" attribute'
           });
+          scope.done();
         });
     });
 
@@ -169,6 +174,7 @@ describe('repository input actions', () => {
               message: 'Snap name is not registered in the store',
               snap_name: 'test-snap'
             });
+            scope.done();
           });
       });
 
@@ -205,6 +211,7 @@ describe('repository input actions', () => {
                 code: 'not-logged-in',
                 message: 'Not logged in',
               });
+              scope.done();
             });
         });
 
@@ -250,6 +257,7 @@ describe('repository input actions', () => {
                   'code': 'not-logged-in',
                   'message': 'Not logged in'
                 });
+                scope.done();
               });
           });
 
@@ -268,6 +276,7 @@ describe('repository input actions', () => {
             return store.dispatch(createSnaps([ repository ]))
               .then(() => {
                 expect(store.getActions()).toInclude(expectedAction);
+                scope.done();
               });
           });
         });
