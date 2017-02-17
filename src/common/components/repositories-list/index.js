@@ -40,10 +40,19 @@ class RepositoriesList extends Component {
 
   renderRow(snap) {
     const { fullName } = parseGitHubRepoUrl(snap.git_repository_url);
+
+    let latestBuild = null;
+    const snapBuilds = this.props.snapBuilds[fullName];
+
+    if (snapBuilds && snapBuilds.success && snapBuilds.builds.length) {
+      latestBuild = snapBuilds.builds[0];
+    }
+
     return (
       <RepositoryRow
         key={ `repo_${fullName}` }
         snap={ snap }
+        latestBuild={ latestBuild }
       />
     );
   }
@@ -86,6 +95,7 @@ class RepositoriesList extends Component {
 
 RepositoriesList.propTypes = {
   snaps: PropTypes.object,
+  snapBuilds: PropTypes.object,
   auth: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired
 };
@@ -93,12 +103,14 @@ RepositoriesList.propTypes = {
 function mapStateToProps(state) {
   const {
     auth,
-    snaps
+    snaps,
+    snapBuilds
   } = state;
 
   return {
     auth,
-    snaps
+    snaps,
+    snapBuilds
   };
 }
 

@@ -2,11 +2,22 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { fetchUserSnaps } from '../../actions/snaps';
+import { fetchBuilds } from '../../actions/snap-builds';
 import { Anchor } from '../vanilla/button';
 import RepositoriesList from '../repositories-list';
 import styles from './repositories-home.css';
 
 class RepositoriesHome extends Component {
+  fetchData(props) {
+    const { snaps } = props;
+
+    if (snaps.success) {
+      snaps.snaps.forEach((snap) => {
+        this.props.dispatch(fetchBuilds(snap.git_repository_url, snap.self_link));
+      });
+    }
+  }
+
   componentDidMount() {
     const { authenticated } = this.props.auth;
     const owner = this.props.user.login;
@@ -14,6 +25,12 @@ class RepositoriesHome extends Component {
     if (authenticated) {
       this.props.dispatch(fetchUserSnaps(owner));
     }
+
+    this.fetchData(this.props);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.fetchData(nextProps);
   }
 
   render() {
@@ -40,12 +57,14 @@ RepositoriesHome.propTypes = {
 function mapStateToProps(state) {
   const {
     auth,
-    user
+    user,
+    snaps
   } = state;
 
   return {
     auth,
-    user
+    user,
+    snaps
   };
 }
 
