@@ -18,26 +18,27 @@ class Landing extends Component {
           <div>
             <div className={ containerStyles.wrapper }>
               <HeadingOne>
-              Auto-build and publish software for any Linux system or device.
+                Auto-build and publish software for any Linux system or device
               </HeadingOne>
 
-              <div className={ styles.bannerList }>
-                <div className={ styles.bannerItem }>
-                  <img src="http://placehold.it/200" />
-                  <p>Push to GitHub.</p>
-                </div>
-                <div className={ styles.bannerItem }>
-                  <img src="http://placehold.it/200" />
-                  <p>Built automatically.</p>
-                </div>
-                <div className={ styles.bannerItem }>
-                  <img src="http://placehold.it/200" />
-                  <p>Published for your users.</p>
-                </div>
-              </div>
+              <ul className={ styles.banner }>
+                <li className={ styles.bannerImage }>
+                  <img src={images.banner} />
+                </li>
+
+                <li className={ styles.bannerLabel }>
+                  Push to GitHub
+                </li>
+                <li className={ styles.bannerLabel }>
+                  Built automatically
+                </li>
+                <li className={ styles.bannerLabel }>
+                  Published for your users
+                </li>
+              </ul>
 
               <div className={ styles.bannerButton }>
-                <Anchor  href="/auth/authenticate">Set Up in Minutes</Anchor>
+                <Anchor  href="/auth/authenticate">Set up in minutes</Anchor>
               </div>
             </div>
           </div>
@@ -75,7 +76,7 @@ class Landing extends Component {
             {/* TODO put in actual workflow image */}
             <img className={ styles.workflowImage} src='http://placehold.it/1030x480?text=WORKFLOW' />
             <div className={ styles.centeredButton }>
-              <Anchor  href="/auth/authenticate">Get Started Now</Anchor>
+              <Anchor  href="/auth/authenticate">Get started now</Anchor>
             </div>
           </div>
         </section>

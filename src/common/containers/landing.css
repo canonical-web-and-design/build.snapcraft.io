@@ -4,20 +4,27 @@
   font-size: 1.2em;
 }
 
-.bannerList {
+.banner {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
   margin: 50px 0 30px;
 }
 
-.bannerItem {
+.bannerImage {
+  width: 960px;
+  margin-bottom: 2em;
+}
+
+.bannerImage img {
+  display: block;
+  width: 100%;
+}
+
+.bannerLabel {
   text-align: center;
   font-size: 1.5em;
   width: 30%;
-}
-
-.bannerItem img {
-  border-radius: 50%;
 }
 
 .bannerButton {
