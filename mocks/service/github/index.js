@@ -32,12 +32,14 @@ router.get('/user/repos', (req, res) => {
     {
       full_name: 'anowner/aname',
       name: 'aname',
-      owner: { login: 'anowner' }
+      owner: { login: 'anowner' },
+      url: 'http://github.com/anowner/aname'
     },
     {
       full_name: 'test/test',
       name: 'test',
-      owner: { login: 'test' }
+      owner: { login: 'test' },
+      url: 'http://github.com/anowner/aname'
     }
   ]);
 });
