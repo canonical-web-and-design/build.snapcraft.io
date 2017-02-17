@@ -7,7 +7,7 @@ $text-color: $cool-grey;
 }
 
 .container {
-  max-width: 940px;
+  max-width: 1030px;
   margin: 0 auto;
 }
 
@@ -19,7 +19,7 @@ $text-color: $cool-grey;
 
 .logo {
   float: left;
-  padding: 4px 15px 4px 10px;
+  padding: 4px 15px 4px 0px;
   font-size: 28px;
   color: $text-color;
   font-weight: 400;

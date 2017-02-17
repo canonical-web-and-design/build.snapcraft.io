@@ -8,6 +8,8 @@ import { ListDividedState } from '../components/vanilla/list';
 import containerStyles from './container.css';
 import styles from './landing.css';
 
+import * as images from '../images';
+
 class Landing extends Component {
   render() {
     return (
@@ -59,18 +61,19 @@ class Landing extends Component {
 
         <section className={styles.section}>
           <div className={ `${styles.row} ${containerStyles.wrapper}` }>
-            {/* TODO put in actual logos */}
-            <img className={ styles.rowItem } src='http://placehold.it/180x130?text=BRAND+LOGO' />
-            <img className={ styles.rowItem } src='http://placehold.it/180x130?text=BRAND+LOGO' />
-            <img className={ styles.rowItem } src='http://placehold.it/180x130?text=BRAND+LOGO' />
-            <img className={ styles.rowItem } src='http://placehold.it/180x130?text=BRAND+LOGO' />
+            <img className={ styles.brandLogo } src={images.ubuntu} />
+            <img className={ styles.brandLogo } src={images.archlinux} />
+            <img className={ styles.brandLogo } src={images.debian} />
+            <img className={ styles.brandLogo } src={images.gentoo} />
+            <img className={ styles.brandLogo } src={images.fedora} />
+            <img className={ styles.brandLogo } src={images.opensuse} />
           </div>
         </section>
 
         <section className={styles.section}>
           <div className={containerStyles.wrapper}>
             {/* TODO put in actual workflow image */}
-            <img className={ styles.workflowImage} src='http://placehold.it/920x480?text=WORKFLOW' />
+            <img className={ styles.workflowImage} src='http://placehold.it/1030x480?text=WORKFLOW' />
             <div className={ styles.centeredButton }>
               <Anchor  href="/auth/authenticate">Get Started Now</Anchor>
             </div>

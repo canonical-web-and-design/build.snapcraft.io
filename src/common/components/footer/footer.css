@@ -21,11 +21,11 @@ body {
   box-sizing: border-box;
 
   font-size: 12px;
-  padding: 2em 1em 1em;
+  padding: 2em 1em 1.5em;
 }
 
 .container {
-  width: 940px;
+  width: 1030px;
   margin: 0 auto;
 }
 

@@ -60,6 +60,11 @@
   width: 66.66%;
 }
 
+.brandLogo {
+  composes: rowItem;
+  max-width: 150px;
+  max-height: 100px;
+}
 .section {
   padding-top: 60px;
   padding-bottom: 60px;

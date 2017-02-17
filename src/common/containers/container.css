@@ -1,8 +1,8 @@
 .wrapper {
   box-sizing: border-box;
-  max-width: 940px;
+  max-width: 1030px;
   margin: 0 auto;
-  padding: 0 10px;
+  padding: 0;
 }
 
 .container {
