@@ -7,6 +7,7 @@ import { conf } from '../helpers/config';
 import { getMemcached } from '../helpers/memcached';
 import requestGitHub from '../helpers/github';
 import getLaunchpad from '../launchpad';
+import { getSnapName } from './github';
 import logging from '../logging';
 
 const logger = logging.getLogger('express');
@@ -381,13 +382,24 @@ export const findSnaps = (req, res) => {
   const urlPrefix = getRepoUrlPrefix(owner);
   internalFindSnapsByPrefix(urlPrefix)
     .then((snaps) => {
-      return res.status(200).send({
-        status: 'success',
-        payload: {
-          code: 'snaps-found',
-          snaps: snaps
-        }
-      });
+      return Promise.all(snaps.map((snap) => {
+        return getSnapName(snap.git_repository_url, req.session.token)
+          .then((snapName) => {
+            return {
+              ...snap,
+              snap_info: { name: snapName }
+            };
+          });
+      }))
+        .then((snaps) => {
+          return res.status(200).send({
+            status: 'success',
+            payload: {
+              code: 'snaps-found',
+              snaps: snaps
+            }
+          });
+        });
     })
     .catch((error) => sendError(res, error));
 };
