@@ -39,7 +39,7 @@ router.get('/user/repos', (req, res) => {
       full_name: 'test/test',
       name: 'test',
       owner: { login: 'test' },
-      url: 'http://github.com/anowner/aname'
+      url: 'http://github.com/test/test'
     }
   ]);
 });
