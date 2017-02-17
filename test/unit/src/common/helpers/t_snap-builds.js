@@ -2,7 +2,7 @@ import expect from 'expect';
 
 import {
   snapBuildFromAPI,
-  BuildStatus
+  BuildStatusConstants
 } from '../../../../../src/common/helpers/snap-builds';
 
 
@@ -112,7 +112,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Needs building'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatus.PENDING);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.PENDING);
     });
 
     it('should map `Successfully built` into SUCCESS', () => {
@@ -121,7 +121,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Successfully built'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatus.SUCCESS);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.SUCCESS);
     });
 
     it('should map `Failed to build` into ERROR', () => {
@@ -130,7 +130,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Failed to build'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatus.ERROR);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.ERROR);
     });
 
     it('should map `Dependency wait` into ERROR', () => {
@@ -139,7 +139,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Dependency wait'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatus.ERROR);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.ERROR);
     });
 
     it('should map `Chroot problem` into ERROR', () => {
@@ -148,7 +148,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Chroot problem'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatus.ERROR);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.ERROR);
     });
 
     it('should map `Build for superseded Source` into ERROR', () => {
@@ -157,7 +157,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Build for superseded Source'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatus.ERROR);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.ERROR);
     });
 
     it('should map `Currently building` into PENDING', () => {
@@ -166,7 +166,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Currently building'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatus.PENDING);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.PENDING);
     });
 
     it('should map `Failed to upload` into ERROR', () => {
@@ -175,7 +175,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Failed to upload'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatus.ERROR);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.ERROR);
     });
 
     it('should map `Uploading build` into PENDING', () => {
@@ -184,7 +184,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Uploading build'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatus.PENDING);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.PENDING);
     });
 
     it('should map `Cancelling build` into ERROR', () => {
@@ -193,7 +193,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Cancelling build'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatus.ERROR);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.ERROR);
     });
 
     it('should map `Cancelled build` into ERROR', () => {
@@ -202,7 +202,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Cancelled build'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatus.ERROR);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.ERROR);
     });
 
   });

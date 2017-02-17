@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import moment from 'moment';
 
-import { BuildStatus } from '../../helpers/snap-builds';
+import { BuildStatusConstants } from '../../helpers/snap-builds';
 
 import styles from './buildRow.css';
 
@@ -19,9 +19,9 @@ const BuildRow = (props) => {
   } = props;
 
   const statusStyle = {
-    [BuildStatus.SUCCESS]: styles.success,
-    [BuildStatus.ERROR]: styles.error,
-    [BuildStatus.PENDING]: styles.pending
+    [BuildStatusConstants.SUCCESS]: styles.success,
+    [BuildStatusConstants.ERROR]: styles.error,
+    [BuildStatusConstants.PENDING]: styles.pending
   };
 
   let humanDuration;

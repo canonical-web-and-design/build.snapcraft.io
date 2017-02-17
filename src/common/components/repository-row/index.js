@@ -2,6 +2,8 @@ import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 
 import { Row, Data } from '../vanilla/table-interactive';
+import BuildStatus from '../build-status';
+
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
 
 const RepositoryRow = (props) => {
@@ -19,9 +21,12 @@ const RepositoryRow = (props) => {
             and also show 'Never built' when no builds available
         */}
         { latestBuild &&
-          <Link to={ `/${fullName}/builds/${latestBuild.buildId}`}>
-            { latestBuild.statusMessage }
-          </Link>
+          <BuildStatus
+            link={ `/${fullName}/builds/${latestBuild.buildId}`}
+            status={ latestBuild.status }
+            statusMessage={ latestBuild.statusMessage }
+            dateStarted={ latestBuild.dateStarted }
+          />
         }
       </Data>
     </Row>

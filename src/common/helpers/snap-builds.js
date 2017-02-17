@@ -24,28 +24,28 @@
 //   duration: '0:02:00.124039' // 'duration'
 // };
 
-export const BuildStatus = {
+export const BuildStatusConstants = {
   SUCCESS: 'success', // for builds successfully finished
   PENDING: 'pending', // for build currently running or in any way in progress
   ERROR: 'error'      // for builds failed for any reason
 };
 
-// Based on BuildStatus from LP API
+// Based on BuildStatusConstants from LP API
 // https://git.launchpad.net/launchpad/tree/lib/lp/buildmaster/enums.py#n22
 //
 // mapping between build status from LP and pending/success/error internal status
 const BuildStatusMapping = {
-  'Needs building': BuildStatus.PENDING,
-  'Successfully built': BuildStatus.SUCCESS,
-  'Failed to build': BuildStatus.ERROR,
-  'Dependency wait': BuildStatus.ERROR,
-  'Chroot problem': BuildStatus.ERROR,
-  'Build for superseded Source': BuildStatus.ERROR,
-  'Currently building': BuildStatus.PENDING,
-  'Failed to upload': BuildStatus.ERROR,
-  'Uploading build': BuildStatus.PENDING,
-  'Cancelling build': BuildStatus.ERROR,
-  'Cancelled build': BuildStatus.ERROR
+  'Needs building': BuildStatusConstants.PENDING,
+  'Successfully built': BuildStatusConstants.SUCCESS,
+  'Failed to build': BuildStatusConstants.ERROR,
+  'Dependency wait': BuildStatusConstants.ERROR,
+  'Chroot problem': BuildStatusConstants.ERROR,
+  'Build for superseded Source': BuildStatusConstants.ERROR,
+  'Currently building': BuildStatusConstants.PENDING,
+  'Failed to upload': BuildStatusConstants.ERROR,
+  'Uploading build': BuildStatusConstants.PENDING,
+  'Cancelling build': BuildStatusConstants.ERROR,
+  'Cancelled build': BuildStatusConstants.ERROR
 };
 
 function getLastPartOfUrl(url) {
