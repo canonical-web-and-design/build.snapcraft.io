@@ -10,6 +10,7 @@ import { parseGitHubRepoUrl } from '../../helpers/github-url';
 
 // loading container styles not to duplicate .spinner class
 import { spinner as spinnerStyles } from '../../containers/container.css';
+import styles from './repositoriesList.css';
 
 const SNAP_NAME_NOT_REGISTERED_ERROR_CODE = 'snap-name-not-registered';
 
@@ -67,7 +68,7 @@ class RepositoriesList extends Component {
     const isLoading = this.props.snaps.isFetching;
 
     return (
-      <div>
+      <div className={styles.repositoriesList}>
         { isLoading &&
           <div className={ spinnerStyles }>
             <Spinner />

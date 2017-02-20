@@ -58,16 +58,37 @@ $table-row-border-color: $dark-grey;
   border-bottom-width: 1px;
 }
 
-.head .row {
-  border-bottom: 1px solid;
+.row.active {
+  background: #FFF;
 }
 
-.row:hover {
-  background-color: #FFF;
+.head .row {
+  border-bottom: 1px solid;
 }
 
 .body {
   display: table-row-group;
   width: 100%;
   float: left;
+}
+
+.dropdown {
+  width: 100%;
+}
+
+.dropdown .row {
+  position: relative;
+  border: 0;
+}
+
+.dropdown .row:before {
+  display: block;
+  margin: 0 auto;
+  width: calc(100% - 20px);
+  border-top: 1px dotted #d2d2d2;
+  position: absolute;
+  height: 1px;
+  content: "";
+  top: 0;
+  left: 10px;
 }
