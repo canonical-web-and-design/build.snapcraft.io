@@ -76,7 +76,7 @@ export const verify = (req, res, next) => {
         req.session.user = response.body;
 
         // Redirect to logged in URL
-        res.redirect('/dashboard/select-repositories');
+        res.redirect('/dashboard');
       });
 
   });

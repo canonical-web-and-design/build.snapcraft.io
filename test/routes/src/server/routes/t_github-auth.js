@@ -119,7 +119,7 @@ describe('The login route', () => {
             .send()
             .end((err, res) => {
               expect(res.statusCode).toEqual(302);
-              expect(res.headers.location).toEqual('/dashboard/select-repositories');
+              expect(res.headers.location).toEqual('/dashboard');
               done(err);
             });
         });
