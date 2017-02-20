@@ -19,9 +19,10 @@ router.post('/repos/:owner/:name/hooks', webhookResponse);
 router.get('/login/oauth/authorize', authoriseLoginResponse);
 router.post('/login/oauth/access_token', responses.okayAuthenticated);
 
-router.get('/repos/:owner/:name/contents/snapcraft.yaml', (req, res) => {
-  res.status(200).send(`name: ${req.params.name}\n`);
-});
+router.get(
+  '/repos/:owner/:name/contents/snapcraft.yaml',
+  responses.okaySnapcraftYamlFound
+);
 
 router.get('/user/repos', (req, res) => {
   const headers = {

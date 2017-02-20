@@ -11,6 +11,7 @@ import { makeWebhookSecret } from './webhook';
 
 const logger = logging.getLogger('express');
 const REPOSITORY_ENDPOINT = '/user/repos';
+const SNAPCRAFT_INFO_WHITELIST = ['name'];
 
 const RESPONSE_NOT_FOUND = {
   status: 'error',
@@ -86,7 +87,7 @@ export const getUser = (req, res) => {
 // memcached cache id helper
 export const getSnapNameCacheId = (repositoryUrl) => `snap_name:${repositoryUrl}`;
 
-export const getSnapName = (repositoryUrl, token) => {
+export const getSnapcraftData = (repositoryUrl, token) => {
   const { owner, name } = parseGitHubRepoUrl(repositoryUrl);
   const cacheId = getSnapNameCacheId(repositoryUrl);
 
@@ -99,13 +100,18 @@ export const getSnapName = (repositoryUrl, token) => {
 
       return internalGetSnapcraftYaml(owner, name, token)
         .then((snapcraftYaml) => {
-          const snapName = snapcraftYaml.name;
-          if (snapName) {
-            getMemcached().set(cacheId, snapName, 3600);
-            return resolve(snapName);
-          } else {
-            return resolve(null);
+          const snapcraftData = {};
+          for (let index in snapcraftYaml) {
+            if (snapcraftYaml.hasOwnProperty(index)) {
+              if (SNAPCRAFT_INFO_WHITELIST.indexOf(index) >= 0) {
+                snapcraftData[index] = snapcraftYaml[index];
+              }
+            }
           }
+
+          return getMemcached().set(cacheId, snapcraftData, 3600, () => {
+            return resolve(snapcraftData);
+          });
         })
         .catch(() => resolve(null));
     });
@@ -138,31 +144,19 @@ export const listRepositories = (req, res) => {
         });
       }
 
-      return Promise.all(response.body.map((repo) => {
-        return getSnapName(repo.url, req.session.token)
-          .then((snapName) => {
-            return {
-              ...repo,
-              snap_info: { name: snapName }
-            };
-          });
-      }))
-        .then((repos) => {
-          const body = {
-            status: 'success',
-            payload: {
-              code: 'github-list-repositories',
-              repos
-            }
-          };
+      const body = {
+        status: 'success',
+        payload: {
+          code: 'github-list-repositories',
+          repos: response.body
+        }
+      };
 
-          if (response.headers.link) {
-            body.pageLinks = parseLinkHeader(response.headers.link);
-          }
+      if (response.headers.link) {
+        body.pageLinks = parseLinkHeader(response.headers.link);
+      }
 
-          return res.status(response.statusCode).send(body);
-        })
-        .catch((error) => sendError(res, error));
+      return res.status(response.statusCode).send(body);
     });
 };
 

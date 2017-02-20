@@ -7,7 +7,7 @@ import { conf } from '../helpers/config';
 import { getMemcached } from '../helpers/memcached';
 import requestGitHub from '../helpers/github';
 import getLaunchpad from '../launchpad';
-import { getSnapName } from './github';
+import { getSnapcraftData } from './github';
 import logging from '../logging';
 
 const logger = logging.getLogger('express');
@@ -383,11 +383,11 @@ export const findSnaps = (req, res) => {
   internalFindSnapsByPrefix(urlPrefix)
     .then((snaps) => {
       return Promise.all(snaps.map((snap) => {
-        return getSnapName(snap.git_repository_url, req.session.token)
-          .then((snapName) => {
+        return getSnapcraftData(snap.git_repository_url, req.session.token)
+          .then((snapcraftData) => {
             return {
               ...snap,
-              snap_info: { name: snapName }
+              snapcraft_data: snapcraftData
             };
           });
       }))
