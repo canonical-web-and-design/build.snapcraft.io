@@ -61,7 +61,7 @@ class BuildDetails extends Component {
             <BuildLog logUrl={build.buildLogUrl} />
           </div>
         }
-        <HelpInstallSnap name='foo' revision='1' />
+        <HelpInstallSnap name='foo' revision={1} />
       </div>
     );
   }
