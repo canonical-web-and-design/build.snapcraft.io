@@ -209,3 +209,23 @@ of the parsed YAML file:
         }
       }
     }
+
+## Store
+
+### Snap name registration
+
+To register a name with the store:
+
+    POST /api/store/register-name
+    Content-Type: application/json
+
+    {
+      "snap_name": ":snap-name",
+      "macaroon": ":package-upload-request-macaroon"
+    }
+
+The response is [defined by the
+store](https://myapps.developer.ubuntu.com/docs/api/snap.html#register-a-package-name).
+
+This endpoint should be considered temporary; once it is possible to make a
+cross-origin request directly to the store, we will do that instead.
