@@ -20,7 +20,7 @@ $neutral-border-color: $dark-grey;
 .button {
   font-family: $base-font-family;
   font-smoothing: subpixel-antialiased;
-  font-size: 1em;
+  font-size: 1rem;
   display: inline-block;
   margin: 0;
   padding: 6px 19px;
@@ -37,6 +37,16 @@ $neutral-border-color: $dark-grey;
 .button:focus,
 .button:hover {
   text-decoration: none;
+}
+
+.button img {
+  display: block;
+  margin: 0;
+  padding: 1px 0 0 0;
+  margin-left: 0.5em;
+  height: 21px;
+  float: right;
+  box-sizing: content-box;
 }
 
 .primary {
