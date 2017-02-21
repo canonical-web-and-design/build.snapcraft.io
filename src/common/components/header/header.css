@@ -41,7 +41,7 @@ $text-color: $cool-grey;
   float: right;
 }
 
-.link {
+.navItem {
   box-sizing: border-box;
   display: inline-block;
   height: 50px;
@@ -51,6 +51,14 @@ $text-color: $cool-grey;
   font-size: .875em;
   text-align: center;
   border-left: 1px solid $border-color;
+}
+
+.navItem:first-child {
+  border-left: none;
+}
+
+.link {
+  composes: navItem;
 }
 
 .link:hover {

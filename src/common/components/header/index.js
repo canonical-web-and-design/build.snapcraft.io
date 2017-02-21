@@ -18,7 +18,7 @@ class Header extends Component {
           { authenticated
             ?
               <div className={ styles.sideNav }>
-                { user && <span className={ styles.link } >Hi, {user.name}</span> }
+                { user && <span className={ styles.navItem } >Hi, {user.name}</span> }
                 <Link to="/dashboard" className={ styles.link }>Dashboard</Link>
                 <a
                   className={ styles.link }
