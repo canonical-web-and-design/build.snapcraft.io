@@ -14,7 +14,7 @@ class Dashboard extends Component {
         />
         <TrafficLights signalState={[
           SIGNALS.DONE,
-          SIGNALS.ACTIVE,
+          SIGNALS.DONE,
           SIGNALS.DEFAULT ]}
         />
         <RepositoriesHome />
