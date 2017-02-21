@@ -101,11 +101,9 @@ export const getSnapcraftData = (repositoryUrl, token) => {
       return internalGetSnapcraftYaml(owner, name, token)
         .then((snapcraftYaml) => {
           const snapcraftData = {};
-          for (let index in snapcraftYaml) {
-            if (snapcraftYaml.hasOwnProperty(index)) {
-              if (SNAPCRAFT_INFO_WHITELIST.indexOf(index) >= 0) {
-                snapcraftData[index] = snapcraftYaml[index];
-              }
+          for (const index of Object.keys(snapcraftYaml)) {
+            if (SNAPCRAFT_INFO_WHITELIST.indexOf(index) >= 0) {
+              snapcraftData[index] = snapcraftYaml[index];
             }
           }
 
