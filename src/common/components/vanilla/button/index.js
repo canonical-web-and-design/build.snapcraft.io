@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { Link } from 'react-router';
 
 import Spinner from '../../spinner';
 import style from './button.css';
@@ -32,10 +33,19 @@ export function Anchor(props) {
   );
 }
 
+export function LinkButton(props) {
+  const { appearance='primary', ...rest } = props;
+  return <Link {...rest} className={ style[appearance] } />;
+}
+
 Button.propTypes = {
   ...defaultProps
 };
 
 Anchor.propTypes = {
+  ...defaultProps
+};
+
+LinkButton.propTypes = {
   ...defaultProps
 };

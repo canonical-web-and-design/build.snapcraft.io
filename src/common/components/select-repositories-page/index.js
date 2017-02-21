@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { fetchUserRepositories } from '../../actions/repositories';
 import SelectRepositoryList from '../select-repository-list';
 import { HeadingThree } from '../vanilla/heading';
+import FirstTimeHeading from '../first-time-heading';
 import { CardHighlighted } from '../vanilla/card';
 
 class SelectRepositoriesPage extends Component {
@@ -16,13 +17,15 @@ class SelectRepositoriesPage extends Component {
   }
 
   render() {
+    const { snaps, snapBuilds } = this.props;
     return (
       <div>
+        <FirstTimeHeading  snaps={snaps} snapBuilds={snapBuilds} />
         <CardHighlighted>
           <HeadingThree>
-            Select your repositories
+            Choose repos to add
           </HeadingThree>
-          <SelectRepositoryList />
+          <SelectRepositoryList/>
         </CardHighlighted>
       </div>
     );
@@ -31,16 +34,22 @@ class SelectRepositoriesPage extends Component {
 
 SelectRepositoriesPage.propTypes = {
   auth: PropTypes.object.isRequired,
+  snaps: PropTypes.object.isRequired,
+  snapBuilds: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
   const {
-    auth
+    auth,
+    snaps,
+    snapBuilds
   } = state;
 
   return {
-    auth
+    auth,
+    snaps,
+    snapBuilds
   };
 }
 

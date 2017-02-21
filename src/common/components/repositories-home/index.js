@@ -4,7 +4,9 @@ import { withRouter } from 'react-router';
 
 import { fetchUserSnaps } from '../../actions/snaps';
 import { fetchBuilds } from '../../actions/snap-builds';
-import { Anchor } from '../vanilla/button';
+import { LinkButton } from '../vanilla/button';
+import { HeadingThree } from '../vanilla/heading';
+import FirstTimeHeading from '../first-time-heading';
 import RepositoriesList from '../repositories-list';
 import styles from './repositories-home.css';
 import Spinner from '../spinner';
@@ -47,13 +49,16 @@ class RepositoriesHome extends Component {
   }
 
   renderRepositoriesList() {
+    const { snaps, snapBuilds } = this.props;
+
     return (
       <div>
-        <h2>Repos to build and publish</h2>
+        <FirstTimeHeading snaps={snaps} snapBuilds={snapBuilds} />
+        <HeadingThree>Repos to build and publish</HeadingThree>
         <div className={ styles['button-container'] }>
-          <Anchor appearance="neutral" href="/dashboard/select-repositories">
+          <LinkButton appearance="neutral" to="/dashboard/select-repositories">
             Add repos…
-          </Anchor>
+          </LinkButton>
         </div>
         <RepositoriesList />
       </div>
@@ -81,6 +86,7 @@ RepositoriesHome.propTypes = {
   auth: PropTypes.object.isRequired,
   user: PropTypes.object,
   snaps: PropTypes.object.isRequired,
+  snapBuilds: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
   router: PropTypes.object.isRequired
 };
@@ -89,13 +95,15 @@ function mapStateToProps(state) {
   const {
     auth,
     user,
-    snaps
+    snaps,
+    snapBuilds
   } = state;
 
   return {
     auth,
     user,
-    snaps
+    snaps,
+    snapBuilds
   };
 }
 
