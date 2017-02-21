@@ -1,0 +1,60 @@
+.trafficlight {
+  display: flex;
+  width:80%;
+  margin:1rem auto;
+}
+
+.signal {
+  background: #666;
+  border-radius: 50%;
+  color: #fff;
+  display: inline-block;
+  font-size: 1.5rem;
+  height: 50px;
+  margin-bottom: .625rem;
+  margin-right: .34375rem;
+  padding: .65rem 1.15rem;
+  text-align: center;
+  width: 50px;
+  line-height:1.286;
+  position: relative;
+  z-index:10;
+}
+
+.signal::after {
+  content:'';
+  display: block;
+  height: 4px;
+  width: 450%;
+  background: #666;
+  position: absolute;
+  top:50%;
+  left:100%;
+  z-index:-1;
+  margin-top:-2px;
+}
+
+.active {
+  background: $information;
+}
+
+.done::before {
+  content: "\0000a0";
+}
+
+.done {
+  background: $success url(./white-tick.svg) 50% 50% no-repeat;
+}
+
+.done::after {
+  background: $success;
+}
+
+.box:last-child .signal::after {
+  display:none;
+}
+
+.box {
+  flex: 1;
+  text-align: center;
+}
