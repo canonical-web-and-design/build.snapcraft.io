@@ -1,0 +1,17 @@
+.container {
+  composes: container from '../../containers/app.css';
+  display: flex;
+  margin:2rem 0;
+}
+
+.avatar {
+  margin-right: 1.5em;
+}
+
+.avatar > img {
+  height: 115px;
+}
+
+.headings h1, .headings h3 {
+  margin: 0;
+}
