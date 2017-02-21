@@ -51,7 +51,7 @@ class RepositoriesHome extends Component {
       <div>
         <h2>Repos to build and publish</h2>
         <div className={ styles['button-container'] }>
-          <Anchor appearance="neutral" href="dashboard/select-repositories/">
+          <Anchor appearance="neutral" href="/dashboard/select-repositories">
             Add repos…
           </Anchor>
         </div>
