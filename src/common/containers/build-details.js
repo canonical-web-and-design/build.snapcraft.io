@@ -1,11 +1,13 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
+import { Link } from 'react-router';
 
 import BuildRow from '../components/build-row';
 import BuildLog from '../components/build-log';
 import { Message } from '../components/forms';
 import HelpInstallSnap from '../components/help/install-snap';
+import { HeadingOne } from '../components/vanilla/heading';
 
 import withRepository from './with-repository';
 import { fetchBuilds, fetchSnap } from '../actions/snap-builds';
@@ -47,7 +49,9 @@ class BuildDetails extends Component {
         <Helmet
           title={`${repository.fullName} builds`}
         />
-        <h1>{repository.fullName} build #{buildId}</h1>
+        <HeadingOne>
+          <Link to={`/${repository.fullName}/builds`}>{repository.fullName}</Link> build #{buildId}
+        </HeadingOne>
         { isFetching &&
           <span>Loading...</span>
         }

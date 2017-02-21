@@ -1,11 +1,13 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
+import { Link } from 'react-router';
 
 import BuildHistory from '../components/build-history';
 import { Message } from '../components/forms';
 import Spinner from '../components/spinner';
 import HelpInstallSnap from '../components/help/install-snap';
+import { HeadingOne } from '../components/vanilla/heading';
 
 import withRepository from './with-repository';
 import { fetchBuilds, fetchSnap } from '../actions/snap-builds';
@@ -58,7 +60,9 @@ class Builds extends Component {
         <Helmet
           title={`${repository.fullName} builds`}
         />
-        <h1>{repository.fullName} builds</h1>
+        <HeadingOne>
+          <Link to={`/${repository.fullName}/builds`}>{repository.fullName}</Link>
+        </HeadingOne>
         <BuildHistory repository={repository} />
         { isLoading &&
           <div className={styles.spinner}><Spinner /></div>
