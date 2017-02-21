@@ -2,8 +2,10 @@ import Express from 'express';
 import helmet from 'helmet';
 import session from 'express-session';
 import url from 'url';
+import path from 'path';
 import expressWinston from 'express-winston';
 import raven from 'raven';
+import favicon from 'serve-favicon';
 
 import * as routes from './routes/';
 import { conf } from './helpers/config';
@@ -17,6 +19,7 @@ const accessLogger = logging.getLogger('express-access');
 const logger = logging.getLogger('express');
 
 app.set('logger', logger);
+app.use(favicon(path.join(__dirname, '../../src/common/images', 'favicon.ico')));
 
 if (app.get('env') === 'production') {
   app.set('trust proxy', 1);
