@@ -37,8 +37,14 @@
 
 .h6 {
   composes: heading;
-  font-size: 1.063rem;
   line-height: 1.412;
+  font-weight: 300;
+  margin-bottom: 3em;
+  letter-spacing: .1em;
+  font-size: .875em;
+  text-align: center;
+  text-transform: uppercase;
+
 }
 
 .heading a {

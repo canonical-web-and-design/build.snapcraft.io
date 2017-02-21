@@ -28,10 +28,7 @@
 }
 
 .bannerButton {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translate(-50%,50%);
+  margin-bottom: 4em;
 }
 
 .workflowImage {
@@ -48,7 +45,8 @@
 }
 
 .workflowItemOneThird > p {
-  margin: 0 5em;
+  margin: 0 3em;
+  font-size: 1.2em;
 }
 
 .centeredButton {
@@ -102,4 +100,14 @@
 
 .snaps {
   margin-bottom: 2em;
+}
+
+.centeredText {
+  text-align: center;
+}
+
+.external {
+  background: url($icon-link-external) 100% 0 no-repeat;
+  background-size: 0.7em;
+  padding-right: 0.9em;
 }

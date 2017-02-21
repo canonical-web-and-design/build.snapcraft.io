@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import { Anchor } from '../components/vanilla/button';
 import { HeadingOne } from '../components/vanilla/heading';
+import { HeadingSix } from '../components/vanilla/heading';
 import { ListDividedState } from '../components/vanilla/list';
 
 import containerStyles from './container.css';
@@ -15,16 +16,16 @@ class Landing extends Component {
   render() {
     return (
       <div>
-        <div className={ containerStyles.lightStrip }>
+        <div className={ containerStyles.strip }>
           <div>
-            <div className={ containerStyles.wrapper }>
+            <div className={ `${containerStyles.wrapper} ${styles.centeredText}` }>
               <HeadingOne>
                 Auto-build and publish software<br />for any Linux system or device
               </HeadingOne>
 
               <ul className={ styles.banner }>
                 <li className={ styles.bannerImage }>
-                  <img src={images.banner} />
+                  <img src='https://assets.ubuntu.com/v1/dcae3c70-header-final-01.svg' />
                 </li>
 
                 <li className={ styles.bannerLabel }>
@@ -39,7 +40,7 @@ class Landing extends Component {
               </ul>
 
               <div className={ styles.bannerButton }>
-                <Anchor href="/auth/authenticate" icon={ octocat }>
+                <Anchor href="/auth/authenticate" icon={ octocat } flavour='embiggened'>
                   Set up in minutes
                 </Anchor>
               </div>
@@ -47,7 +48,7 @@ class Landing extends Component {
           </div>
         </div>
 
-        <section className={styles.section}>
+        <section className={ `${styles.section}  ${containerStyles.lightStrip}` }>
           <div className={ `${styles.row} ${containerStyles.wrapper}` }>
             <ListDividedState className={ styles.rowItemGrow }>
               <li>Scale to millions of installs</li>
@@ -64,6 +65,9 @@ class Landing extends Component {
         </section>
 
         <section className={styles.section}>
+          <HeadingSix>
+            Publish your software for
+          </HeadingSix>
           <div className={ `${styles.row} ${containerStyles.wrapper}` }>
             <img className={ styles.brandLogo } src={images.ubuntu} />
             <img className={ styles.brandLogo } src={images.archlinux} />
@@ -85,12 +89,12 @@ class Landing extends Component {
 
             <div className={styles.workflowItemOneThird}>
               <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/13effe35-workflow-icon02.svg' />
-              <p>Tested with your existing integration system, such as Travis</p>
+              <p>Test with Travis or other CI system</p>
             </div>
 
             <div className={styles.workflowItemOneThird}>
               <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/24c102a8-workflow-icon03.svg' />
-              <p>The code lands on master</p>
+              <p>The code lands on your GitHub master branch</p>
             </div>
 
           </div>
@@ -109,13 +113,13 @@ class Landing extends Component {
 
             <div className={styles.workflowItemOneThird}>
               <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/347628e8-workflow-icon06a.svg' />
-              <p>When ready, you can promote the update to beta or stable channels</p>
+              <p>When ready, promote to beta or stable</p>
             </div>
 
           </div>
 
           <div className={ styles.centeredButton }>
-            <Anchor href="/auth/authenticate" icon={ octocat }>
+            <Anchor href="/auth/authenticate" icon={ octocat } flavour='embiggened'>
               Get started now
             </Anchor>
           </div>
@@ -126,7 +130,7 @@ class Landing extends Component {
 
             <div className={styles.rowItemTwoThirds}>
               <p className={styles.snaps}>With Snapcraft, it&rsquo;s easy to get your software published in the <dfn>Snap Store</dfn>. This store lets people safely install apps from any vendor on mission-critical devices and PCs. Snaps are secure, sandboxed, containerised applications, packaged with their dependencies for predictable behaviour.</p>
-              <Anchor href="https://snapcraft.io">More about snaps</Anchor>
+              <a href="https://snapcraft.io" className={ styles.external } >More about snaps</a>
             </div>
 
             <div className={styles.rowItemOneThird}>

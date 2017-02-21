@@ -111,8 +111,8 @@ $neutral-border-color: $dark-grey;
   display: block;
   margin: 0;
   padding: 1px 0 0 0;
-  margin-left: 0.5em;
-  height: 21px;
+  margin-left: 1em;
+  height: 32px;
   float: right;
   box-sizing: content-box;
 }
@@ -125,4 +125,10 @@ $neutral-border-color: $dark-grey;
   height: 21px;
   float: left;
   box-sizing: content-box;
+}
+
+.embiggened {
+  margin-top: 2em;
+  padding: .5em 1.5em;
+  font-size: 1.5em;
 }

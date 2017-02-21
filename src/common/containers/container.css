@@ -16,10 +16,14 @@
   margin: 5px auto;
 }
 
-.lightStrip {
-  background-color: $light-grey;
-  padding: 2rem 0;
-  width: 100%;
+.strip {
   clear: both;
+  padding: 2rem 0;
   position: relative;
+  width: 100%;
+}
+
+.lightStrip {
+  composes: strip;
+  background-color: $light-grey;
 }
