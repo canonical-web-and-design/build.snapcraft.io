@@ -20,6 +20,7 @@ class RepositoriesHome extends Component {
       // if user doesn't have enabled repos open add repositories view
       if (snaps.snaps.length === 0) {
         this.props.router.replace('/dashboard/select-repositories');
+        return;
       }
 
       snaps.snaps.forEach((snap) => {
@@ -40,7 +41,9 @@ class RepositoriesHome extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.fetchData(nextProps);
+    if (this.props.snaps.success !== nextProps.snaps.success) {
+      this.fetchData(nextProps);
+    }
   }
 
   renderRepositoriesList() {
