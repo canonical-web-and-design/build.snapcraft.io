@@ -894,6 +894,20 @@
     "send": {
       "version": "0.14.1"
     },
+    "serve-favicon": {
+      "version": "2.4.0",
+      "dependencies": {
+        "etag": {
+          "version": "1.8.0"
+        },
+        "fresh": {
+          "version": "0.4.0"
+        },
+        "ms": {
+          "version": "0.7.2"
+        }
+      }
+    },
     "serve-static": {
       "version": "1.11.1"
     },
