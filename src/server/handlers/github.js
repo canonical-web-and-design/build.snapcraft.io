@@ -6,7 +6,7 @@ import { conf } from '../helpers/config';
 import requestGitHub from '../helpers/github';
 import { getMemcached } from '../helpers/memcached';
 import logging from '../logging';
-import { internalGetSnapcraftYaml, sendError } from './launchpad';
+import { internalGetSnapcraftYaml } from './launchpad';
 import { makeWebhookSecret } from './webhook';
 
 const logger = logging.getLogger('express');

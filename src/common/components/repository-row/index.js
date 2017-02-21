@@ -47,10 +47,10 @@ class RepositoryRow extends Component {
       <Row isActive={isActive}>
         <Data col="30"><Link to={ `/${fullName}/builds` }>{ fullName }</Link></Data>
         <Data col="20">
-          { renderConfiguredStatus.call(this, snap.snapcraft_data) }
+          { this.renderConfiguredStatus.call(this, snap.snapcraft_data) }
         </Data>
         <Data col="20">
-          { renderSnapName.call(this, snap.snapcraft_data) }
+          { this.renderSnapName.call(this, snap.snapcraft_data) }
         </Data>
         <Data col="30">
           {/*

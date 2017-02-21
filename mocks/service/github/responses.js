@@ -86,7 +86,7 @@ export function okaySnapcraftYamlFound(req, res) {
 
 export function errorSnapcraftYamlNotFound(req, res) {
   res.status(404).send({
-    "message": "Not Found",
-    "documentation_url": "https://developer.github.com/v3"
+    'message': 'Not Found',
+    'documentation_url': 'https://developer.github.com/v3'
   });
 }

@@ -338,13 +338,13 @@ describe('The Launchpad API endpoint', () => {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~another-user`,
-            git_repository_url: `http://github.com/another-user/test-snap`
+            git_repository_url: 'http://github.com/another-user/test-snap'
           },
           {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~test-user`,
-            git_repository_url: `https://github.com/test-user/test-snap`
+            git_repository_url: 'https://github.com/test-user/test-snap'
           }
         ];
 
@@ -557,13 +557,13 @@ describe('The Launchpad API endpoint', () => {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~another-user`,
-            git_repository_url: `https://github.com/another-user/test-snap`
+            git_repository_url: 'https://github.com/another-user/test-snap'
           },
           {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~test-user`,
-            git_repository_url: `https://github.com/test-user/test-snap`
+            git_repository_url: 'https://github.com/test-user/test-snap'
           }
         ];
 

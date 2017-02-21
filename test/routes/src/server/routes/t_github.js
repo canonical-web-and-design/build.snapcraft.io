@@ -5,7 +5,6 @@ import nock from 'nock';
 import expect from 'expect';
 
 import github from '../../../../../src/server/routes/github';
-import { getSnapNameCacheId } from '../../../../../src/server/handlers/github';
 import { conf } from '../../../../../src/server/helpers/config.js';
 
 describe('The GitHub API endpoint', () => {
