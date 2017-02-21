@@ -18,18 +18,18 @@ class Header extends Component {
           { authenticated
             ?
               <div className={ styles.sideNav }>
-                { user && <a href={user.html_url} className={ styles.link }>{user.name}</a> }
+                { user && <span className={ styles.link } >Hi, {user.name}</span> }
                 <Link to="/dashboard" className={ styles.link }>Dashboard</Link>
                 <a
                   className={ styles.link }
                   onClick={ this.onLogoutClick.bind(this) }
                 >
-                  Log out
+                  Sign out
                 </a>
               </div>
             :
               <div className={ styles.sideNav }>
-                <a href="/auth/authenticate" className={ styles.link }>Log in</a>
+                <a href="/auth/authenticate" className={ styles.link }>Sign in</a>
               </div>
           }
         </nav>
