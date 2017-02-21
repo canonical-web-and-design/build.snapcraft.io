@@ -1,15 +1,24 @@
 .strip {
-  font-size: 0.8rem;
   background-color: $light-grey;
-  padding: 16px;
+  padding: 2rem;
 }
 
 .cli {
-  font-family: "Ubuntu-mono", monospace;
-  border:1px solid #ccc;
-  padding: 5px 10px;
+  font-family: "Ubuntu Mono", monospace;
+  line-height:1.5;
   display:inline-block;
+  border-radius:2px;
+  border: 1px solid $dark-grey;
+  padding:16px;
+  color: $cool-grey;
+  background-color: $light-grey;
   margin-bottom: 1rem;
+}
+
+.external {
+  background: url($icon-link-external) 100% 0 no-repeat;
+  background-size: 0.7em;
+  padding-right: 0.9em;
 }
 
 .p {

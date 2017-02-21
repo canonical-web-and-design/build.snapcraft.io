@@ -5,6 +5,7 @@ import Helmet from 'react-helmet';
 import BuildHistory from '../components/build-history';
 import { Message } from '../components/forms';
 import Spinner from '../components/spinner';
+import HelpInstallSnap from '../components/help/install-snap';
 
 import withRepository from './with-repository';
 import { fetchBuilds, fetchSnap } from '../actions/snap-builds';
@@ -65,6 +66,10 @@ class Builds extends Component {
         { error &&
           <Message status='error'>{ error.message || error }</Message>
         }
+        <HelpInstallSnap
+          headline='To test this snap on your PC, cloud instance, or device:'
+          name='foo'
+        />
       </div>
     );
   }

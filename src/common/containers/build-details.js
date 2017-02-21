@@ -61,7 +61,11 @@ class BuildDetails extends Component {
             <BuildLog logUrl={build.buildLogUrl} />
           </div>
         }
-        <HelpInstallSnap name='foo' revision={1} />
+        <HelpInstallSnap
+          headline='To test this build on your PC, cloud instance, or device:'
+          name='foo'
+          revision={1}
+        />
       </div>
     );
   }
