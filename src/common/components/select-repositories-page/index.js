@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import { fetchUserRepositories } from '../../actions/repositories';
 import SelectRepositoryList from '../select-repository-list';
-import { HeadingTwo, HeadingThree } from '../vanilla/heading';
+import { HeadingThree } from '../vanilla/heading';
 import { CardHighlighted } from '../vanilla/card';
 
 class SelectRepositoriesPage extends Component {
@@ -18,9 +18,6 @@ class SelectRepositoriesPage extends Component {
   render() {
     return (
       <div>
-        <HeadingTwo>
-          All your repositories have been successfully added to build.snapcraft.io
-        </HeadingTwo>
         <CardHighlighted>
           <HeadingThree>
             Select your repositories
