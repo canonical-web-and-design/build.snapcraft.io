@@ -3,11 +3,6 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
 import { conf } from '../../helpers/config';
-import {
-  checkSignedIntoStore,
-  getSSODischarge,
-  signIntoStore
-} from '../../actions/auth-store';
 import { createSnaps } from '../../actions/create-snap';
 import { toggleRepository } from '../../actions/select-repositories-form';
 import SelectRepositoryRow from '../select-repository-row';
@@ -24,14 +19,6 @@ import { spinner as spinnerStyles } from '../../containers/container.css';
 const SNAP_NAME_NOT_REGISTERED_ERROR_CODE = 'snap-name-not-registered';
 
 class SelectRepositoryList extends Component {
-
-  componentDidMount() {
-    if (this.props.authStore.hasDischarge) {
-      this.props.dispatch(getSSODischarge());
-    } else if (this.props.authStore.authenticated === null) {
-      this.props.dispatch(checkSignedIntoStore());
-    }
-  }
 
   componentWillReceiveProps(nextProps) {
     const repositoriesStatus = nextProps.repositoriesStatus;
@@ -88,13 +75,9 @@ class SelectRepositoryList extends Component {
   }
 
   onSubmit() {
-    if (this.props.authStore.authenticated) {
-      const { selectedRepos } = this.props.selectRepositoriesForm;
-      if (selectedRepos.length) {
-        this.props.dispatch(createSnaps(selectedRepos));
-      }
-    } else {
-      this.props.dispatch(signIntoStore());
+    const { selectedRepos } = this.props.selectRepositoriesForm;
+    if (selectedRepos.length) {
+      this.props.dispatch(createSnaps(selectedRepos));
     }
   }
 
@@ -104,13 +87,6 @@ class SelectRepositoryList extends Component {
 
   render() {
     const isLoading = this.props.repositories.isFetching;
-    // If the user has signed into the store but we haven't fetched the
-    // resulting discharge macaroon, we need to wait for that before
-    // allowing them to proceed.
-    const submitButtonDisabled = (
-      this.props.authStore.hasDischarge &&
-      !this.props.authStore.authenticated
-    );
 
     return (
       <div>
@@ -124,7 +100,7 @@ class SelectRepositoryList extends Component {
         { this.renderPageLinks.call(this) }
         <div className={ styles.footer }>
           <div className={ styles.right }>
-            <Button disabled={ submitButtonDisabled } onClick={ this.onSubmit.bind(this) } appearance={ 'positive' }>
+            <Button onClick={ this.onSubmit.bind(this) } appearance={ 'positive' }>
               Add
             </Button>
           </div>
@@ -150,21 +126,18 @@ SelectRepositoryList.propTypes = {
   repositoriesStatus: PropTypes.object,
   selectRepositoriesForm: PropTypes.object,
   onSelectRepository: PropTypes.func,
-  authStore: PropTypes.object.isRequired,
   router: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
   const {
-    authStore,
     repositories,
     repositoriesStatus,
     selectRepositoriesForm
   } = state;
 
   return {
-    authStore,
     repositories,
     repositoriesStatus,
     selectRepositoriesForm

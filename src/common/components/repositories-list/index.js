@@ -2,6 +2,10 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { conf } from '../../helpers/config';
+import {
+  checkSignedIntoStore,
+  getSSODischarge
+} from '../../actions/auth-store';
 import { createSnap } from '../../actions/create-snap';
 import RepositoryRow from '../repository-row';
 import Spinner from '../spinner';
@@ -15,6 +19,14 @@ import styles from './repositoriesList.css';
 const SNAP_NAME_NOT_REGISTERED_ERROR_CODE = 'snap-name-not-registered';
 
 class RepositoriesList extends Component {
+  componentDidMount() {
+    if (this.props.authStore.hasDischarge) {
+      this.props.dispatch(getSSODischarge());
+    } else if (this.props.authStore.authenticated === null) {
+      this.props.dispatch(checkSignedIntoStore());
+    }
+  }
+
   getSnapNotRegisteredMessage(snapName) {
     const devportalUrl = conf.get('STORE_DEVPORTAL_URL');
     const registerNameUrl = `${devportalUrl}/click-apps/register-name/` +
@@ -49,11 +61,16 @@ class RepositoriesList extends Component {
       latestBuild = snapBuilds.builds[0];
     }
 
+    const registerNameStatus = this.props.registerName[fullName] || {};
+
     return (
       <RepositoryRow
         key={ `repo_${fullName}` }
         snap={ snap }
         latestBuild={ latestBuild }
+        fullName={ fullName }
+        authStore={ this.props.authStore }
+        registerNameStatus={ registerNameStatus }
       />
     );
   }
@@ -95,21 +112,27 @@ class RepositoriesList extends Component {
 }
 
 RepositoriesList.propTypes = {
+  auth: PropTypes.object.isRequired,
+  authStore: PropTypes.object.isRequired,
+  registerName: PropTypes.object,
   snaps: PropTypes.object,
   snapBuilds: PropTypes.object,
-  auth: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
   const {
     auth,
+    authStore,
+    registerName,
     snaps,
     snapBuilds
   } = state;
 
   return {
     auth,
+    authStore,
+    registerName,
     snaps,
     snapBuilds
   };

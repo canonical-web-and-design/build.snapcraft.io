@@ -1,0 +1,8 @@
+.snapName {
+  width: 100%;
+}
+
+.helpText {
+  font-size: .875rem;
+  color: $warm-grey;
+}
