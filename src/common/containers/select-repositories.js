@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Helmet from 'react-helmet';
 
 import SelectRepositoriesPage from '../components/select-repositories-page';
+import UserAvatar from '../components/user-avatar';
 import styles from './container.css';
 
 class SelectRepositories extends Component {
@@ -11,6 +12,7 @@ class SelectRepositories extends Component {
         <Helmet
           title='Select Repositories'
         />
+        <UserAvatar />
         <SelectRepositoriesPage />
       </div>
     );
