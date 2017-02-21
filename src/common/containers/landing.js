@@ -19,7 +19,7 @@ class Landing extends Component {
           <div>
             <div className={ containerStyles.wrapper }>
               <HeadingOne>
-                Auto-build and publish software for any Linux system or device
+                Auto-build and publish software<br />for any Linux system or device
               </HeadingOne>
 
               <ul className={ styles.banner }>
@@ -75,27 +75,62 @@ class Landing extends Component {
         </section>
 
         <section className={styles.section}>
-          <div className={containerStyles.wrapper}>
-            {/* TODO put in actual workflow image */}
-            <img className={ styles.workflowImage} src='http://placehold.it/1030x480?text=WORKFLOW' />
-            <div className={ styles.centeredButton }>
-              <Anchor href="/auth/authenticate" icon={ octocat }>
-                Get started now
-              </Anchor>
+
+          <div className={ `${styles.row} ${containerStyles.wrapper}` }>
+
+            <div className={styles.workflowItemOneThird}>
+              <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/3fb11c60-workflow-icon01.svg' />
+              <p>You receive a pull request on GitHub</p>
             </div>
+
+            <div className={styles.workflowItemOneThird}>
+              <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/13effe35-workflow-icon02.svg' />
+              <p>Tested with your existing integration system, such as Travis</p>
+            </div>
+
+            <div className={styles.workflowItemOneThird}>
+              <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/24c102a8-workflow-icon03.svg' />
+              <p>The code lands on master</p>
+            </div>
+
+          </div>
+
+          <div className={ `${styles.row} ${containerStyles.wrapper}` }>
+
+            <div className={styles.workflowItemOneThird}>
+              <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/7af63a6d-workflow-icon04.svg' />
+              <p>Snapcraft builds a new snap version</p>
+            </div>
+
+            <div className={styles.workflowItemOneThird}>
+              <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/6cfc526e-workflow-icon05.svg' />
+              <p>Published to the Snap Store for testing</p>
+            </div>
+
+            <div className={styles.workflowItemOneThird}>
+              <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/347628e8-workflow-icon06a.svg' />
+              <p>When ready, you can promote the update to beta or stable channels</p>
+            </div>
+
+          </div>
+
+          <div className={ styles.centeredButton }>
+            <Anchor href="/auth/authenticate" icon={ octocat }>
+              Get started now
+            </Anchor>
           </div>
         </section>
 
         <section className={styles.section}>
           <div className={ `${styles.row} ${containerStyles.wrapper}` }>
 
-
             <div className={styles.rowItemTwoThirds}>
               <p className={styles.snaps}>With Snapcraft, it&rsquo;s easy to get your software published in the <dfn>Snap Store</dfn>. This store lets people safely install apps from any vendor on mission-critical devices and PCs. Snaps are secure, sandboxed, containerised applications, packaged with their dependencies for predictable behaviour.</p>
               <Anchor href="https://snapcraft.io">More about snaps</Anchor>
             </div>
 
-            <img className={ styles.rowItem } src='http://placehold.it/200x200?text=SNAP' />
+            <div className={styles.rowItemOneThird}>
+              <img src='https://assets.ubuntu.com/v1/cbd43363-snap-icon-default.svg' width='150' height='150'/></div>
           </div>
         </section>
 

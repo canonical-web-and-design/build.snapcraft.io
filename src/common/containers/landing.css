@@ -12,7 +12,7 @@
 }
 
 .bannerImage {
-  width: 960px;
+  width: 920px;
   margin-bottom: 2em;
 }
 
@@ -35,9 +35,20 @@
 }
 
 .workflowImage {
-  display: block;
-  max-width: 100%;
-  margin-bottom: 60px;
+  display: inline;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.workflowItemOneThird {
+  width: 33.33%;
+  text-align: center;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.workflowItemOneThird > p {
+  margin: 0 5em;
 }
 
 .centeredButton {
@@ -62,6 +73,13 @@
   flex-grow: 1;
 }
 
+.rowItemOneThird {
+  composes: rowItem;
+  width: 33.33%;
+  justify-content: center;
+  text-align: center;
+}
+
 .rowItemTwoThirds {
   composes: rowItem;
   width: 66.66%;
@@ -73,8 +91,8 @@
   max-height: 100px;
 }
 .section {
-  padding-top: 60px;
-  padding-bottom: 60px;
+  padding-top: 100px;
+  padding-bottom: 100px;
   border-bottom: 1px dotted $dark-grey;
 }
 
