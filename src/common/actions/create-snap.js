@@ -2,7 +2,7 @@ import 'isomorphic-fetch';
 import localforage from 'localforage';
 import { MacaroonsBuilder } from 'macaroons.js';
 
-import { checkStatus, getError } from '../helpers/api';
+import { APICompatibleError, checkStatus, getError } from '../helpers/api';
 import { conf } from '../helpers/config';
 
 const BASE_URL = conf.get('BASE_URL');
@@ -23,15 +23,6 @@ export function setGitHubRepository(value) {
     type: SET_GITHUB_REPOSITORY,
     payload: value
   };
-}
-
-// Just enough to satisfy higher-level code that might receive errors from
-// our internal API or errors thrown directly from here.
-class APICompatibleError extends Error {
-  constructor(payload) {
-    super(payload.message);
-    this.json = { status: 'error', payload };
-  }
 }
 
 function getSnapName(owner, name) {

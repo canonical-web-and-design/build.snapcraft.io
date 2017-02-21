@@ -16,3 +16,12 @@ export function checkStatus(response) {
     });
   }
 }
+
+// Just enough to satisfy higher-level code that might receive errors from
+// our internal API or errors thrown directly from here.
+export class APICompatibleError extends Error {
+  constructor(payload) {
+    super(payload.message);
+    this.json = { status: 'error', payload };
+  }
+}
