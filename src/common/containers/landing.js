@@ -39,8 +39,8 @@ class Landing extends Component {
               </ul>
 
               <div className={ styles.bannerButton }>
-                <Anchor href="/auth/authenticate">
-                  Set up in minutes <img src={ octocat } />
+                <Anchor href="/auth/authenticate" icon={ octocat }>
+                  Set up in minutes
                 </Anchor>
               </div>
             </div>
@@ -79,8 +79,8 @@ class Landing extends Component {
             {/* TODO put in actual workflow image */}
             <img className={ styles.workflowImage} src='http://placehold.it/1030x480?text=WORKFLOW' />
             <div className={ styles.centeredButton }>
-              <Anchor href="/auth/authenticate">
-                Get started now <img src={ octocat } />
+              <Anchor href="/auth/authenticate" icon={ octocat }>
+                Get started now
               </Anchor>
             </div>
           </div>

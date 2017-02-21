@@ -39,16 +39,6 @@ $neutral-border-color: $dark-grey;
   text-decoration: none;
 }
 
-.button img {
-  display: block;
-  margin: 0;
-  padding: 1px 0 0 0;
-  margin-left: 0.5em;
-  height: 21px;
-  float: right;
-  box-sizing: content-box;
-}
-
 .primary {
   composes: button;
 
@@ -115,4 +105,14 @@ $neutral-border-color: $dark-grey;
 
 .secondary:disabled:hover {
   background-color: $secondary-button-color;
+}
+
+.icon {
+  display: block;
+  margin: 0;
+  padding: 1px 0 0 0;
+  margin-left: 0.5em;
+  height: 21px;
+  float: right;
+  box-sizing: content-box;
 }
