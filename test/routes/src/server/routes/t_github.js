@@ -5,13 +5,7 @@ import nock from 'nock';
 import expect from 'expect';
 
 import github from '../../../../../src/server/routes/github';
-import { getSnapNameCacheId } from '../../../../../src/server/handlers/github';
 import { conf } from '../../../../../src/server/helpers/config.js';
-import {
-  getMemcached,
-  resetMemcached,
-  setupInMemoryMemcached
-} from '../../../../../src/server/helpers/memcached';
 
 describe('The GitHub API endpoint', () => {
   const app = Express();
@@ -233,15 +227,9 @@ describe('The GitHub API endpoint', () => {
             url: 'https://github.com/anowner/repo3'
           }
         ];
-        const contents = {
-          'https://github.com/anowner/repo1': { name: 'snap1' },
-          'https://github.com/anowner/repo2': {}
-        };
         const pageLinks = { first: 1, prev: 1, next: 3, last: 3 };
-        let contentsScopes;
 
         beforeEach(() => {
-          setupInMemoryMemcached();
           const api = nock(conf.get('GITHUB_API_ENDPOINT'));
           api.get('/user/repos')
             .query({ affiliation: 'owner' })
@@ -253,22 +241,10 @@ describe('The GitHub API endpoint', () => {
                 '<https://api.github.com?&page=3&per_page=30>; rel="last"'
               ].join(',')
             });
-          contentsScopes = repos.map((repo) => {
-            const scope = api.get(
-              `/repos/${repo.full_name}/contents/snapcraft.yaml`
-            );
-            const repoContents = contents[repo.url];
-            if (repoContents !== undefined) {
-              return scope.reply(200, repoContents);
-            } else {
-              return scope.reply(404);
-            }
-          });
         });
 
         afterEach(() => {
           nock.cleanAll();
-          resetMemcached();
         });
 
         it('should return with 200', (done) => {
@@ -295,11 +271,7 @@ describe('The GitHub API endpoint', () => {
           supertest(app)
             .get('/github/repos')
             .end((err, res) => {
-              expect(res.body.payload.repos).toEqual([
-                { ...repos[0], snap_info: { name: 'snap1' } },
-                { ...repos[1], snap_info: { name: null } },
-                { ...repos[2], snap_info: { name: null } }
-              ]);
+              expect(res.body.payload.repos).toEqual(repos);
               done(err);
             });
         });
@@ -310,48 +282,6 @@ describe('The GitHub API endpoint', () => {
             .end((err, res) => {
               expect(res.body.pageLinks).toEqual(pageLinks);
               done(err);
-            });
-        });
-
-        it('should store snap names in memcached', (done) => {
-          supertest(app)
-            .get('/github/repos')
-            .end((err) => {
-              if (err) {
-                done(err);
-              }
-              contentsScopes.forEach((scope) => {
-                expect(scope.isDone()).toExist();
-              });
-              Promise.all(repos.map((repo) => {
-                const cacheId = getSnapNameCacheId(repo.url);
-                const snapName = getMemcached().cache[cacheId];
-                const repoContents = contents[repo.url];
-                if (repoContents !== undefined) {
-                  expect(snapName).toEqual(repoContents.name);
-                } else {
-                  expect(snapName).toBe(undefined);
-                }
-              }))
-                .then(() => done())
-                .catch((err) => done(err));
-            });
-        });
-
-        it('should use snap names already in memcached', (done) => {
-          getMemcached().cache[getSnapNameCacheId(repos[0].url)] = 'snap2';
-          supertest(app)
-            .get('/github/repos')
-            .end((err, res) => {
-              if (err) {
-                done(err);
-              }
-              expect(res.body.payload.repos).toEqual([
-                { ...repos[0], snap_info: { name: 'snap2' } },
-                { ...repos[1], snap_info: { name: null } },
-                { ...repos[2], snap_info: { name: null } }
-              ]);
-              done();
             });
         });
       });

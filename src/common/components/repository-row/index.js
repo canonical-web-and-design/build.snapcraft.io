@@ -47,10 +47,11 @@ class RepositoryRow extends Component {
       <Row isActive={isActive}>
         <Data col="30"><Link to={ `/${fullName}/builds` }>{ fullName }</Link></Data>
         <Data col="20">
-          {/* TODO: hardcoded Not configured for now, will show actual status later */}
-          <a onClick={this.onConfiguredClick.bind(this)}>Not configured</a>
+          { this.renderConfiguredStatus.call(this, snap.snapcraft_data) }
         </Data>
-        <Data col="20"> </Data>
+        <Data col="20">
+          { this.renderSnapName.call(this, snap.snapcraft_data) }
+        </Data>
         <Data col="30">
           {/*
             TODO: show 'Loading' when waiting for status?
@@ -68,6 +69,26 @@ class RepositoryRow extends Component {
         { showNotConfiguredDropdown && this.renderNotConfiguredDropdown() }
       </Row>
     );
+  }
+
+  renderConfiguredStatus(data) {
+    if (!data) {
+      return (
+        <a onClick={this.onConfiguredClick.bind(this)}>Not configured</a>
+      );
+    }
+
+    return (
+      <div>Configured</div>
+    );
+  }
+
+  renderSnapName(snapcraftData) {
+    if (snapcraftData && snapcraftData.name) {
+      return (<div>{ snapcraftData.name }</div>);
+    }
+
+    return (<a>Not registered</a>);
   }
 }
 

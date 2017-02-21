@@ -79,3 +79,14 @@ export function okayBadSharedSecret(req, res) {
   const url =`${req.query.redirect_uri}?state=notTheSharedSecret&code=example_code_REPLACE_ME`;
   res.redirect(302, url);
 }
+
+export function okaySnapcraftYamlFound(req, res) {
+  res.status(200).send(`name: ${req.params.name}\n`);
+}
+
+export function errorSnapcraftYamlNotFound(req, res) {
+  res.status(404).send({
+    'message': 'Not Found',
+    'documentation_url': 'https://developer.github.com/v3'
+  });
+}

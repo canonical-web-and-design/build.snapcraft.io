@@ -8,6 +8,7 @@ import {
   resetMemcached,
   setupInMemoryMemcached
 } from '../../../../../src/server/helpers/memcached';
+import getSnapNameCacheId from '../../../../../src/server/helpers/github';
 import launchpad from '../../../../../src/server/routes/launchpad';
 import {
   getUrlPrefixCacheId,
@@ -336,16 +337,23 @@ describe('The Launchpad API endpoint', () => {
           {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
-            owner_link: `${lp_api_base}/~another-user`
+            owner_link: `${lp_api_base}/~another-user`,
+            git_repository_url: 'http://github.com/another-user/test-snap'
           },
           {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
-            owner_link: `${lp_api_base}/~test-user`
+            owner_link: `${lp_api_base}/~test-user`,
+            git_repository_url: 'https://github.com/test-user/test-snap'
           }
         ];
 
-        nock(lp_api_url)
+        const contents = {
+          'https://github.com/another-user/test-snap': { name: 'snap1' },
+          'https://github.com/test-user/test-snap': {}
+        };
+
+        const api = nock(lp_api_url)
           .get('/devel/+snaps')
           .query({
             'ws.op': 'findByURLPrefix',
@@ -357,6 +365,20 @@ describe('The Launchpad API endpoint', () => {
             start: 0,
             entries: testSnaps
           });
+
+        testSnaps.map((snap) => {
+          const fullName = snap.git_repository_url.replace('http://github.com/', '');
+          const scope = api.get(
+            `/repos/${fullName}/contents/snapcraft.yaml`
+          );
+          const repoContents = contents[snap.git_repository_url];
+          if (repoContents !== undefined) {
+            return scope.reply(200, repoContents);
+          } else {
+            return scope.reply(404);
+          }
+        });
+
       });
 
       afterEach(() => {
@@ -534,17 +556,30 @@ describe('The Launchpad API endpoint', () => {
           {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
-            owner_link: `${lp_api_base}/~another-user`
+            owner_link: `${lp_api_base}/~another-user`,
+            git_repository_url: 'https://github.com/another-user/test-snap'
           },
           {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
-            owner_link: `${lp_api_base}/~test-user`
+            owner_link: `${lp_api_base}/~test-user`,
+            git_repository_url: 'https://github.com/test-user/test-snap'
           }
         ];
 
+        const contents = {
+          'https://github.com/another-user/test-snap': { name: 'snap1' },
+          'https://github.com/test-user/test-snap': {}
+        };
+
         setupInMemoryMemcached();
         getMemcached().set(getUrlPrefixCacheId(urlPrefix), testSnaps);
+        testSnaps.map((snap) => {
+          getMemcached().set(
+            getSnapNameCacheId(snap.git_repository_url),
+            contents[snap.git_repository_url]
+          );
+        });
       });
 
       after(() => {
