@@ -221,7 +221,8 @@ To register a name with the store:
 
     {
       "snap_name": ":snap-name",
-      "macaroon": ":package-upload-request-macaroon"
+      "root": ":package-upload-request-macaroon",
+      "discharge": ":sso-discharge-macaroon"
     }
 
 The response is [defined by the

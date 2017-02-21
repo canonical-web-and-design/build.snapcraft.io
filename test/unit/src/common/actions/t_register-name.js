@@ -92,6 +92,42 @@ describe('register name actions', () => {
       });
     });
 
+    context('if registering snap name says already owned', () => {
+      beforeEach(() => {
+        scope
+          .post('/api/store/register-name', { snap_name: 'test-snap' })
+          .reply(409, {
+            status: 409,
+            code: 'already_owned',
+            detail: 'You already own \'test-snap\'.'
+          });
+      });
+
+      it('stores a REGISTER_NAME action', () => {
+        const expectedAction = {
+          type: ActionTypes.REGISTER_NAME,
+          payload: { id: 'foo/bar', snapName: 'test-snap' }
+        };
+        return store.dispatch(registerName('foo/bar', 'test-snap'))
+          .then(() => {
+            expect(store.getActions()).toInclude(expectedAction);
+            scope.done();
+          });
+      });
+
+      it('creates success action', () => {
+        const expectedAction = {
+          type: ActionTypes.REGISTER_NAME_SUCCESS,
+          payload: { id: 'foo/bar' }
+        };
+        return store.dispatch(registerName('foo/bar', 'test-snap'))
+          .then(() => {
+            expect(store.getActions()).toInclude(expectedAction);
+            scope.done();
+          });
+      });
+    });
+
     context('if registering snap name succeeds', () => {
       beforeEach(() => {
         // XXX check Authorization header

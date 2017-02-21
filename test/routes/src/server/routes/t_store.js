@@ -18,14 +18,18 @@ describe('The store API endpoint', () => {
     it('passes request through to store', (done) => {
       const scope = nock(conf.get('STORE_API_URL'))
         .post('/register-name/', { snap_name: 'test-snap' })
-        .matchHeader('Authorization', 'Macaroon root="dummy-macaroon"')
+        .matchHeader(
+          'Authorization',
+          'Macaroon root="dummy-root", discharge="dummy-discharge"'
+        )
         .reply(201, { snap_id: 'test-snap-id' });
 
       supertest(app)
         .post('/store/register-name')
         .send({
           snap_name: 'test-snap',
-          macaroon: 'dummy-macaroon'
+          root: 'dummy-root',
+          discharge: 'dummy-discharge'
         })
         .expect((res) => {
           scope.done();
@@ -42,14 +46,18 @@ describe('The store API endpoint', () => {
       };
       const scope = nock(conf.get('STORE_API_URL'))
         .post('/register-name/', { snap_name: 'test-snap' })
-        .matchHeader('Authorization', 'Macaroon root="dummy-macaroon"')
+        .matchHeader(
+          'Authorization',
+          'Macaroon root="dummy-root", discharge="dummy-discharge"'
+        )
         .reply(403, { error_list: [error] });
 
       supertest(app)
         .post('/store/register-name')
         .send({
           snap_name: 'test-snap',
-          macaroon: 'dummy-macaroon'
+          root: 'dummy-root',
+          discharge: 'dummy-discharge'
         })
         .expect((res) => {
           scope.done();

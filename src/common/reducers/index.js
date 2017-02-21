@@ -12,6 +12,7 @@ import * as user from './user';
 import * as auth from './auth';
 import * as authStore from './auth-store';
 import * as webhook from './webhook';
+import * as registerName from './register-name';
 
 const rootReducer = combineReducers({
   ...repository,
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   ...auth,
   ...authStore,
   ...webhook,
+  ...registerName,
   routing: routerReducer
 });
 

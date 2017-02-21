@@ -80,7 +80,7 @@ function getPackageUploadMacaroon(snapName) {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Authorization': `Macaroon root="${root}" discharge="${discharge}"`
+          'Authorization': `Macaroon root="${root}", discharge="${discharge}"`
         },
         body: JSON.stringify({
           packages: [{ name: snapName, series: STORE_SERIES }],

@@ -50,17 +50,20 @@ export function registerName(fullName, snapName) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Macaroon root="${root}" discharge="${discharge}"`
+            'Accept': 'application/json'
           },
-          body: JSON.stringify({ snap_name: snapName })
+          body: JSON.stringify({
+            snap_name: snapName,
+            root,
+            discharge
+          })
         });
       })
       .then(checkStatus)
       .catch((error) => {
         const response = error.response;
         if (response && response.status === 409 &&
-            response.json.code === 'already_owned') {
+            error.json.code === 'already_owned') {
           return { status: 201 };
         }
         throw error;
