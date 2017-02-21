@@ -19,10 +19,7 @@ $text-color: $cool-grey;
 
 .logo {
   float: left;
-  padding: 4px 15px 4px 0px;
-  font-size: 28px;
-  color: $text-color;
-  font-weight: 400;
+  padding: 11px 0;
 }
 
 .logo:hover {
@@ -31,6 +28,7 @@ $text-color: $cool-grey;
 
 .logo img {
   display: block;
+  height:28px;
 }
 
 .mainNav {

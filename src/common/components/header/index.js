@@ -5,6 +5,8 @@ import { Link } from 'react-router';
 import { signOut } from '../../actions/auth-store';
 import styles from './header.css';
 
+const wordmark = 'https://assets.ubuntu.com/v1/d45097a4-snapcraft.io-logotype.svg';
+
 class Header extends Component {
   render() {
     const { authenticated, user } = this.props;
@@ -13,7 +15,7 @@ class Header extends Component {
       <div className={ styles.header }>
         <nav className={ styles.container }>
           <Link className={ styles.logo } to="/">
-            snapcraft.io
+            <img src={ wordmark } alt="Snapcraft.io" height={ 28 } />
           </Link>
           { authenticated
             ?
