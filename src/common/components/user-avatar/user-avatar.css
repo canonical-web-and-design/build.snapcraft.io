@@ -1,3 +1,5 @@
+$login-colour: $dark-grey;
+
 .container {
   composes: container from '../../containers/app.css';
   display: flex;
@@ -10,8 +12,13 @@
 
 .avatar > img {
   height: 115px;
+  border-radius: 60px;
 }
 
 .headings h1, .headings h3 {
   margin: 0;
+}
+
+.login {
+  color: $login-colour;
 }
