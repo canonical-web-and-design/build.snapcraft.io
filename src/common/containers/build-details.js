@@ -66,9 +66,8 @@ class BuildDetails extends Component {
           </div>
         }
         <HelpInstallSnap
-          headline='To test this build on your PC, cloud instance, or device:'
+          headline='To test the latest successful build on your PC or cloud instance:'
           name='foo'
-          revision={1}
         />
       </div>
     );

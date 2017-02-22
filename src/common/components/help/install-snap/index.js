@@ -18,7 +18,6 @@ export default class HelpInstallSnap extends Component {
             sudo snap install --edge { name } { revOption }
           </code>
         </pre>
-        <p className={ styles.p }>The installed snap will not be auto-updated.</p>
         <p className={ styles.p }>
           Don’t have snapd installed? <a className={ styles.external } href={ HELP_INSTALL_URL }>Install it now</a>.
         </p>

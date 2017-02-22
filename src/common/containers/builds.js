@@ -71,7 +71,7 @@ class Builds extends Component {
           <Message status='error'>{ error.message || error }</Message>
         }
         <HelpInstallSnap
-          headline='To test this snap on your PC, cloud instance, or device:'
+          headline='To test this snap on your PC or cloud instance:'
           name='foo'
         />
       </div>
