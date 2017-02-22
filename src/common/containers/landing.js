@@ -48,7 +48,7 @@ class Landing extends Component {
           </div>
         </div>
 
-        <section className={ `${styles.section}  ${containerStyles.lightStrip}` }>
+        <section className={ `${styles.section} ${styles.sectionNoBorder} ${containerStyles.lightStrip}` }>
           <div className={ `${styles.row} ${containerStyles.wrapper}` }>
             <ListDividedState className={ styles.rowItemGrow }>
               <li>Scale to millions of installs</li>
@@ -64,7 +64,7 @@ class Landing extends Component {
           </div>
         </section>
 
-        <section className={styles.section}>
+        <section className={ styles.section }>
           <HeadingSix>
             Publish your software for
           </HeadingSix>
@@ -80,14 +80,14 @@ class Landing extends Component {
 
         <section className={styles.section}>
 
-          <div className={ `${styles.row} ${containerStyles.wrapper}` }>
+          <div className={ `${styles.row} ${containerStyles.wrapper}`  }>
 
-            <div className={styles.workflowItemOneThird}>
+            <div className={ `${styles.workflowItemOneThird} ${styles.dottedLines}` }>
               <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/3fb11c60-workflow-icon01.svg' />
               <p>You receive a pull request on GitHub</p>
             </div>
 
-            <div className={styles.workflowItemOneThird}>
+            <div className={ `${styles.workflowItemOneThird} ${styles.dottedLines}` }>
               <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/13effe35-workflow-icon02.svg' />
               <p>Test with Travis or other CI system</p>
             </div>
@@ -101,19 +101,19 @@ class Landing extends Component {
 
           <div className={ `${styles.row} ${containerStyles.wrapper}` }>
 
-            <div className={styles.workflowItemOneThird}>
+            <div className={ `${styles.workflowItemOneThird} ${styles.dottedLines}` }>
               <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/7af63a6d-workflow-icon04.svg' />
               <p>Snapcraft builds a new snap version</p>
             </div>
 
-            <div className={styles.workflowItemOneThird}>
+            <div className={ `${styles.workflowItemOneThird} ${styles.dottedLines}` }>
               <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/6cfc526e-workflow-icon05.svg' />
               <p>Published to the Snap Store for testing</p>
             </div>
 
             <div className={styles.workflowItemOneThird}>
               <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/347628e8-workflow-icon06a.svg' />
-              <p>When ready, promote to beta or stable</p>
+              <p>When ready, promote to candidate or stable</p>
             </div>
 
           </div>
@@ -129,7 +129,7 @@ class Landing extends Component {
           <div className={ `${styles.row} ${containerStyles.wrapper}` }>
 
             <div className={styles.rowItemTwoThirds}>
-              <p className={styles.snaps}>With Snapcraft, it&rsquo;s easy to get your software published in the <dfn>Snap Store</dfn>. This store lets people safely install apps from any vendor on mission-critical devices and PCs. Snaps are secure, sandboxed, containerised applications, packaged with their dependencies for predictable behaviour.</p>
+              <p className={styles.snaps}>With Snapcraft, it&rsquo;s easy to get your software published in the Snap Store. This store lets people safely install apps from any vendor on mission-critical devices and PCs. Snaps are secure, sandboxed, containerised applications, packaged with their dependencies for predictable behaviour.</p>
               <a href="https://snapcraft.io" className={ styles.external } >More about snaps</a>
             </div>
 

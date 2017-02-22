@@ -42,6 +42,7 @@
   text-align: center;
   justify-content: center;
   margin-bottom: 40px;
+  position: relative;
 }
 
 .workflowItemOneThird > p {
@@ -94,7 +95,8 @@
   border-bottom: 1px dotted $dark-grey;
 }
 
-.section:last-child {
+.section:last-child,
+.sectionNoBorder {
   border-bottom: none;
 }
 
@@ -110,4 +112,15 @@
   background: url($icon-link-external) 100% 0 no-repeat;
   background-size: 0.7em;
   padding-right: 0.9em;
+}
+
+.dottedLines::after {
+  background-image: url(https://assets.ubuntu.com/v1/f2a25267-image-list-stroke.svg);
+  content: " ";
+  display: block;
+  height: 4px;
+  left: 65%;
+  position: absolute;
+  top: 48px;
+  width: 72%;
 }
