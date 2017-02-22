@@ -10,7 +10,9 @@ export function snaps(state = {
     case ActionTypes.FETCH_SNAPS:
       return {
         ...state,
-        isFetching: true
+        isFetching: true,
+        success: false,
+        error: null
       };
     case ActionTypes.FETCH_SNAPS_SUCCESS:
       return {

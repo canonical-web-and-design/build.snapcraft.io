@@ -35,11 +35,16 @@ describe('snaps reducers', () => {
       type: ActionTypes.FETCH_SNAPS
     };
 
-    it('should store fetching status when fetching builds', () => {
-      expect(snaps(initialState, action)).toEqual({
-        ...initialState,
-        isFetching: true
-      });
+    it('should store fetching status', () => {
+      expect(snaps(initialState, action).isFetching).toBe(true);
+    });
+
+    it('should clean success state', () => {
+      expect(snaps(initialState, action).success).toBe(false);
+    });
+
+    it('should clean error', () => {
+      expect(snaps(initialState, action).error).toBe(null);
     });
   });
 
