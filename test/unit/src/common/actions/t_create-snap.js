@@ -9,6 +9,7 @@ import {
   createSnaps,
   createSnapError,
   createSnapSuccess,
+  createWebhook,
   setGitHubRepository
 } from '../../../../../src/common/actions/create-snap';
 import * as ActionTypes from '../../../../../src/common/actions/create-snap';
@@ -57,6 +58,64 @@ describe('create snap actions', () => {
     });
   });
 
+  context('createWebhook', () => {
+    const repository = {
+      url: 'https://github.com/foo/bar',
+      fullName: 'foo/bar',
+      owner: 'foo',
+      name: 'bar'
+    };
+    const BASE_URL = conf.get('BASE_URL');
+    let scope;
+
+    beforeEach(() => {
+      scope = nock(BASE_URL);
+    });
+
+    afterEach(() => {
+      nock.cleanAll();
+    });
+
+    it('throws an error on failure to create webhook', () => {
+      scope
+        .post('/api/github/webhook', { owner: 'foo', name: 'bar' })
+        .reply(404, {
+          status: 'error',
+          payload: { code: 'github-repository-not-found' }
+        });
+      return createWebhook(repository)
+        .then(() => { throw new Error('unexpected success'); })
+        .catch((error) => {
+          scope.done();
+          expect(error.json.payload.code).toEqual(
+            'github-repository-not-found'
+          );
+        });
+    });
+
+    it('succeeds if creating webhook says already created', () => {
+      scope
+        .post('/api/github/webhook', { owner: 'foo', name: 'bar' })
+        .reply(422, {
+          status: 'error',
+          payload: { code: 'github-already-created' }
+        });
+      return createWebhook(repository)
+        .then(() => scope.done());
+    });
+
+    it('succeeds if creating webhook succeeds', () => {
+      scope
+        .post('/api/github/webhook', { owner: 'foo', name: 'bar' })
+        .reply(201, {
+          status: 'success',
+          payload: { code: 'github-webhook-created' }
+        });
+      return createWebhook(repository)
+        .then(() => scope.done());
+    });
+  });
+
   context('createSnaps', () => {
     const repository = {
       url: 'https://github.com/foo/bar',
@@ -85,7 +144,37 @@ describe('create snap actions', () => {
         });
     });
 
-    context('if getting snap name succeeds', () => {
+    it('stores an error if creating webhook fails', () => {
+      scope
+        .post('/api/github/webhook', { owner: 'foo', name: 'bar' })
+        .reply(404, {
+          status: 'error',
+          payload: { code: 'github-repository-not-found' }
+        });
+
+      return store.dispatch(createSnaps([ repository ]))
+        .then(() => {
+          const errorAction = store.getActions().filter((action) => {
+            return action.type === ActionTypes.CREATE_SNAP_ERROR;
+          })[0];
+          expect(errorAction.payload.id).toBe('foo/bar');
+          expect(errorAction.payload.error.json.payload).toEqual({
+            code: 'github-repository-not-found'
+          });
+          scope.done();
+        });
+    });
+
+    context('if creating webhook succeeds', () => {
+      beforeEach(() => {
+        scope
+          .post('/api/github/webhook', { owner: 'foo', name: 'bar' })
+          .reply(201, {
+            status: 'success',
+            payload: { code: 'github-webhook-created' }
+          });
+      });
+
       it('stores an error on failure to create snap', () => {
         scope
           .post('/api/launchpad/snaps', { repository_url: repository.url })
