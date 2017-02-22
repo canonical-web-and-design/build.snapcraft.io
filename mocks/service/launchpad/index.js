@@ -26,7 +26,7 @@ router.get('/devel/\\+snaps', (req, res) => {
       entries: [
         {
           resource_type_link: `${base}/#snap`,
-          git_repository_url: `${prefix}mock-repo-1`,
+          git_repository_url: `https://github.com/katiefenn/parker`,
           self_link: `${base}/${owner}/+snap/mock-snap-1`,
           name: 'mock-snap-1'
         },

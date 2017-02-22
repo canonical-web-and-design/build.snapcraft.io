@@ -1,17 +1,22 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
+import url from 'url';
 
 import Button from '../vanilla/button';
 import { Row, Data, Dropdown } from '../vanilla/table-interactive';
 import BuildStatus from '../build-status';
 import { Message } from '../forms';
+import templateYaml from './template-yaml.js';
 
 import { signIntoStore } from '../../actions/auth-store';
 import { registerName } from '../../actions/register-name';
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
 
 import styles from './repositoryRow.css';
+
+const LEARN_THE_BASICS_LINK = 'https://snapcraft.io/docs/build-snaps/your-first-snap';
+const INSTALL_IT_LINK = 'https://snapcraft.io/create/';
 
 class RepositoryRow extends Component {
 
@@ -65,8 +70,21 @@ class RepositoryRow extends Component {
       <Dropdown>
         <Row>
           <Data col="100">
-            This repo needs a snapcraft.yaml file, so that Snapcraft can make it buildable, installable, and runnable.
-            {/* TODO: add more info/links as in spec */}
+            <p>
+              This repo needs a snapcraft.yaml file,
+              so that Snapcraft can make it buildable,
+              installable, and runnable.
+            </p>
+            <p>
+              <a href={ LEARN_THE_BASICS_LINK } target="_blank">Learn the basics</a>,
+              or
+              <a href={ this.getTemplateUrl.call(this) } target="_blank"> get started with a template</a>.
+            </p>
+            <p>
+              Don’t have snapcraft?
+              <a href={ INSTALL_IT_LINK } target="_blank"> Install it on your own PC </a>
+              for testing.
+            </p>
           </Data>
         </Row>
       </Dropdown>
@@ -218,6 +236,20 @@ class RepositoryRow extends Component {
         </a>
       );
     }
+  }
+
+  getTemplateUrl() {
+    const templateUrl = url.format({
+      protocol: 'https:',
+      host: 'github.com',
+      pathname: parseGitHubRepoUrl(this.props.snap.git_repository_url).fullName + '/new/master',
+      query: {
+        'filename': 'snapcraft.yaml',
+        'value': templateYaml
+      }
+    });
+
+    return templateUrl;
   }
 }
 

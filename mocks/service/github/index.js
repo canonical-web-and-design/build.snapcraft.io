@@ -21,7 +21,7 @@ router.post('/login/oauth/access_token', responses.okayAuthenticated);
 
 router.get(
   '/repos/:owner/:name/contents/snapcraft.yaml',
-  responses.okaySnapcraftYamlFound
+  responses.errorSnapcraftYamlNotFound
 );
 
 router.get('/user/repos', (req, res) => {
