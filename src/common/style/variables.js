@@ -26,5 +26,5 @@ module.exports = {
   'base-font-size':      '16px',
   'base-line-height':    '1.5',
   'max-z-index': '2147483647',
-  'icon-link-external': 'https://assets.ubuntu.com/v1/f24a8aa0-external-link-orange.svg'
+  'icon-link-external': 'https://assets.ubuntu.com/v1/b3afbbe0-external-link-blue.svg'
 };

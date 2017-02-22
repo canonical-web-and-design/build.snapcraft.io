@@ -31,25 +31,6 @@
   margin-bottom: 4em;
 }
 
-.workflowImage {
-  display: inline;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.workflowItemOneThird {
-  width: 33.33%;
-  text-align: center;
-  justify-content: center;
-  margin-bottom: 40px;
-  position: relative;
-}
-
-.workflowItemOneThird > p {
-  margin: 0 3em;
-  font-size: 1.2em;
-}
-
 .centeredButton {
   text-align: center;
 }
@@ -112,15 +93,4 @@
   background: url($icon-link-external) 100% 0 no-repeat;
   background-size: 0.7em;
   padding-right: 0.9em;
-}
-
-.dottedLines::after {
-  background-image: url(https://assets.ubuntu.com/v1/f2a25267-image-list-stroke.svg);
-  content: " ";
-  display: block;
-  height: 4px;
-  left: 65%;
-  position: absolute;
-  top: 48px;
-  width: 72%;
 }

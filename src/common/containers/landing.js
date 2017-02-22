@@ -40,7 +40,7 @@ class Landing extends Component {
               </ul>
 
               <div className={ styles.bannerButton }>
-                <Anchor href="/auth/authenticate" icon={ octocat } flavour='embiggened'>
+                <Anchor href="/auth/authenticate" icon={ octocat } flavour='embiggened' appearance='positive' >
                   Set up in minutes
                 </Anchor>
               </div>
@@ -81,45 +81,11 @@ class Landing extends Component {
         <section className={styles.section}>
 
           <div className={ `${styles.row} ${containerStyles.wrapper}`  }>
-
-            <div className={ `${styles.workflowItemOneThird} ${styles.dottedLines}` }>
-              <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/3fb11c60-workflow-icon01.svg' />
-              <p>You receive a pull request on GitHub</p>
-            </div>
-
-            <div className={ `${styles.workflowItemOneThird} ${styles.dottedLines}` }>
-              <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/13effe35-workflow-icon02.svg' />
-              <p>Test with Travis or other CI system</p>
-            </div>
-
-            <div className={styles.workflowItemOneThird}>
-              <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/24c102a8-workflow-icon03.svg' />
-              <p>The code lands on your GitHub master branch</p>
-            </div>
-
-          </div>
-
-          <div className={ `${styles.row} ${containerStyles.wrapper}` }>
-
-            <div className={ `${styles.workflowItemOneThird} ${styles.dottedLines}` }>
-              <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/7af63a6d-workflow-icon04.svg' />
-              <p>Snapcraft builds a new snap version</p>
-            </div>
-
-            <div className={ `${styles.workflowItemOneThird} ${styles.dottedLines}` }>
-              <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/6cfc526e-workflow-icon05.svg' />
-              <p>Published to the Snap Store for testing</p>
-            </div>
-
-            <div className={styles.workflowItemOneThird}>
-              <img className={styles.workflowImage} src='https://assets.ubuntu.com/v1/347628e8-workflow-icon06a.svg' />
-              <p>When ready, promote to candidate or stable</p>
-            </div>
-
+            <img src='https://assets.ubuntu.com/v1/1037bac4-workflow.svg' width='100%' />
           </div>
 
           <div className={ styles.centeredButton }>
-            <Anchor href="/auth/authenticate" icon={ octocat } flavour='embiggened'>
+            <Anchor href="/auth/authenticate" icon={ octocat } flavour='embiggened'  appearance='positive'>
               Get started now
             </Anchor>
           </div>
@@ -134,7 +100,7 @@ class Landing extends Component {
             </div>
 
             <div className={styles.rowItemOneThird}>
-              <img src='https://assets.ubuntu.com/v1/cbd43363-snap-icon-default.svg' width='150' height='150'/></div>
+              <img src='https://assets.ubuntu.com/v1/7af63a6d-workflow-icon04.svg' width='150' height='150'/></div>
           </div>
         </section>
 
