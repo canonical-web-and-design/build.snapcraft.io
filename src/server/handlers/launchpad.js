@@ -230,7 +230,7 @@ export const getSnapcraftYaml = (req, res) => {
     .catch((error) => sendError(res, error));
 };
 
-const requestNewSnap = (repositoryUrl, name, series, channels) => {
+const requestNewSnap = (repositoryUrl) => {
   const lpClient = getLaunchpad();
   const username = conf.get('LP_API_USERNAME');
 
@@ -245,20 +245,13 @@ const requestNewSnap = (repositoryUrl, name, series, channels) => {
       auto_build: true,
       auto_build_archive: `/${DISTRIBUTION}/+archive/primary`,
       auto_build_pocket: 'Updates',
-      processors: ARCHITECTURES.map((arch) => `/+processors/${arch}`),
-      store_upload: true,
-      store_series: `/+snappy-series/${series}`,
-      store_name: name,
-      store_channels: channels
+      processors: ARCHITECTURES.map((arch) => `/+processors/${arch}`)
     }
   });
 };
 
 export const newSnap = (req, res) => {
   const repositoryUrl = req.body.repository_url;
-  const snapName = req.body.snap_name;
-  const series = req.body.series;
-  const channels = req.body.channels;
 
   let owner;
   let snapUrl;
@@ -266,7 +259,7 @@ export const newSnap = (req, res) => {
   checkAdminPermissions(req.session, repositoryUrl)
     .then((result) => {
       owner = result.owner;
-      return requestNewSnap(repositoryUrl, snapName, series, channels);
+      return requestNewSnap(repositoryUrl);
     })
     .then((result) => {
       // as new snap is created we need to clear list of snaps from cache
@@ -420,12 +413,24 @@ export const findSnap = (req, res) => {
 
 export const authorizeSnap = (req, res) => {
   const repositoryUrl = req.body.repository_url;
+  const snapName = req.body.snap_name;
+  const series = req.body.series;
+  const channels = req.body.channels;
   const macaroon = req.body.macaroon;
   let snapUrl;
+
   return checkAdminPermissions(req.session, repositoryUrl)
     .then(() => internalFindSnap(repositoryUrl))
     .then((result) => {
       snapUrl = result;
+      return getLaunchpad().patch(snapUrl, {
+        store_upload: true,
+        store_series_link: `/+snappy-series/${series}`,
+        store_name: snapName,
+        store_channels: channels
+      });
+    })
+    .then(() => {
       return getLaunchpad().named_post(snapUrl, 'completeAuthorization', {
         parameters: { root_macaroon: macaroon }
       });

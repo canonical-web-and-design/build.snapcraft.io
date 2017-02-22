@@ -5,6 +5,7 @@ import { MacaroonsBuilder } from 'macaroons.js';
 import proxyquire from 'proxyquire';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import url from 'url';
 
 import { conf } from '../../../../../src/common/helpers/config';
 import { makeLocalForageStub } from '../../../../helpers';
@@ -15,6 +16,7 @@ const registerNameModule = proxyquire.noCallThru().load(
   { 'localforage': localForageStub }
 );
 const {
+  internalRegisterName,
   registerName,
   registerNameSuccess,
   registerNameError
@@ -30,42 +32,116 @@ describe('register name actions', () => {
     success: false,
     error: null
   };
+  const repository = {
+    url: 'https://github.com/foo/bar',
+    fullName: 'foo/bar'
+  };
+  const BASE_URL = conf.get('BASE_URL');
 
   let store;
   let action;
+  let scope;
+  let root;
+  let discharge;
 
   beforeEach(() => {
     store = mockStore(initialState);
+    scope = nock(BASE_URL);
+    const ssoLocation = url.parse(conf.get('UBUNTU_SSO_URL')).host;
+    const rootMacaroon = new MacaroonsBuilder('location', 'key', 'id')
+      .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
+      .getMacaroon();
+    const dischargeMacaroon = MacaroonsBuilder.create(
+      ssoLocation, 'sso key', 'sso caveat'
+    );
+    root = rootMacaroon.serialize();
+    discharge = dischargeMacaroon.serialize();
   });
 
   afterEach(() => {
+    nock.cleanAll();
     localForageStub.clear();
   });
 
+  context('internalRegisterName', () => {
+    it('throws an error on failure to register snap name', () => {
+      scope
+        .post('/api/store/register-name', { snap_name: 'test-snap' })
+        .reply(409, {
+          status: 409,
+          code: 'already_registered',
+          detail: '\'test-snap\' is already registered.'
+        });
+      return internalRegisterName(root, discharge, 'test-snap')
+        .then(() => { throw new Error('unexpected success'); })
+        .catch((error) => {
+          scope.done();
+          expect(error.json.payload).toEqual({
+            status: 409,
+            code: 'already_registered',
+            detail: '\'test-snap\' is already registered.'
+          });
+        });
+    });
+
+    it('succeeds if registering snap name says already owned', () => {
+      scope
+        .post('/api/store/register-name', { snap_name: 'test-snap' })
+        .reply(409, {
+          status: 409,
+          code: 'already_owned',
+          detail: 'You already own \'test-snap\'.'
+        });
+      return internalRegisterName(root, discharge, 'test-snap')
+        .then(() => scope.done());
+    });
+
+    it('succeeds if registering snap name succeeds', () => {
+      // XXX check Authorization header
+      scope
+        .post('/api/store/register-name', { snap_name: 'test-snap' })
+        .reply(201, { snap_id: 'test-snap-id' });
+      return internalRegisterName(root, discharge, 'test-snap')
+        .then(() => scope.done());
+    });
+  });
+
   context('registerName', () => {
-    const BASE_URL = conf.get('BASE_URL');
-    let scope;
-    let root;
-    let discharge;
-
-    beforeEach(() => {
-      scope = nock(BASE_URL);
-      const rootMacaroon = new MacaroonsBuilder('sca', 'key', 'id')
-        .add_third_party_caveat('sso', '3p key', 'sso id')
-        .getMacaroon();
-      const dischargeMacaroon = new MacaroonsBuilder('sso', '3p key', 'sso id')
-        .getMacaroon();
-      root = rootMacaroon.serialize();
-      discharge = dischargeMacaroon.serialize();
-      localForageStub.store['package_upload_request'] = { root, discharge };
+    it('stores a REGISTER_NAME action', () => {
+      const expectedAction = {
+        type: ActionTypes.REGISTER_NAME,
+        payload: { id: 'foo/bar', snapName: 'test-snap' }
+      };
+      return store.dispatch(registerName(repository, 'test-snap'))
+        .then(() => {
+          expect(store.getActions()).toInclude(expectedAction);
+          scope.done();
+        });
     });
 
-    afterEach(() => {
-      nock.cleanAll();
+    it('stores an error if there is no package upload request ' +
+       'macaroon', () => {
+      return store.dispatch(registerName(repository, 'test-snap'))
+        .then(() => {
+          const errorAction = store.getActions().filter((action) => {
+            return action.type === ActionTypes.REGISTER_NAME_ERROR;
+          })[0];
+          expect(errorAction.payload.id).toBe('foo/bar');
+          expect(errorAction.payload.error.json.payload).toEqual({
+            code: 'not-logged-into-store',
+            message: 'Not logged into store',
+            detail: 'No package_upload_request macaroons in local storage'
+          });
+          scope.done();
+        });
     });
 
-    context('if registering snap name fails', () => {
+    context('if there is a package upload request macaroon', () => {
       beforeEach(() => {
+        localForageStub.store['package_upload_request'] = { root, discharge };
+      });
+
+      it('stores an error on failure to register snap name', () => {
         scope
           .post('/api/store/register-name', { snap_name: 'test-snap' })
           .reply(409, {
@@ -73,16 +149,13 @@ describe('register name actions', () => {
             code: 'already_registered',
             detail: '\'test-snap\' is already registered.'
           });
-      });
-
-      it('stores an error', () => {
-        return store.dispatch(registerName('foo/bar', 'test-snap'))
+        return store.dispatch(registerName(repository, 'test-snap'))
           .then(() => {
             const errorAction = store.getActions().filter((action) => {
               return action.type === ActionTypes.REGISTER_NAME_ERROR;
             })[0];
             expect(errorAction.payload.id).toBe('foo/bar');
-            expect(errorAction.payload.error.json).toEqual({
+            expect(errorAction.payload.error.json.payload).toEqual({
               status: 409,
               code: 'already_registered',
               detail: '\'test-snap\' is already registered.'
@@ -90,74 +163,108 @@ describe('register name actions', () => {
             scope.done();
           });
       });
-    });
 
-    context('if registering snap name says already owned', () => {
-      beforeEach(() => {
-        scope
-          .post('/api/store/register-name', { snap_name: 'test-snap' })
-          .reply(409, {
-            status: 409,
-            code: 'already_owned',
-            detail: 'You already own \'test-snap\'.'
+      context('if registering snap name succeeds', () => {
+        let storeScope;
+
+        beforeEach(() => {
+          // XXX check Authorization header
+          scope
+            .post('/api/store/register-name', { snap_name: 'test-snap' })
+            .reply(201, { snap_id: 'test-snap-id' });
+          storeScope = nock(conf.get('STORE_API_URL'));
+        });
+
+        it('stores an error on failure to get package upload ' +
+           'macaroon', () => {
+          storeScope
+            .post('/acl/', {
+              packages: [{ name: 'test-snap', series: '16' }],
+              permissions: ['package_upload'],
+              channels: ['edge']
+            })
+            .reply(404, {
+              status: 404,
+              error_code: 'resource-not-found'
+            });
+
+          return store.dispatch(registerName(repository, 'test-snap'))
+            .then(() => {
+              const errorAction = store.getActions().filter((action) => {
+                return action.type === ActionTypes.REGISTER_NAME_ERROR;
+              })[0];
+              expect(errorAction.payload.id).toBe('foo/bar');
+              expect(errorAction.payload.error.json.payload).toEqual({
+                code: 'snap-name-not-registered',
+                message: 'Snap name is not registered in the store',
+                snap_name: 'test-snap'
+              });
+              scope.done();
+            });
+        });
+
+        context('if getting package upload macaroon succeeds', () => {
+          beforeEach(() => {
+            // XXX check headers and body
+            storeScope.post('/acl/')
+              .reply(200, { macaroon: 'dummy-package-upload-macaroon' });
           });
-      });
 
-      it('stores a REGISTER_NAME action', () => {
-        const expectedAction = {
-          type: ActionTypes.REGISTER_NAME,
-          payload: { id: 'foo/bar', snapName: 'test-snap' }
-        };
-        return store.dispatch(registerName('foo/bar', 'test-snap'))
-          .then(() => {
-            expect(store.getActions()).toInclude(expectedAction);
-            scope.done();
+          it('stores an error on failure to authorize snap', () => {
+            scope
+              .post('/api/launchpad/snaps/authorize', {
+                repository_url: repository.url,
+                snap_name: 'test-snap',
+                series: '16',
+                channels: ['edge'],
+                macaroon: 'dummy-package-upload-macaroon'
+              })
+              .reply(400, {
+                status: 'error',
+                payload: {
+                  code: 'not-logged-in',
+                  message: 'Not logged in'
+                }
+              });
+
+            return store.dispatch(registerName(repository, 'test-snap'))
+              .then(() => {
+                const errorAction = store.getActions().filter((action) => {
+                  return action.type === ActionTypes.REGISTER_NAME_ERROR;
+                })[0];
+                expect(errorAction.payload.id).toBe('foo/bar');
+                expect(errorAction.payload.error.json.payload).toEqual({
+                  'code': 'not-logged-in',
+                  'message': 'Not logged in'
+                });
+                scope.done();
+              });
           });
-      });
 
-      it('creates success action', () => {
-        const expectedAction = {
-          type: ActionTypes.REGISTER_NAME_SUCCESS,
-          payload: { id: 'foo/bar' }
-        };
-        return store.dispatch(registerName('foo/bar', 'test-snap'))
-          .then(() => {
-            expect(store.getActions()).toInclude(expectedAction);
-            scope.done();
+          it('creates success action if authorizing snap succeeds', () => {
+            it('creates success action', () => {
+              scope
+                .post('/api/launchpad/snaps/authorize', {
+                  repository_url: repository.url,
+                  snap_name: 'test-snap',
+                  series: '16',
+                  channels: ['edge'],
+                  macaroon: 'dummy-package-upload-macaroon'
+                })
+                .reply(204);
+
+              const expectedAction = {
+                type: ActionTypes.REGISTER_NAME_SUCCESS,
+                payload: { id: 'foo/bar' }
+              };
+              return store.dispatch(registerName(repository, 'test-snap'))
+                .then(() => {
+                  expect(store.getActions()).toInclude(expectedAction);
+                  scope.done();
+                });
+            });
           });
-      });
-    });
-
-    context('if registering snap name succeeds', () => {
-      beforeEach(() => {
-        // XXX check Authorization header
-        scope
-          .post('/api/store/register-name', { snap_name: 'test-snap' })
-          .reply(201, { snap_id: 'test-snap-id' });
-      });
-
-      it('stores a REGISTER_NAME action', () => {
-        const expectedAction = {
-          type: ActionTypes.REGISTER_NAME,
-          payload: { id: 'foo/bar', snapName: 'test-snap' }
-        };
-        return store.dispatch(registerName('foo/bar', 'test-snap'))
-          .then(() => {
-            expect(store.getActions()).toInclude(expectedAction);
-            scope.done();
-          });
-      });
-
-      it('creates success action', () => {
-        const expectedAction = {
-          type: ActionTypes.REGISTER_NAME_SUCCESS,
-          payload: { id: 'foo/bar' }
-        };
-        return store.dispatch(registerName('foo/bar', 'test-snap'))
-          .then(() => {
-            expect(store.getActions()).toInclude(expectedAction);
-            scope.done();
-          });
+        });
       });
     });
   });

@@ -88,24 +88,14 @@ describe('The Launchpad API endpoint', () => {
         it('should return a 400 Bad Request response', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
-            .send({
-              repository_url: 'https://github.com/anowner/aname',
-              snap_name: snapName,
-              series: '16',
-              channels: ['edge']
-            })
+            .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(400, done);
         });
 
         it('should return a "error" status', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
-            .send({
-              repository_url: 'https://github.com/anowner/aname',
-              snap_name: snapName,
-              series: '16',
-              channels: ['edge']
-            })
+            .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasStatus('error'))
             .end(done);
         });
@@ -113,12 +103,7 @@ describe('The Launchpad API endpoint', () => {
         it('should return a body with an "lp-error" message', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
-            .send({
-              repository_url: 'https://github.com/anowner/aname',
-              snap_name: snapName,
-              series: '16',
-              channels: ['edge']
-            })
+            .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasMessage(
                 'lp-error',
                 'There is already a snap package with the same name and owner.'))
@@ -136,10 +121,7 @@ describe('The Launchpad API endpoint', () => {
             .post('/devel/+snaps', {
               'ws.op': 'new',
               git_repository_url: 'https://github.com/anowner/aname',
-              processors: ['/+processors/amd64', '/+processors/armhf'],
-              store_series: '/+snappy-series/16',
-              store_name: snapName,
-              store_channels: 'edge'
+              processors: ['/+processors/amd64', '/+processors/armhf']
             })
             .reply(201, 'Created', { Location: snapUrl });
           nock(lp_api_url)
@@ -153,24 +135,14 @@ describe('The Launchpad API endpoint', () => {
         it('should return a 201 Created response', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
-            .send({
-              repository_url: 'https://github.com/anowner/aname',
-              snap_name: snapName,
-              series: '16',
-              channels: ['edge']
-            })
+            .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(201, done);
         });
 
         it('should return a "success" status', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
-            .send({
-              repository_url: 'https://github.com/anowner/aname',
-              snap_name: snapName,
-              series: '16',
-              channels: ['edge']
-            })
+            .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasStatus('success'))
             .end(done);
         });
@@ -178,12 +150,7 @@ describe('The Launchpad API endpoint', () => {
         it('should return a body with the new snap URL', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
-            .send({
-              repository_url: 'https://github.com/anowner/aname',
-              snap_name: snapName,
-              series: '16',
-              channels: ['edge']
-            })
+            .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasMessage('snap-created', snapUrl))
             .end(done);
         });
@@ -805,96 +772,10 @@ describe('The Launchpad API endpoint', () => {
   });
 
   describe('authorize snap route', () => {
-    context('when snap exists', () => {
-      let completeAuthorizationScope;
+    const snapName = 'dummy-test-snap';
 
-      beforeEach(() => {
-        nock(conf.get('GITHUB_API_ENDPOINT'))
-          .get('/repos/anowner/aname')
-          .reply(200, { permissions: { admin: true } });
-        const lp_api_url = conf.get('LP_API_URL');
-        const lp_api_base = `${lp_api_url}/devel`;
-        nock(lp_api_url)
-          .get('/devel/+snaps')
-          .query({
-            'ws.op': 'findByURL',
-            url: 'https://github.com/anowner/aname'
-          })
-          .reply(200, {
-            total_size: 1,
-            start: 0,
-            entries: [
-              {
-                resource_type_link: `${lp_api_base}/#snap`,
-                self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
-                owner_link: `${lp_api_base}/~test-user`
-              }
-            ]
-          });
-        completeAuthorizationScope = nock(lp_api_url)
-          .post('/devel/~test-user/+snap/test-snap', {
-            'ws.op': 'completeAuthorization',
-            'root_macaroon': 'dummy-macaroon'
-          })
-          .reply(200, 'null', {
-            'Content-Type': 'application/json'
-          });
-      });
-
-      afterEach(() => {
-        nock.cleanAll();
-      });
-
-      it('completes the authorization', (done) => {
-        supertest(app)
-          .post('/launchpad/snaps/authorize')
-          .send({
-            repository_url: 'https://github.com/anowner/aname',
-            macaroon: 'dummy-macaroon'
-          })
-          .expect(200, (err) => {
-            completeAuthorizationScope.done();
-            done(err);
-          });
-      });
-    });
-
-    context('when snap does not exist', () => {
-      beforeEach(() => {
-        nock(conf.get('GITHUB_API_ENDPOINT'))
-          .get('/repos/anowner/aname')
-          .reply(200, { permissions: { admin: true } });
-        const lp_api_url = conf.get('LP_API_URL');
-        nock(lp_api_url)
-          .get('/devel/+snaps')
-          .query({
-            'ws.op': 'findByURL',
-            url: 'https://github.com/anowner/aname'
-          })
-          .reply(200, {
-            total_size: 0,
-            start: 0,
-            entries: []
-          });
-      });
-
-      afterEach(() => {
-        nock.cleanAll();
-      });
-
-      it('returns a "snap-not-found" error', (done) => {
-        supertest(app)
-          .post('/launchpad/snaps/authorize')
-          .send({
-            repository_url: 'https://github.com/anowner/aname',
-            macaroon: 'dummy-macaroon'
-          })
-          .expect((res) => {
-            expect(res.statusCode).toEqual(404);
-            expect(res.body.payload.code).toEqual('snap-not-found');
-          })
-          .end(done);
-      });
+    afterEach(() => {
+      nock.cleanAll();
     });
 
     context('when user has no admin permissions on GitHub repository', () => {
@@ -904,15 +785,14 @@ describe('The Launchpad API endpoint', () => {
           .reply(200, { permissions: { admin: false } });
       });
 
-      afterEach(() => {
-        nock.cleanAll();
-      });
-
       it('returns a "github-no-admin-permissions" error', (done) => {
         supertest(app)
           .post('/launchpad/snaps/authorize')
           .send({
             repository_url: 'https://github.com/anowner/aname',
+            snap_name: snapName,
+            series: '16',
+            channels: ['edge'],
             macaroon: 'dummy-macaroon'
           })
           .expect((res) => {
@@ -921,6 +801,147 @@ describe('The Launchpad API endpoint', () => {
               .toEqual('github-no-admin-permissions');
           })
           .end(done);
+      });
+    });
+
+    context('when user has admin permissions on GitHub repository', () => {
+      beforeEach(() => {
+        nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get('/repos/anowner/aname')
+          .reply(200, { permissions: { admin: true } });
+      });
+
+      context('when snap does not exist', () => {
+        beforeEach(() => {
+          const lpApiUrl = conf.get('LP_API_URL');
+          nock(lpApiUrl)
+            .get('/devel/+snaps')
+            .query({
+              'ws.op': 'findByURL',
+              url: 'https://github.com/anowner/aname'
+            })
+            .reply(200, {
+              total_size: 0,
+              start: 0,
+              entries: []
+            });
+        });
+
+        it('returns a "snap-not-found" error', (done) => {
+          supertest(app)
+            .post('/launchpad/snaps/authorize')
+            .send({
+              repository_url: 'https://github.com/anowner/aname',
+              snap_name: snapName,
+              series: '16',
+              channels: ['edge'],
+              macaroon: 'dummy-macaroon'
+            })
+            .expect((res) => {
+              expect(res.statusCode).toEqual(404);
+              expect(res.body.payload.code).toEqual('snap-not-found');
+            })
+            .end(done);
+        });
+      });
+
+      context('when snap exists', () => {
+        const lpApiUrl = conf.get('LP_API_URL');
+        const lpApiBase = `${lpApiUrl}/devel`;
+        let lpScope;
+
+        beforeEach(() => {
+          lpScope = nock(lpApiUrl);
+          lpScope
+            .get('/devel/+snaps')
+            .query({
+              'ws.op': 'findByURL',
+              url: 'https://github.com/anowner/aname'
+            })
+            .reply(200, {
+              total_size: 1,
+              start: 0,
+              entries: [
+                {
+                  resource_type_link: `${lpApiBase}/#snap`,
+                  self_link: `${lpApiBase}/~test-user/+snap/test-snap`,
+                  owner_link: `${lpApiBase}/~test-user`
+                }
+              ]
+            });
+        });
+
+        context('when setting snap attributes fails', () => {
+          beforeEach(() => {
+            lpScope
+              .post('/devel/~test-user/+snap/test-snap', {
+                store_upload: true,
+                store_series_link: '/+snappy-series/16',
+                store_name: snapName,
+                store_channels: ['edge']
+              })
+              .matchHeader('X-HTTP-Method-Override', 'PATCH')
+              .reply(503, 'Service unavailable');
+          });
+
+          it('returns an "lp-error" error', (done) => {
+            supertest(app)
+              .post('/launchpad/snaps/authorize')
+              .send({
+                repository_url: 'https://github.com/anowner/aname',
+                snap_name: snapName,
+                series: '16',
+                channels: ['edge'],
+                macaroon: 'dummy-macaroon'
+              })
+              .expect((res) => {
+                expect(res.statusCode).toEqual(503);
+                expect(res.body.payload.code).toEqual('lp-error');
+              })
+              .end(done);
+          });
+        });
+
+        context('when setting snap attributes succeeds', () => {
+          beforeEach(() => {
+            lpScope
+              .post('/devel/~test-user/+snap/test-snap', {
+                store_upload: true,
+                store_series_link: '/+snappy-series/16',
+                store_name: snapName,
+                store_channels: ['edge']
+              })
+              .matchHeader('X-HTTP-Method-Override', 'PATCH')
+              .reply(200, {
+                resource_type_link: `${lpApiUrl}/devel/#snap`,
+                self_link: `${lpApiUrl}/~test-user/+snap/test-snap`
+              });
+            lpScope
+              .post('/devel/~test-user/+snap/test-snap', {
+                'ws.op': 'completeAuthorization',
+                'root_macaroon': 'dummy-macaroon'
+              })
+              .reply(200, 'null', {
+                'Content-Type': 'application/json'
+              });
+          });
+
+          it('completes the authorization', (done) => {
+            supertest(app)
+              .post('/launchpad/snaps/authorize')
+              .send({
+                repository_url: 'https://github.com/anowner/aname',
+                snap_name: snapName,
+                series: '16',
+                channels: ['edge'],
+                macaroon: 'dummy-macaroon'
+              })
+              .expect(200, (err) => {
+                lpScope.done();
+                done(err);
+              });
+          });
+        });
       });
     });
   });

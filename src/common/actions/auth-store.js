@@ -128,7 +128,7 @@ export function signIntoStoreError(error) {
   };
 }
 
-function checkPackageUploadRequest(rootRaw, dischargeRaw) {
+export function checkPackageUploadRequest(rootRaw, dischargeRaw) {
   // We can't do full verification here, but at least make sure that the
   // caveat ID matches.
   const root = MacaroonsBuilder.deserialize(rootRaw);
@@ -139,6 +139,7 @@ function checkPackageUploadRequest(rootRaw, dischargeRaw) {
                     'macaroon.');
   }
   // XXX cjwatson 2017-02-13: Check expires caveat?
+  return { root, discharge };
 }
 
 export function getSSODischarge() {

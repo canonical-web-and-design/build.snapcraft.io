@@ -16,10 +16,7 @@ To create a snap:
     Accept: application/json
 
     {
-      "repository_url": "https://github.com/:owner/:name",
-      "snap_name": ":snap-name",
-      "series": ":series",
-      "channels": [":channel", ...]
+      "repository_url": "https://github.com/:owner/:name"
     }
 
 On success, returns:
@@ -35,16 +32,11 @@ On success, returns:
       }
     }
 
-The caller should proceed to authorize the snap using an OpenID exchange,
-using `:caveat-id` as the parameter to the Macaroon extension.  If
-successful, the result of this OpenID exchange will be a discharge macaroon,
-which the `/login/verify` handler will store in Launchpad.
-
-We're moving to a slightly different arrangement for authorizing snaps.  In
-this, the caller should acquire a pre-authorized macaroon from the store (on
-the authority of a `package_upload_request` macaroon which has itself been
-authorized using OpenID) and tell Launchpad to use that for uploads.  This
-can be done using this API method:
+Once the caller has registered the snap name with the store, it should
+acquire a pre-authorized macaroon from the store (on the authority of a
+`package_upload_request` macaroon which has itself been authorized using
+OpenID) and tell Launchpad to use that for uploads along with telling it the
+snap name, series, and channels.  This can be done using this API method:
 
     POST /api/launchpad/snaps/authorize
     Cookie: <session cookie>
@@ -52,6 +44,9 @@ can be done using this API method:
 
     {
       "repository_url": "https://github.com/:owner/:name",
+      "snap_name": ":snap-name",
+      "series": ":series",
+      "channels": [":channel", ...],
       "macaroon": ":macaroon"
     }
 

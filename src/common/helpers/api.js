@@ -1,6 +1,9 @@
 export function getError(response, json) {
-  const message = (json.payload && json.payload.message) ||
-                  response.statusText;
+  // 'message' is produced by our own APIs; 'title' is produced by some
+  // store APIs that we call directly.
+  const message = (
+    json.payload && (json.payload.message || json.payload.title)
+  ) || response.statusText;
   const error = new Error(message);
   error.response = response;
   error.json = json;
