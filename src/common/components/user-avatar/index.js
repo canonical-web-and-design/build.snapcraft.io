@@ -9,7 +9,7 @@ class UserAvatar extends Component {
   render() {
     const { auth, user } = this.props;
 
-    if (!auth.authenticated) return;
+    if (!auth.authenticated) return null;
 
     return (
       <div className={ styles.container }>
