@@ -68,8 +68,11 @@ class RepositoryRow extends Component {
   }
 
   onRegisterClick(repositoryUrl) {
+    const { snap } = this.props;
     const repository = parseGitHubRepoUrl(repositoryUrl);
-    this.props.dispatch(registerName(repository, this.state.snapName));
+    const { snapName } = this.state;
+    const triggerBuilds = (!!snap.snapcraft_data);
+    this.props.dispatch(registerName(repository, snapName, triggerBuilds));
   }
 
   componentWillReceiveProps(nextProps) {

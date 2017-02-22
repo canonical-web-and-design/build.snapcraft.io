@@ -5,6 +5,7 @@ import { MacaroonsBuilder } from 'macaroons.js';
 import { APICompatibleError, checkStatus, getError } from '../helpers/api';
 import { conf } from '../helpers/config';
 import { checkPackageUploadRequest } from './auth-store';
+import { requestBuilds } from './snap-builds';
 
 const BASE_URL = conf.get('BASE_URL');
 
@@ -103,7 +104,7 @@ function getPackageUploadMacaroon(root, discharge, snapName) {
     }));
 }
 
-export function registerName(repository, snapName) {
+export function registerName(repository, snapName, triggerBuilds) {
   return (dispatch) => {
     const { fullName } = repository;
 
@@ -115,7 +116,7 @@ export function registerName(repository, snapName) {
     let root;
     let discharge;
     let packageUploadMacaroon;
-    return getPackageUploadRequestMacaroon()
+    let promise = getPackageUploadRequestMacaroon()
       .then((macaroons) => {
         ({ root, discharge } = macaroons);
         return internalRegisterName(root, discharge, snapName);
@@ -139,6 +140,10 @@ export function registerName(repository, snapName) {
       .then(checkStatus)
       .then(() => dispatch(registerNameSuccess(fullName)))
       .catch((error) => dispatch(registerNameError(fullName, error)));
+    if (triggerBuilds) {
+      promise = promise.then(() => dispatch(requestBuilds(repository.url)));
+    }
+    return promise;
   };
 }
 
