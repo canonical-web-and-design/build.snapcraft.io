@@ -18,6 +18,7 @@ const authStoreModule = proxyquire.noCallThru().load(
 );
 const {
   checkSignedIntoStore,
+  extractExpiresCaveat,
   extractSSOCaveat,
   getCaveats,
   getSSODischarge,
@@ -72,6 +73,33 @@ describe('store authentication actions', () => {
           location: ''
         }
       ]);
+    });
+  });
+
+  context('extractExpiresCaveat', () => {
+    const storeLocation = url.parse(conf.get('STORE_API_URL')).host;
+
+    it('parses an expires caveat', () => {
+      const expires = '2017-01-01T00:00:00.000';
+      const macaroon = new MacaroonsBuilder('location', 'key', 'id')
+        .add_first_party_caveat(`${storeLocation}|expires|${expires}`)
+        .getMacaroon();
+      expect(extractExpiresCaveat(macaroon)).toEqual(moment(expires));
+    });
+
+    it('skips expires caveats from wrong host', () => {
+      const expires = '2017-01-01T00:00:00.000';
+      const macaroon = new MacaroonsBuilder('location', 'key', 'id')
+        .add_first_party_caveat(`wrong|expires|${expires}`)
+        .getMacaroon();
+      expect(extractExpiresCaveat(macaroon)).toBe(undefined);
+    });
+
+    it('skips non-expires caveats', () => {
+      const macaroon = new MacaroonsBuilder('location', 'key', 'id')
+        .add_first_party_caveat(`${storeLocation}|channel|["edge"]`)
+        .getMacaroon();
+      expect(extractExpiresCaveat(macaroon)).toBe(undefined);
     });
   });
 
@@ -152,6 +180,46 @@ describe('store authentication actions', () => {
       it('stores an error', () => {
         const expectedMessage = 'No store root macaroon saved in local ' +
                                 'storage.';
+
+        return store.dispatch(getSSODischarge())
+          .then(() => {
+            api.done();
+            const action = store.getActions().filter(
+              (a) => a.type === ActionTypes.GET_SSO_DISCHARGE_ERROR)[0];
+            expect(action.payload.message).toBe(expectedMessage);
+          });
+      });
+    });
+
+    context('when local storage contains expired root macaroon', () => {
+      const storeLocation = url.parse(conf.get('STORE_API_URL')).host;
+      let root;
+      let discharge;
+
+      beforeEach(() => {
+        const expires = moment()
+          .subtract(1, 'seconds')
+          .format('YYYY-MM-DD[T]HH:mm:ss.SSS');
+        root = new MacaroonsBuilder(storeLocation, 'key', 'id')
+          .add_first_party_caveat(`${storeLocation}|expires|${expires}`)
+          .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
+          .getMacaroon();
+        discharge = MacaroonsBuilder.create(ssoLocation, 'wrong', 'wrong');
+        localForageStub.store['package_upload_request'] = {
+          root: root.serialize()
+        };
+        api.get('/login/sso-discharge')
+          .reply(200, {
+            status: 'success',
+            payload: {
+              code: 'discharge-found',
+              discharge: discharge.serialize()
+            }
+          });
+      });
+
+      it('stores an error', () => {
+        const expectedMessage = 'Store root macaroon has expired.';
 
         return store.dispatch(getSSODischarge())
           .then(() => {

@@ -53,6 +53,18 @@ export function* getCaveats(macaroon) {
   }
 }
 
+export function extractExpiresCaveat(macaroon) {
+  const storeLocation = url.parse(conf.get('STORE_API_URL')).host;
+  for (const caveat of getCaveats(macaroon)) {
+    if (caveat.verificationKeyId === '') {
+      const parts = caveat.caveatId.split('|');
+      if (parts[0] === storeLocation && parts[1] === 'expires') {
+        return moment(parts[2]);
+      }
+    }
+  }
+}
+
 export function extractSSOCaveat(macaroon) {
   const ssoLocation = url.parse(conf.get('UBUNTU_SSO_URL')).host;
   const ssoCaveats = [];
@@ -132,13 +144,16 @@ export function checkPackageUploadRequest(rootRaw, dischargeRaw) {
   // We can't do full verification here, but at least make sure that the
   // caveat ID matches.
   const root = MacaroonsBuilder.deserialize(rootRaw);
+  const expires = extractExpiresCaveat(root);
+  if (expires && expires <= moment()) {
+    throw new Error('Store root macaroon has expired.');
+  }
   const caveatId = extractSSOCaveat(root);
   const discharge = MacaroonsBuilder.deserialize(dischargeRaw);
   if (discharge.identifier !== caveatId) {
     throw new Error('SSO discharge macaroon does not match store root ' +
                     'macaroon.');
   }
-  // XXX cjwatson 2017-02-13: Check expires caveat?
   return { root, discharge };
 }
 
