@@ -83,7 +83,7 @@ class Landing extends Component {
         <section className={styles.section}>
 
           <div className={ `${styles.row} ${containerStyles.wrapper}`  }>
-            <img src='https://assets.ubuntu.com/v1/6bee41f5-workflow_text-to-path.svg' width='100%' />
+            <img src='https://assets.ubuntu.com/v1/84ce5b81-workflow_text-to-path02.svg' width='100%' />
           </div>
 
           <div className={ styles.centeredButton }>
