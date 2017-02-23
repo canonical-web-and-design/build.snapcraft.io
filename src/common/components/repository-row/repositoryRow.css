@@ -6,3 +6,8 @@
   font-size: .875rem;
   color: $warm-grey;
 }
+
+.tickIcon {
+  width: 22px;
+  height: 16px;
+}

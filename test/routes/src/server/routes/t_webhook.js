@@ -198,13 +198,23 @@ describe('The WebHook API endpoint', () => {
           let getSnapcraftYaml;
 
           beforeEach(() => {
+            const contentsPath = '/repos/anowner/aname/contents';
+            const query = {
+              client_id: conf.get('GITHUB_AUTH_CLIENT_ID'),
+              client_secret: conf.get('GITHUB_AUTH_CLIENT_SECRET')
+            };
+            const error = { message: 'Not Found' };
+
             getSnapcraftYaml = nock(conf.get('GITHUB_API_ENDPOINT'))
-              .get('/repos/anowner/aname/contents/snapcraft.yaml')
-              .query({
-                client_id: conf.get('GITHUB_AUTH_CLIENT_ID'),
-                client_secret: conf.get('GITHUB_AUTH_CLIENT_SECRET')
-              })
-              .reply(404, { message: 'Not Found' });
+              .get(`${contentsPath}/snap/snapcraft.yaml`)
+              .query(query)
+              .reply(404, error)
+              .get(`${contentsPath}/snapcraft.yaml`)
+              .query(query)
+              .reply(404, error)
+              .get(`${contentsPath}/.snapcraft.yaml`)
+              .query(query)
+              .reply(404, error);
           });
 
           it('returns 500', (done) => {
@@ -247,7 +257,7 @@ describe('The WebHook API endpoint', () => {
 
           beforeEach(() => {
             getSnapcraftYaml = nock(conf.get('GITHUB_API_ENDPOINT'))
-              .get('/repos/anowner/aname/contents/snapcraft.yaml')
+              .get('/repos/anowner/aname/contents/snap/snapcraft.yaml')
               .query({
                 client_id: conf.get('GITHUB_AUTH_CLIENT_ID'),
                 client_secret: conf.get('GITHUB_AUTH_CLIENT_SECRET')

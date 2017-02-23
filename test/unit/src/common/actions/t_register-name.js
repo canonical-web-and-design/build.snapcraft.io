@@ -7,6 +7,10 @@ import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import url from 'url';
 
+import {
+  FETCH_BUILDS_ERROR,
+  FETCH_BUILDS_SUCCESS
+} from '../../../../../src/common/actions/snap-builds';
 import { conf } from '../../../../../src/common/helpers/config';
 import { makeLocalForageStub } from '../../../../helpers';
 
@@ -241,8 +245,13 @@ describe('register name actions', () => {
               });
           });
 
-          it('creates success action if authorizing snap succeeds', () => {
-            it('creates success action', () => {
+          context('if authorizing snap succeeds', () => {
+            const expectedAction = {
+              type: ActionTypes.REGISTER_NAME_SUCCESS,
+              payload: { id: 'foo/bar' }
+            };
+
+            beforeEach(() => {
               scope
                 .post('/api/launchpad/snaps/authorize', {
                   repository_url: repository.url,
@@ -252,16 +261,66 @@ describe('register name actions', () => {
                   macaroon: 'dummy-package-upload-macaroon'
                 })
                 .reply(204);
+            });
 
-              const expectedAction = {
-                type: ActionTypes.REGISTER_NAME_SUCCESS,
-                payload: { id: 'foo/bar' }
-              };
+            it('creates success action if not triggering builds', () => {
               return store.dispatch(registerName(repository, 'test-snap'))
                 .then(() => {
                   expect(store.getActions()).toInclude(expectedAction);
                   scope.done();
                 });
+            });
+
+            context('if triggering builds', () => {
+              it('stores success and error actions if triggering builds ' +
+                 'fails', () => {
+                scope
+                  .post('/api/launchpad/snaps/request-builds', {
+                    repository_url: repository.url
+                  })
+                  .reply(404, {
+                    status: 'error',
+                    payload: {
+                      code: 'lp-error',
+                      message: 'Something went wrong'
+                    }
+                  });
+
+                return store.dispatch(
+                  registerName(repository, 'test-snap', true)
+                )
+                  .then(() => {
+                    const actions = store.getActions();
+                    expect(actions).toInclude(expectedAction);
+                    expect(actions).toHaveActionOfType(FETCH_BUILDS_ERROR);
+                    scope.done();
+                  });
+              });
+
+              it('stores success actions if triggering builds ' +
+                 'succeeds', () => {
+                scope
+                  .post('/api/launchpad/snaps/request-builds', {
+                    repository_url: repository.url
+                  })
+                  .reply(201, {
+                    status: 'success',
+                    payload: {
+                      code: 'snap-builds-requested',
+                      builds: []
+                    }
+                  });
+
+                return store.dispatch(
+                  registerName(repository, 'test-snap', true)
+                )
+                  .then(() => {
+                    const actions = store.getActions();
+                    expect(actions).toInclude(expectedAction);
+                    expect(actions).toHaveActionOfType(FETCH_BUILDS_SUCCESS);
+                    scope.done();
+                  });
+              });
             });
           });
         });

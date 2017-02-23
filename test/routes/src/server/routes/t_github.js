@@ -19,6 +19,157 @@ describe('The GitHub API endpoint', () => {
   });
   app.use(github);
 
+  describe('get snapcraft.yaml route', () => {
+    const fullName = 'anowner/aname';
+
+    context('when snap/snapcraft.yaml is valid', () => {
+
+      beforeEach(() => {
+        scope = nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get(`/repos/${fullName}/contents/snap/snapcraft.yaml`)
+          .reply(200, 'name: snap-name');
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should successfully return', (done) => {
+        supertest(app)
+          .get('/github/snapcraft-yaml/anowner/aname')
+          .expect(200, done);
+      });
+
+      it('should return a "success" status', (done) => {
+        supertest(app)
+          .get('/github/snapcraft-yaml/anowner/aname')
+          .expect(hasStatus('success'))
+          .end(done);
+      });
+
+      it('should return a body with a "snapcraft-yaml-found" message', (done) => {
+        supertest(app)
+          .get('/github/snapcraft-yaml/anowner/aname')
+          .expect(hasMessage('snapcraft-yaml-found'))
+          .end(done);
+      });
+
+    });
+
+    context('when /snapcraft.yaml is valid', () => {
+
+      beforeEach(() => {
+        scope = nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get(`/repos/${fullName}/contents/snap/snapcraft.yaml`)
+          .reply(404, { message: 'Not Found' })
+          .get(`/repos/${fullName}/contents/snapcraft.yaml`)
+          .reply(200, 'name: snap-name');
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should successfully return', (done) => {
+        supertest(app)
+          .get('/github/snapcraft-yaml/anowner/aname')
+          .expect(200, done);
+      });
+
+      it('should return a "success" status', (done) => {
+        supertest(app)
+          .get('/github/snapcraft-yaml/anowner/aname')
+          .expect(hasStatus('success'))
+          .end(done);
+      });
+
+      it('should return a body with a "snapcraft-yaml-found" message', (done) => {
+        supertest(app)
+          .get('/github/snapcraft-yaml/anowner/aname')
+          .expect(hasMessage('snapcraft-yaml-found'))
+          .end(done);
+      });
+
+    });
+
+    context('when /.snapcraft.yaml is valid', () => {
+
+      beforeEach(() => {
+        scope = nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get(`/repos/${fullName}/contents/snap/snapcraft.yaml`)
+          .reply(404, { message: 'Not Found' })
+          .get(`/repos/${fullName}/contents/snapcraft.yaml`)
+          .reply(404, { message: 'Not Found' })
+          .get(`/repos/${fullName}/contents/.snapcraft.yaml`)
+          .reply(200, 'name: snap-name');
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should successfully return', (done) => {
+        supertest(app)
+          .get('/github/snapcraft-yaml/anowner/aname')
+          .expect(200, done);
+      });
+
+      it('should return a "success" status', (done) => {
+        supertest(app)
+          .get('/github/snapcraft-yaml/anowner/aname')
+          .expect(hasStatus('success'))
+          .end(done);
+      });
+
+      it('should return a body with a "snapcraft-yaml-found" message', (done) => {
+        supertest(app)
+          .get('/github/snapcraft-yaml/anowner/aname')
+          .expect(hasMessage('snapcraft-yaml-found'))
+          .end(done);
+      });
+
+    });
+
+    context('when there is no valid snapcraft.yaml file', () => {
+
+      beforeEach(() => {
+        scope = nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get(`/repos/${fullName}/contents/snap/snapcraft.yaml`)
+          .reply(404, { message: 'Not Found' })
+          .get(`/repos/${fullName}/contents/snapcraft.yaml`)
+          .reply(404, { message: 'Not Found' })
+          .get(`/repos/${fullName}/contents/.snapcraft.yaml`)
+          .reply(404, { message: 'Not Found' });
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should return 404 error', (done) => {
+        supertest(app)
+          .get('/github/snapcraft-yaml/anowner/aname')
+          .expect(404, done);
+      });
+
+      it('should return a "error" status', (done) => {
+        supertest(app)
+          .get('/github/snapcraft-yaml/anowner/aname')
+          .expect(hasStatus('error'))
+          .end(done);
+      });
+
+      it('should return a body with a "snapcraft-yaml-found" message', (done) => {
+        supertest(app)
+          .get('/github/snapcraft-yaml/anowner/aname')
+          .expect(hasMessage('github-snapcraft-yaml-not-found'))
+          .end(done);
+      });
+
+    });
+
+  });
+
   describe('get user route', () => {
 
     context('when user is not logged in', () => {
@@ -493,7 +644,7 @@ describe('The GitHub API endpoint', () => {
 const hasStatus = (expected) => {
   return (actual) => {
     if (typeof actual.body.status === 'undefined' || actual.body.status !== expected) {
-      throw new Error('Response does not have status ' + expected);
+      throw new Error(`Response does not have status ${expected} instead of ${actual.body.status}`);
     }
   };
 };
@@ -503,7 +654,7 @@ const hasMessage = (expected) => {
     if (typeof actual.body.payload === 'undefined'
         || typeof actual.body.payload.code === 'undefined'
         || actual.body.payload.code !== expected) {
-      throw new Error('Response does not have payload with code ' + expected);
+      throw new Error(`Response does not have payload with code ${expected} instead of ${actual.body.payload.code}`);
     }
   };
 };

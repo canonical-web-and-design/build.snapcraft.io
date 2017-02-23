@@ -1,6 +1,6 @@
 import 'isomorphic-fetch';
 
-import { checkStatus } from '../helpers/api';
+import { checkStatus, getError } from '../helpers/api';
 import { conf } from '../helpers/config';
 
 const BASE_URL = conf.get('BASE_URL');
@@ -18,6 +18,28 @@ export function setGitHubRepository(value) {
   };
 }
 
+export function createWebhook(repository) {
+  const { owner, name } = repository;
+  return fetch(`${BASE_URL}/api/github/webhook`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ owner, name }),
+    credentials: 'same-origin'
+  })
+    .then((response) => {
+      if (response.status >= 200 && response.status < 300) {
+        return response;
+      } else {
+        return response.json().then((json) => {
+          if (json.payload && json.payload.code === 'github-already-created') {
+            return response;
+          }
+          throw getError(response, json);
+        });
+      }
+    });
+}
+
 export function createSnap(repository) {
   return (dispatch) => {
     const repositoryUrl = repository.url;
@@ -29,12 +51,15 @@ export function createSnap(repository) {
         payload: { id: fullName }
       });
 
-      return fetch(`${BASE_URL}/api/launchpad/snaps`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ repository_url: repositoryUrl }),
-        credentials: 'same-origin'
-      })
+      return createWebhook(repository)
+        .then(() => {
+          return fetch(`${BASE_URL}/api/launchpad/snaps`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ repository_url: repositoryUrl }),
+            credentials: 'same-origin'
+          });
+        })
         .then(checkStatus)
         .then(() => dispatch(createSnapSuccess(fullName)))
         .catch((error) => dispatch(createSnapError(fullName, error)));
