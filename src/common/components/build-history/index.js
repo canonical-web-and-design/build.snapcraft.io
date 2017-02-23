@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import { snapBuildsInitialStatus } from '../../reducers/snap-builds';
 import BuildRow from '../build-row';
+import { Table, Head, Body, Row, Header } from '../vanilla/table-interactive';
 import { Message } from '../forms';
 
 export const BuildHistory = (props) => {
@@ -24,7 +25,21 @@ export const BuildHistory = (props) => {
       <BuildRow key={build.buildId} {...build} repository={repository} />
     ));
 
-  return <div>{ buildRows }</div>;
+  return (
+    <Table>
+      <Head>
+        <Row>
+          <Header col="20">Number</Header>
+          <Header col="20">Architecture</Header>
+          <Header col="20">Duration</Header>
+          <Header col="40">Result</Header>
+        </Row>
+      </Head>
+      <Body>
+        { buildRows }
+      </Body>
+    </Table>
+  );
 };
 
 BuildHistory.propTypes = {

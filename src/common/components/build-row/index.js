@@ -2,9 +2,8 @@ import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import moment from 'moment';
 
-import { BuildStatusConstants } from '../../helpers/snap-builds';
-
-import styles from './buildRow.css';
+import { Row, Data } from '../vanilla/table-interactive';
+import BuildStatus from '../build-status';
 
 const BuildRow = (props) => {
 
@@ -17,12 +16,6 @@ const BuildRow = (props) => {
     statusMessage,
     dateStarted
   } = props;
-
-  const statusStyle = {
-    [BuildStatusConstants.SUCCESS]: styles.success,
-    [BuildStatusConstants.ERROR]: styles.error,
-    [BuildStatusConstants.PENDING]: styles.pending
-  };
 
   let humanDuration;
   if (duration !== null) {
@@ -44,18 +37,20 @@ const BuildRow = (props) => {
   }
 
   return (
-    <div className={ `${styles.buildRow} ${statusStyle[status]}` }>
-      <div className={ styles.item }><Link to={`/${repository.fullName}/builds/${buildId}`}>{`#${buildId}`}</Link> {statusMessage}</div>
-      <div className={ styles.item }>
+    <Row key={ buildId }>
+      <Data col="20">
+        <Link to={`/${repository.fullName}/builds/${buildId}`}>{`#${buildId}`}</Link>
+      </Data>
+      <Data col="20">
         {architecture}
-      </div>
-      <div className={ styles.item }>
+      </Data>
+      <Data col="20">
         {humanDuration}
-      </div>
-      <div className={ styles.item }>
-        {humanDateStarted}
-      </div>
-    </div>
+      </Data>
+      <Data col="40">
+        <BuildStatus link="" status={status} statusMessage={statusMessage} dateStarted={humanDateStarted} />
+      </Data>
+    </Row>
   );
 };
 
@@ -69,7 +64,7 @@ BuildRow.propTypes = {
   // build properties
   buildId:  PropTypes.string,
   architecture: PropTypes.string,
-  status:  PropTypes.string,
+  status:  PropTypes.oneOf(['success', 'pending', 'error']),
   statusMessage: PropTypes.string,
   dateStarted: PropTypes.string,
   duration: PropTypes.string

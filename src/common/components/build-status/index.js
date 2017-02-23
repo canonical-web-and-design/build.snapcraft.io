@@ -47,7 +47,7 @@ const BuildStatus = (props) => {
 
 BuildStatus.propTypes = {
   link: PropTypes.string,
-  status:  PropTypes.string,
+  status:  PropTypes.oneOf(['success', 'pending', 'error']),
   statusMessage: PropTypes.string,
   dateStarted: PropTypes.string
 };
