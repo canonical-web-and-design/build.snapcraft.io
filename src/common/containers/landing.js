@@ -3,9 +3,11 @@ import { connect } from 'react-redux';
 
 import { Anchor } from '../components/vanilla/button';
 import { HeadingOne } from '../components/vanilla/heading';
+import { HeadingThree } from '../components/vanilla/heading';
 import { HeadingSix } from '../components/vanilla/heading';
 import { ListDividedState } from '../components/vanilla/list';
 
+import Testimonial from '../components/testimonial';
 import containerStyles from './container.css';
 import styles from './landing.css';
 import octocat from '../images/octocat.svg';
@@ -19,7 +21,7 @@ class Landing extends Component {
         <div className={ containerStyles.strip }>
           <div>
             <div className={ `${containerStyles.wrapper} ${styles.centeredText}` }>
-              <HeadingOne>
+              <HeadingOne align='center'>
                 Auto-build and publish software<br />for any Linux system or device
               </HeadingOne>
 
@@ -65,16 +67,16 @@ class Landing extends Component {
         </section>
 
         <section className={ styles.section }>
-          <HeadingSix>
+          <HeadingSix align='center'>
             Publish your software for
           </HeadingSix>
           <div className={ `${styles.row} ${containerStyles.wrapper}` }>
-            <img className={ styles.brandLogo } src={images.ubuntu} />
             <img className={ styles.brandLogo } src={images.archlinux} />
             <img className={ styles.brandLogo } src={images.debian} />
             <img className={ styles.brandLogo } src={images.gentoo} />
             <img className={ styles.brandLogo } src={images.fedora} />
             <img className={ styles.brandLogo } src={images.opensuse} />
+            <img className={ styles.brandLogo } src={images.ubuntu} />
           </div>
         </section>
 
@@ -91,7 +93,7 @@ class Landing extends Component {
           </div>
         </section>
 
-        <section className={styles.section}>
+        <section className={ styles.section }>
           <div className={ `${styles.row} ${containerStyles.wrapper}` }>
 
             <div className={styles.rowItemTwoThirds}>
@@ -104,7 +106,36 @@ class Landing extends Component {
           </div>
         </section>
 
-        {/* TODO testimonials */}
+        <section className={ styles.section }>
+          <div className={ `${containerStyles.wrapper}` }>
+            <HeadingThree align='center'>
+              What people are saying about Snapcraft
+            </HeadingThree>
+
+            <div className={ `${styles.row} ${styles.sectionNoBorder}` }>
+
+              <div className={ styles.rowItemOneThird }>
+                <Testimonial citation='Frank Karlitschek, Founder' logo='https://assets.ubuntu.com/v1/99a0b969-Nextcloud_Logo.svg'>
+                  Snaps provide an excellent way to distribute updates in a way that is both secure and does not risk breaking end user devices.
+                </Testimonial>
+              </div>
+
+              <div className={ styles.rowItemOneThird }>
+                <Testimonial citation='Mac Devine, VP &amp; CTO' logo='https://assets.ubuntu.com/v1/683950fd-logo-ibm.svg'>
+                  Snaps allow developers to build and deploy applications in a format that’s easily portable and upgradeable across a number of IoT devices so that a cognitive relationship between the cloud and the edges of the network can be established.
+                </Testimonial>
+              </div>
+
+              <div className={ styles.rowItemOneThird }>
+                <Testimonial citation='Aaron Ogle, Developer' logo='https://assets.ubuntu.com/v1/1ad274f9-rocket-chat.svg'>
+                  Getting Rocket.Chat snapped was as easy as defining a simple yaml file and adding into our CI. This is definitely one of the easiest distribution methods we have ever used.
+                </Testimonial>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
       </div>
     );
   }

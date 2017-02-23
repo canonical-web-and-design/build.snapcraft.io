@@ -4,8 +4,9 @@ import styles from './heading.css';
 
 const Heading = (props) => {
   const H = props.heading || 'h1';
+  const align = props.align || 'left';
   return (
-    <H className={ styles[H] }>
+    <H className={ `${styles[H]} ${styles[align]} `}>
       { props.children }
     </H>
   );
@@ -13,6 +14,7 @@ const Heading = (props) => {
 
 Heading.propTypes = {
   children: PropTypes.node,
+  align: React.PropTypes.oneOf(['left', 'right', 'center']),
   heading: PropTypes.oneOf(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
 };
 

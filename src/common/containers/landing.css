@@ -53,11 +53,21 @@
   flex-grow: 1;
 }
 
+.rowItemFull {
+  composes: rowItem;
+   flex: 0 0 100%;
+}
+
 .rowItemOneThird {
   composes: rowItem;
   width: 33.33%;
-  justify-content: center;
-  text-align: center;
+  border-right: 1px #ccc dotted;
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+.rowItemOneThird:last-child {
+  border: none;
 }
 
 .rowItemTwoThirds {

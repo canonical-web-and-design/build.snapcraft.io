@@ -50,3 +50,15 @@
 .heading a {
   color: inherit;
 }
+
+.center {
+  text-align: center;
+}
+
+.left {
+  text-align: left;
+}
+
+.right {
+  text-align: right;
+}

@@ -1,0 +1,69 @@
+.pullQuote > p:first-of-type:before,
+.pullQuote>p:last-of-type:after {
+  color:#cdcdcd;
+  display:inline-block;
+  font-size:1em;
+  font-weight:700;
+  line-height:1rem;
+  max-width:1.25rem
+}
+
+.pullQuote {
+  border:0;
+  margin:2rem 0 1rem;
+  padding-left:2rem;
+  padding-right:1.25rem;
+  position:relative
+}
+
+@media (min-width:768px){
+  .pullQuote {
+    margin:1.5rem 0
+  }
+}
+
+.pullQuote>p {
+  font-size:1em;
+  font-style:normal;
+  margin:0
+}
+
+.pullQuote>p:first-of-type:before {
+  content:'\201C\2002';
+  margin-left:-1.25rem;
+  margin-right:.25rem
+}
+
+.pullQuote>p:last-of-type {
+  margin-bottom:0
+}
+
+.pullQuote > p:last-of-type:after {
+  content:'\2002\201E';
+  margin-left:.25rem
+}
+
+.pullQuoteCitation {
+  display:inline-block;
+  font-size:1em;
+  font-style:italic;
+  line-height:1.5;
+  margin-top:.75rem;
+  width:100%;
+  position: absolute;
+  bottom: 0;
+  text-indent: 2.25rem;
+}
+
+.pullQuoteLogo {
+  height: 1em;
+  display: inline;
+  vertical-align: middle;
+}
+
+.pullQuoteLogo >img {
+  height: 25px;
+  margin-right: .625rem;
+  display: inline;
+  vertical-align: middle;
+}
