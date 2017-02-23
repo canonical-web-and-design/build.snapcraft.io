@@ -18,7 +18,9 @@ class UserAvatar extends Component {
         </div>
         <div className={ styles.headings }>
           <HeadingOne>{ user.name }</HeadingOne>
-          <HeadingThree>{ user.login }</HeadingThree>
+          <div className={ styles.login }>
+            <HeadingThree>{ user.login }</HeadingThree>
+          </div>
         </div>
       </div>
     );

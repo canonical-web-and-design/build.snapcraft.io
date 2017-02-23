@@ -8,7 +8,8 @@ import { toggleRepository } from '../../actions/select-repositories-form';
 import SelectRepositoryRow from '../select-repository-row';
 import Spinner from '../spinner';
 import PageLinks from '../page-links';
-import Button from '../vanilla/button';
+import Button, { LinkButton } from '../vanilla/button';
+import { HeadingThree } from '../vanilla/heading';
 import { fetchUserRepositories } from '../../actions/repositories';
 import { hasRepository } from '../../helpers/repositories';
 import styles from './styles.css';
@@ -87,6 +88,8 @@ class SelectRepositoryList extends Component {
 
   render() {
     const isLoading = this.props.repositories.isFetching;
+    const { selectedRepos } = this.props.selectRepositoriesForm;
+    const { repos } = this.props.repositories;
 
     return (
       <div>
@@ -99,10 +102,22 @@ class SelectRepositoryList extends Component {
         }
         { this.renderPageLinks.call(this) }
         <div className={ styles.footer }>
-          <div className={ styles.right }>
-            <Button onClick={ this.onSubmit.bind(this) } appearance={ 'positive' }>
-              Add
-            </Button>
+          <HeadingThree>
+            { selectedRepos.length } selected
+          </HeadingThree>
+          <div className={ styles['footer-right'] }>
+            <div className={ styles['button-wrapper'] }>
+              { repos && repos.length > 0 &&
+                <LinkButton appearance="neutral" to="/dashboard">
+                  Cancel
+                </LinkButton>
+              }
+            </div>
+            <div className={ styles['button-wrapper'] }>
+              <Button onClick={ this.onSubmit.bind(this) } appearance={ 'positive' }>
+                Add
+              </Button>
+            </div>
           </div>
         </div>
       </div>

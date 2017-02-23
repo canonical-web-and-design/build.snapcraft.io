@@ -54,11 +54,13 @@ class RepositoriesHome extends Component {
     return (
       <div>
         <FirstTimeHeading snaps={snaps} snapBuilds={snapBuilds} />
-        <HeadingThree>Repos to build and publish</HeadingThree>
         <div className={ styles['button-container'] }>
-          <LinkButton appearance="neutral" to="/dashboard/select-repositories">
-            Add repos…
-          </LinkButton>
+          <HeadingThree>Repos to build and publish</HeadingThree>
+          <div>
+            <LinkButton appearance="neutral" to="/dashboard/select-repositories">
+              Add repos…
+            </LinkButton>
+          </div>
         </div>
         <RepositoriesList />
       </div>

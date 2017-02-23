@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
-import { HeadingOne } from '../vanilla/heading';
+import { HeadingThree } from '../vanilla/heading';
 import TrafficLights, { SIGNALS } from '../traffic-lights';
 
 import styles from './firstTimeHeading.css';
@@ -63,7 +63,7 @@ class FirstTimeHeading extends Component {
   }
 
   renderMessage(message) {
-    return (message ? <HeadingOne>{message}</HeadingOne> : null);
+    return (message ? <HeadingThree>{message}</HeadingThree> : null);
   }
 
   render() {

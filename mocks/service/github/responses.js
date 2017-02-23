@@ -90,3 +90,32 @@ export function errorSnapcraftYamlNotFound(req, res) {
     'documentation_url': 'https://developer.github.com/v3'
   });
 }
+
+export function okayReposFound(req, res) {
+  const headers = {
+    Link: ''
+  };
+
+  res.set(headers).status(200).send([
+    {
+      full_name: 'anowner/aname',
+      name: 'aname',
+      owner: { login: 'anowner' },
+      url: 'http://github.com/anowner/aname'
+    },
+    {
+      full_name: 'test/test',
+      name: 'test',
+      owner: { login: 'test' },
+      url: 'http://github.com/test/test'
+    }
+  ]);
+}
+
+export function okayNoReposFound(req, res) {
+  const headers = {
+    Link: ''
+  };
+
+  res.set(headers).status(200).send([]);
+}

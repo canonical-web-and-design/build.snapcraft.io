@@ -24,26 +24,7 @@ router.get(
   responses.okaySnapcraftYamlFound
 );
 
-router.get('/user/repos', (req, res) => {
-  const headers = {
-    Link: ''
-  };
-
-  res.set(headers).status(200).send([
-    {
-      full_name: 'anowner/aname',
-      name: 'aname',
-      owner: { login: 'anowner' },
-      url: 'http://github.com/anowner/aname'
-    },
-    {
-      full_name: 'test/test',
-      name: 'test',
-      owner: { login: 'test' },
-      url: 'http://github.com/test/test'
-    }
-  ]);
-});
+router.get('/user/repos', responses.okayReposFound);
 
 router.get('/user', (req, res) => {
   res.status(200).send({
