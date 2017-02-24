@@ -44,7 +44,7 @@ describe('<BuildHistory />', function() {
   });
 
   it('should sort builds by id', function() {
-    const children = shallow(BuildHistory(testProps)).children();
+    const children = shallow(BuildHistory(testProps)).find('Body').children();
 
     const keys = children.map((child) => child.key());
 

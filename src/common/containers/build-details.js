@@ -4,10 +4,11 @@ import Helmet from 'react-helmet';
 import { Link } from 'react-router';
 
 import BuildRow from '../components/build-row';
+import { Table, Head, Body, Row, Header } from '../components/vanilla/table-interactive';
 import BuildLog from '../components/build-log';
 import { Message } from '../components/forms';
 import HelpInstallSnap from '../components/help/install-snap';
-import { HeadingOne } from '../components/vanilla/heading';
+import { HeadingOne, HeadingThree } from '../components/vanilla/heading';
 
 import withRepository from './with-repository';
 import { fetchBuilds, fetchSnap } from '../actions/snap-builds';
@@ -60,9 +61,23 @@ class BuildDetails extends Component {
         }
         { build &&
           <div>
-            <BuildRow repository={repository} {...build} />
-            <h3>Build log:</h3>
-            <BuildLog logUrl={build.buildLogUrl} />
+            <Table>
+              <Head>
+                <Row>
+                  <Header col="20">Number</Header>
+                  <Header col="20">Architecture</Header>
+                  <Header col="20">Duration</Header>
+                  <Header col="40">Result</Header>
+                </Row>
+              </Head>
+              <Body>
+                <BuildRow repository={repository} {...build} />
+              </Body>
+            </Table>
+            <div className={ styles.strip }>
+              <HeadingThree>Build log</HeadingThree>
+              <BuildLog logUrl={build.buildLogUrl} />
+            </div>
           </div>
         }
         <HelpInstallSnap
