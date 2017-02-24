@@ -42,9 +42,16 @@ class Landing extends Component {
               </ul>
 
               <div className={ styles.bannerButton }>
-                <Anchor href="/auth/authenticate" icon={ octocat } flavour='embiggened' appearance='positive' >
-                  Set up in minutes
-                </Anchor>
+                { !this.props.auth.authenticated &&
+                  <Anchor href="/auth/authenticate" icon={ octocat } flavour='embiggened' appearance='positive' >
+                    Set up in minutes
+                  </Anchor>
+                }
+                { this.props.auth.authenticated &&
+                  <div>
+                    Hi { this.props.user.name }, <a href="/dashboard">let’s check out your repos</a>.
+                  </div>
+                }
               </div>
             </div>
           </div>
@@ -144,16 +151,19 @@ class Landing extends Component {
 
 Landing.propTypes = {
   children: PropTypes.node,
-  auth: PropTypes.object
+  auth: PropTypes.object,
+  user: PropTypes.object
 };
 
 function mapStateToProps(state) {
   const {
-    auth
+    auth,
+    user
   } = state;
 
   return {
-    auth
+    auth,
+    user
   };
 }
 
