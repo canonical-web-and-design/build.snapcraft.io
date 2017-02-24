@@ -350,7 +350,7 @@ describe('store authentication actions', () => {
           .getMacaroon();
         storeApi.post('/acl/', (body) => {
           if (!tmatch(body, {
-            permissions: ['package_upload_request'],
+            permissions: ['package_upload_request', 'edit_account'],
             channels: ['edge'],
           })) {
             return false;

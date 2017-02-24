@@ -92,7 +92,7 @@ function getPackageUploadRequestPermission() {
       'Accept': 'application/json'
     },
     body: JSON.stringify({
-      permissions: ['package_upload_request'],
+      permissions: ['package_upload_request', 'edit_account'],
       channels: conf.get('STORE_ALLOWED_CHANNELS'),
       expires: moment()
         .add(lifetime, 'seconds')
