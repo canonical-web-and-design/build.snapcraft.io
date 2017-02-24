@@ -6,7 +6,7 @@ export default function Message({ children, status, text }) {
 
   return <div>
     { (children || text) &&
-      <p className={ style[status] }>{ children || text }</p>
+      <div className={ style[status] }>{ children || text }</div>
     }
   </div>;
 }
