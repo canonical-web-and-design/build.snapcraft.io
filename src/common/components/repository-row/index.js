@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import url from 'url';
+import localforage from 'localforage';
 
 import Button from '../vanilla/button';
 import { Row, Data, Dropdown } from '../vanilla/table-interactive';
@@ -42,6 +43,32 @@ class RepositoryRow extends Component {
       unconfiguredDropdownExpanded: false,
       unregisteredDropdownExpanded: false
     };
+  }
+
+  saveState() {
+    localforage.setItem(`repository_row_${this.props.snap.git_repository_url}`, this.state);
+  }
+
+  loadState() {
+    localforage.getItem(`repository_row_${this.props.snap.git_repository_url}`)
+      .then((state) => {
+        if (state) {
+          this.setState(state);
+        }
+      });
+  }
+
+  clearState() {
+    localforage.removeItem(`repository_row_${this.props.snap.git_repository_url}`);
+  }
+
+  componentDidMount() {
+    this.loadState();
+  }
+
+  componentDidUpdate() {
+    // save the component state in browser storage whenever it changes
+    this.saveState();
   }
 
   onConfiguredClick() {
@@ -90,6 +117,19 @@ class RepositoryRow extends Component {
   }
 
   componentWillUnmount() {
+    // when user goes to different view within the app we can clear the state from storage
+    // so we don't keep it unnecessarily long in browser store
+
+    // XXX
+    // This call of `clearState` makes it safe to keep potentially not yet resolved promise
+    // from `loadStore`, because after clearing it will resolve with empty state and not
+    // attempt to update the component.
+    // But if we ever decide we don't want to clear stored state there we need to make sure
+    // to cancel promise from loadStore because it may try to set the state after component
+    // is already unmounted which will cause React error.
+    // See: https://facebook.github.io/react/blog/2015/12/16/ismounted-antipattern.html
+    this.clearState();
+
     if (this.closeUnregisteredTimerID) {
       window.clearTimeout(this.closeUnregisteredTimerID);
       delete this.closeUnregisteredTimerID;
