@@ -171,7 +171,7 @@ export function registerName(repository, snapName, options={}) {
         });
       })
       .then(checkStatus)
-      .then(() => dispatch(registerNameSuccess(fullName)))
+      .then(() => dispatch(registerNameSuccess(fullName, snapName)))
       .then(() => {
         if (options.requestBuilds) {
           return dispatch(requestBuilds(repository.url));
@@ -181,10 +181,10 @@ export function registerName(repository, snapName, options={}) {
   };
 }
 
-export function registerNameSuccess(id) {
+export function registerNameSuccess(id, snapName) {
   return {
     type: REGISTER_NAME_SUCCESS,
-    payload: { id }
+    payload: { id, snapName }
   };
 }
 

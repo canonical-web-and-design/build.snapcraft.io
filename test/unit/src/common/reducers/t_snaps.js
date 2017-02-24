@@ -2,6 +2,7 @@ import expect from 'expect';
 
 import { snaps } from '../../../../../src/common/reducers/snaps';
 import * as ActionTypes from '../../../../../src/common/actions/snaps';
+import * as RegisterNameActionTypes from '../../../../../src/common/actions/register-name';
 
 describe('snaps reducers', () => {
   const initialState = {
@@ -84,7 +85,7 @@ describe('snaps reducers', () => {
     const state = {
       ...initialState,
       success: true,
-      repos: SNAPS,
+      snaps: SNAPS,
       isFetching: true
     };
 
@@ -103,4 +104,27 @@ describe('snaps reducers', () => {
       });
     });
   });
+
+  context('REGISTER_NAME_SUCCESS', () => {
+    const state = {
+      ...initialState,
+      success: true,
+      snaps: SNAPS,
+      isFetching: true
+    };
+
+    const action = {
+      type: RegisterNameActionTypes.REGISTER_NAME_SUCCESS,
+      payload: {
+        id: 'anowner/anothername',
+        snapName: 'new-test-snap-name'
+      }
+    };
+
+    it('should update store_name of given snap', () => {
+      expect(snaps(state, action).snaps[0].store_name).toBe('test-snap-store-name');
+      expect(snaps(state, action).snaps[1].store_name).toBe('new-test-snap-name');
+    });
+  });
+
 });
