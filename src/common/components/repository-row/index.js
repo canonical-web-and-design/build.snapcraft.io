@@ -244,7 +244,7 @@ class RepositoryRow extends Component {
     } else {
       caption = (
         <div>
-          To publish to the Snap Store, this repo needs a registered name.
+          To publish to the snap store, this repo needs a registered name.
           { !authStore.authenticated &&
             ' You need to sign in to Ubuntu One to register a name.'
           }

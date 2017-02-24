@@ -97,7 +97,7 @@ class Landing extends Component {
           <div className={ `${styles.row} ${containerStyles.wrapper}` }>
 
             <div className={styles.rowItemTwoThirds}>
-              <p className={styles.snaps}>With Snapcraft, it&rsquo;s easy to get your software published in the Snap Store. This store lets people safely install apps from any vendor on mission-critical devices and PCs. Snaps are secure, sandboxed, containerised applications, packaged with their dependencies for predictable behaviour.</p>
+              <p className={styles.snaps}>With Snapcraft, it&rsquo;s easy to get your software published in the snap store. This store lets people safely install apps from any vendor on mission-critical devices and PCs. Snaps are secure, sandboxed, containerised applications, packaged with their dependencies for predictable behaviour.</p>
               <a href="https://snapcraft.io" className={ styles.external } >More about snaps</a>
             </div>
 
