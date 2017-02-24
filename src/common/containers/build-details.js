@@ -8,7 +8,7 @@ import { Table, Head, Body, Row, Header } from '../components/vanilla/table-inte
 import BuildLog from '../components/build-log';
 import { Message } from '../components/forms';
 import HelpInstallSnap from '../components/help/install-snap';
-import { HeadingOne } from '../components/vanilla/heading';
+import { HeadingOne, HeadingThree } from '../components/vanilla/heading';
 
 import withRepository from './with-repository';
 import { fetchBuilds, fetchSnap } from '../actions/snap-builds';
@@ -74,8 +74,8 @@ class BuildDetails extends Component {
                 <BuildRow repository={repository} {...build} />
               </Body>
             </Table>
-            <h3>Build log</h3>
             <div className={ styles.strip }>
+              <HeadingThree>Build log</HeadingThree>
               <BuildLog logUrl={build.buildLogUrl} />
             </div>
           </div>

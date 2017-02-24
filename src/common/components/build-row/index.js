@@ -24,18 +24,6 @@ const BuildRow = (props) => {
     humanDuration = '';
   }
 
-  let humanDateStarted;
-  if (dateStarted !== null) {
-    const momentStarted = moment(dateStarted);
-    humanDateStarted = (
-      <span title={momentStarted.format('YYYY-MM-DD HH:mm:ss UTC')}>
-        {momentStarted.fromNow()}
-      </span>
-    );
-  } else {
-    humanDateStarted = '';
-  }
-
   return (
     <Row key={ buildId }>
       <Data col="20">
@@ -48,7 +36,7 @@ const BuildRow = (props) => {
         {humanDuration}
       </Data>
       <Data col="40">
-        <BuildStatus link="" status={status} statusMessage={statusMessage} dateStarted={humanDateStarted} />
+        <BuildStatus status={status} statusMessage={statusMessage} dateStarted={dateStarted} />
       </Data>
     </Row>
   );
