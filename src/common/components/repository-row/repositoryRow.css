@@ -21,3 +21,9 @@
 .cancel {
   margin:0 2em;
 }
+
+.external {
+  background: url($icon-link-external) 100% 0 no-repeat;
+  background-size: 0.7em;
+  padding-right: 0.9em;
+}

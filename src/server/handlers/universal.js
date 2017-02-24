@@ -35,9 +35,8 @@ export const handleMatch = (req, res, error, redirectLocation, renderProps) => {
   } else if (renderProps) {
 
     const initialState = {
-      auth: {
-        authenticated: false
-      }
+      auth: { authenticated: false },
+      authStore: {}
     };
 
     if (req.session.githubAuthenticated) {
@@ -53,10 +52,14 @@ export const handleMatch = (req, res, error, redirectLocation, renderProps) => {
       return;
     }
 
+    if (req.session.nickname) {
+      initialState.authStore.userName = req.session.nickname;
+    }
+
     if (req.session.ssoDischarge) {
       // Tell the client that it can pick up a discharge macaroon from the
       // session and move it to local storage.
-      initialState.authStore = { hasDischarge: true };
+      initialState.authStore.hasDischarge = true;
     }
 
     const store = configureStore(initialState);

@@ -65,7 +65,8 @@ export const processVerifiedAssertion = (req, res, next, error, result) => {
   }
 
   req.session.authenticated = result.authenticated;
-  req.session.name = result.fullname;
+  req.session.nickname = result.nickname;
+  req.session.fullname = result.fullname;
   req.session.email = result.email;
   if (result.discharge) {
     // Temporarily stash the discharge macaroon in the session.  The client

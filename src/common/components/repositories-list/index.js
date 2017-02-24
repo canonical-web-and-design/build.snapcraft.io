@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { conf } from '../../helpers/config';
 import {
   checkSignedIntoStore,
+  getAccountInfo,
   getSSODischarge
 } from '../../actions/auth-store';
 import { createSnap } from '../../actions/create-snap';
@@ -19,11 +20,28 @@ import styles from './repositoriesList.css';
 const SNAP_NAME_NOT_REGISTERED_ERROR_CODE = 'snap-name-not-registered';
 
 class RepositoriesList extends Component {
+  fetchAuthData(authStore) {
+    if (authStore.authenticated === null) {
+      this.props.dispatch(checkSignedIntoStore());
+    } else if (authStore.hasShortNamespace === null) {
+      this.props.dispatch(getAccountInfo(authStore.userName));
+    }
+  }
+
   componentDidMount() {
     if (this.props.authStore.hasDischarge) {
       this.props.dispatch(getSSODischarge());
-    } else if (this.props.authStore.authenticated === null) {
-      this.props.dispatch(checkSignedIntoStore());
+    } else {
+      this.fetchAuthData(this.props.authStore);
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const authStore = this.props.authStore;
+    const nextAuthStore = nextProps.authStore;
+    if (authStore.authenticated !== nextAuthStore.authenticated ||
+        authStore.hasShortNamespace !== nextAuthStore.hasShortNamespace) {
+      this.fetchAuthData(nextAuthStore);
     }
   }
 

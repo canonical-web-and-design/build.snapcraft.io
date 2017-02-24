@@ -12,6 +12,7 @@ import templateYaml from './template-yaml.js';
 
 import { signIntoStore } from '../../actions/auth-store';
 import { registerName, registerNameError } from '../../actions/register-name';
+import { conf } from '../../helpers/config';
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
 
 import styles from './repositoryRow.css';
@@ -42,7 +43,8 @@ class RepositoryRow extends Component {
     this.state = {
       snapName,
       unconfiguredDropdownExpanded: false,
-      unregisteredDropdownExpanded: false
+      unregisteredDropdownExpanded: false,
+      signAgreement: false
     };
   }
 
@@ -95,6 +97,10 @@ class RepositoryRow extends Component {
     this.props.dispatch(signIntoStore());
   }
 
+  onSignAgreementChange(event) {
+    this.setState({ signAgreement: event.target.checked });
+  }
+
   onSnapNameChange(event) {
     const { dispatch, fullName } = this.props;
     const snapName = event.target.value.replace(/[^a-z0-9-]/g, '');
@@ -111,12 +117,15 @@ class RepositoryRow extends Component {
   }
 
   onRegisterClick(repositoryUrl) {
-    const { snap, dispatch } = this.props;
+    const { authStore, snap, dispatch } = this.props;
     const repository = parseGitHubRepoUrl(repositoryUrl);
-    const { snapName } = this.state;
-    const triggerBuilds = (!!snap.snapcraft_data);
+    const { snapName, signAgreement } = this.state;
+    const requestBuilds = (!!snap.snapcraft_data);
 
-    dispatch(registerName(repository, snapName, triggerBuilds));
+    dispatch(registerName(repository, snapName, {
+      signAgreement: signAgreement ? authStore.userName : null,
+      requestBuilds
+    }));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -174,6 +183,29 @@ class RepositoryRow extends Component {
     );
   }
 
+  renderAgreement() {
+    const checkbox = (
+      <input
+        type="checkbox"
+        onChange={ this.onSignAgreementChange.bind(this) }
+      />
+    );
+    const link = (
+      <a
+        className={ styles.external }
+        href={ `${conf.get('STORE_DEVPORTAL_URL')}/tos/` }
+        target="_blank"
+      >
+        Developer Programme Agreement
+      </a>
+    );
+    return (
+      <div>
+        { checkbox } I accept the terms of the { link }
+      </div>
+    );
+  }
+
   renderUnregisteredDropdown() {
     const { snap, authStore, registerNameStatus } = this.props;
 
@@ -182,6 +214,9 @@ class RepositoryRow extends Component {
     // allowing them to proceed.
     const authStoreFetchingDischarge = (
       authStore.hasDischarge && !authStore.authenticated
+    );
+    const userMustSignAgreement = (
+      authStore.authenticated && authStore.signedAgreement === false
     );
 
     let caption;
@@ -218,6 +253,7 @@ class RepositoryRow extends Component {
               Lower-case letters, numbers, and hyphens only.
             </div>
           }
+          { userMustSignAgreement && this.renderAgreement() }
         </div>
       );
     }
@@ -226,12 +262,16 @@ class RepositoryRow extends Component {
     let actionOnClick;
     let actionSpinner = false;
     let actionText;
-    if (authStoreFetchingDischarge || authStore.authenticated) {
+    if (authStore.isFetching) {
+      actionDisabled = true;
+      actionOnClick = () => {};
+      actionSpinner = true;
+      actionText = 'Checking...';
+    } else if (authStore.authenticated) {
       actionDisabled = (
         this.state.snapName === '' ||
         registerNameStatus.isFetching ||
-        !!registerNameStatus.error ||
-        authStoreFetchingDischarge
+        !!registerNameStatus.error
       );
       actionOnClick = this.onRegisterClick.bind(this, snap.git_repository_url);
       if (registerNameStatus.isFetching) {
@@ -241,7 +281,7 @@ class RepositoryRow extends Component {
         actionText = 'Register';
       }
     } else {
-      actionDisabled = registerNameStatus.error || authStore.isFetching;
+      actionDisabled = !!registerNameStatus.error;
       actionOnClick = this.onSignInClick.bind(this);
       actionText = 'Sign in...';
     }
@@ -386,7 +426,11 @@ RepositoryRow.propTypes = {
   }),
   fullName: PropTypes.string,
   authStore: PropTypes.shape({
-    authenticated: PropTypes.bool
+    authenticated: PropTypes.bool,
+    hasDischarge: PropTypes.bool,
+    isFetching: PropTypes.bool,
+    signedAgreement: PropTypes.bool,
+    userName: PropTypes.string
   }),
   registerNameStatus: PropTypes.shape({
     isFetching: PropTypes.bool,

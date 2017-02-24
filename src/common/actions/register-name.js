@@ -4,7 +4,7 @@ import { MacaroonsBuilder } from 'macaroons.js';
 
 import { APICompatibleError, checkStatus, getError } from '../helpers/api';
 import { conf } from '../helpers/config';
-import { checkPackageUploadRequest } from './auth-store';
+import { checkPackageUploadRequest, getAccountInfo } from './auth-store';
 import { requestBuilds } from './snap-builds';
 
 const BASE_URL = conf.get('BASE_URL');
@@ -18,7 +18,7 @@ export const REGISTER_NAME_ERROR = 'REGISTER_NAME_ERROR';
 const STORE_SERIES = '16';
 const STORE_CHANNELS = ['edge'];
 
-function getPackageUploadRequestMacaroon() {
+export function getPackageUploadRequestMacaroon() {
   return localforage.getItem('package_upload_request')
     .catch(() => null)
     .then((packageUploadRequest) => {
@@ -47,6 +47,31 @@ function getPackageUploadRequestMacaroon() {
         .getMacaroon()
         .serialize();
       return { root, discharge };
+    });
+}
+
+function signAgreement(root, discharge) {
+  return fetch(`${BASE_URL}/api/store/agreement`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+      latest_tos_accepted: true,
+      root,
+      discharge
+    })
+  })
+    .then((response) => {
+      if (response.status >= 200 && response.status < 300) {
+        return null;
+      } else {
+        return response.json().then((json) => {
+          const payload = json.error_list ? json.error_list[0] : json;
+          throw getError(response, { status: 'error', payload });
+        });
+      }
     });
 }
 
@@ -104,7 +129,7 @@ function getPackageUploadMacaroon(root, discharge, snapName) {
     }));
 }
 
-export function registerName(repository, snapName, triggerBuilds) {
+export function registerName(repository, snapName, options={}) {
   return (dispatch) => {
     const { fullName } = repository;
 
@@ -116,11 +141,19 @@ export function registerName(repository, snapName, triggerBuilds) {
     let root;
     let discharge;
     let packageUploadMacaroon;
-    let promise = getPackageUploadRequestMacaroon()
+    return getPackageUploadRequestMacaroon()
       .then((macaroons) => {
         ({ root, discharge } = macaroons);
-        return internalRegisterName(root, discharge, snapName);
+        if (options.signAgreement) {
+          return signAgreement(root, discharge)
+            .then(() => {
+              return dispatch(getAccountInfo(options.signAgreement, {
+                root, discharge
+              }));
+            });
+        }
       })
+      .then(() => internalRegisterName(root, discharge, snapName))
       .then(() => getPackageUploadMacaroon(root, discharge, snapName))
       .then((macaroon) => {
         packageUploadMacaroon = macaroon;
@@ -139,11 +172,12 @@ export function registerName(repository, snapName, triggerBuilds) {
       })
       .then(checkStatus)
       .then(() => dispatch(registerNameSuccess(fullName)))
+      .then(() => {
+        if (options.requestBuilds) {
+          return dispatch(requestBuilds(repository.url));
+        }
+      })
       .catch((error) => dispatch(registerNameError(fullName, error)));
-    if (triggerBuilds) {
-      promise = promise.then(() => dispatch(requestBuilds(repository.url)));
-    }
-    return promise;
   };
 }
 

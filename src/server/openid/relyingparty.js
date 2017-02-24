@@ -48,8 +48,9 @@ const RelyingPartyFactory = (session, returnUrl, caveatId) => {
 
   const extensions = [
     new openid.SimpleRegistration({
-      'email' : 'required',
-      'fullname' : 'required'
+      'email': 'required',
+      'fullname': 'required',
+      'nickname': 'required'
     })
   ];
 

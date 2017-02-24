@@ -8,6 +8,9 @@ describe('authStore reducers', () => {
     isFetching: false,
     hasDischarge: false,
     authenticated: null,
+    userName: null,
+    signedAgreement: null,
+    hasShortNamespace: null,
     error: null
   };
 
@@ -98,6 +101,14 @@ describe('authStore reducers', () => {
       it('clears authenticated status', () => {
         expect(authStore(state, action).authenticated).toBe(false);
       });
+
+      it('clears signed-agreement status', () => {
+        expect(authStore(state, action).signedAgreement).toBe(null);
+      });
+
+      it('clears has-short-namespace status', () => {
+        expect(authStore(state, action).hasShortNamespace).toBe(null);
+      });
     });
 
     context('if authenticated', () => {
@@ -112,6 +123,14 @@ describe('authStore reducers', () => {
 
       it('sets authenticated status', () => {
         expect(authStore(state, action).authenticated).toBe(true);
+      });
+
+      it('clears signed-agreement status', () => {
+        expect(authStore(state, action).signedAgreement).toBe(null);
+      });
+
+      it('clears has-short-namespace status', () => {
+        expect(authStore(state, action).hasShortNamespace).toBe(null);
       });
     });
   });
@@ -135,8 +154,90 @@ describe('authStore reducers', () => {
       expect(authStore(state, action).hasDischarge).toBe(false);
     });
 
+    it('clears signed-agreement status', () => {
+      expect(authStore(state, action).signedAgreement).toBe(null);
+    });
+
+    it('clears has-short-namespace status', () => {
+      expect(authStore(state, action).hasShortNamespace).toBe(null);
+    });
+
     it('stores error', () => {
       expect(authStore(state, action).error).toEqual(action.payload);
+    });
+  });
+
+  context('GET_ACCOUNT_INFO', () => {
+    const state = {
+      ...initialState,
+      signedAgreement: 'sentinel',
+      hasShortNamespace: 'sentinel'
+    };
+    const action = { type: ActionTypes.GET_ACCOUNT_INFO };
+
+    it('sets fetching status', () => {
+      expect(authStore(state, action).isFetching).toBe(true);
+    });
+
+    it('clears signed-agreement status', () => {
+      expect(authStore(state, action).signedAgreement).toBe(null);
+    });
+
+    it('clears has-short-namespace status', () => {
+      expect(authStore(state, action).hasShortNamespace).toBe(null);
+    });
+  });
+
+  context('GET_ACCOUNT_INFO_SUCCESS', () => {
+    const state = {
+      ...initialState,
+      isFetching: true
+    };
+    const action = {
+      type: ActionTypes.GET_ACCOUNT_INFO_SUCCESS,
+      payload: {
+        signedAgreement: 'sentinel-1',
+        hasShortNamespace: 'sentinel-2'
+      }
+    };
+
+    it('clears fetching status', () => {
+      expect(authStore(state, action).isFetching).toBe(false);
+    });
+
+    it('copies signed-agreement status', () => {
+      expect(authStore(state, action).signedAgreement).toBe('sentinel-1');
+    });
+
+    it('copies has-short-namespace status', () => {
+      expect(authStore(state, action).hasShortNamespace).toBe('sentinel-2');
+    });
+  });
+
+  context('GET_ACCOUNT_INFO_ERROR', () => {
+    const state = {
+      ...initialState,
+      isFetching: true
+    };
+    const action = {
+      type: ActionTypes.GET_ACCOUNT_INFO_ERROR,
+      payload: 'Something went wrong!',
+      error: true
+    };
+
+    it('clears fetching status', () => {
+      expect(authStore(state, action).isFetching).toBe(false);
+    });
+
+    it('stores error', () => {
+      expect(authStore(state, action).error).toEqual(action.payload);
+    });
+  });
+
+  context('SIGN_AGREEMENT_SUCCESS', () => {
+    it('sets signed-agreement status', () => {
+      const action = { type: ActionTypes.SIGN_AGREEMENT_SUCCESS };
+      expect(authStore(initialState, action).signedAgreement).toBe(true);
     });
   });
 

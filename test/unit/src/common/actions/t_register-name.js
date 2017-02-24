@@ -8,6 +8,9 @@ import thunk from 'redux-thunk';
 import url from 'url';
 
 import {
+  GET_ACCOUNT_INFO_SUCCESS
+} from '../../../../../src/common/actions/auth-store';
+import {
   FETCH_BUILDS_ERROR,
   FETCH_BUILDS_SUCCESS
 } from '../../../../../src/common/actions/snap-builds';
@@ -15,9 +18,16 @@ import { conf } from '../../../../../src/common/helpers/config';
 import { makeLocalForageStub } from '../../../../helpers';
 
 const localForageStub = makeLocalForageStub();
+const getAccountInfo = proxyquire.noCallThru().load(
+  '../../../../../src/common/actions/auth-store',
+  { 'localforage': localForageStub }
+).getAccountInfo;
 const registerNameModule = proxyquire.noCallThru().load(
   '../../../../../src/common/actions/register-name',
-  { 'localforage': localForageStub }
+  {
+    'localforage': localForageStub,
+    './auth-store': { getAccountInfo, '@noCallThru': false }
+  }
 );
 const {
   internalRegisterName,
@@ -145,6 +155,26 @@ describe('register name actions', () => {
         localForageStub.store['package_upload_request'] = { root, discharge };
       });
 
+      it('stores an error if signing agreement and that fails', () => {
+        const error = {
+          code: 'internal-server-error',
+          message: 'Internal server error'
+        };
+        scope
+          .post('/api/store/agreement', { latest_tos_accepted: true })
+          .reply(500, { error_list: [error] });
+        return store.dispatch(registerName(repository, 'test-snap', {
+          signAgreement: 'test-user'
+        })).then(() => {
+          const errorAction = store.getActions().filter((action) => {
+            return action.type === ActionTypes.REGISTER_NAME_ERROR;
+          })[0];
+          expect(errorAction.payload.id).toBe('foo/bar');
+          expect(errorAction.payload.error.json.payload).toEqual(error);
+          scope.done();
+        });
+      });
+
       it('stores an error on failure to register snap name', () => {
         scope
           .post('/api/store/register-name', { snap_name: 'test-snap' })
@@ -263,7 +293,7 @@ describe('register name actions', () => {
                 .reply(204);
             });
 
-            it('creates success action if not triggering builds', () => {
+            it('creates success action if not requesting builds', () => {
               return store.dispatch(registerName(repository, 'test-snap'))
                 .then(() => {
                   expect(store.getActions()).toInclude(expectedAction);
@@ -271,8 +301,8 @@ describe('register name actions', () => {
                 });
             });
 
-            context('if triggering builds', () => {
-              it('stores success and error actions if triggering builds ' +
+            context('if requesting builds', () => {
+              it('stores success and error actions if requesting builds ' +
                  'fails', () => {
                 scope
                   .post('/api/launchpad/snaps/request-builds', {
@@ -286,9 +316,9 @@ describe('register name actions', () => {
                     }
                   });
 
-                return store.dispatch(
-                  registerName(repository, 'test-snap', true)
-                )
+                return store.dispatch(registerName(repository, 'test-snap', {
+                  requestBuilds: true
+                }))
                   .then(() => {
                     const actions = store.getActions();
                     expect(actions).toInclude(expectedAction);
@@ -297,7 +327,7 @@ describe('register name actions', () => {
                   });
               });
 
-              it('stores success actions if triggering builds ' +
+              it('stores success actions if requesting builds ' +
                  'succeeds', () => {
                 scope
                   .post('/api/launchpad/snaps/request-builds', {
@@ -311,13 +341,76 @@ describe('register name actions', () => {
                     }
                   });
 
-                return store.dispatch(
-                  registerName(repository, 'test-snap', true)
-                )
+                return store.dispatch(registerName(repository, 'test-snap', {
+                  requestBuilds: true
+                }))
                   .then(() => {
                     const actions = store.getActions();
                     expect(actions).toInclude(expectedAction);
                     expect(actions).toHaveActionOfType(FETCH_BUILDS_SUCCESS);
+                    scope.done();
+                  });
+              });
+            });
+
+            context('if signing agreement and that succeeds', () => {
+              beforeEach(() => {
+                scope
+                  .post('/api/store/agreement', { latest_tos_accepted: true })
+                  .reply(200, { latest_tos_accepted: true });
+              });
+
+              it('sets short namespace if unset', () => {
+                const error = {
+                  code: 'user-not-ready',
+                  message: 'Developer profile is missing short namespace.'
+                };
+                scope
+                  .get('/api/store/account')
+                  .query(true)
+                  .reply(403, { error_list: [error] });
+                scope
+                  .patch('/api/store/account', {
+                    short_namespace: 'test-user'
+                  })
+                  .reply(204);
+                scope
+                  .get('/api/store/account')
+                  .query(true)
+                  .reply(200, {});
+
+                const expectedAccountAction = {
+                  type: GET_ACCOUNT_INFO_SUCCESS,
+                  payload: { signedAgreement: true, hasShortNamespace: true }
+                };
+                return store.dispatch(registerName(repository, 'test-snap', {
+                  signAgreement: 'test-user'
+                }))
+                  .then(() => {
+                    const actions = store.getActions();
+                    expect(actions).toInclude(expectedAccountAction);
+                    expect(actions).toInclude(expectedAction);
+                    scope.done();
+                  });
+              });
+
+              it('leaves short namespace alone if already set', () => {
+                scope
+                  .get('/api/store/account')
+                  .query(true)
+                  .reply(200, {});
+
+                const expectedAccountAction = {
+                  type: GET_ACCOUNT_INFO_SUCCESS,
+                  payload: { signedAgreement: true, hasShortNamespace: true }
+                };
+                return store.dispatch(registerName(repository, 'test-snap', {
+                  signAgreement: 'test-user'
+                }))
+                  .then(() => {
+                    const actions = store.getActions();
+                    expect(actions).toInclude(expectedAccountAction);
+                    expect(actions).toInclude(expectedAction);
                     scope.done();
                   });
               });

@@ -12,16 +12,25 @@ import { conf } from '../../../../../src/common/helpers/config';
 import { makeLocalForageStub } from '../../../../helpers';
 
 const localForageStub = makeLocalForageStub();
+const getPackageUploadRequestMacaroon = proxyquire.noCallThru().load(
+  '../../../../../src/common/actions/register-name',
+  { 'localforage': localForageStub }
+).getPackageUploadRequestMacaroon;
 const authStoreModule = proxyquire.noCallThru().load(
   '../../../../../src/common/actions/auth-store',
-  { 'localforage': localForageStub }
+  {
+    'localforage': localForageStub,
+    './register-name': { getPackageUploadRequestMacaroon }
+  }
 );
 const {
   checkSignedIntoStore,
   extractExpiresCaveat,
   extractSSOCaveat,
+  getAccountInfo,
   getCaveats,
   getSSODischarge,
+  signAgreementSuccess,
   signIntoStore,
   signOut
 } = authStoreModule;
@@ -481,6 +490,225 @@ describe('store authentication actions', () => {
         return store.dispatch(checkSignedIntoStore())
           .then(() => expect(store.getActions()).toInclude(expectedAction));
       });
+    });
+  });
+
+  context('getAccountInfo', () => {
+    let api;
+    let root;
+    let discharge;
+
+    beforeEach(() => {
+      api = nock(`${conf.get('BASE_URL')}/api`);
+      const ssoLocation = url.parse(conf.get('UBUNTU_SSO_URL')).host;
+      const rootMacaroon = new MacaroonsBuilder('location', 'key', 'id')
+        .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
+        .getMacaroon();
+      const dischargeMacaroon = MacaroonsBuilder.create(
+        ssoLocation, 'sso key', 'sso caveat'
+      );
+      root = rootMacaroon.serialize();
+      discharge = dischargeMacaroon.serialize();
+    });
+
+    afterEach(() => {
+      nock.cleanAll();
+      localForageStub.clear();
+    });
+
+    it('stores a GET_ACCOUNT_INFO action', () => {
+      const expectedAction = { type: ActionTypes.GET_ACCOUNT_INFO };
+      return store.dispatch(getAccountInfo('test-user'))
+        .then(() => {
+          expect(store.getActions()).toInclude(expectedAction);
+          api.done();
+        });
+    });
+
+    it('stores an error if there is no package upload request ' +
+       'macaroon', () => {
+      return store.dispatch(getAccountInfo('test-user'))
+        .then(() => {
+          const action = store.getActions().filter(
+            (a) => a.type === ActionTypes.GET_ACCOUNT_INFO_ERROR)[0];
+          expect(action.payload.json.payload).toEqual({
+            code: 'not-logged-into-store',
+            message: 'Not logged into store',
+            detail: 'No package_upload_request macaroons in local storage'
+          });
+          api.done();
+        });
+    });
+
+    context('if there is an package upload request macaroon', () => {
+      const accountAssertionsDisabledError = {
+        code: 'feature-disabled',
+        message: 'The account assertions are currently disabled.'
+      };
+      const unsignedAgreementError = {
+        code: 'user-not-ready',
+        message: 'Developer has not signed agreement.'
+      };
+      const missingShortNamespaceError = {
+        code: 'user-not-ready',
+        message: 'Developer profile is missing short namespace.'
+      };
+      const shortNamespaceInUseError = {
+        code: 'conflict',
+        message: 'The supplied short namespace is already in use.'
+      };
+
+      beforeEach(() => {
+        localForageStub.store['package_upload_request'] = { root, discharge };
+      });
+
+      it('stores an error on failure to get account information', () => {
+        api.get('/store/account')
+          .query(true)
+          .reply(501, { error_list: [accountAssertionsDisabledError] });
+        return store.dispatch(getAccountInfo('test-user'))
+          .then(() => {
+            const action = store.getActions().filter(
+              (a) => a.type === ActionTypes.GET_ACCOUNT_INFO_ERROR)[0];
+            expect(action.payload.json.payload).toEqual(
+              accountAssertionsDisabledError
+            );
+            api.done();
+          });
+      });
+
+      it('stores success action if getting account information succeeds ' +
+         'and returns a short namespace', () => {
+        api.get('/store/account')
+          .query(true)
+          .reply(200, {});
+        const expectedAction = {
+          type: ActionTypes.GET_ACCOUNT_INFO_SUCCESS,
+          payload: { signedAgreement: true, hasShortNamespace: true }
+        };
+        return store.dispatch(getAccountInfo('test-user'))
+          .then(() => {
+            expect(store.getActions()).toInclude(expectedAction);
+            api.done();
+          });
+      });
+
+      it('stores success action if getting account information fails ' +
+         'because of an unsigned agreement', () => {
+        api.get('/store/account')
+          .query(true)
+          .reply(403, { error_list: [unsignedAgreementError] });
+        const expectedAction = {
+          type: ActionTypes.GET_ACCOUNT_INFO_SUCCESS,
+          payload: { signedAgreement: false, hasShortNamespace: null }
+        };
+        return store.dispatch(getAccountInfo('test-user'))
+          .then(() => {
+            expect(store.getActions()).toInclude(expectedAction);
+            api.done();
+          });
+      });
+
+      context('if getting account information fails because of a missing ' +
+              'short namespace', () => {
+        beforeEach(() => {
+          api.get('/store/account')
+            .query(true)
+            .reply(403, { error_list: [missingShortNamespaceError] });
+        });
+
+        it('stores an error on failure to set the short namespace', () => {
+          api.patch('/store/account', { short_namespace: 'test-user' })
+            .reply(409, { error_list: [shortNamespaceInUseError] });
+          return store.dispatch(getAccountInfo('test-user'))
+            .then(() => {
+              const action = store.getActions().filter(
+                (a) => a.type === ActionTypes.GET_ACCOUNT_INFO_ERROR)[0];
+              expect(action.payload.json.payload).toEqual(
+                shortNamespaceInUseError
+              );
+              api.done();
+            });
+        });
+
+        it('stores success action if setting the short namespace fails ' +
+           'because of an unsigned agreement', () => {
+          api.patch('/store/account', { short_namespace: 'test-user' })
+            .reply(403, { error_list: [unsignedAgreementError] });
+          const expectedAction = {
+            type: ActionTypes.GET_ACCOUNT_INFO_SUCCESS,
+            payload: { signedAgreement: false, hasShortNamespace: false }
+          };
+          return store.dispatch(getAccountInfo('test-user'))
+            .then(() => {
+              expect(store.getActions()).toInclude(expectedAction);
+              api.done();
+            });
+        });
+
+        context('if setting the short namespace succeeds', () => {
+          beforeEach(() => {
+            api.patch('/store/account')
+              .reply(204);
+          });
+
+          it('stores an error if getting account information fails', () => {
+            api.get('/store/account')
+              .query(true)
+              .reply(501, { error_list: [accountAssertionsDisabledError] });
+            return store.dispatch(getAccountInfo('test-user'))
+              .then(() => {
+                const action = store.getActions().filter(
+                  (a) => a.type === ActionTypes.GET_ACCOUNT_INFO_ERROR)[0];
+                expect(action.payload.json.payload).toEqual(
+                  accountAssertionsDisabledError
+                );
+                api.done();
+              });
+          });
+
+          it('stores success action if getting account information ' +
+             'succeeds', () => {
+            api.get('/store/account')
+              .query(true)
+              .reply(200, {});
+            const expectedAction = {
+              type: ActionTypes.GET_ACCOUNT_INFO_SUCCESS,
+              payload: { signedAgreement: true, hasShortNamespace: true }
+            };
+            return store.dispatch(getAccountInfo('test-user'))
+              .then(() => {
+                expect(store.getActions()).toInclude(expectedAction);
+                api.done();
+              });
+          });
+
+          it('stores success action if getting account information fails ' +
+             'because of an unsigned agreement', () => {
+            api.get('/store/account')
+              .query(true)
+              .reply(403, { error_list: [unsignedAgreementError] });
+            const expectedAction = {
+              type: ActionTypes.GET_ACCOUNT_INFO_SUCCESS,
+              payload: { signedAgreement: false, hasShortNamespace: true }
+            };
+            return store.dispatch(getAccountInfo('test-user'))
+              .then(() => {
+                expect(store.getActions()).toInclude(expectedAction);
+                api.done();
+              });
+          });
+        });
+      });
+    });
+  });
+
+  context('signAgreementSuccess', () => {
+    it('creates an action to store success', () => {
+      store.dispatch(signAgreementSuccess());
+      expect(store.getActions()).toHaveActionOfType(
+        ActionTypes.SIGN_AGREEMENT_SUCCESS
+      );
     });
   });
 
