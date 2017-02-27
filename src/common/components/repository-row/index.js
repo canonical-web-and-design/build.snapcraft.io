@@ -371,7 +371,7 @@ class RepositoryRow extends Component {
     }
 
     return (
-      <div>Configured</div>
+      <div>{ tickIcon }</div>
     );
   }
 
