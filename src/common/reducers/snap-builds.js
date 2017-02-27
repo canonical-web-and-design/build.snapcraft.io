@@ -3,7 +3,7 @@ import { snapBuildFromAPI } from '../helpers/snap-builds';
 
 export const snapBuildsInitialStatus = {
   isFetching: false,
-  snapLink: null,
+  snap: null,
   builds: [],
   success: false,
   error: null
@@ -30,7 +30,7 @@ export function snapBuilds(state = {}, action) {
         [payload.id]: {
           ...state[payload.id],
           isFetching: false,
-          snapLink: payload.snapLink
+          snap: payload.snap
         }
       };
     case ActionTypes.FETCH_BUILDS_SUCCESS:

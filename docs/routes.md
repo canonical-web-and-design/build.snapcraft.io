@@ -69,8 +69,7 @@ To search for an existing snap:
     Accept: application/json
 
 Successful responses have `status` set to `success` and `code` set to
-`snap-found`; the `message` will be the URL of the snap on the Launchpad
-API.
+`snap-found`; the `snap` will be the snap data from Launchpad API.
 
 To search for snap builds:
 

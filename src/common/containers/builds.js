@@ -18,9 +18,9 @@ import styles from './container.css';
 class Builds extends Component {
   fetchInterval = null
 
-  fetchData({ snapLink, repository }) {
-    if (snapLink) {
-      this.props.dispatch(fetchBuilds(repository.url, snapLink));
+  fetchData({ snap, repository }) {
+    if (snap && snap.self_link) {
+      this.props.dispatch(fetchBuilds(repository.url, snap.self_link));
     } else if (repository) {
       this.props.dispatch(fetchSnap(repository.url));
     }
@@ -39,19 +39,19 @@ class Builds extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const currentSnapLink = this.props.snapLink;
-    const nextSnapLink = nextProps.snapLink;
+    const currentSnap = this.props.snap;
+    const nextSnap = nextProps.snap;
     const currentRepository = this.props.repository.fullName;
     const nextRepository = nextProps.repository.fullName;
 
-    if ((currentSnapLink !== nextSnapLink) || (currentRepository !== nextRepository)) {
-      // if snap link or repo changed, fetch new data
+    if ((currentSnap !== nextSnap) || (currentRepository !== nextRepository)) {
+      // if snap or repo changed, fetch new data
       this.fetchData(nextProps);
     }
   }
 
   render() {
-    const { repository, error } = this.props;
+    const { repository, error, snap } = this.props;
     // only show spinner when data is loading for the first time
     const isLoading = this.props.isFetching && !this.props.success;
 
@@ -70,10 +70,12 @@ class Builds extends Component {
         { error &&
           <Message status='error'>{ error.message || error }</Message>
         }
-        <HelpInstallSnap
-          headline='To test this snap on your PC or cloud instance:'
-          name='foo'
-        />
+        { snap &&
+          <HelpInstallSnap
+            headline='To test this snap on your PC or cloud instance:'
+            name={ snap.store_name }
+          />
+        }
       </div>
     );
   }
@@ -88,7 +90,10 @@ Builds.propTypes = {
     url: PropTypes.string.isRequired
   }).isRequired,
   isFetching: PropTypes.bool,
-  snapLink: PropTypes.string,
+  snap: PropTypes.shape({
+    self_link: PropTypes.string.isRequired,
+    store_name: PropTypes.string.isRequired
+  }),
   success: PropTypes.bool,
   error: PropTypes.object,
   dispatch: PropTypes.func.isRequired

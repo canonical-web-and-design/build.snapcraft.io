@@ -9,7 +9,7 @@ describe('snapBuilds reducers', () => {
   const initialState = {};
   const initialStatus = snapBuildsInitialStatus;
 
-  const SNAP_ENTRIES = [{
+  const SNAP_BUILDS = [{
     'can_be_rescored': false,
     'builder_link': 'https://api.launchpad.net/devel/builders/lgw01-11',
     'datebuilt': '2016-11-09T17:08:36.317805+00:00',
@@ -84,7 +84,13 @@ describe('snapBuilds reducers', () => {
   });
 
   context('FETCH_SNAP_SUCCESS', () => {
-    const SNAP_LINK = 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2';
+    const SNAP = {
+      builds_collection_link: 'https://api.launchpad.net/devel/~anowner/+snap/blahblah-xenial/builds',
+      git_repository_url: 'https://github.com/anowner/aname',
+      resource_type_link: 'https://api.launchpad.net/devel/#snap',
+      self_link: 'https://api.launchpad.net/devel/~anowner/+snap/blahblah-xenial',
+      store_name: 'test-snap-store-name'
+    };
 
     const state = {
       ...initialState,
@@ -97,7 +103,7 @@ describe('snapBuilds reducers', () => {
       type: ActionTypes.FETCH_SNAP_SUCCESS,
       payload: {
         id,
-        snapLink: SNAP_LINK
+        snap: SNAP
       }
     };
 
@@ -105,8 +111,8 @@ describe('snapBuilds reducers', () => {
       expect(snapBuilds(state, action)[id].isFetching).toBe(false);
     });
 
-    it('should store snap link', () => {
-      expect(snapBuilds(state, action)[id].snapLink).toEqual(SNAP_LINK);
+    it('should store snap', () => {
+      expect(snapBuilds(state, action)[id].snap).toEqual(SNAP);
     });
   });
 
@@ -124,7 +130,7 @@ describe('snapBuilds reducers', () => {
       type: ActionTypes.FETCH_BUILDS_SUCCESS,
       payload: {
         id,
-        builds: SNAP_ENTRIES
+        builds: SNAP_BUILDS
       }
     };
 
@@ -133,7 +139,7 @@ describe('snapBuilds reducers', () => {
     });
 
     it('should store builds on fetch success', () => {
-      expect(snapBuilds(state, action)[id].builds).toEqual(SNAP_ENTRIES.map(snapBuildFromAPI));
+      expect(snapBuilds(state, action)[id].builds).toEqual(SNAP_BUILDS.map(snapBuildFromAPI));
     });
 
     it('should store success state', () => {
@@ -151,7 +157,7 @@ describe('snapBuilds reducers', () => {
       [id]: {
         ...initialStatus,
         success: true,
-        builds: SNAP_ENTRIES,
+        builds: SNAP_BUILDS,
         isFetching: true
       }
     };

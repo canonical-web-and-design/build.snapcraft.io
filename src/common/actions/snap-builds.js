@@ -60,12 +60,12 @@ export function fetchSnap(repositoryUrl) {
         .then(checkStatus)
         .then(response => response.json())
         .then((json) => {
-          const snapLink = json.payload.snap.self_link;
+          const snap = json.payload.snap;
           dispatch({
             type: FETCH_SNAP_SUCCESS,
             payload: {
               id: fullName,
-              snapLink
+              snap
             }
           });
         })

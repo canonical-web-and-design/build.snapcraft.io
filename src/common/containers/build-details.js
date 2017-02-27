@@ -9,6 +9,7 @@ import BuildLog from '../components/build-log';
 import { Message } from '../components/forms';
 import HelpInstallSnap from '../components/help/install-snap';
 import { HeadingOne, HeadingThree } from '../components/vanilla/heading';
+import Spinner from '../components/spinner';
 
 import withRepository from './with-repository';
 import { fetchBuilds, fetchSnap } from '../actions/snap-builds';
@@ -18,9 +19,9 @@ import styles from './container.css';
 
 class BuildDetails extends Component {
 
-  fetchData({ snapLink, repository }) {
-    if (snapLink) {
-      this.props.dispatch(fetchBuilds(repository.url, snapLink));
+  fetchData({ snap, repository }) {
+    if (snap) {
+      this.props.dispatch(fetchBuilds(repository.url, snap.self_link));
     } else if (repository) {
       this.props.dispatch(fetchSnap(repository.url));
     }
@@ -31,19 +32,19 @@ class BuildDetails extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const currentSnapLink = this.props.snapLink;
-    const nextSnapLink = nextProps.snapLink;
+    const currentSnap = this.props.snap;
+    const nextSnap = nextProps.snap;
     const currentRepository = this.props.repository.fullName;
     const nextRepository = nextProps.repository.fullName;
 
-    if ((currentSnapLink !== nextSnapLink) || (currentRepository !== nextRepository)) {
-      // if snap link or repo changed, fetch new data
+    if ((currentSnap !== nextSnap) || (currentRepository !== nextRepository)) {
+      // if snap or repo changed, fetch new data
       this.fetchData(nextProps);
     }
   }
 
   render() {
-    const { repository, buildId, build, error, isFetching } = this.props;
+    const { snap, repository, buildId, build, error, isFetching } = this.props;
 
     return (
       <div className={ styles.container }>
@@ -53,9 +54,6 @@ class BuildDetails extends Component {
         <HeadingOne>
           <Link to={`/${repository.fullName}/builds`}>{repository.fullName}</Link> build #{buildId}
         </HeadingOne>
-        { isFetching &&
-          <span>Loading...</span>
-        }
         { error &&
           <Message status='error'>{ error.message || error }</Message>
         }
@@ -80,10 +78,15 @@ class BuildDetails extends Component {
             </div>
           </div>
         }
-        <HelpInstallSnap
-          headline='To test the latest successful build on your PC or cloud instance:'
-          name='foo'
-        />
+        { isFetching &&
+          <div className={styles.spinner}><Spinner /></div>
+        }
+        { snap &&
+          <HelpInstallSnap
+            headline='To test the latest successful build on your PC or cloud instance:'
+            name={ snap.store_name }
+          />
+        }
       </div>
     );
   }
@@ -99,7 +102,10 @@ BuildDetails.propTypes = {
   buildId: PropTypes.string.isRequired,
   build: PropTypes.object,
   isFetching: PropTypes.bool,
-  snapLink: PropTypes.string,
+  snap: PropTypes.shape({
+    self_link: PropTypes.string.isRequired,
+    store_name: PropTypes.string.isRequired
+  }),
   error: PropTypes.object,
   dispatch: PropTypes.func.isRequired
 };
@@ -118,7 +124,7 @@ const mapStateToProps = (state, ownProps) => {
   const build = repoBuilds.builds.filter((build) => build.buildId === buildId)[0];
   const isFetching = repoBuilds.isFetching;
   const error = repoBuilds.error;
-  const snapLink = repoBuilds.snapLink;
+  const snap = repoBuilds.snap;
 
   return {
     fullName,
@@ -126,7 +132,7 @@ const mapStateToProps = (state, ownProps) => {
     buildId,
     build,
     isFetching,
-    snapLink,
+    snap,
     error
   };
 };

@@ -147,7 +147,7 @@ describe('snap builds actions', () => {
       nock.cleanAll();
     });
 
-    it('should store builds on fetch success', () => {
+    it('should dispatch FETCH_SNAP_SUCCESS with snap info on success', () => {
       const repo = 'foo/bar';
       const repositoryUrl = `https://github.com/${repo}`;
       const snapUrl = 'https://api.launchpad.net/devel/~foo/+snap/bar';
@@ -169,9 +169,15 @@ describe('snap builds actions', () => {
       return store.dispatch(fetchSnap(repositoryUrl))
         .then(() => {
           api.done();
-          expect(store.getActions()).toHaveActionOfType(
-            ActionTypes.FETCH_SNAP_SUCCESS
-          );
+          expect(store.getActions()).toInclude({
+            type: ActionTypes.FETCH_SNAP_SUCCESS,
+            payload: {
+              id: repo,
+              snap: {
+                self_link: snapUrl
+              }
+            }
+          });
         });
     });
 
