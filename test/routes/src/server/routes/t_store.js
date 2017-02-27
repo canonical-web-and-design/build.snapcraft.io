@@ -3,6 +3,10 @@ import Express from 'express';
 import nock from 'nock';
 import supertest from 'supertest';
 
+import {
+  resetMemcached,
+  setupInMemoryMemcached
+} from '../../../../../src/server/helpers/memcached';
 import store from '../../../../../src/server/routes/store';
 import { conf } from '../../../../../src/server/helpers/config';
 
@@ -11,7 +15,12 @@ describe('The store API endpoint', () => {
   app.use(store);
 
   describe('register-name route', () => {
+    beforeEach(() => {
+      setupInMemoryMemcached();
+    });
+
     afterEach(() => {
+      resetMemcached();
       nock.cleanAll();
     });
 
@@ -28,6 +37,7 @@ describe('The store API endpoint', () => {
         .post('/store/register-name')
         .send({
           snap_name: 'test-snap',
+          repository_url: 'https://github.com/anowner/arepo',
           root: 'dummy-root',
           discharge: 'dummy-discharge'
         })
@@ -56,6 +66,7 @@ describe('The store API endpoint', () => {
         .post('/store/register-name')
         .send({
           snap_name: 'test-snap',
+          repository_url: 'https://github.com/anowner/arepo',
           root: 'dummy-root',
           discharge: 'dummy-discharge'
         })

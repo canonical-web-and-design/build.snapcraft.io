@@ -91,7 +91,7 @@ class PreparedError extends Error {
 }
 
 // helper function to get URL prefix for given repo owner
-const getRepoUrlPrefix = (owner) => `https://github.com/${owner}/`;
+export const getRepoUrlPrefix = (owner) => `https://github.com/${owner}/`;
 
 // memcached cache id helpers
 export const getUrlPrefixCacheId = (urlPrefix) => `url_prefix:${urlPrefix}`;

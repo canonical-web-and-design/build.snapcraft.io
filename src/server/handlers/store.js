@@ -1,11 +1,18 @@
 import 'isomorphic-fetch';
 
 import { conf } from '../helpers/config';
+import { getMemcached } from '../helpers/memcached';
+import { getRepoUrlPrefix, getUrlPrefixCacheId } from './launchpad';
+import parseGitHubUrl from 'parse-github-url';import logging from '../logging';
+
+const logger = logging.getLogger('express');
 
 export const registerName = (req, res) => {
   const snapName = req.body.snap_name;
   const root = req.body.root;
   const discharge = req.body.discharge;
+  const repositoryUrl = parseGitHubUrl(req.body.repository_url);
+  const cacheId = getUrlPrefixCacheId(getRepoUrlPrefix(repositoryUrl.owner));
 
   return fetch(`${conf.get('STORE_API_URL')}/register-name/`, {
     method: 'POST',
@@ -17,7 +24,13 @@ export const registerName = (req, res) => {
     body: JSON.stringify({ snap_name: snapName })
   }).then((response) => {
     return response.json().then((json) => {
-      return res.status(response.status).send(json);
+      getMemcached().del(cacheId, (err) => {
+        if (err) {
+          logger.error(`Error deleting ${cacheId} from memcached:`, err);
+        }
+
+        res.status(response.status).send(json);
+      });
     });
   });
 };
