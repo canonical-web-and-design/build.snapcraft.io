@@ -84,7 +84,6 @@ describe('The WebHook API endpoint', () => {
 
       describe('if auto_build is true', () => {
         let findByURL;
-        let getSnap;
         let requestAutoBuilds;
 
         beforeEach(() => {
@@ -101,16 +100,10 @@ describe('The WebHook API endpoint', () => {
                 {
                   resource_type_link: `${lp_api_base}/#snap`,
                   self_link: `${lp_api_base}${lp_snap_path}`,
-                  owner_link: `${lp_api_base}/~${lp_snap_user}`
+                  owner_link: `${lp_api_base}/~${lp_snap_user}`,
+                  auto_build: true
                 }
               ]
-            });
-          getSnap = nock(lp_api_url)
-            .get(`/devel${lp_snap_path}`)
-            .reply(200, {
-              resource_type_link: `${lp_api_base}/#snap`,
-              self_link: `${lp_api_base}${lp_snap_path}`,
-              auto_build: true
             });
           requestAutoBuilds = nock(lp_api_url)
             .post(`/devel${lp_snap_path}`, { 'ws.op': 'requestAutoBuilds' })
@@ -139,7 +132,6 @@ describe('The WebHook API endpoint', () => {
             .send(body)
             .expect(200, (err) => {
               findByURL.done();
-              getSnap.done();
               requestAutoBuilds.done();
               done(err);
             });
@@ -165,7 +157,6 @@ describe('The WebHook API endpoint', () => {
 
       describe('if auto_build is false', () => {
         let findByURL;
-        let getSnap;
 
         beforeEach(() => {
           findByURL = nock(lp_api_url)
@@ -181,16 +172,10 @@ describe('The WebHook API endpoint', () => {
                 {
                   resource_type_link: `${lp_api_base}/#snap`,
                   self_link: `${lp_api_base}${lp_snap_path}`,
-                  owner_link: `${lp_api_base}/~${lp_snap_user}`
+                  owner_link: `${lp_api_base}/~${lp_snap_user}`,
+                  auto_build: false
                 }
               ]
-            });
-          getSnap = nock(lp_api_url)
-            .get(`/devel${lp_snap_path}`)
-            .reply(200, {
-              resource_type_link: `${lp_api_base}/#snap`,
-              self_link: `${lp_api_base}${lp_snap_path}`,
-              auto_build: false
             });
         });
 
@@ -226,7 +211,6 @@ describe('The WebHook API endpoint', () => {
               .send(body)
               .expect(500, (err) => {
                 findByURL.done();
-                getSnap.done();
                 getSnapcraftYaml.done();
                 done(err);
               });
@@ -297,7 +281,6 @@ describe('The WebHook API endpoint', () => {
               .send(body)
               .expect(200, (err) => {
                 findByURL.done();
-                getSnap.done();
                 getSnapcraftYaml.done();
                 patchSnapAutoBuild.done();
                 requestAutoBuilds.done();

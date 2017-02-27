@@ -65,7 +65,6 @@ export const notify = (req, res) => {
     // the content of the push event.
     return getMemcached().del(getSnapNameCacheId(repositoryUrl))
       .then(() => internalFindSnap(repositoryUrl))
-      .then((snapUrl) => lpClient.get(snapUrl))
       .then((snap) => {
         if (!snap.auto_build) {
           return internalGetSnapcraftYaml(owner, name)

@@ -341,8 +341,8 @@ export const internalFindSnap = async (repositoryUrl) => {
         // https://github.com/babel/babel-eslint/issues/415
         for await (const entry of result) { // eslint-disable-line semi
           if (entry.owner_link.endsWith(`/~${username}`)) {
-            return getMemcached().set(cacheId, entry.self_link, 3600, () => {
-              return resolve(entry.self_link);
+            return getMemcached().set(cacheId, entry, 3600, () => {
+              return resolve(entry);
             });
           }
         }
@@ -422,12 +422,12 @@ export const findSnaps = (req, res) => {
 
 export const findSnap = (req, res) => {
   internalFindSnap(req.query.repository_url)
-    .then((snapUrl) => {
+    .then((snap) => {
       return res.status(200).send({
         status: 'success',
         payload: {
           code: 'snap-found',
-          message: snapUrl
+          snap
         }
       });
     })
@@ -445,7 +445,7 @@ export const authorizeSnap = (req, res) => {
   return checkAdminPermissions(req.session, repositoryUrl)
     .then(() => internalFindSnap(repositoryUrl))
     .then((result) => {
-      snapUrl = result;
+      snapUrl = result.self_link;
       return getLaunchpad().patch(snapUrl, {
         store_upload: true,
         store_series_link: `/+snappy-series/${series}`,
@@ -506,7 +506,7 @@ export const requestSnapBuilds = (req, res) => {
   const lpClient = getLaunchpad();
   checkAdminPermissions(req.session, req.body.repository_url)
     .then(() => internalFindSnap(req.body.repository_url))
-    .then((snapUrl) => lpClient.named_post(snapUrl, 'requestAutoBuilds'))
+    .then((snap) => lpClient.named_post(snap.self_link, 'requestAutoBuilds'))
     .then((builds) => {
       return res.status(201).send({
         status: 'success',

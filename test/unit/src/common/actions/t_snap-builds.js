@@ -160,7 +160,9 @@ describe('snap builds actions', () => {
           status: 'success',
           payload: {
             code: 'snap-found',
-            message: snapUrl
+            snap: {
+              self_link: snapUrl
+            }
           }
         });
 

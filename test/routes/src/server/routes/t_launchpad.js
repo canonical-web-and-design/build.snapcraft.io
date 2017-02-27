@@ -589,9 +589,25 @@ describe('The Launchpad API endpoint', () => {
   describe('find snap route', () => {
 
     context('when snap exists', () => {
+      let testSnaps;
+
       beforeEach(() => {
         const lp_api_url = conf.get('LP_API_URL');
         const lp_api_base = `${lp_api_url}/devel`;
+
+        testSnaps = [
+          {
+            resource_type_link: `${lp_api_base}/#snap`,
+            self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
+            owner_link: `${lp_api_base}/~another-user`
+          },
+          {
+            resource_type_link: `${lp_api_base}/#snap`,
+            self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
+            owner_link: `${lp_api_base}/~test-user`
+          }
+        ];
+
         nock(lp_api_url)
           .get('/devel/+snaps')
           .query({
@@ -601,18 +617,7 @@ describe('The Launchpad API endpoint', () => {
           .reply(200, {
             total_size: 2,
             start: 0,
-            entries: [
-              {
-                resource_type_link: `${lp_api_base}/#snap`,
-                self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
-                owner_link: `${lp_api_base}/~another-user`
-              },
-              {
-                resource_type_link: `${lp_api_base}/#snap`,
-                self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
-                owner_link: `${lp_api_base}/~test-user`
-              }
-            ]
+            entries: testSnaps
           });
       });
 
@@ -635,14 +640,14 @@ describe('The Launchpad API endpoint', () => {
           .end(done);
       });
 
-      it('should return a body with a "snap-found" message with the correct ' +
-         'URL', (done) => {
+      it('should return a body with a "snap-found" message with the correct snap', (done) => {
         supertest(app)
           .get('/launchpad/snaps')
           .query({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(hasMessage(
-            'snap-found',
-            `${conf.get('LP_API_URL')}/devel/~test-user/+snap/test-snap`))
+          .expect(hasMessage('snap-found'))
+          .expect((res) => {
+            expect(res.body.payload.snap).toEqual(testSnaps[1]);
+          })
           .end(done);
       });
     });
@@ -733,11 +738,14 @@ describe('The Launchpad API endpoint', () => {
 
     context('when repository is memcached', () => {
       const repositoryUrl = 'https://github.com/anowner/aname';
-      const snapUrl = `${conf.get('LP_API_URL')}/devel/~test-user/+snap/test-snap`;
+      const snap = {
+        self_link: `${conf.get('LP_API_URL')}/devel/~test-user/+snap/test-snap`
+      };
+
 
       before(() => {
         setupInMemoryMemcached();
-        getMemcached().set(getRepositoryUrlCacheId(repositoryUrl), snapUrl);
+        getMemcached().set(getRepositoryUrlCacheId(repositoryUrl), snap);
       });
 
       after(() => {
@@ -759,11 +767,14 @@ describe('The Launchpad API endpoint', () => {
           .end(done);
       });
 
-      it('should return a body with a "snap-found" message with the correct URL', (done) => {
+      it('should return a body with a "snap-found" message with the correct snap', (done) => {
         supertest(app)
           .get('/launchpad/snaps')
           .query({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(hasMessage('snap-found', snapUrl))
+          .expect(hasMessage('snap-found'))
+          .expect((res) => {
+            expect(res.body.payload.snap).toEqual(snap);
+          })
           .end(done);
       });
 
