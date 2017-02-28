@@ -8,9 +8,19 @@
   color: $warm-grey;
 }
 
-.tickIcon {
-  width: 22px;
+.icon {
+  width: 16px;
   height: 16px;
+  padding: 0;
+  border-bottom: 0;
+  display: inline-block;
+  vertical-align: middle;
+  text-indent: 999em;
+}
+
+.tickIcon {
+  background: url(https://assets.ubuntu.com/v1/6c395e6d-green-tick.svg) no-repeat;
+  background-size: 100% 100%;
 }
 
 .buttonRow {
