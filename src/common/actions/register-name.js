@@ -75,7 +75,7 @@ function signAgreement(root, discharge) {
     });
 }
 
-export function internalRegisterName(root, discharge, snapName) {
+export function internalRegisterName(root, discharge, snapName, repositoryUrl) {
   return fetch(`${BASE_URL}/api/store/register-name`, {
     method: 'POST',
     headers: {
@@ -84,6 +84,7 @@ export function internalRegisterName(root, discharge, snapName) {
     },
     body: JSON.stringify({
       snap_name: snapName,
+      repository_url: repositoryUrl,
       root,
       discharge
     })
@@ -153,7 +154,7 @@ export function registerName(repository, snapName, options={}) {
             });
         }
       })
-      .then(() => internalRegisterName(root, discharge, snapName))
+      .then(() => internalRegisterName(root, discharge, snapName, repository.url))
       .then(() => getPackageUploadMacaroon(root, discharge, snapName))
       .then((macaroon) => {
         packageUploadMacaroon = macaroon;
