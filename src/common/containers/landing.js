@@ -109,7 +109,7 @@ class Landing extends Component {
         <section className={ styles.section }>
           <div className={ `${containerStyles.wrapper}` }>
             <HeadingThree align='center'>
-              What people are saying about Snapcraft
+              What people are saying about snaps
             </HeadingThree>
 
             <div className={ `${styles.row} ${styles.sectionNoBorder}` }>
