@@ -23,6 +23,16 @@
   background-size: 100% 100%;
 }
 
+.deleteIcon {
+  background: url(https://assets.ubuntu.com/v1/b5573b6a-delete.svg) no-repeat;
+  background-size: 100% 100%;
+}
+
+.warningIcon {
+  background: url(https://assets.ubuntu.com/v1/5777c0c7-warning.svg) no-repeat;
+  background-size: 100% 100%;
+}
+
 .buttonRow {
   padding: 16px;
   text-align: right;

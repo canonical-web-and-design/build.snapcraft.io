@@ -12,6 +12,11 @@ $positive-button-color-hover: #0a5615;
 $positive-button-text-color: #FFF;
 $positive-border-color: $success;
 
+$negative-button-color: $error;
+$negative-button-color-hover: #8f2018;
+$negative-button-text-color: #FFF;
+$negative-border-color: $error;
+
 $neutral-button-color: #FFF;
 $neutral-button-color-hover: rgba(0, 0, 0, 0.1);
 $neutral-button-text-color: $dark-grey;
@@ -78,6 +83,20 @@ $neutral-border-color: $dark-grey;
 .positive:focus,
 .positive:hover {
   background-color: $positive-button-color-hover;
+}
+
+.negative {
+  composes: button;
+
+  color: $negative-button-text-color;
+  background-color: $negative-button-color;
+  border: 1px solid $negative-border-color;
+}
+
+.negative:active,
+.negative:focus,
+.negative:hover {
+  background-color: $negative-button-color-hover;
 }
 
 .neutral {

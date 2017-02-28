@@ -12,6 +12,7 @@ import templateYaml from './template-yaml.js';
 
 import { signIntoStore } from '../../actions/auth-store';
 import { registerName, registerNameError } from '../../actions/register-name';
+import { removeSnap } from '../../actions/snaps';
 import { conf } from '../../helpers/config';
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
 
@@ -22,6 +23,9 @@ const FILE_NAME_CLAIM_URL = 'https://myapps.developer.ubuntu.com/dev/click-apps/
 const LEARN_THE_BASICS_LINK = 'https://snapcraft.io/docs/build-snaps/your-first-snap';
 const INSTALL_IT_LINK = 'https://snapcraft.io/create/';
 const tickIcon = <span className={ `${styles.icon} ${styles.tickIcon}` } />;
+const warningIcon = (
+  <span className={ `${styles.icon} ${styles.warningIcon}` } />
+);
 
 class RepositoryRow extends Component {
 
@@ -39,6 +43,7 @@ class RepositoryRow extends Component {
       snapName,
       unconfiguredDropdownExpanded: false,
       unregisteredDropdownExpanded: false,
+      removeDropdownExpanded: false,
       signAgreement: false
     };
   }
@@ -72,14 +77,24 @@ class RepositoryRow extends Component {
   onConfiguredClick() {
     this.setState({
       unconfiguredDropdownExpanded: !this.state.unconfiguredDropdownExpanded,
-      unregisteredDropdownExpanded: false
+      unregisteredDropdownExpanded: false,
+      removeDropdownExpanded: false
     });
   }
 
   onUnregisteredClick() {
     this.setState({
       unconfiguredDropdownExpanded: false,
-      unregisteredDropdownExpanded: !this.state.unregisteredDropdownExpanded
+      unregisteredDropdownExpanded: !this.state.unregisteredDropdownExpanded,
+      removeDropdownExpanded: false
+    });
+  }
+
+  onToggleRemoveClick() {
+    this.setState({
+      unconfiguredDropdownExpanded: false,
+      unregisteredDropdownExpanded: false,
+      removeDropdownExpanded: !this.state.removeDropdownExpanded
     });
   }
 
@@ -121,6 +136,10 @@ class RepositoryRow extends Component {
       signAgreement: signAgreement ? authStore.userName : null,
       requestBuilds
     }));
+  }
+
+  onRemoveClick(repositoryUrl) {
+    this.props.dispatch(removeSnap(repositoryUrl));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -311,6 +330,57 @@ class RepositoryRow extends Component {
     );
   }
 
+  renderRemoveDropdown(registeredName) {
+    const { snap, latestBuild } = this.props;
+
+    let warningText;
+    if (latestBuild) {
+      warningText = (
+        'Removing this repo will delete all its builds and build logs.'
+      );
+    } else {
+      warningText = (
+        'Are you sure you want to remove this repo from the list?'
+      );
+    }
+    if (registeredName !== null) {
+      warningText += ' The name will remain registered.';
+    }
+    // XXX cjwatson 2017-02-28: Once we can get hold of published states for
+    // builds, we should also implement this design requirement:
+    //   Separately, if any build has been published, the text should end
+    //   with:
+    //     Published builds will remain published.
+
+    return (
+      <Dropdown>
+        <Row>
+          <Data col="100">
+            { warningIcon } { warningText }
+          </Data>
+        </Row>
+        <Row>
+          <div className={ styles.buttonRow }>
+            <a
+              onClick={ this.onToggleRemoveClick.bind(this) }
+              className={ styles.cancel }
+            >
+              Cancel
+            </a>
+            <Button
+              appearance="negative"
+              onClick={
+                this.onRemoveClick.bind(this, snap.git_repository_url)
+              }
+            >
+              Remove
+            </Button>
+          </div>
+        </Row>
+      </Dropdown>
+    );
+  }
+
   render() {
     const {
       snap,
@@ -323,6 +393,7 @@ class RepositoryRow extends Component {
     const unconfigured = true;
     const showUnconfiguredDropdown = unconfigured && this.state.unconfiguredDropdownExpanded;
     const showUnregisteredDropdown = this.state.unregisteredDropdownExpanded;
+    const showRemoveDropdown = this.state.removeDropdownExpanded;
     const showRegisterNameInput = (
       showUnregisteredDropdown && authStore.authenticated
     );
@@ -331,11 +402,18 @@ class RepositoryRow extends Component {
       registerNameStatus.snapName : snap.store_name
     );
 
-    // TODO (or any other dropdown)
-    const isActive = showUnconfiguredDropdown || showUnregisteredDropdown;
+    const isActive = (
+      showUnconfiguredDropdown ||
+      showUnregisteredDropdown ||
+      showRemoveDropdown
+    );
+    // XXX cjwatson 2017-02-28: The specification calls for the remove icon
+    // to be shown only when hovering over or tapping in an empty part of
+    // the row.  My attempts to do this so far have resulted in the remove
+    // icon playing hide-and-seek.
     return (
       <Row isActive={isActive}>
-        <Data col="30"><Link to={ `/${fullName}/builds` }>{ fullName }</Link></Data>
+        <Data col="27"><Link to={ `/${fullName}/builds` }>{ fullName }</Link></Data>
         <Data col="15">
           { this.renderConfiguredStatus.call(this, snap.snapcraft_data) }
         </Data>
@@ -356,8 +434,17 @@ class RepositoryRow extends Component {
             />
           }
         </Data>
+        <Data col="3">
+          <a
+            className={ `${styles.icon} ${styles.deleteIcon}` }
+            onClick={ this.onToggleRemoveClick.bind(this) }
+          >
+            Remove
+          </a>
+        </Data>
         { showUnconfiguredDropdown && this.renderUnconfiguredDropdown() }
         { showUnregisteredDropdown && this.renderUnregisteredDropdown() }
+        { showRemoveDropdown && this.renderRemoveDropdown(registeredName) }
       </Row>
     );
   }

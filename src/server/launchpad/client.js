@@ -159,6 +159,27 @@ export class Launchpad {
     });
   }
 
+  /**
+   * Delete the resource at the given URI.
+   * @returns {Promise<Resource|Object, ResourceError>}
+   */
+  delete(uri) {
+    uri = normalizeURI(this.base_uri, uri);
+
+    const headers = this.makeHeaders();
+
+    return fetch(uri, {
+      method: 'DELETE',
+      headers: headers
+    }).then((response) => {
+      if (Math.floor(response.status / 100) == 2) {
+        return this.wrap_resource_on_success(response, uri, 'DELETE');
+      } else {
+        throw new ResourceError(response, this, uri, 'DELETE');
+      }
+    });
+  }
+
   /** Given a representation, turn it into a subclass of Resource. */
   wrap_resource(uri, representation) {
     if (representation === null || representation === undefined) {

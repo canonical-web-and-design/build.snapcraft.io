@@ -9,7 +9,10 @@ import { conf } from '../../../../../src/server/helpers/config';
 import {
   fetchUserSnaps,
   fetchSnapsSuccess,
-  fetchSnapsError
+  fetchSnapsError,
+  removeSnap,
+  removeSnapSuccess,
+  removeSnapError
 } from '../../../../../src/common/actions/snaps';
 import * as ActionTypes from '../../../../../src/common/actions/snaps';
 
@@ -135,4 +138,104 @@ describe('repositories actions', () => {
 
   });
 
+  context('removeSnap', () => {
+    const repositoryUrl = 'https://github.com/anowner/aname';
+    let api;
+
+    beforeEach(() => {
+      api = nock(conf.get('BASE_URL'));
+    });
+
+    afterEach(() => {
+      nock.cleanAll();
+    });
+
+    it('stores success action on successful removal', () => {
+      api
+        .post('/api/launchpad/snaps/delete', { repository_url: repositoryUrl })
+        .reply(200, {
+          status: 'success',
+          payload: {
+            code: 'snap-deleted',
+            message: 'Snap deleted'
+          }
+        });
+
+      return store.dispatch(removeSnap(repositoryUrl))
+        .then(() => {
+          api.done();
+          expect(store.getActions()).toHaveActionOfType(
+            ActionTypes.REMOVE_SNAP_SUCCESS
+          );
+        });
+    });
+
+    it('stores error action on failed removal', () => {
+      api
+        .post('/api/launchpad/snaps/delete', { repository_url: repositoryUrl })
+        .reply(404, {
+          status: 'error',
+          payload: {
+            code: 'lp-error',
+            message: 'Something went wrong'
+          }
+        });
+
+      return store.dispatch(removeSnap(repositoryUrl))
+        .then(() => {
+          api.done();
+          expect(store.getActions()).toHaveActionOfType(
+            ActionTypes.REMOVE_SNAP_ERROR
+          );
+        });
+    });
+  });
+
+  context('removeSnapSuccess', () => {
+    const repositoryUrl = 'https://github.com/anowner/aname';
+
+    beforeEach(() => {
+      action = removeSnapSuccess(repositoryUrl);
+    });
+
+    it('creates an action to indicate successful removal', () => {
+      const expectedAction = {
+        type: ActionTypes.REMOVE_SNAP_SUCCESS,
+        payload: { repository_url: repositoryUrl }
+      };
+
+      store.dispatch(action);
+      expect(store.getActions()).toInclude(expectedAction);
+    });
+
+    it('creates a valid flux standard action', () => {
+      expect(isFSA(action)).toBe(true);
+    });
+  });
+
+  context('removeSnapError', () => {
+    const repositoryUrl = 'https://github.com/anowner/aname';
+
+    beforeEach(() => {
+      action = removeSnapError(repositoryUrl, 'Something went wrong!');
+    });
+
+    it('creates an action to store request error on failure', () => {
+      const expectedAction = {
+        type: ActionTypes.REMOVE_SNAP_ERROR,
+        payload: {
+          repository_url: repositoryUrl,
+          error: 'Something went wrong!',
+        },
+        error: true,
+      };
+
+      store.dispatch(action);
+      expect(store.getActions()).toInclude(expectedAction);
+    });
+
+    it('creates a valid flux standard action', () => {
+      expect(isFSA(action)).toBe(true);
+    });
+  });
 });

@@ -1430,6 +1430,217 @@ describe('The Launchpad API endpoint', () => {
       });
     });
   });
+
+  describe('delete snap route', () => {
+    const lp_snap_user = 'test-user';
+    const lp_snap_path = `/~${lp_snap_user}/+snap/test-snap`;
+    const repositoryUrl = 'https://github.com/anowner/aname';
+
+    beforeEach(() => {
+      setupInMemoryMemcached();
+    });
+
+    afterEach(() => {
+      resetMemcached();
+    });
+
+    context('when snap exists', () => {
+      const urlPrefix = 'https://github.com/anowner/';
+
+      beforeEach(() => {
+        nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get('/repos/anowner/aname')
+          .reply(200, { permissions: { admin: true } });
+        const lp_api_url = conf.get('LP_API_URL');
+        const lp_api_base = `${lp_api_url}/devel`;
+        const testSnap = {
+          resource_type_link: `${lp_api_base}/#snap`,
+          self_link: `${lp_api_base}${lp_snap_path}`,
+          owner_link: `${lp_api_base}/~${lp_snap_user}`,
+          git_repository_url: repositoryUrl
+        };
+        nock(lp_api_url)
+          .get('/devel/+snaps')
+          .query({
+            'ws.op': 'findByURL',
+            url: repositoryUrl
+          })
+          .reply(200, {
+            total_size: 1,
+            start: 0,
+            entries: [testSnap]
+          });
+        nock(lp_api_url)
+          .delete(`/devel${lp_snap_path}`)
+          .reply(200, 'null', { 'Content-Type': 'application/json' });
+        setupInMemoryMemcached();
+        getMemcached().set(getUrlPrefixCacheId(urlPrefix), [testSnap]);
+      });
+
+      afterEach(() => {
+        resetMemcached();
+        nock.cleanAll();
+      });
+
+      it('returns a 200 response', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(200, done);
+      });
+
+      it('returns a "success" status', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(hasStatus('success'))
+          .end(done);
+      });
+
+      it('returns body with a "snap-deleted" message', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(hasMessage('snap-deleted'))
+          .end(done);
+      });
+
+      it('removes stale entries from memcached', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .end((err) => {
+            if (err) {
+              done(err);
+            }
+            const prefixCacheId = getUrlPrefixCacheId(urlPrefix);
+            const repoCacheId = getRepositoryUrlCacheId(repositoryUrl);
+            expect(getMemcached().cache).toExcludeKey(prefixCacheId);
+            expect(getMemcached().cache).toExcludeKey(repoCacheId);
+            done();
+          });
+      });
+    });
+
+    context('when user has no admin permissions on GitHub repository', () => {
+      beforeEach(() => {
+        nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get('/repos/anowner/aname')
+          .reply(200, { permissions: { admin: false } });
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('returns a 401 Unauthorized response', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(401, done);
+      });
+
+      it('returns a "error" status', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(hasStatus('error'))
+          .end(done);
+      });
+
+      it('returns a body with a "github-no-admin-permissions" ' +
+         'message', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(hasMessage('github-no-admin-permissions'))
+          .end(done);
+      });
+    });
+
+    context('when repo does not exist', () => {
+      beforeEach(() => {
+        nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get('/repos/anowner/aname')
+          .reply(404, { message: 'Not Found' });
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should return a 404 Not Found response', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(404, done);
+      });
+
+      it('should return a "error" status', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(hasStatus('error'))
+          .end(done);
+      });
+
+      it('should return a body with a "github-snapcraft-yaml-not-found" ' +
+         'message', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(hasMessage('github-snapcraft-yaml-not-found'))
+          .end(done);
+      });
+    });
+
+    context('when snap does not exist', () => {
+      beforeEach(() => {
+        nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get('/repos/anowner/aname')
+          .reply(200, { permissions: { admin: true } });
+        const lp_api_url = conf.get('LP_API_URL');
+        nock(lp_api_url)
+          .get('/devel/+snaps')
+          .query({
+            'ws.op': 'findByURL',
+            url: repositoryUrl
+          })
+          .reply(200, {
+            total_size: 0,
+            start: 0,
+            entries: []
+          });
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('returns a 404 response', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(404, done);
+      });
+
+      it('returns an "error" status', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(hasStatus('error'))
+          .end(done);
+      });
+
+      it('returns body with a "snap-not-found" message', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(hasMessage('snap-not-found'))
+          .end(done);
+      });
+    });
+  });
 });
 
 const hasStatus = (expected) => {

@@ -3,6 +3,7 @@ import { json } from 'body-parser';
 
 import {
   authorizeSnap,
+  deleteSnap,
   findSnap,
   findSnaps,
   getSnapBuilds,
@@ -27,5 +28,10 @@ router.get('/launchpad/builds', getSnapBuilds);
 
 router.use('/launchpad/snaps/request-builds', json());
 router.post('/launchpad/snaps/request-builds', requestSnapBuilds);
+
+// XXX cjwatson 2017-02-28: This would be more RESTful if we defined an API
+// URL for each snap and then just made this a DELETE.
+router.use('/launchpad/snaps/delete', json());
+router.post('/launchpad/snaps/delete', deleteSnap);
 
 export default router;

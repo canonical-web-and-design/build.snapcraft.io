@@ -63,6 +63,31 @@ export function snaps(state = {
         ...state,
         snaps: updateRegisteredName(state.snaps, action.payload.id, action.payload.snapName)
       };
+    case ActionTypes.REMOVE_SNAP:
+      return {
+        ...state,
+        isFetching: true
+      };
+    case ActionTypes.REMOVE_SNAP_SUCCESS:
+      return {
+        ...state,
+        isFetching: false,
+        success: true,
+        snaps: (
+          state.snaps !== null ?
+          state.snaps.filter((snap) => {
+            return snap.git_repository_url !== action.payload.repository_url;
+          }) : null
+        ),
+        error: null
+      };
+    case ActionTypes.REMOVE_SNAP_ERROR:
+      return {
+        ...state,
+        isFetching: false,
+        success: false,
+        error: action.payload.error
+      };
     default:
       return state;
   }

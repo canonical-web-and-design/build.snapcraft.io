@@ -178,6 +178,32 @@ describe('Launchpad', () => {
     });
   });
 
+  describe('delete', () => {
+    it('handles successful response', () => {
+      lp.delete('/devel/~foo')
+        .matchHeader('Authorization', checkAuthorization)
+        .reply(200, 'null');
+
+      return getLaunchpad().delete('/~foo').then(
+        (result) => {
+          expect(result).toBe(null);
+        });
+    });
+
+    it('handles failing response', () => {
+      lp.delete('/devel/~foo').reply(503);
+
+      return getLaunchpad().delete('/~foo')
+        .then((result) => {
+          assert(false, 'Expected promise to be rejected; got %s instead',
+                 result);
+        }, (error) => {
+          expect(error.response.status).toEqual(503);
+          expect(error.uri).toEqual(`${LP_API_URL}/devel/~foo`);
+        });
+    });
+  });
+
   describe('wrap_resource', () => {
     it('produces mappings of plain object literals', () => {
       const result = getLaunchpad().wrap_resource(null, {

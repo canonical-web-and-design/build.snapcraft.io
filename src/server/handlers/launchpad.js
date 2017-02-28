@@ -518,3 +518,38 @@ export const requestSnapBuilds = (req, res) => {
     })
     .catch((error) => sendError(res, error));
 };
+
+export const deleteSnap = (req, res) => {
+  let owner;
+  checkAdminPermissions(req.session, req.body.repository_url)
+    .then((result) => {
+      owner = result.owner;
+      return internalFindSnap(req.body.repository_url);
+    })
+    .then((snap) => snap.lp_delete())
+    .then(() => {
+      const urlPrefix = getRepoUrlPrefix(owner);
+      const prefixCacheId = getUrlPrefixCacheId(urlPrefix);
+      const repoCacheId = getRepositoryUrlCacheId(req.body.repository_url);
+
+      getMemcached().del(prefixCacheId, (err) => {
+        if (err) {
+          logger.error(`Error deleting ${prefixCacheId} from memcached:`, err);
+        }
+        getMemcached().del(repoCacheId, (err) => {
+          if (err) {
+            logger.error(`Error deleting ${repoCacheId} from memcached:`, err);
+          }
+
+          return res.status(200).send({
+            status: 'success',
+            payload: {
+              code: 'snap-deleted',
+              message: 'Snap deleted'
+            }
+          });
+        });
+      });
+    })
+    .catch((error) => sendError(res, error));
+};

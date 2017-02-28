@@ -9,7 +9,7 @@ const defaultProps = {
   children: PropTypes.string,
   onClick: PropTypes.func,
   type: PropTypes.string,
-  appearance: React.PropTypes.oneOf(['primary', 'secondary', 'positive', 'neutral']),
+  appearance: React.PropTypes.oneOf(['primary', 'secondary', 'positive', 'negative', 'neutral']),
   flavour: React.PropTypes.oneOf(['normal','embiggened']),
   href: PropTypes.string
 };
