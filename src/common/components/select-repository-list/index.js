@@ -3,8 +3,11 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
 import { conf } from '../../helpers/config';
-import { createSnaps } from '../../actions/create-snap';
-import { toggleRepository } from '../../actions/select-repositories-form';
+import { createSnaps, createSnapsClear } from '../../actions/create-snap';
+import {
+  toggleRepository,
+  unselectAllRepositories
+} from '../../actions/select-repositories-form';
 import SelectRepositoryRow from '../select-repository-row';
 import Spinner from '../spinner';
 import PageLinks from '../page-links';
@@ -20,6 +23,11 @@ import { spinner as spinnerStyles } from '../../containers/container.css';
 const SNAP_NAME_NOT_REGISTERED_ERROR_CODE = 'snap-name-not-registered';
 
 export class SelectRepositoryListComponent extends Component {
+
+  componentDidMount() {
+    this.props.dispatch(createSnapsClear());
+    this.props.dispatch(unselectAllRepositories());
+  }
 
   componentWillReceiveProps(nextProps) {
     const repositoriesStatus = nextProps.repositoriesStatus;

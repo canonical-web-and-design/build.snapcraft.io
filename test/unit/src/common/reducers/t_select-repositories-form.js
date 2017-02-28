@@ -1,7 +1,7 @@
 import expect from 'expect';
 
 import { selectRepositoriesForm } from '../../../../../src/common/reducers/select-repositories-form';
-import { TOGGLE_REPOSITORY } from '../../../../../src/common/actions/select-repositories-form';
+import * as ActionTypes from '../../../../../src/common/actions/select-repositories-form';
 
 describe('The selectRepositoriesForm reducer', () => {
   let initialState;
@@ -18,7 +18,7 @@ describe('The selectRepositoriesForm reducer', () => {
 
       beforeEach(() => {
         state = selectRepositoriesForm(initialState, {
-          type: TOGGLE_REPOSITORY,
+          type: ActionTypes.TOGGLE_REPOSITORY,
           payload: { fullName: 'foo/bar' }
         });
       });
@@ -47,14 +47,34 @@ describe('The selectRepositoriesForm reducer', () => {
 
       beforeEach(() => {
         state = selectRepositoriesForm(initialState, {
-          type: TOGGLE_REPOSITORY,
+          type: ActionTypes.TOGGLE_REPOSITORY,
           payload: { fullName: 'foo/bar' }
         });
       });
 
-      it('should note have a selected repository "foo/bar"', () => {
+      it('should not have a selected repository "foo/bar"', () => {
         expect(state).toEqual({ selectedRepos: [] });
       });
+    });
+  });
+
+  context('when all selected repositories are unselected', () => {
+    let state;
+
+    beforeEach(() => {
+      initialState = {
+        selectedRepos: [
+          { fullName: 'foo/bar' },
+          { fullName: 'foo/baz' }
+        ]
+      };
+      state = selectRepositoriesForm(initialState, {
+        type: ActionTypes.UNSELECT_ALL_REPOSITORIES
+      });
+    });
+
+    it('should have no selected repositories', () => {
+      expect(state).toEqual({ selectedRepos: [] });
     });
   });
 });

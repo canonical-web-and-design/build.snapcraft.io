@@ -18,14 +18,14 @@ describe('repositoriesStatus reducers', () => {
     expect(repositoriesStatus(undefined, {})).toEqual(initialState);
   });
 
-  context('CREATE_SNAPS_START', () => {
+  context('CREATE_SNAPS_CLEAR', () => {
     it('clears out any existing state', () => {
       const state = {
         ...initialState,
         [id]: initialStatus
       };
 
-      const action = { type: ActionTypes.CREATE_SNAPS_START };
+      const action = { type: ActionTypes.CREATE_SNAPS_CLEAR };
 
       expect(repositoriesStatus(state, action)).toEqual({});
     });

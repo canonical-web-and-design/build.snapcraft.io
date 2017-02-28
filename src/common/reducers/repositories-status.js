@@ -10,7 +10,7 @@ export function repositoriesStatus(state = {}, action) {
   };
 
   switch(action.type) {
-    case ActionTypes.CREATE_SNAPS_START:
+    case ActionTypes.CREATE_SNAPS_CLEAR:
       return {};
     case ActionTypes.CREATE_SNAP:
       return {
