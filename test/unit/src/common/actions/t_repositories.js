@@ -114,16 +114,6 @@ describe('repositories actions', () => {
             );
           });
       });
-
-      it('should store pageLinks', () => {
-        return store.dispatch(fetchUserRepositories())
-          .then(() => {
-            api.done();
-            expect(store.getActions()).toHaveActionOfType(
-              ActionTypes.SET_REPOSITORY_PAGE_LINKS
-            );
-          });
-      });
     });
 
     context('when one page of repo data successfully retrieved', () => {

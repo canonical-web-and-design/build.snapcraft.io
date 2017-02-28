@@ -90,17 +90,17 @@ class SelectRepositoryList extends Component {
     const isLoading = this.props.repositories.isFetching;
     const { selectedRepos } = this.props.selectRepositoriesForm;
     const { repos } = this.props.repositories;
+    const pageLinks = this.renderPageLinks.call(this);
 
     return (
       <div>
-        { this.renderPageLinks.call(this) }
         { isLoading &&
           <div className={ spinnerStyles }><Spinner /></div>
         }
         { this.props.repositories.success &&
           this.props.repositories.repos.map(this.renderRepository.bind(this))
         }
-        { this.renderPageLinks.call(this) }
+        { pageLinks }
         <div className={ styles.footer }>
           <HeadingThree>
             { selectedRepos.length } selected

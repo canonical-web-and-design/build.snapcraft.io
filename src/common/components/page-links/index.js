@@ -16,10 +16,11 @@ export default class PageLinks extends Component {
       );
     });
 
-    return (
+    return ( links.length ?
       <ul className={ styles.container }>
         { links }
       </ul>
+      : null
     );
   }
 

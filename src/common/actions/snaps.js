@@ -5,7 +5,7 @@ import { conf } from '../helpers/config';
 
 const BASE_URL = conf.get('BASE_URL');
 
-export const FETCH_SNAPS = 'FETCH_REPOSITORIES';
+export const FETCH_SNAPS = 'FETCH_SNAP_REPOSITORIES';
 export const FETCH_SNAPS_SUCCESS = 'FETCH_SNAPS_SUCCESS';
 export const FETCH_SNAPS_ERROR = 'FETCH_SNAPS_ERROR';
 

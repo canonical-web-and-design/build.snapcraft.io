@@ -2,10 +2,11 @@ import * as ActionTypes from '../actions/repositories';
 import { parseGitHubRepoUrl } from '../helpers/github-url';
 
 export function repositories(state = {
+  // has no server side content, so initial state is always 'fetching'
   isFetching: false,
   success: false,
   error: null,
-  repos: null,
+  repos: [],
   pageLinks: {}
 }, action) {
   switch(action.type) {
@@ -17,21 +18,18 @@ export function repositories(state = {
     case ActionTypes.SET_REPOSITORIES:
       return {
         ...state,
-        repos: action.payload.map((repo) => {
+        isFetching: false,
+        success: true,
+        error: null,
+        repos: action.payload.repos.map((repo) => {
           return {
             // parse repository info to keep consistent data format
             ...parseGitHubRepoUrl(repo.full_name),
             // but keep full repo data from API in the store too
             repo
           };
-        })
-      };
-    case ActionTypes.FETCH_REPOSITORIES_SUCCESS:
-      return {
-        ...state,
-        isFetching: false,
-        success: true,
-        error: null
+        }),
+        pageLinks: action.payload.links
       };
     case ActionTypes.FETCH_REPOSITORIES_ERROR:
       return {
@@ -39,11 +37,6 @@ export function repositories(state = {
         isFetching: false,
         success: false,
         error: action.payload
-      };
-    case ActionTypes.SET_REPOSITORY_PAGE_LINKS:
-      return {
-        ...state,
-        pageLinks: action.payload
       };
     default:
       return state;
