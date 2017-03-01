@@ -8,12 +8,12 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
-  margin: 50px 0 30px;
+  margin: 50px 0 0 0;
 }
 
 .bannerImage {
   width: 920px;
-  margin-bottom: 2em;
+  margin-bottom: 1.2em;
 }
 
 .bannerImage img {
@@ -28,7 +28,9 @@
 }
 
 .bannerButton {
-  margin-bottom: 4em;
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+  vertical-align: middle;
 }
 
 .centeredButton {

@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { Anchor } from '../components/vanilla/button';
-import { HeadingOne } from '../components/vanilla/heading';
+import { HeadingTwo } from '../components/vanilla/heading';
 import { HeadingThree } from '../components/vanilla/heading';
 import { HeadingSix } from '../components/vanilla/heading';
 import { ListDividedState } from '../components/vanilla/list';
@@ -21,9 +21,9 @@ class Landing extends Component {
         <div className={ containerStyles.strip }>
           <div>
             <div className={ `${containerStyles.wrapper} ${styles.centeredText}` }>
-              <HeadingOne align='center'>
+              <HeadingTwo align='center'>
                 Auto-build and publish software<br />for any Linux system or device
-              </HeadingOne>
+              </HeadingTwo>
 
               <ul className={ styles.banner }>
                 <li className={ styles.bannerImage }>
