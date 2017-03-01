@@ -26,12 +26,6 @@ router.get(
 
 router.get('/user/repos', responses.okayReposFound);
 
-router.get('/user', (req, res) => {
-  res.status(200).send({
-    login: 'anowner',
-    name: 'Ann Owner',
-    html_url: 'http://github.com/anowner'
-  });
-});
+router.get('/user', responses.okayUserFoundWithDisplayName);
 
 export default router;
