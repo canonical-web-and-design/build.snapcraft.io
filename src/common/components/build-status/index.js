@@ -2,24 +2,16 @@ import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import moment from 'moment';
 
-import { BuildStatusConstants } from '../../helpers/snap-builds';
-
 import styles from './buildStatus.css';
 
 const BuildStatus = (props) => {
 
   const {
     link,
-    status,
+    colour,
     statusMessage,
     dateStarted
   } = props;
-
-  const statusStyle = {
-    [BuildStatusConstants.SUCCESS]: styles.success,
-    [BuildStatusConstants.ERROR]: styles.error,
-    [BuildStatusConstants.PENDING]: styles.pending
-  };
 
   let humanDateStarted;
 
@@ -35,7 +27,7 @@ const BuildStatus = (props) => {
   }
 
   return (
-    <div className={ `${styles.buildStatus} ${statusStyle[status]}` }>
+    <div className={ `${styles.buildStatus} ${styles[colour]}` }>
       { link
         ? <Link to={link}>{statusMessage}</Link>
         : <span>{statusMessage}</span>
@@ -47,7 +39,7 @@ const BuildStatus = (props) => {
 
 BuildStatus.propTypes = {
   link: PropTypes.string,
-  status:  PropTypes.oneOf(['success', 'pending', 'error']),
+  colour: PropTypes.oneOf(['green', 'yellow', 'red', 'grey']),
   statusMessage: PropTypes.string,
   dateStarted: PropTypes.string
 };

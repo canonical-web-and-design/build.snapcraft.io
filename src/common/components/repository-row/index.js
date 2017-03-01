@@ -347,12 +347,18 @@ class RepositoryRow extends Component {
             TODO: show 'Loading' when waiting for status?
               and also show 'Never built' when no builds available
           */}
-          { latestBuild &&
+          { latestBuild && snap.snapcraft_data &&
             <BuildStatus
               link={ `/${fullName}/builds/${latestBuild.buildId}`}
-              status={ latestBuild.status }
+              colour={ latestBuild.status }
               statusMessage={ latestBuild.statusMessage }
               dateStarted={ latestBuild.dateStarted }
+            />
+          }
+          { !snap.snapcraft_data &&
+            <BuildStatus
+              colour="grey"
+              statusMessage="Never built"
             />
           }
         </Data>
