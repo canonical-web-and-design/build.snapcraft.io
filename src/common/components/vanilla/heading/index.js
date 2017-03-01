@@ -1,12 +1,17 @@
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 
 import styles from './heading.css';
 
 const Heading = (props) => {
   const H = props.heading || 'h1';
   const align = props.align;
+  const headingClass = classNames({
+    [styles[H]]: true,
+    [styles[align]]: align
+  });
   return (
-    <H className={ `${styles[H]} ${align && styles[align]} `}>
+    <H className={ headingClass }>
       { props.children }
     </H>
   );
