@@ -438,9 +438,7 @@ class RepositoryRow extends Component {
           <a
             className={ `${styles.icon} ${styles.deleteIcon}` }
             onClick={ this.onToggleRemoveClick.bind(this) }
-          >
-            Remove
-          </a>
+          />
         </Data>
         { showUnconfiguredDropdown && this.renderUnconfiguredDropdown() }
         { showUnregisteredDropdown && this.renderUnregisteredDropdown() }
