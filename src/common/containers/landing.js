@@ -42,15 +42,17 @@ class Landing extends Component {
               </ul>
 
               <div className={ styles.bannerButton }>
-                { !this.props.auth.authenticated &&
-                  <Anchor href="/auth/authenticate" icon={ octocat } flavour='embiggened' appearance='positive' >
-                    Set up in minutes
-                  </Anchor>
-                }
-                { this.props.auth.authenticated &&
-                  <div>
-                    Hi { this.props.user.name }, <a href="/dashboard">let’s check out your repos</a>.
-                  </div>
+                { this.props.auth.authenticated
+                  ? (
+                    <div>
+                      Hi { this.props.user.name || this.props.user.login }, <a href="/dashboard">let’s check out your repos</a>.
+                    </div>
+                  )
+                  : (
+                    <Anchor href="/auth/authenticate" icon={ octocat } flavour='embiggened' appearance='positive' >
+                      Set up in minutes
+                    </Anchor>
+                  )
                 }
               </div>
             </div>
