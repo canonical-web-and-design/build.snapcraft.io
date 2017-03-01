@@ -310,14 +310,15 @@ export const newSnap = (req, res) => {
 
 export const internalFindSnap = async (repositoryUrl) => {
   const cacheId = getRepositoryUrlCacheId(repositoryUrl);
+  const lpClient = getLaunchpad();
 
   return new Promise((resolve, reject) => {
     getMemcached().get(cacheId, (err, result) => {
       if (!err && result !== undefined) {
-        return resolve(result);
+        return resolve(lpClient.wrap_resource(result.self_link, result));
       }
 
-      getLaunchpad().named_get('/+snaps', 'findByURL', {
+      lpClient.named_get('/+snaps', 'findByURL', {
         parameters: { url: repositoryUrl }
       })
       .catch((error) => {
@@ -355,14 +356,17 @@ export const internalFindSnap = async (repositoryUrl) => {
 const internalFindSnapsByPrefix = (urlPrefix) => {
   const username = conf.get('LP_API_USERNAME');
   const cacheId = getUrlPrefixCacheId(urlPrefix);
+  const lpClient = getLaunchpad();
 
   return new Promise((resolve, reject) => {
     getMemcached().get(cacheId, (err, result) => {
       if (!err && result !== undefined) {
-        return resolve(result);
+        return resolve(result.map((entry) => {
+          return lpClient.wrap_resource(entry.self_link, entry);
+        }));
       }
 
-      getLaunchpad().named_get('/+snaps', 'findByURLPrefix', {
+      lpClient.named_get('/+snaps', 'findByURLPrefix', {
         parameters: {
           url_prefix: urlPrefix,
           owner: `/~${username}`
@@ -386,11 +390,8 @@ const internalFindSnapsByPrefix = (urlPrefix) => {
           }));
         });
       });
-
-
     });
   });
-
 };
 
 export const findSnaps = (req, res) => {

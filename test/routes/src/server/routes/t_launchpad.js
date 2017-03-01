@@ -1522,6 +1522,74 @@ describe('The Launchpad API endpoint', () => {
       });
     });
 
+    context('when snap exists and is in memcached', () => {
+      const urlPrefix = 'https://github.com/anowner/';
+
+      beforeEach(() => {
+        nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get('/repos/anowner/aname')
+          .reply(200, { permissions: { admin: true } });
+        const lp_api_url = conf.get('LP_API_URL');
+        const lp_api_base = `${lp_api_url}/devel`;
+        const testSnap = {
+          resource_type_link: `${lp_api_base}/#snap`,
+          self_link: `${lp_api_base}${lp_snap_path}`,
+          owner_link: `${lp_api_base}/~${lp_snap_user}`,
+          git_repository_url: repositoryUrl
+        };
+        nock(lp_api_url)
+          .delete(`/devel${lp_snap_path}`)
+          .reply(200, 'null', { 'Content-Type': 'application/json' });
+        setupInMemoryMemcached();
+        getMemcached().set(getUrlPrefixCacheId(urlPrefix), [testSnap]);
+        getMemcached().set(getRepositoryUrlCacheId(repositoryUrl), testSnap);
+      });
+
+      afterEach(() => {
+        resetMemcached();
+        nock.cleanAll();
+      });
+
+      it('returns a 200 response', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(200, done);
+      });
+
+      it('returns a "success" status', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(hasStatus('success'))
+          .end(done);
+      });
+
+      it('returns body with a "snap-deleted" message', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(hasMessage('snap-deleted'))
+          .end(done);
+      });
+
+      it('removes stale entries from memcached', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .end((err) => {
+            if (err) {
+              done(err);
+            }
+            const prefixCacheId = getUrlPrefixCacheId(urlPrefix);
+            const repoCacheId = getRepositoryUrlCacheId(repositoryUrl);
+            expect(getMemcached().cache).toExcludeKey(prefixCacheId);
+            expect(getMemcached().cache).toExcludeKey(repoCacheId);
+            done();
+          });
+      });
+    });
+
     context('when user has no admin permissions on GitHub repository', () => {
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
