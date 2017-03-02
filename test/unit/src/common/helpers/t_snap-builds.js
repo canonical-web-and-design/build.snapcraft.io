@@ -2,7 +2,7 @@ import expect from 'expect';
 
 import {
   snapBuildFromAPI,
-  BuildStatusConstants
+  BuildStatusColours
 } from '../../../../../src/common/helpers/snap-builds';
 
 
@@ -106,103 +106,103 @@ describe('snapBuildFromAPI helper', () => {
 
   context('when mapping build states', () => {
 
-    it('should map `Needs building` into PENDING', () => {
+    it('should map `Needs building` into "yellow"', () => {
       const entry = {
         ...SNAP_BUILD_ENTRY,
         buildstate: 'Needs building'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.PENDING);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.YELLOW);
     });
 
-    it('should map `Successfully built` into SUCCESS', () => {
+    it('should map `Successfully built` into "green"', () => {
       const entry = {
         ...SNAP_BUILD_ENTRY,
         buildstate: 'Successfully built'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.SUCCESS);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.GREEN);
     });
 
-    it('should map `Failed to build` into ERROR', () => {
+    it('should map `Failed to build` into "red"', () => {
       const entry = {
         ...SNAP_BUILD_ENTRY,
         buildstate: 'Failed to build'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.ERROR);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.RED);
     });
 
-    it('should map `Dependency wait` into ERROR', () => {
+    it('should map `Dependency wait` into "red"', () => {
       const entry = {
         ...SNAP_BUILD_ENTRY,
         buildstate: 'Dependency wait'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.ERROR);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.RED);
     });
 
-    it('should map `Chroot problem` into ERROR', () => {
+    it('should map `Chroot problem` into "red"', () => {
       const entry = {
         ...SNAP_BUILD_ENTRY,
         buildstate: 'Chroot problem'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.ERROR);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.RED);
     });
 
-    it('should map `Build for superseded Source` into ERROR', () => {
+    it('should map `Build for superseded Source` into "red"', () => {
       const entry = {
         ...SNAP_BUILD_ENTRY,
         buildstate: 'Build for superseded Source'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.ERROR);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.RED);
     });
 
-    it('should map `Currently building` into PENDING', () => {
+    it('should map `Currently building` into "yellow"', () => {
       const entry = {
         ...SNAP_BUILD_ENTRY,
         buildstate: 'Currently building'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.PENDING);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.YELLOW);
     });
 
-    it('should map `Failed to upload` into ERROR', () => {
+    it('should map `Failed to upload` into "red"', () => {
       const entry = {
         ...SNAP_BUILD_ENTRY,
         buildstate: 'Failed to upload'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.ERROR);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.RED);
     });
 
-    it('should map `Uploading build` into PENDING', () => {
+    it('should map `Uploading build` into "yellow"', () => {
       const entry = {
         ...SNAP_BUILD_ENTRY,
         buildstate: 'Uploading build'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.PENDING);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.YELLOW);
     });
 
-    it('should map `Cancelling build` into ERROR', () => {
+    it('should map `Cancelling build` into "red"', () => {
       const entry = {
         ...SNAP_BUILD_ENTRY,
         buildstate: 'Cancelling build'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.ERROR);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.RED);
     });
 
-    it('should map `Cancelled build` into ERROR', () => {
+    it('should map `Cancelled build` into "red"', () => {
       const entry = {
         ...SNAP_BUILD_ENTRY,
         buildstate: 'Cancelled build'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusConstants.ERROR);
+      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.RED);
     });
 
   });

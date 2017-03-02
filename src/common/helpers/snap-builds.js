@@ -24,28 +24,29 @@
 //   duration: '0:02:00.124039' // 'duration'
 // };
 
-export const BuildStatusConstants = {
-  SUCCESS: 'success', // for builds successfully finished
-  PENDING: 'pending', // for build currently running or in any way in progress
-  ERROR: 'error'      // for builds failed for any reason
+export const BuildStatusColours = {
+  GREEN: 'green',
+  YELLOW: 'yellow',
+  RED: 'red',
+  GREY: 'grey'
 };
 
 // Based on BuildStatusConstants from LP API
 // https://git.launchpad.net/launchpad/tree/lib/lp/buildmaster/enums.py#n22
 //
-// mapping between build status from LP and pending/success/error internal status
+// mapping between build status from LP and red, yellow, green, grey status colours
 const BuildStatusMapping = {
-  'Needs building': BuildStatusConstants.PENDING,
-  'Successfully built': BuildStatusConstants.SUCCESS,
-  'Failed to build': BuildStatusConstants.ERROR,
-  'Dependency wait': BuildStatusConstants.ERROR,
-  'Chroot problem': BuildStatusConstants.ERROR,
-  'Build for superseded Source': BuildStatusConstants.ERROR,
-  'Currently building': BuildStatusConstants.PENDING,
-  'Failed to upload': BuildStatusConstants.ERROR,
-  'Uploading build': BuildStatusConstants.PENDING,
-  'Cancelling build': BuildStatusConstants.ERROR,
-  'Cancelled build': BuildStatusConstants.ERROR
+  'Needs building': BuildStatusColours.YELLOW,
+  'Successfully built': BuildStatusColours.GREEN,
+  'Failed to build': BuildStatusColours.RED,
+  'Dependency wait': BuildStatusColours.RED,
+  'Chroot problem': BuildStatusColours.RED,
+  'Build for superseded Source': BuildStatusColours.RED,
+  'Currently building': BuildStatusColours.YELLOW,
+  'Failed to upload': BuildStatusColours.RED,
+  'Uploading build': BuildStatusColours.YELLOW,
+  'Cancelling build': BuildStatusColours.RED,
+  'Cancelled build': BuildStatusColours.RED
 };
 
 function getLastPartOfUrl(url) {

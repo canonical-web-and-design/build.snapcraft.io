@@ -402,6 +402,7 @@ class RepositoryRow extends Component {
       registerNameStatus.snapName : snap.store_name
     );
 
+    const hasBuilt = latestBuild && snap.snapcraft_data;
     const isActive = (
       showUnconfiguredDropdown ||
       showUnregisteredDropdown ||
@@ -411,6 +412,7 @@ class RepositoryRow extends Component {
     // to be shown only when hovering over or tapping in an empty part of
     // the row.  My attempts to do this so far have resulted in the remove
     // icon playing hide-and-seek.
+
     return (
       <Row isActive={isActive}>
         <Data col="27"><Link to={ `/${fullName}/builds` }>{ fullName }</Link></Data>
@@ -425,13 +427,21 @@ class RepositoryRow extends Component {
             TODO: show 'Loading' when waiting for status?
               and also show 'Never built' when no builds available
           */}
-          { latestBuild &&
-            <BuildStatus
-              link={ `/${fullName}/builds/${latestBuild.buildId}`}
-              status={ latestBuild.status }
-              statusMessage={ latestBuild.statusMessage }
-              dateStarted={ latestBuild.dateStarted }
-            />
+          { hasBuilt
+            ? (
+              <BuildStatus
+                link={ `/${fullName}/builds/${latestBuild.buildId}`}
+                colour={ latestBuild.status }
+                statusMessage={ latestBuild.statusMessage }
+                dateStarted={ latestBuild.dateStarted }
+              />
+            )
+            : (
+              <BuildStatus
+                colour="grey"
+                statusMessage="Never built"
+              />
+            )
           }
         </Data>
         <Data col="3">

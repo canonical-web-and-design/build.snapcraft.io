@@ -12,31 +12,40 @@
   height: 100%;
 }
 
-.buildStatus.success::before {
+.buildStatus.green::before {
   background-color: $success;
 }
 
-.buildStatus.error::before {
+.buildStatus.red::before {
   background-color: $error;
 }
 
-.buildStatus.pending::before {
+.buildStatus.yellow::before {
   background-color: $warning;
 }
 
-.buildStatus.success,
-.buildStatus.success a {
+.buildStatus.grey::before {
+  background-color: $dark-grey;
+}
+
+.buildStatus.green,
+.buildStatus.green a {
   color: $success;
 }
 
-.buildStatus.error,
-.buildStatus.error a {
+.buildStatus.red,
+.buildStatus.red a {
   color: $error;
 }
 
-.buildStatus.pending,
-.buildStatus.pending a {
+.buildStatus.yellow,
+.buildStatus.yellow a {
   color: $warning;
+}
+
+.buildStatus.grey,
+.buildStatus.grey a {
+  color: $dark-grey;
 }
 
 .buildDate {
