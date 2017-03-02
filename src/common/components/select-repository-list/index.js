@@ -3,8 +3,11 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
 import { conf } from '../../helpers/config';
-import { createSnaps } from '../../actions/create-snap';
-import { toggleRepository } from '../../actions/select-repositories-form';
+import { createSnaps, createSnapsClear } from '../../actions/create-snap';
+import {
+  toggleRepository,
+  unselectAllRepositories
+} from '../../actions/select-repositories-form';
 import SelectRepositoryRow from '../select-repository-row';
 import Spinner from '../spinner';
 import PageLinks from '../page-links';
@@ -19,7 +22,12 @@ import { spinner as spinnerStyles } from '../../containers/container.css';
 
 const SNAP_NAME_NOT_REGISTERED_ERROR_CODE = 'snap-name-not-registered';
 
-class SelectRepositoryList extends Component {
+export class SelectRepositoryListComponent extends Component {
+
+  componentDidMount() {
+    this.props.dispatch(createSnapsClear());
+    this.props.dispatch(unselectAllRepositories());
+  }
 
   componentWillReceiveProps(nextProps) {
     const repositoriesStatus = nextProps.repositoriesStatus;
@@ -54,7 +62,7 @@ class SelectRepositoryList extends Component {
   }
 
   renderRepository(repo) {
-    const { fullName } = repo;
+    const { fullName, enabled } = repo;
     const status = this.props.repositoriesStatus[fullName] || {};
     const { selectedRepos } = this.props.selectRepositoriesForm;
 
@@ -67,6 +75,7 @@ class SelectRepositoryList extends Component {
         onChange={ this.onSelectRepository.bind(this, repo) }
         errorMsg= { this.getErrorMessage(status.error) }
         checked={ hasRepository(selectedRepos, repo) }
+        isEnabled={ enabled }
       />
     );
   }
@@ -86,20 +95,46 @@ class SelectRepositoryList extends Component {
     this.props.dispatch(fetchUserRepositories(pageNumber));
   }
 
+  filterEnabledRepos(repositories) {
+    const { success, snaps } = this.props.snaps;
+
+    if (success && snaps.length) {
+      for (let i = repositories.length; i--;) {
+        for (let j = snaps.length; j--;) {
+          const enabledRepo = snaps[j].git_repository_url;
+
+          if (enabledRepo === repositories[i].url) {
+            repositories[i].enabled = true;
+            break;
+          } else {
+            repositories[i].enabled = false;
+          }
+        }
+      }
+    }
+
+    return repositories;
+  }
+
   render() {
     const isLoading = this.props.repositories.isFetching;
     const { selectedRepos } = this.props.selectRepositoriesForm;
-    const { repos } = this.props.repositories;
+    const { repos, success } = this.props.repositories;
     const pageLinks = this.renderPageLinks.call(this);
+
+    this.filterEnabledRepos(repos);
+    let renderedRepos = null;
+
+    if (success) {
+      renderedRepos = this.props.repositories.repos.map(this.renderRepository.bind(this));
+    }
 
     return (
       <div>
         { isLoading &&
           <div className={ spinnerStyles }><Spinner /></div>
         }
-        { this.props.repositories.success &&
-          this.props.repositories.repos.map(this.renderRepository.bind(this))
-        }
+        { renderedRepos }
         { pageLinks }
         <div className={ styles.footer }>
           <HeadingThree>
@@ -136,7 +171,8 @@ class SelectRepositoryList extends Component {
   }
 }
 
-SelectRepositoryList.propTypes = {
+SelectRepositoryListComponent.propTypes = {
+  snaps: PropTypes.object,
   repositories: PropTypes.object,
   repositoriesStatus: PropTypes.object,
   selectRepositoriesForm: PropTypes.object,
@@ -147,16 +183,18 @@ SelectRepositoryList.propTypes = {
 
 function mapStateToProps(state) {
   const {
+    snaps,
     repositories,
     repositoriesStatus,
     selectRepositoriesForm
   } = state;
 
   return {
+    snaps,
     repositories,
     repositoriesStatus,
     selectRepositoriesForm
   };
 }
 
-export default connect(mapStateToProps)(withRouter(SelectRepositoryList));
+export default connect(mapStateToProps)(withRouter(SelectRepositoryListComponent));

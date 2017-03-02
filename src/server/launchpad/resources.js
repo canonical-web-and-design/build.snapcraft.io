@@ -130,4 +130,10 @@ export class Entry extends Resource {
     return this.lp_client.patch(uri, representation, config, headers)
       .then(() => { this.dirty_attributes = []; });
   }
+
+  /** Delete this entry. */
+  lp_delete() {
+    const uri = normalizeURI(this.lp_client.base_uri, this['self_link']);
+    return this.lp_client.delete(uri);
+  }
 }

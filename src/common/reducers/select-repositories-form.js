@@ -24,6 +24,8 @@ export function selectRepositoriesForm(state = initialState, action) {
           action.payload
         ]
       };
+    case ActionTypes.UNSELECT_ALL_REPOSITORIES:
+      return initialState;
     default:
       return state;
   }

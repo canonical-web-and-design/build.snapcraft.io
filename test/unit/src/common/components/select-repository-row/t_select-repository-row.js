@@ -76,6 +76,22 @@ describe('The SelectRepositoryRow component', () => {
           expect(component.find('input[checked=false]').length).toBe(1);
         });
       });
+
+      context('and the isEnabled prop is "true"', () => {
+        beforeEach(() => {
+          props.isEnabled = true;
+        });
+
+        it('should contain a disabled checkbox', () => {
+          const component = shallow(<SelectRepositoryRow { ...props } />);
+          expect(component.find('input[disabled=true]').length).toBe(1);
+        });
+
+        it('should contain a checked checkbox', () => {
+          const component = shallow(<SelectRepositoryRow { ...props } />);
+          expect(component.find('input[checked=true]').length).toBe(1);
+        });
+      });
     });
   });
 });

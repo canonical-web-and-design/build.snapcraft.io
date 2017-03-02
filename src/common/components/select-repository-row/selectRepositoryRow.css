@@ -32,6 +32,10 @@ $error-color: $error;
   background-color: $error-color;
 }
 
+.repositoryEnabled {
+  opacity: 0.5;
+}
+
 .errorMessage {
   color: $error-color;
 }

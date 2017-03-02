@@ -121,6 +121,29 @@ as returned by the Launchpad API:
       }
     }
 
+To delete a snap:
+
+    POST /api/launchpad/snaps/delete
+    Cookie: <session cookie>
+    Content-Type: application/json
+    Accept: application/json
+
+    {
+      "repository_url": "https://github.com/:owner/:name"
+    }
+
+On success, returns:
+
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+
+    {
+      "status": "success",
+      "payload": {
+        "code": "snap-deleted",
+        "message": "Snap deleted"
+      }
+    }
 
 ## GitHub
 

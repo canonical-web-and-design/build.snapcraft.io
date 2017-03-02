@@ -185,5 +185,18 @@ describe('Resources', () => {
       ]);
     });
 
+    it('can be deleted', () => {
+      lp.delete('/devel/~foo')
+        .reply(200, 'null');
+
+      const representation = {
+        resource_type_link: `${LP_API_URL}/devel/#person`,
+        self_link: `${LP_API_URL}/devel/~foo`
+      };
+      const entry = new Entry(
+        getLaunchpad(), `${LP_API_URL}/devel/~foo`, representation);
+      return entry.lp_delete()
+        .then(() => lp.done());
+    });
   });
 });

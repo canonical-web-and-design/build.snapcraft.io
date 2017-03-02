@@ -59,11 +59,15 @@ export const notify = (req, res) => {
     return res.status(200).send();
   } else {
     const repositoryUrl = getGitHubRepoUrl(owner, name);
+    const cacheId = getSnapNameCacheId(repositoryUrl);
     const lpClient = getLaunchpad();
     // Clear snap name cache before starting.
     // XXX cjwatson 2017-02-16: We could be smarter about this by looking at
     // the content of the push event.
-    return getMemcached().del(getSnapNameCacheId(repositoryUrl))
+    return getMemcached().del(cacheId)
+      .catch((err) => {
+        logger.error(`Error deleting ${cacheId} from memcached:`, err);
+      })
       .then(() => internalFindSnap(repositoryUrl))
       .then((snap) => {
         if (!snap.auto_build) {

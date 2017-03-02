@@ -134,11 +134,11 @@ describe('create snap actions', () => {
       nock.cleanAll();
     });
 
-    it('stores a CREATE_SNAPS_START action', () => {
+    it('stores a CREATE_SNAPS_CLEAR action', () => {
       return store.dispatch(createSnaps([ repository ]))
         .then(() => {
           expect(store.getActions()).toHaveActionOfType(
-            ActionTypes.CREATE_SNAPS_START
+            ActionTypes.CREATE_SNAPS_CLEAR
           );
           scope.done();
         });

@@ -119,3 +119,18 @@ export function okayNoReposFound(req, res) {
 
   res.set(headers).status(200).send([]);
 }
+
+export function okayUserFoundWithDisplayName(req, res) {
+  res.status(200).send({
+    login: 'anowner',
+    name: 'Ann Owner',
+    html_url: 'http://github.com/anowner'
+  });
+}
+
+export function okayUserFoundWithoutDisplayName(req, res) {
+  res.status(200).send({
+    login: 'anowner',
+    html_url: 'http://github.com/anowner'
+  });
+}

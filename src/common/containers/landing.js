@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { Anchor } from '../components/vanilla/button';
-import { HeadingOne } from '../components/vanilla/heading';
+import { HeadingTwo } from '../components/vanilla/heading';
 import { HeadingThree } from '../components/vanilla/heading';
 import { HeadingSix } from '../components/vanilla/heading';
 import { ListDividedState } from '../components/vanilla/list';
@@ -21,9 +21,9 @@ class Landing extends Component {
         <div className={ containerStyles.strip }>
           <div>
             <div className={ `${containerStyles.wrapper} ${styles.centeredText}` }>
-              <HeadingOne align='center'>
+              <HeadingTwo align='center'>
                 Auto-build and publish software<br />for any Linux system or device
-              </HeadingOne>
+              </HeadingTwo>
 
               <ul className={ styles.banner }>
                 <li className={ styles.bannerImage }>
@@ -42,9 +42,18 @@ class Landing extends Component {
               </ul>
 
               <div className={ styles.bannerButton }>
-                <Anchor href="/auth/authenticate" icon={ octocat } flavour='embiggened' appearance='positive' >
-                  Set up in minutes
-                </Anchor>
+                { this.props.auth.authenticated
+                  ? (
+                    <div>
+                      Hi { this.props.user.name || this.props.user.login }, <a href="/dashboard">let’s check out your repos</a>.
+                    </div>
+                  )
+                  : (
+                    <Anchor href="/auth/authenticate" icon={ octocat } flavour='embiggened' appearance='positive' >
+                      Set up in minutes
+                    </Anchor>
+                  )
+                }
               </div>
             </div>
           </div>
@@ -144,16 +153,19 @@ class Landing extends Component {
 
 Landing.propTypes = {
   children: PropTypes.node,
-  auth: PropTypes.object
+  auth: PropTypes.object,
+  user: PropTypes.object
 };
 
 function mapStateToProps(state) {
   const {
-    auth
+    auth,
+    user
   } = state;
 
   return {
-    auth
+    auth,
+    user
   };
 }
 

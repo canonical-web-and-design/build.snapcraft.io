@@ -80,7 +80,6 @@ describe('snaps reducers', () => {
     });
   });
 
-
   context('FETCH_SNAPS_ERROR', () => {
     const state = {
       ...initialState,
@@ -127,4 +126,73 @@ describe('snaps reducers', () => {
     });
   });
 
+  context('REMOVE_SNAP', () => {
+    const action = { type: ActionTypes.REMOVE_SNAP };
+
+    it('stores fetching status', () => {
+      expect(snaps(initialState, action).isFetching).toBe(true);
+    });
+  });
+
+  context('REMOVE_SNAP_SUCCESS', () => {
+    const state = {
+      ...initialState,
+      isFetching: true,
+      snaps: SNAPS,
+      error: 'Previous error'
+    };
+
+    const action = {
+      type: ActionTypes.REMOVE_SNAP_SUCCESS,
+      payload: { repository_url: 'https://github.com/anowner/aname' }
+    };
+
+    it('clears fetching status', () => {
+      expect(snaps(state, action).isFetching).toBe(false);
+    });
+
+    it('stores success status', () => {
+      expect(snaps(state, action).success).toBe(true);
+    });
+
+    it('clears error', () => {
+      expect(snaps(state, action).error).toBe(null);
+    });
+
+    it('removes snap from state', () => {
+      expect(snaps(state, action).snaps.map((snap) => {
+        return snap.git_repository_url;
+      })).toEqual(['https://github.com/anowner/anothername']);
+    });
+  });
+
+  context('REMOVE_SNAP_ERROR', () => {
+    const state = {
+      ...initialState,
+      isFetching: true,
+      success: true,
+      snaps: SNAPS
+    };
+
+    const action = {
+      type: ActionTypes.REMOVE_SNAP_ERROR,
+      payload: {
+        repository_url: 'https://github.com/anowner/aname',
+        error: 'Something went wrong!'
+      },
+      error: true
+    };
+
+    it('clears fetching status', () => {
+      expect(snaps(state, action).isFetching).toBe(false);
+    });
+
+    it('clears success status', () => {
+      expect(snaps(state, action).success).toBe(false);
+    });
+
+    it('stores error', () => {
+      expect(snaps(state, action).error).toBe('Something went wrong!');
+    });
+  });
 });

@@ -6,7 +6,7 @@ import { conf } from '../helpers/config';
 const BASE_URL = conf.get('BASE_URL');
 
 export const SET_GITHUB_REPOSITORY = 'SET_GITHUB_REPOSITORY';
-export const CREATE_SNAPS_START = 'CREATE_SNAPS_START';
+export const CREATE_SNAPS_CLEAR = 'CREATE_SNAPS_CLEAR';
 export const CREATE_SNAP = 'CREATE_SNAP';
 export const CREATE_SNAP_SUCCESS = 'CREATE_SNAP_SUCCESS';
 export const CREATE_SNAP_ERROR = 'CREATE_SNAP_ERROR';
@@ -69,13 +69,17 @@ export function createSnap(repository) {
 
 export function createSnaps(repositories) {
   return (dispatch) => {
-    // Clear out any previous batch-creation state.
-    dispatch({ type: CREATE_SNAPS_START });
+    dispatch(createSnapsClear());
     const promises = repositories.map(
       (repository) => dispatch(createSnap(repository))
     );
     return Promise.all(promises);
   };
+}
+
+// Clear out any previous batch-creation state.
+export function createSnapsClear() {
+  return { type: CREATE_SNAPS_CLEAR };
 }
 
 export function createSnapSuccess(id) {

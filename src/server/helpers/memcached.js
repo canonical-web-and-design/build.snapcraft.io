@@ -22,49 +22,62 @@ const getInMemoryMemcachedStub = () => {
   const memcachedStub = { cache: {} };
 
   memcachedStub.get = (key, callback) => {
-    if (callback) {
-      return runSoon(() => callback(undefined, memcachedStub.cache[key]));
-    } else {
-      return Promise.resolve();
-    }
+    return runSoon(() => callback(undefined, memcachedStub.cache[key]));
   };
   memcachedStub.set = (key, value, lifetime, callback) => {
     memcachedStub.cache[key] = value;
-    if (callback) {
-      return runSoon(() => callback(undefined, true));
-    } else {
-      return Promise.resolve();
-    }
+    return runSoon(() => callback(undefined, true));
   };
   memcachedStub.del = (key, callback) => {
     delete memcachedStub.cache[key];
-
-    if (callback) {
-      return runSoon(() => callback(undefined));
-    } else {
-      return Promise.resolve();
-    }
+    return runSoon(() => callback(undefined));
   };
 
   return memcachedStub;
+};
+
+const promisifyMethod = (rawMemcached, name) => {
+  return (...args) => {
+    return new Promise((resolve, reject) => {
+      rawMemcached[name](...args, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  };
+};
+
+const promisifyMemcached = (rawMemcached) => {
+  const wrapper = { cache: rawMemcached.cache };
+
+  wrapper.get = promisifyMethod(rawMemcached, 'get');
+  wrapper.set = promisifyMethod(rawMemcached, 'set');
+  wrapper.del = promisifyMethod(rawMemcached, 'del');
+
+  return wrapper;
 };
 
 export const getMemcached = () => {
   const host = conf.get('MEMCACHED_HOST') ? conf.get('MEMCACHED_HOST').split(',') : null;
 
   if (memcached === null) {
+    let rawMemcached;
     if (host) {
-      memcached = new Memcached(host, { namespace: 'lp:' });
+      rawMemcached = new Memcached(host, { namespace: 'lp:' });
     } else {
-      memcached = getMemcachedStub();
+      rawMemcached = getMemcachedStub();
     }
+    memcached = promisifyMemcached(rawMemcached);
   }
   return memcached;
 };
 
 // Test affordance
 export const setupInMemoryMemcached = () => {
-  memcached = getInMemoryMemcachedStub();
+  memcached = promisifyMemcached(getInMemoryMemcachedStub());
 };
 
 export const resetMemcached = () => {
