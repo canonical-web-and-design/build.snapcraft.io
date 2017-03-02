@@ -296,7 +296,7 @@ class RepositoryRow extends Component {
         actionSpinner = true;
         actionText = 'Checking...';
       } else {
-        actionText = 'Register';
+        actionText = 'Register name';
       }
     } else {
       actionDisabled = !!registerNameStatus.error;
