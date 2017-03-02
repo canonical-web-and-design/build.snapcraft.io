@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 import { signOut } from '../../actions/auth-store';
 import styles from './header.css';
 
-const wordmark = 'https://assets.ubuntu.com/v1/d45097a4-snapcraft.io-logotype.svg';
+const wordmark = 'https://assets.ubuntu.com/v1/8fd73196-orange-logo.svg';
 
 class Header extends Component {
   render() {
