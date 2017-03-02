@@ -333,6 +333,8 @@ class RepositoryRow extends Component {
 
     // TODO (or any other dropdown)
     const isActive = showUnconfiguredDropdown || showUnregisteredDropdown;
+    const hasBuilt = latestBuild && snap.snapcraft_data;
+
     return (
       <Row isActive={isActive}>
         <Data col="30"><Link to={ `/${fullName}/builds` }>{ fullName }</Link></Data>
@@ -347,19 +349,21 @@ class RepositoryRow extends Component {
             TODO: show 'Loading' when waiting for status?
               and also show 'Never built' when no builds available
           */}
-          { latestBuild && snap.snapcraft_data &&
-            <BuildStatus
-              link={ `/${fullName}/builds/${latestBuild.buildId}`}
-              colour={ latestBuild.status }
-              statusMessage={ latestBuild.statusMessage }
-              dateStarted={ latestBuild.dateStarted }
-            />
-          }
-          { !snap.snapcraft_data &&
-            <BuildStatus
-              colour="grey"
-              statusMessage="Never built"
-            />
+          { hasBuilt
+            ? (
+              <BuildStatus
+                link={ `/${fullName}/builds/${latestBuild.buildId}`}
+                colour={ latestBuild.status }
+                statusMessage={ latestBuild.statusMessage }
+                dateStarted={ latestBuild.dateStarted }
+              />
+            )
+            : (
+              <BuildStatus
+                colour="grey"
+                statusMessage="Never built"
+              />
+            )
           }
         </Data>
         { showUnconfiguredDropdown && this.renderUnconfiguredDropdown() }

@@ -34,7 +34,7 @@ export const BuildStatusColours = {
 // Based on BuildStatusConstants from LP API
 // https://git.launchpad.net/launchpad/tree/lib/lp/buildmaster/enums.py#n22
 //
-// mapping between build status from LP and pending/success/error internal status
+// mapping between build status from LP and red, yellow, green, grey status colours
 const BuildStatusMapping = {
   'Needs building': BuildStatusColours.YELLOW,
   'Successfully built': BuildStatusColours.GREEN,
