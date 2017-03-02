@@ -289,21 +289,21 @@ export const newSnap = (req, res) => {
       const urlPrefix = getRepoUrlPrefix(owner);
       const cacheId = getUrlPrefixCacheId(urlPrefix);
 
-      getMemcached().del(cacheId, (err) => {
-        if (err) {
+      return getMemcached().del(cacheId)
+        .catch((err) => {
           logger.error(`Error deleting ${cacheId} from memcached:`, err);
-        }
-      });
-
-      snapUrl = result.self_link;
-      logger.info(`Created ${snapUrl}`);
-      return res.status(201).send({
-        status: 'success',
-        payload: {
-          code: 'snap-created',
-          message: snapUrl
-        }
-      });
+        })
+        .then(() => {
+          snapUrl = result.self_link;
+          logger.info(`Created ${snapUrl}`);
+          return res.status(201).send({
+            status: 'success',
+            payload: {
+              code: 'snap-created',
+              message: snapUrl
+            }
+          });
+        });
     })
     .catch((error) => sendError(res, error));
 };
@@ -312,45 +312,46 @@ export const internalFindSnap = async (repositoryUrl) => {
   const cacheId = getRepositoryUrlCacheId(repositoryUrl);
   const lpClient = getLaunchpad();
 
-  return new Promise((resolve, reject) => {
-    getMemcached().get(cacheId, (err, result) => {
-      if (!err && result !== undefined) {
-        return resolve(lpClient.wrap_resource(result.self_link, result));
+  return getMemcached().get(cacheId)
+    .catch((err) => {
+      logger.error(`Error getting ${cacheId} from memcached:`, err);
+    })
+    .then((result) => {
+      if (result !== undefined) {
+        return lpClient.wrap_resource(result.self_link, result);
       }
 
-      lpClient.named_get('/+snaps', 'findByURL', {
+      return lpClient.named_get('/+snaps', 'findByURL', {
         parameters: { url: repositoryUrl }
       })
-      .catch((error) => {
-        if (error.response.status === 404) {
-          return reject(new PreparedError(404, RESPONSE_SNAP_NOT_FOUND));
-        }
-        // At least for the moment, we just wrap the error we get from
-        // Launchpad.
-        error.response.text().then((text) => {
-          return reject(new PreparedError(error.response.status, {
-            status: 'error',
-            payload: {
-              code: 'lp-error',
-              message: text
-            }
-          }));
-        });
-      })
-      .then(async (result) => {
-        const username = conf.get('LP_API_USERNAME');
-        // https://github.com/babel/babel-eslint/issues/415
-        for await (const entry of result) { // eslint-disable-line semi
-          if (entry.owner_link.endsWith(`/~${username}`)) {
-            return getMemcached().set(cacheId, entry, 3600, () => {
-              return resolve(entry);
-            });
+        .catch((error) => {
+          if (error.response.status === 404) {
+            throw new PreparedError(404, RESPONSE_SNAP_NOT_FOUND);
           }
-        }
-        return reject(new PreparedError(404, RESPONSE_SNAP_NOT_FOUND));
-      });
+          // At least for the moment, we just wrap the error we get from
+          // Launchpad.
+          return error.response.text().then((text) => {
+            throw new PreparedError(error.response.status, {
+              status: 'error',
+              payload: {
+                code: 'lp-error',
+                message: text
+              }
+            });
+          });
+        })
+        .then(async (result) => {
+          const username = conf.get('LP_API_USERNAME');
+          // https://github.com/babel/babel-eslint/issues/415
+          for await (const entry of result) { // eslint-disable-line semi
+            if (entry.owner_link.endsWith(`/~${username}`)) {
+              return getMemcached().set(cacheId, entry, 3600)
+                .then(() => entry);
+            }
+          }
+          throw new PreparedError(404, RESPONSE_SNAP_NOT_FOUND);
+        });
     });
-  });
 };
 
 const internalFindSnapsByPrefix = (urlPrefix) => {
@@ -358,40 +359,41 @@ const internalFindSnapsByPrefix = (urlPrefix) => {
   const cacheId = getUrlPrefixCacheId(urlPrefix);
   const lpClient = getLaunchpad();
 
-  return new Promise((resolve, reject) => {
-    getMemcached().get(cacheId, (err, result) => {
-      if (!err && result !== undefined) {
-        return resolve(result.map((entry) => {
+  return getMemcached().get(cacheId)
+    .catch((err) => {
+      logger.error(`Error getting ${cacheId} from memcached:`, err);
+    })
+    .then((result) => {
+      if (result !== undefined) {
+        return result.map((entry) => {
           return lpClient.wrap_resource(entry.self_link, entry);
-        }));
+        });
       }
 
-      lpClient.named_get('/+snaps', 'findByURLPrefix', {
+      return lpClient.named_get('/+snaps', 'findByURLPrefix', {
         parameters: {
           url_prefix: urlPrefix,
           owner: `/~${username}`
         }
       })
-      .then(result => {
-        return getMemcached().set(cacheId, result.entries, 3600, () => {
-          return resolve(result.entries);
+        .then((result) => {
+          return getMemcached().set(cacheId, result.entries, 3600)
+            .then(() => result.entries);
+        })
+        .catch((error) => {
+          // At least for the moment, we just wrap the error we get from
+          // Launchpad.
+          return error.response.text().then((text) => {
+            throw new PreparedError(error.response.status, {
+              status: 'error',
+              payload: {
+                code: 'lp-error',
+                message: text
+              }
+            });
+          });
         });
-      })
-      .catch((error) => {
-        // At least for the moment, we just wrap the error we get from
-        // Launchpad.
-        error.response.text().then((text) => {
-          return reject(new PreparedError(error.response.status, {
-            status: 'error',
-            payload: {
-              code: 'lp-error',
-              message: text
-            }
-          }));
-        });
-      });
     });
-  });
 };
 
 export const findSnaps = (req, res) => {
@@ -533,15 +535,15 @@ export const deleteSnap = (req, res) => {
       const prefixCacheId = getUrlPrefixCacheId(urlPrefix);
       const repoCacheId = getRepositoryUrlCacheId(req.body.repository_url);
 
-      getMemcached().del(prefixCacheId, (err) => {
-        if (err) {
+      return getMemcached().del(prefixCacheId)
+        .catch((err) => {
           logger.error(`Error deleting ${prefixCacheId} from memcached:`, err);
-        }
-        getMemcached().del(repoCacheId, (err) => {
-          if (err) {
-            logger.error(`Error deleting ${repoCacheId} from memcached:`, err);
-          }
-
+        })
+        .then(() => getMemcached().del(repoCacheId))
+        .catch((err) => {
+          logger.error(`Error deleting ${repoCacheId} from memcached:`, err);
+        })
+        .then(() => {
           return res.status(200).send({
             status: 'success',
             payload: {
@@ -550,7 +552,6 @@ export const deleteSnap = (req, res) => {
             }
           });
         });
-      });
     })
     .catch((error) => sendError(res, error));
 };

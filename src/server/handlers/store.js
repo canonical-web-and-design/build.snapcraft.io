@@ -24,13 +24,11 @@ export const registerName = (req, res) => {
     body: JSON.stringify({ snap_name: snapName })
   }).then((response) => {
     return response.json().then((json) => {
-      getMemcached().del(cacheId, (err) => {
-        if (err) {
+      return getMemcached().del(cacheId)
+        .catch((err) => {
           logger.error(`Error deleting ${cacheId} from memcached:`, err);
-        }
-
-        res.status(response.status).send(json);
-      });
+        })
+        .then(() => res.status(response.status).send(json));
     });
   });
 };
