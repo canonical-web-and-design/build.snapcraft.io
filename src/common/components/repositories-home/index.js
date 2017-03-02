@@ -39,7 +39,6 @@ class RepositoriesHome extends Component {
       this.props.dispatch(fetchUserSnaps(owner));
     }
 
-    this.fetchData(this.props);
   }
 
   componentWillReceiveProps(nextProps) {
