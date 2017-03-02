@@ -51,7 +51,8 @@ $text-color: $cool-grey;
   border-left: 1px solid $border-color;
 }
 
-.navItem:first-child {
+.username {
+  composes: navItem;
   border-left: none;
 }
 

@@ -12,6 +12,8 @@ $login-colour: $dark-grey;
 
 .avatar > img {
   height: 115px;
+  width: 115px;
+  display: block;
   border-radius: 60px;
 }
 

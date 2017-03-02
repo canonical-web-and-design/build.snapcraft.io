@@ -20,6 +20,7 @@ export class App extends Component {
         <Header
           authenticated={this.props.auth.authenticated}
           user={this.props.user}
+          dispatch={this.props.dispatch}
         />
         { this.props.children }
         <Footer />
