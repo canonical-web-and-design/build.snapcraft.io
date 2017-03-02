@@ -12,39 +12,14 @@ import { HeadingOne, HeadingThree } from '../components/vanilla/heading';
 import Spinner from '../components/spinner';
 
 import withRepository from './with-repository';
-import { fetchBuilds, fetchSnap } from '../actions/snap-builds';
-import { snapBuildsInitialStatus } from '../reducers/snap-builds';
+import withSnapBuilds from './with-snap-builds';
 
 import styles from './container.css';
 
 class BuildDetails extends Component {
-
-  fetchData({ snap, repository }) {
-    if (snap) {
-      this.props.dispatch(fetchBuilds(repository.url, snap.self_link));
-    } else if (repository) {
-      this.props.dispatch(fetchSnap(repository.url));
-    }
-  }
-
-  componentDidMount() {
-    this.fetchData(this.props);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const currentSnap = this.props.snap;
-    const nextSnap = nextProps.snap;
-    const currentRepository = this.props.repository.fullName;
-    const nextRepository = nextProps.repository.fullName;
-
-    if ((currentSnap !== nextSnap) || (currentRepository !== nextRepository)) {
-      // if snap or repo changed, fetch new data
-      this.fetchData(nextProps);
-    }
-  }
-
   render() {
-    const { snap, repository, buildId, build, error, isFetching } = this.props;
+    const { repository, buildId, build } = this.props;
+    const { snap, error, isFetching } = this.props.snapBuilds;
 
     return (
       <div className={ styles.container }>
@@ -101,40 +76,24 @@ BuildDetails.propTypes = {
   }).isRequired,
   buildId: PropTypes.string.isRequired,
   build: PropTypes.object,
-  isFetching: PropTypes.bool,
-  snap: PropTypes.shape({
-    self_link: PropTypes.string.isRequired,
-    store_name: PropTypes.string.isRequired
-  }),
-  error: PropTypes.object,
-  dispatch: PropTypes.func.isRequired
+  snapBuilds: PropTypes.shape({
+    isFetching: PropTypes.bool,
+    snap: PropTypes.shape({
+      self_link: PropTypes.string.isRequired,
+      store_name: PropTypes.string.isRequired
+    }),
+    error: PropTypes.object,
+  })
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const owner = ownProps.params.owner.toLowerCase();
-  const name = ownProps.params.name.toLowerCase();
-  const fullName = `${owner}/${name}`;
-  const repository = state.repository;
-
   const buildId = ownProps.params.buildId.toLowerCase();
-
-  // get builds for given repo from the store or set default empty values
-  const repoBuilds = state.snapBuilds[fullName] || snapBuildsInitialStatus;
-
-  const build = repoBuilds.builds.filter((build) => build.buildId === buildId)[0];
-  const isFetching = repoBuilds.isFetching;
-  const error = repoBuilds.error;
-  const snap = repoBuilds.snap;
+  const build = ownProps.snapBuilds.builds.filter((build) => build.buildId === buildId)[0];
 
   return {
-    fullName,
-    repository,
     buildId,
-    build,
-    isFetching,
-    snap,
-    error
+    build
   };
 };
 
-export default connect(mapStateToProps)(withRepository(BuildDetails));
+export default withRepository(withSnapBuilds(connect(mapStateToProps)(BuildDetails)));
