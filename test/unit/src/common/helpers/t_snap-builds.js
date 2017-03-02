@@ -51,7 +51,7 @@ describe('snapBuildFromAPI helper', () => {
 
         'architecture',
 
-        'status',
+        'colour',
         'statusMessage',
 
         'dateCreated',
@@ -112,7 +112,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Needs building'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.YELLOW);
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.YELLOW);
     });
 
     it('should map `Successfully built` into "green"', () => {
@@ -121,7 +121,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Successfully built'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.GREEN);
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.GREEN);
     });
 
     it('should map `Failed to build` into "red"', () => {
@@ -130,7 +130,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Failed to build'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.RED);
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.RED);
     });
 
     it('should map `Dependency wait` into "red"', () => {
@@ -139,7 +139,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Dependency wait'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.RED);
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.RED);
     });
 
     it('should map `Chroot problem` into "red"', () => {
@@ -148,7 +148,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Chroot problem'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.RED);
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.RED);
     });
 
     it('should map `Build for superseded Source` into "red"', () => {
@@ -157,7 +157,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Build for superseded Source'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.RED);
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.RED);
     });
 
     it('should map `Currently building` into "yellow"', () => {
@@ -166,7 +166,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Currently building'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.YELLOW);
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.YELLOW);
     });
 
     it('should map `Failed to upload` into "red"', () => {
@@ -175,7 +175,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Failed to upload'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.RED);
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.RED);
     });
 
     it('should map `Uploading build` into "yellow"', () => {
@@ -184,7 +184,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Uploading build'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.YELLOW);
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.YELLOW);
     });
 
     it('should map `Cancelling build` into "red"', () => {
@@ -193,7 +193,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Cancelling build'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.RED);
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.RED);
     });
 
     it('should map `Cancelled build` into "red"', () => {
@@ -202,7 +202,7 @@ describe('snapBuildFromAPI helper', () => {
         buildstate: 'Cancelled build'
       };
 
-      expect(snapBuildFromAPI(entry).status).toEqual(BuildStatusColours.RED);
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.RED);
     });
 
   });

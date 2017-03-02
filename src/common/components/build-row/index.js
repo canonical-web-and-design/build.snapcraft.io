@@ -12,7 +12,7 @@ const BuildRow = (props) => {
     architecture,
     buildId,
     duration,
-    status,
+    colour,
     statusMessage,
     dateStarted
   } = props;
@@ -36,7 +36,7 @@ const BuildRow = (props) => {
         {humanDuration}
       </Data>
       <Data col="40">
-        <BuildStatus status={status} statusMessage={statusMessage} dateStarted={dateStarted} />
+        <BuildStatus colour={colour} statusMessage={statusMessage} dateStarted={dateStarted} />
       </Data>
     </Row>
   );
@@ -52,7 +52,7 @@ BuildRow.propTypes = {
   // build properties
   buildId:  PropTypes.string,
   architecture: PropTypes.string,
-  status:  PropTypes.oneOf(['success', 'pending', 'error']),
+  colour:  PropTypes.oneOf(['green', 'yellow', 'red', 'grey']),
   statusMessage: PropTypes.string,
   dateStarted: PropTypes.string,
   duration: PropTypes.string

@@ -415,7 +415,16 @@ class RepositoryRow extends Component {
 
     return (
       <Row isActive={isActive}>
-        <Data col="27"><Link to={ `/${fullName}/builds` }>{ fullName }</Link></Data>
+        <Data col="27">
+          { hasBuilt
+            ? (
+              <Link to={ `/${fullName}/builds` }>{ fullName }</Link>
+            )
+            : (
+              <span>{ fullName }</span>
+            )
+          }
+        </Data>
         <Data col="15">
           { this.renderConfiguredStatus.call(this, snap.snapcraft_data) }
         </Data>
@@ -431,7 +440,7 @@ class RepositoryRow extends Component {
             ? (
               <BuildStatus
                 link={ `/${fullName}/builds/${latestBuild.buildId}`}
-                colour={ latestBuild.status }
+                colour={ latestBuild.colour }
                 statusMessage={ latestBuild.statusMessage }
                 dateStarted={ latestBuild.dateStarted }
               />
