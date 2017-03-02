@@ -5,7 +5,7 @@ import { conf } from '../helpers/config';
 import { getMemcached } from '../helpers/memcached';
 import getLaunchpad from '../launchpad';
 import logging from '../logging';
-import { getSnapNameCacheId } from './github';
+import { getSnapcraftYamlCacheId } from './github';
 import { internalFindSnap, internalGetSnapcraftYaml } from './launchpad';
 
 const logger = logging.getLogger('express');
@@ -59,7 +59,7 @@ export const notify = (req, res) => {
     return res.status(200).send();
   } else {
     const repositoryUrl = getGitHubRepoUrl(owner, name);
-    const cacheId = getSnapNameCacheId(repositoryUrl);
+    const cacheId = getSnapcraftYamlCacheId(repositoryUrl);
     const lpClient = getLaunchpad();
     // Clear snap name cache before starting.
     // XXX cjwatson 2017-02-16: We could be smarter about this by looking at

@@ -76,8 +76,13 @@ export const getMemcached = () => {
 };
 
 // Test affordance
-export const setupInMemoryMemcached = () => {
+export const setupInMemoryMemcached = (cache) => {
   memcached = promisifyMemcached(getInMemoryMemcachedStub());
+
+  // copy initial cache values
+  for (const key in cache) {
+    memcached.cache[key] = cache[key];
+  }
 };
 
 export const resetMemcached = () => {

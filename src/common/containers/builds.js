@@ -70,7 +70,7 @@ class Builds extends Component {
         { error &&
           <Message status='error'>{ error.message || error }</Message>
         }
-        { snap &&
+        { snap && snap.store_name &&
           <HelpInstallSnap
             headline='To test this snap on your PC or cloud instance:'
             name={ snap.store_name }

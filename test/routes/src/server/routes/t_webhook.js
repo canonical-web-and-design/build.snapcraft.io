@@ -4,7 +4,7 @@ import Express from 'express';
 import nock from 'nock';
 import supertest from 'supertest';
 
-import { getSnapNameCacheId } from '../../../../../src/server/handlers/github';
+import { getSnapcraftYamlCacheId } from '../../../../../src/server/handlers/github';
 import { conf } from '../../../../../src/server/helpers/config';
 import {
   getMemcached,
@@ -138,7 +138,7 @@ describe('The WebHook API endpoint', () => {
         });
 
         it('clears snap name from memcached', (done) => {
-          const cacheId = getSnapNameCacheId(
+          const cacheId = getSnapcraftYamlCacheId(
             'https://github.com/anowner/aname'
           );
           getMemcached().cache[cacheId] = 'snap1';
@@ -217,7 +217,7 @@ describe('The WebHook API endpoint', () => {
           });
 
           it('clears snap name from memcached', (done) => {
-            const cacheId = getSnapNameCacheId(
+            const cacheId = getSnapcraftYamlCacheId(
               'https://github.com/anowner/aname'
             );
             getMemcached().cache[cacheId] = 'snap1';
@@ -291,7 +291,7 @@ describe('The WebHook API endpoint', () => {
           // XXX cjwatson 2017-02-16: The code under test should cache the
           // returned snap name instead, but this will do for now.
           it('clears snap name from memcached', (done) => {
-            const cacheId = getSnapNameCacheId(
+            const cacheId = getSnapcraftYamlCacheId(
               'https://github.com/anowner/aname'
             );
             getMemcached().cache[cacheId] = 'snap1';

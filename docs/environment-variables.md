@@ -12,6 +12,8 @@ If true, set secure session cookies.
 
 ### MEMCACHED\_HOST
 
+- **Example**: `localhost:11211`
+
 The host name of the memcached service.
 
 ### MEMCACHED\_SESSION\_SECRET

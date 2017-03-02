@@ -12,6 +12,8 @@ import logging from '../logging';
 
 const logger = logging.getLogger('express');
 
+import { getSnapcraftYamlCacheId } from './github';
+
 // XXX cjwatson 2016-12-08: Hardcoded for now, but should eventually be
 // configurable.
 const DISTRIBUTION = 'ubuntu';
@@ -437,6 +439,21 @@ export const findSnap = (req, res) => {
     .catch((error) => sendError(res, error));
 };
 
+const clearSnapCache = (repositoryUrl) => {
+  const repository = parseGitHubUrl(repositoryUrl);
+  const enabledReposCacheId = getUrlPrefixCacheId(getRepoUrlPrefix(repository.owner));
+  const snapCacheId = getRepositoryUrlCacheId(repositoryUrl);
+  const snapNameCacheId = getSnapcraftYamlCacheId(repositoryUrl);
+
+  logger.info(`Clearing caches for ${repositoryUrl}: ${enabledReposCacheId}, ${snapCacheId}, ${snapNameCacheId}`);
+
+  return Promise.all([
+    getMemcached().del(enabledReposCacheId),
+    getMemcached().del(snapCacheId),
+    getMemcached().del(snapNameCacheId)
+  ]);
+};
+
 export const authorizeSnap = (req, res) => {
   const repositoryUrl = req.body.repository_url;
   const snapName = req.body.snap_name;
@@ -463,12 +480,16 @@ export const authorizeSnap = (req, res) => {
     })
     .then(() => {
       logger.info(`Completed authorization of ${snapUrl}`);
-      return res.status(200).send({
-        status: 'success',
-        payload: {
-          code: 'snap-authorized',
-          message: 'Snap uploads authorized'
-        }
+
+      // authorized snaps have snap_name updated, so we need to invalidate snaps caches
+      return clearSnapCache(repositoryUrl).then(() => {
+        return res.status(200).send({
+          status: 'success',
+          payload: {
+            code: 'snap-authorized',
+            message: 'Snap uploads authorized'
+          }
+        });
       });
     })
     .catch((error) => sendError(res, error));

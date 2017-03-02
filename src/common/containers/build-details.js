@@ -81,7 +81,7 @@ class BuildDetails extends Component {
         { isFetching &&
           <div className={styles.spinner}><Spinner /></div>
         }
-        { snap &&
+        { snap && snap.store_name &&
           <HelpInstallSnap
             headline='To test the latest successful build on your PC or cloud instance:'
             name={ snap.store_name }

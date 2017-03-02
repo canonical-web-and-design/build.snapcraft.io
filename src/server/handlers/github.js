@@ -85,11 +85,11 @@ export const getUser = (req, res) => {
 };
 
 // memcached cache id helper
-export const getSnapNameCacheId = (repositoryUrl) => `snapcraft_data:${repositoryUrl}`;
+export const getSnapcraftYamlCacheId = (repositoryUrl) => `snapcraft_data:${repositoryUrl}`;
 
 export const getSnapcraftData = (repositoryUrl, token) => {
   const { owner, name } = parseGitHubRepoUrl(repositoryUrl);
-  const cacheId = getSnapNameCacheId(repositoryUrl);
+  const cacheId = getSnapcraftYamlCacheId(repositoryUrl);
 
   return getMemcached().get(cacheId)
     .catch((err) => {
