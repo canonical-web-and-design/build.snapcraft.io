@@ -60,7 +60,7 @@ export function snapBuildFromAPI(entry) {
 
     architecture: entry.arch_tag,
 
-    status: BuildStatusMapping[entry.buildstate],
+    colour: BuildStatusMapping[entry.buildstate],
     statusMessage: entry.buildstate,
 
     dateCreated: entry.datecreated,
