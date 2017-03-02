@@ -121,6 +121,7 @@ describe('The Launchpad API endpoint', () => {
             .post('/devel/+snaps', {
               'ws.op': 'new',
               git_repository_url: 'https://github.com/anowner/aname',
+              auto_build: 'false',
               processors: ['/+processors/amd64', '/+processors/armhf']
             })
             .reply(201, 'Created', { Location: snapUrl });
@@ -1271,37 +1272,21 @@ describe('The Launchpad API endpoint', () => {
   });
 
   describe('request snap builds route', () => {
+    const lp_api_url = conf.get('LP_API_URL');
+    const lp_api_base = `${lp_api_url}/devel`;
     const lp_snap_user = 'test-user';
     const lp_snap_path = `/~${lp_snap_user}/+snap/test-snap`;
+    let api;
 
     context('when snap exists', () => {
       beforeEach(() => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
           .get('/repos/anowner/aname')
           .reply(200, { permissions: { admin: true } });
-        const lp_api_url = conf.get('LP_API_URL');
-        const lp_api_base = `${lp_api_url}/devel`;
-        nock(lp_api_url)
-          .get('/devel/+snaps')
-          .query({
-            'ws.op': 'findByURL',
-            url: 'https://github.com/anowner/aname'
-          })
-          .reply(200, {
-            total_size: 1,
-            start: 0,
-            entries: [
-              {
-                resource_type_link: `${lp_api_base}/#snap`,
-                self_link: `${lp_api_base}${lp_snap_path}`,
-                owner_link: `${lp_api_base}/~${lp_snap_user}`
-              }
-            ]
-          });
-        nock(lp_api_url)
-          .post(`/devel${lp_snap_path}`, {
-            'ws.op': 'requestAutoBuilds'
-          })
+        api = nock(lp_api_url);
+        api.post(`/devel${lp_snap_path}`, {
+          'ws.op': 'requestAutoBuilds'
+        })
           .reply(200, [
             {
               resource_type_link: `${lp_api_base}/#snap_build`,
@@ -1318,44 +1303,158 @@ describe('The Launchpad API endpoint', () => {
         nock.cleanAll();
       });
 
-      it('returns a 201 Created response', (done) => {
-        supertest(app)
-          .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(201, done);
-      });
-
-      it('returns a "success" status', (done) => {
-        supertest(app)
-          .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(hasStatus('success'))
-          .end(done);
-      });
-
-      it('returns body with a "snap-builds-requested" message', (done) => {
-        supertest(app)
-          .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(hasMessage('snap-builds-requested'))
-          .end(done);
-      });
-
-      it('returns requested builds list in payload', (done) => {
-        const lp_api_base = `${conf.get('LP_API_URL')}/devel`;
-        supertest(app)
-          .post('/launchpad/snaps/request-builds')
-          .send({ repository_url: 'https://github.com/anowner/aname' })
-          .expect((res) => {
-            const buildUrls = res.body.payload.builds.map((entry) => {
-              return entry.self_link;
+      context('when auto_build is false', () => {
+        beforeEach(() => {
+          api.get('/devel/+snaps')
+            .query({
+              'ws.op': 'findByURL',
+              url: 'https://github.com/anowner/aname'
+            })
+            .reply(200, {
+              total_size: 1,
+              start: 0,
+              entries: [
+                {
+                  resource_type_link: `${lp_api_base}/#snap`,
+                  self_link: `${lp_api_base}${lp_snap_path}`,
+                  owner_link: `${lp_api_base}/~${lp_snap_user}`,
+                  auto_build: false
+                }
+              ]
             });
-            expect(buildUrls).toEqual([
-              `${lp_api_base}${lp_snap_path}/+build/1`,
-              `${lp_api_base}${lp_snap_path}/+build/2`
-            ]);
-          })
-          .end(done);
+          api.post(`/devel${lp_snap_path}`, { auto_build: true })
+            .matchHeader('X-HTTP-Method-Override', 'PATCH')
+            .reply(200, {
+              resource_type_link: `${lp_api_base}/#snap`,
+              self_link: `${lp_api_base}${lp_snap_path}`
+            });
+        });
+
+        it('returns a 201 Created response', (done) => {
+          supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .send({ repository_url: 'https://github.com/anowner/aname' })
+            .expect(201)
+            .end((err) => {
+              api.done();
+              done(err);
+            });
+        });
+
+        it('returns a "success" status', (done) => {
+          supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .send({ repository_url: 'https://github.com/anowner/aname' })
+            .expect(hasStatus('success'))
+            .end((err) => {
+              api.done();
+              done(err);
+            });
+        });
+
+        it('returns body with a "snap-builds-requested" message', (done) => {
+          supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .send({ repository_url: 'https://github.com/anowner/aname' })
+            .expect(hasMessage('snap-builds-requested'))
+            .end((err) => {
+              api.done();
+              done(err);
+            });
+        });
+
+        it('returns requested builds list in payload', (done) => {
+          supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .send({ repository_url: 'https://github.com/anowner/aname' })
+            .expect((res) => {
+              const buildUrls = res.body.payload.builds.map((entry) => {
+                return entry.self_link;
+              });
+              expect(buildUrls).toEqual([
+                `${lp_api_base}${lp_snap_path}/+build/1`,
+                `${lp_api_base}${lp_snap_path}/+build/2`
+              ]);
+            })
+            .end((err) => {
+              api.done();
+              done(err);
+            });
+        });
+      });
+
+      context('when auto_build is true', () => {
+        beforeEach(() => {
+          api.get('/devel/+snaps')
+            .query({
+              'ws.op': 'findByURL',
+              url: 'https://github.com/anowner/aname'
+            })
+            .reply(200, {
+              total_size: 1,
+              start: 0,
+              entries: [
+                {
+                  resource_type_link: `${lp_api_base}/#snap`,
+                  self_link: `${lp_api_base}${lp_snap_path}`,
+                  owner_link: `${lp_api_base}/~${lp_snap_user}`,
+                  auto_build: true
+                }
+              ]
+            });
+        });
+
+        it('returns a 201 Created response', (done) => {
+          supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .send({ repository_url: 'https://github.com/anowner/aname' })
+            .expect(201)
+            .end((err) => {
+              api.done();
+              done(err);
+            });
+        });
+
+        it('returns a "success" status', (done) => {
+          supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .send({ repository_url: 'https://github.com/anowner/aname' })
+            .expect(hasStatus('success'))
+            .end((err) => {
+              api.done();
+              done(err);
+            });
+        });
+
+        it('returns body with a "snap-builds-requested" message', (done) => {
+          supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .send({ repository_url: 'https://github.com/anowner/aname' })
+            .expect(hasMessage('snap-builds-requested'))
+            .end((err) => {
+              api.done();
+              done(err);
+            });
+        });
+
+        it('returns requested builds list in payload', (done) => {
+          supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .send({ repository_url: 'https://github.com/anowner/aname' })
+            .expect((res) => {
+              const buildUrls = res.body.payload.builds.map((entry) => {
+                return entry.self_link;
+              });
+              expect(buildUrls).toEqual([
+                `${lp_api_base}${lp_snap_path}/+build/1`,
+                `${lp_api_base}${lp_snap_path}/+build/2`
+              ]);
+            })
+            .end((err) => {
+              api.done();
+              done(err);
+            });
+        });
       });
     });
 

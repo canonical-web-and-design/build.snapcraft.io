@@ -3,10 +3,13 @@ import { createHmac } from 'crypto';
 import { getGitHubRepoUrl } from '../../common/helpers/github-url';
 import { conf } from '../helpers/config';
 import { getMemcached } from '../helpers/memcached';
-import getLaunchpad from '../launchpad';
 import logging from '../logging';
 import { getSnapcraftYamlCacheId } from './github';
-import { internalFindSnap, internalGetSnapcraftYaml } from './launchpad';
+import {
+  internalFindSnap,
+  internalGetSnapcraftYaml,
+  internalRequestSnapBuilds
+} from './launchpad';
 
 const logger = logging.getLogger('express');
 
@@ -60,7 +63,7 @@ export const notify = (req, res) => {
   } else {
     const repositoryUrl = getGitHubRepoUrl(owner, name);
     const cacheId = getSnapcraftYamlCacheId(repositoryUrl);
-    const lpClient = getLaunchpad();
+    let snap;
     // Clear snap name cache before starting.
     // XXX cjwatson 2017-02-16: We could be smarter about this by looking at
     // the content of the push event.
@@ -69,26 +72,17 @@ export const notify = (req, res) => {
         logger.error(`Error deleting ${cacheId} from memcached:`, err);
       })
       .then(() => internalFindSnap(repositoryUrl))
-      .then((snap) => {
+      .then((result) => {
+        snap = result;
+        if (!snap.store_name) {
+          throw 'Cannot build snap until name is registered';
+        }
         if (!snap.auto_build) {
-          return internalGetSnapcraftYaml(owner, name)
-            .then(() => {
-              // XXX cjwatson 2017-02-16: Cache returned snap name, if any.
-              snap.auto_build = true;
-              return snap.lp_save();
-            })
-            .then(() => snap);
-        } else {
-          return snap;
+          // XXX cjwatson 2017-02-16: Cache returned snap name, if any.
+          return internalGetSnapcraftYaml(owner, name);
         }
       })
-      .then((snap) => {
-        if (snap.auto_build) {
-          return lpClient.named_post(snap.self_link, 'requestAutoBuilds');
-        } else {
-          throw 'Cannot build snap until snapcraft.yaml exists';
-        }
-      })
+      .then(() => internalRequestSnapBuilds(snap))
       .then(() => {
         logger.info(`Requested builds of ${repositoryUrl}.`);
         return res.status(200).send();

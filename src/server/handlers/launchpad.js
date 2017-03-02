@@ -267,7 +267,9 @@ const requestNewSnap = (repositoryUrl) => {
       name: `${makeSnapName(repositoryUrl)}-${DISTRO_SERIES}`,
       git_repository_url: repositoryUrl,
       git_path: 'refs/heads/master',
-      auto_build: true,
+      // auto_build will be enabled later, once snapcraft.yaml exists and
+      // the snap name has been registered.
+      auto_build: false,
       auto_build_archive: `/${DISTRIBUTION}/+archive/primary`,
       auto_build_pocket: 'Updates',
       processors: ARCHITECTURES.map((arch) => `/+processors/${arch}`)
@@ -526,11 +528,28 @@ export const getSnapBuilds = (req, res) => {
   .catch((error) => sendError(res, error));
 };
 
-export const requestSnapBuilds = (req, res) => {
+export const internalRequestSnapBuilds = (snap) => {
+  // Request builds, then make sure that auto_build is enabled so that
+  // future push events will cause the webhook to dispatch builds.  Doing
+  // things in this order ensures that Launchpad's internal
+  // `SnapSet.makeAutoBuilds` code won't come along and dispatch an extra
+  // set of builds between these two requests.
   const lpClient = getLaunchpad();
+  return lpClient.named_post(snap.self_link, 'requestAutoBuilds')
+    .then((builds) => {
+      if (!snap.auto_build) {
+        return lpClient.patch(snap.self_link, { auto_build: true })
+          .then(() => builds);
+      } else {
+        return builds;
+      }
+    });
+};
+
+export const requestSnapBuilds = (req, res) => {
   checkAdminPermissions(req.session, req.body.repository_url)
     .then(() => internalFindSnap(req.body.repository_url))
-    .then((snap) => lpClient.named_post(snap.self_link, 'requestAutoBuilds'))
+    .then(internalRequestSnapBuilds)
     .then((builds) => {
       return res.status(201).send({
         status: 'success',

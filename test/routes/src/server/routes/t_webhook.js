@@ -82,7 +82,45 @@ describe('The WebHook API endpoint', () => {
         resetMemcached();
       });
 
-      describe('if auto_build is true', () => {
+      describe('if name is not registered', () => {
+        let findByURL;
+
+        beforeEach(() => {
+          findByURL = nock(lp_api_url)
+            .get('/devel/+snaps')
+            .query({
+              'ws.op': 'findByURL',
+              url: 'https://github.com/anowner/aname'
+            })
+            .reply(200, {
+              total_size: 1,
+              start: 0,
+              entries: [
+                {
+                  resource_type_link: `${lp_api_base}/#snap`,
+                  self_link: `${lp_api_base}${lp_snap_path}`,
+                  owner_link: `${lp_api_base}/~${lp_snap_user}`,
+                  store_name: null
+                }
+              ]
+            });
+        });
+
+        it('returns 500', (done) => {
+          supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-GitHub-Event', 'push')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body)
+            .expect(500, (err) => {
+              findByURL.done();
+              done(err);
+            });
+        });
+      });
+
+      describe('if name is registered and auto_build is true', () => {
         let findByURL;
         let requestAutoBuilds;
 
@@ -101,6 +139,7 @@ describe('The WebHook API endpoint', () => {
                   resource_type_link: `${lp_api_base}/#snap`,
                   self_link: `${lp_api_base}${lp_snap_path}`,
                   owner_link: `${lp_api_base}/~${lp_snap_user}`,
+                  store_name: 'test-snap',
                   auto_build: true
                 }
               ]
@@ -155,7 +194,7 @@ describe('The WebHook API endpoint', () => {
         });
       });
 
-      describe('if auto_build is false', () => {
+      describe('if name is registered and auto_build is false', () => {
         let findByURL;
 
         beforeEach(() => {
@@ -173,6 +212,7 @@ describe('The WebHook API endpoint', () => {
                   resource_type_link: `${lp_api_base}/#snap`,
                   self_link: `${lp_api_base}${lp_snap_path}`,
                   owner_link: `${lp_api_base}/~${lp_snap_user}`,
+                  store_name: 'test-snap',
                   auto_build: false
                 }
               ]
