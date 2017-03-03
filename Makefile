@@ -72,10 +72,10 @@ $(PAYLOAD): $(CHARM) $(DIST) version-info build-exclude.txt $(SRC) $(SRC)/* $(SR
 build: $(PAYLOAD)
 
 deploy: build
-	juju deploy local:$(CHARM_SERIES)/$(NAME)
+	juju deploy $(CHARMDIR)
 	juju deploy memcached
 	juju add-relation $(NAME) memcached
-	juju set $(NAME) session_secret='its a secret' \
+	juju config $(NAME) session_secret='its a secret' \
 		environment=$(DEPLOY_ENV) \
 		memcache_session_secret='its another secret'
 
