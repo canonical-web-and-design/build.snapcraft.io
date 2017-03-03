@@ -142,6 +142,7 @@ $neutral-border-color: $dark-grey;
   padding: 1px 0 0 0;
   margin-right: 0.5em;
   height: 21px;
+  width: 21px;
   float: left;
   box-sizing: content-box;
 }

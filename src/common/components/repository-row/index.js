@@ -1,31 +1,29 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import url from 'url';
 import localforage from 'localforage';
 
-import Button from '../vanilla/button';
-import { Row, Data, Dropdown } from '../vanilla/table-interactive';
+import { Row, Data } from '../vanilla/table-interactive';
 import BuildStatus from '../build-status';
-import { Message } from '../forms';
-import templateYaml from './template-yaml.js';
 
+import {
+  NameMismatchDropdown,
+  RemoveRepoDropdown,
+  UnconfiguredDropdown,
+  UnregisteredDropdown
+} from './dropdowns';
+import {
+  TickIcon,
+  ErrorIcon
+} from './icons';
 import { signIntoStore } from '../../actions/auth-store';
 import { registerName, registerNameError } from '../../actions/register-name';
 import { removeSnap } from '../../actions/snaps';
-import { conf } from '../../helpers/config';
+
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
 
 import styles from './repositoryRow.css';
-
-const FILE_NAME_CLAIM_URL = 'https://myapps.developer.ubuntu.com/dev/click-apps/register-name/';
-
-const LEARN_THE_BASICS_LINK = 'https://snapcraft.io/docs/build-snaps/your-first-snap';
-const INSTALL_IT_LINK = 'https://snapcraft.io/create/';
-const tickIcon = <span className={ `${styles.icon} ${styles.tickIcon}` } />;
-const warningIcon = (
-  <span className={ `${styles.icon} ${styles.warningIcon}` } />
-);
+import iconStyles from './icons/icons.css';
 
 class RepositoryRow extends Component {
 
@@ -41,6 +39,7 @@ class RepositoryRow extends Component {
 
     this.state = {
       snapName,
+      nameMismatchDropdownExpanded: false,
       unconfiguredDropdownExpanded: false,
       unregisteredDropdownExpanded: false,
       removeDropdownExpanded: false,
@@ -74,28 +73,33 @@ class RepositoryRow extends Component {
     this.saveState();
   }
 
-  onConfiguredClick() {
+  toggleDropdownState(dropdown) {
     this.setState({
-      unconfiguredDropdownExpanded: !this.state.unconfiguredDropdownExpanded,
+      // close all dropdowns
+      nameMismatchDropdownExpanded: false,
+      unconfiguredDropdownExpanded: false,
       unregisteredDropdownExpanded: false,
-      removeDropdownExpanded: false
+      removeDropdownExpanded: false,
+
+      // and toggle the one
+      [dropdown]: !this.state[dropdown]
     });
+  }
+
+  onConfiguredClick() {
+    this.toggleDropdownState('unconfiguredDropdownExpanded');
+  }
+
+  onNameMismatchClick() {
+    this.toggleDropdownState('nameMismatchDropdownExpanded');
   }
 
   onUnregisteredClick() {
-    this.setState({
-      unconfiguredDropdownExpanded: false,
-      unregisteredDropdownExpanded: !this.state.unregisteredDropdownExpanded,
-      removeDropdownExpanded: false
-    });
+    this.toggleDropdownState('unregisteredDropdownExpanded');
   }
 
   onToggleRemoveClick() {
-    this.setState({
-      unconfiguredDropdownExpanded: false,
-      unregisteredDropdownExpanded: false,
-      removeDropdownExpanded: !this.state.removeDropdownExpanded
-    });
+    this.toggleDropdownState('removeDropdownExpanded');
   }
 
   closeUnregisteredDropdown() {
@@ -171,216 +175,6 @@ class RepositoryRow extends Component {
     }
   }
 
-  renderUnconfiguredDropdown() {
-    return (
-      <Dropdown>
-        <Row>
-          <Data col="100">
-            <p>
-              This repo needs a snapcraft.yaml file,
-              so that Snapcraft can make it buildable,
-              installable, and runnable.
-            </p>
-            <p>
-              <a href={ LEARN_THE_BASICS_LINK } target="_blank">Learn the basics</a>,
-              or
-              <a href={ this.getTemplateUrl.call(this) } target="_blank"> get started with a template</a>.
-            </p>
-            <p>
-              Don’t have snapcraft?
-              <a href={ INSTALL_IT_LINK } target="_blank"> Install it on your own PC </a>
-              for testing.
-            </p>
-          </Data>
-        </Row>
-      </Dropdown>
-    );
-  }
-
-  renderAgreement() {
-    const checkbox = (
-      <input
-        type="checkbox"
-        onChange={ this.onSignAgreementChange.bind(this) }
-      />
-    );
-    const link = (
-      <a
-        className={ styles.external }
-        href={ `${conf.get('STORE_DEVPORTAL_URL')}/tos/` }
-        target="_blank"
-      >
-        Developer Programme Agreement
-      </a>
-    );
-    return (
-      <div>
-        { checkbox } I accept the terms of the { link }
-      </div>
-    );
-  }
-
-  renderUnregisteredDropdown() {
-    const { snap, authStore, registerNameStatus } = this.props;
-
-    // If the user has signed into the store but we haven't fetched the
-    // resulting discharge macaroon, we need to wait for that before
-    // allowing them to proceed.
-    const authStoreFetchingDischarge = (
-      authStore.hasDischarge && !authStore.authenticated
-    );
-    const userMustSignAgreement = (
-      authStore.authenticated && authStore.signedAgreement === false
-    );
-
-    let caption;
-    if (registerNameStatus.success) {
-      caption = (
-        <div>
-          { tickIcon } Registered successfully
-        </div>
-      );
-    } else if ( registerNameStatus.error
-      && registerNameStatus.error.json
-      && registerNameStatus.error.json.payload
-      && registerNameStatus.error.json.payload.code === 'already_registered') {
-      caption = (
-        <Message status='error'>
-          <p>Sorry, that name is already taken. Try a different name.</p>
-          <p className={ styles.helpText }>
-            If you think you should have sole rights to the name,
-            you can <a href={ FILE_NAME_CLAIM_URL } target='_blank'>file a claim</a>.
-          </p>
-        </Message>
-      );
-    } else if (registerNameStatus.error) {
-      caption = (
-        <Message status='error'>
-          { registerNameStatus.error.message }
-        </Message>
-      );
-    } else {
-      caption = (
-        <div>
-          To publish to the snap store, this repo needs a registered name.
-          { !authStore.authenticated &&
-            ' You need to sign in to Ubuntu One to register a name.'
-          }
-          { (authStoreFetchingDischarge || authStore.authenticated) &&
-            <div className={ styles.helpText }>
-              Lower-case letters, numbers, and hyphens only.
-            </div>
-          }
-          { userMustSignAgreement && this.renderAgreement() }
-        </div>
-      );
-    }
-
-    let actionDisabled;
-    let actionOnClick;
-    let actionSpinner = false;
-    let actionText;
-    if (authStore.isFetching) {
-      actionDisabled = true;
-      actionOnClick = () => {};
-      actionSpinner = true;
-      actionText = 'Checking...';
-    } else if (authStore.authenticated) {
-      actionDisabled = (
-        this.state.snapName === '' ||
-        registerNameStatus.isFetching ||
-        !!registerNameStatus.error
-      );
-      actionOnClick = this.onRegisterClick.bind(this, snap.git_repository_url);
-      if (registerNameStatus.isFetching) {
-        actionSpinner = true;
-        actionText = 'Checking...';
-      } else {
-        actionText = 'Register name';
-      }
-    } else {
-      actionDisabled = !!registerNameStatus.error;
-      actionOnClick = this.onSignInClick.bind(this);
-      actionText = 'Sign in...';
-    }
-
-    return (
-      <Dropdown>
-        <Row>
-          <Data col="100">
-            { caption }
-          </Data>
-        </Row>
-        <Row>
-          <div className={ styles.buttonRow }>
-            <a onClick={this.onUnregisteredClick.bind(this)} className={ styles.cancel }>
-              Cancel
-            </a>
-            <Button
-              appearance="positive"
-              disabled={actionDisabled}
-              onClick={actionOnClick}
-              isSpinner={actionSpinner}
-            >
-              { actionText }
-            </Button>
-          </div>
-        </Row>
-      </Dropdown>
-    );
-  }
-
-  renderRemoveDropdown(registeredName) {
-    const { snap, latestBuild } = this.props;
-
-    let warningText;
-    if (latestBuild) {
-      warningText = (
-        'Removing this repo will delete all its builds and build logs.'
-      );
-    } else {
-      warningText = (
-        'Are you sure you want to remove this repo from the list?'
-      );
-    }
-    if (registeredName !== null) {
-      warningText += ' The name will remain registered.';
-    }
-    // XXX cjwatson 2017-02-28: Once we can get hold of published states for
-    // builds, we should also implement this design requirement:
-    //   Separately, if any build has been published, the text should end
-    //   with:
-    //     Published builds will remain published.
-
-    return (
-      <Dropdown>
-        <Row>
-          <Data col="100">
-            { warningIcon } { warningText }
-          </Data>
-        </Row>
-        <Row>
-          <div className={ styles.buttonRow }>
-            <a
-              onClick={ this.onToggleRemoveClick.bind(this) }
-              className={ styles.cancel }
-            >
-              Cancel
-            </a>
-            <Button
-              appearance="negative"
-              onClick={
-                this.onRemoveClick.bind(this, snap.git_repository_url)
-              }
-            >
-              Remove
-            </Button>
-          </div>
-        </Row>
-      </Dropdown>
-    );
-  }
-
   render() {
     const {
       snap,
@@ -394,6 +188,7 @@ class RepositoryRow extends Component {
     const showUnconfiguredDropdown = unconfigured && this.state.unconfiguredDropdownExpanded;
     const showUnregisteredDropdown = this.state.unregisteredDropdownExpanded;
     const showRemoveDropdown = this.state.removeDropdownExpanded;
+    const showNameMismatchDropdown = this.state.nameMismatchDropdownExpanded;
     const showRegisterNameInput = (
       showUnregisteredDropdown && authStore.authenticated
     );
@@ -404,6 +199,7 @@ class RepositoryRow extends Component {
 
     const hasBuilt = latestBuild && snap.snapcraft_data;
     const isActive = (
+      showNameMismatchDropdown ||
       showUnconfiguredDropdown ||
       showUnregisteredDropdown ||
       showRemoveDropdown
@@ -426,7 +222,7 @@ class RepositoryRow extends Component {
           }
         </Data>
         <Data col="15">
-          { this.renderConfiguredStatus.call(this, snap.snapcraft_data) }
+          { this.renderConfiguredStatus.call(this, snap) }
         </Data>
         <Data col="25">
           { this.renderSnapName.call(this, registeredName, showRegisterNameInput) }
@@ -455,39 +251,91 @@ class RepositoryRow extends Component {
         </Data>
         <Data col="3">
           <a
-            className={ `${styles.icon} ${styles.deleteIcon}` }
+            className={ iconStyles.deleteIcon }
             onClick={ this.onToggleRemoveClick.bind(this) }
           />
         </Data>
-        { showUnconfiguredDropdown && this.renderUnconfiguredDropdown() }
-        { showUnregisteredDropdown && this.renderUnregisteredDropdown() }
-        { showRemoveDropdown && this.renderRemoveDropdown(registeredName) }
+        { showNameMismatchDropdown && <NameMismatchDropdown snap={snap} /> }
+        { showUnconfiguredDropdown && <UnconfiguredDropdown snap={snap} /> }
+        { showUnregisteredDropdown &&
+          <UnregisteredDropdown
+            snapName={this.state.snapName}
+            authStore={authStore}
+            registerNameStatus={registerNameStatus}
+            onSignAgreementChange={this.onSignAgreementChange.bind(this)}
+            onRegisterClick={this.onRegisterClick.bind(this, snap.git_repository_url)}
+            onSignInClick={this.onSignInClick.bind(this)}
+            onCancelClick={this.onUnregisteredClick.bind(this)}
+          />
+        }
+        { showRemoveDropdown &&
+          <RemoveRepoDropdown
+            message={this.getRemoveWarningMessage(latestBuild, registeredName)}
+            onRemoveClick={this.onRemoveClick.bind(this, snap.git_repository_url)}
+            onCancelClick={this.onToggleRemoveClick.bind(this)}
+          />
+        }
       </Row>
     );
   }
 
-  renderConfiguredStatus(data) {
-    if (!data) {
+  getRemoveWarningMessage(latestBuild, registeredName) {
+    let warningText;
+    if (latestBuild) {
+      warningText = (
+        'Removing this repo will delete all its builds and build logs.'
+      );
+    } else {
+      warningText = (
+        'Are you sure you want to remove this repo from the list?'
+      );
+    }
+    if (registeredName !== null) {
+      warningText += ' The name will remain registered.';
+    }
+    // XXX cjwatson 2017-02-28: Once we can get hold of published states for
+    // builds, we should also implement this design requirement:
+    //   Separately, if any build has been published, the text should end
+    //   with:
+    //     Published builds will remain published.
+
+    return warningText;
+  }
+
+  renderConfiguredStatus(snap) {
+    const { snapcraft_data, store_name } = snap;
+
+    if (!snapcraft_data) {
       return (
         <a onClick={this.onConfiguredClick.bind(this)}>Not configured</a>
       );
+    } else if (snapcraft_data && store_name && snapcraft_data.name !== store_name){
+      return (
+        <span>
+          <ErrorIcon />
+          {' ' /* space between inline elements */}
+          <a onClick={this.onNameMismatchClick.bind(this)}>
+            Doesn’t match
+          </a>
+        </span>
+      );
     }
 
-    return tickIcon;
+    return <TickIcon />;
   }
 
   renderSnapName(registeredName, showRegisterNameInput) {
     if (registeredName !== null) {
       return (
         <span>
-          { tickIcon } { registeredName }
+          <TickIcon /> { registeredName }
         </span>
       );
     } else if (showRegisterNameInput) {
       return (
         <input
           type='text'
-          className={ styles.snapName }
+          className={ styles.snapNameInput }
           value={ this.state.snapName }
           onChange={ this.onSnapNameChange.bind(this) }
         />
@@ -501,19 +349,7 @@ class RepositoryRow extends Component {
     }
   }
 
-  getTemplateUrl() {
-    const templateUrl = url.format({
-      protocol: 'https:',
-      host: 'github.com',
-      pathname: parseGitHubRepoUrl(this.props.snap.git_repository_url).fullName + '/new/master',
-      query: {
-        'filename': 'snap/snapcraft.yaml',
-        'value': templateYaml
-      }
-    });
 
-    return templateUrl;
-  }
 }
 
 RepositoryRow.propTypes = {
