@@ -53,7 +53,7 @@ export const verify = (req, res, next) => {
   };
 
   // Exchange code for token
-  request.post(options, (error, response, body) => {
+  request.post(options, async (error, response, body) => {
     // XXX bartaz
     // it seems that we get 200 response with error in body
     // https://developer.github.com/v3/oauth/#common-errors-for-the-access-token-request
@@ -62,23 +62,22 @@ export const verify = (req, res, next) => {
     }
 
     logger.info('User successfully authenticated');
-    return requestUser(body.access_token)
-      .then((response) => {
-        if (response.statusCode !== 200) {
-          return next(new Error(`Authentication failed. ${response.body.message}`));
-        }
+    const userResponse = await requestUser(body.access_token);
+    if (userResponse.statusCode !== 200) {
+      return next(new Error(
+        `Authentication failed. ${userResponse.body.message}`
+      ));
+    }
 
-        logger.info('User info successfully fetched');
+    logger.info('User info successfully fetched');
 
-        // Save auth token and user info to session
-        req.session.githubAuthenticated = true;
-        req.session.token = body.access_token;
-        req.session.user = response.body;
+    // Save auth token and user info to session
+    req.session.githubAuthenticated = true;
+    req.session.token = body.access_token;
+    req.session.user = userResponse.body;
 
-        // Redirect to logged in URL
-        res.redirect('/dashboard');
-      });
-
+    // Redirect to logged in URL
+    res.redirect('/dashboard');
   });
 };
 

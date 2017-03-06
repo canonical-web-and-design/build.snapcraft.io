@@ -57,66 +57,64 @@ export const requestUser = (token) => {
   return requestGitHub.get('/user', { token, json: true });
 };
 
-export const getUser = (req, res) => {
+export const getUser = async (req, res) => {
   if (!req.session || !req.session.token) {
     return res.status(401).send(RESPONSE_AUTHENTICATION_FAILED);
   }
 
-  requestUser(req.session.token)
-    .then((response) => {
-      if (response.statusCode !== 200) {
-        return res.status(response.statusCode).send({
-          status: 'error',
-          payload: {
-            code: 'github-user-error',
-            message: response.body.message
-          }
-        });
+  const response = await requestUser(req.session.token);
+  if (response.statusCode !== 200) {
+    return res.status(response.statusCode).send({
+      status: 'error',
+      payload: {
+        code: 'github-user-error',
+        message: response.body.message
       }
-
-      res.status(response.statusCode).send({
-        status: 'success',
-        payload: {
-          code: 'github-user',
-          user: response.body
-        }
-      });
     });
+  }
+
+  res.status(response.statusCode).send({
+    status: 'success',
+    payload: {
+      code: 'github-user',
+      user: response.body
+    }
+  });
 };
 
 // memcached cache id helper
 export const getSnapcraftYamlCacheId = (repositoryUrl) => `snapcraft_data:${repositoryUrl}`;
 
-export const getSnapcraftData = (repositoryUrl, token) => {
+export const getSnapcraftData = async (repositoryUrl, token) => {
   const { owner, name } = parseGitHubRepoUrl(repositoryUrl);
   const cacheId = getSnapcraftYamlCacheId(repositoryUrl);
 
-  return getMemcached().get(cacheId)
-    .catch((err) => {
-      logger.error(`Error getting ${cacheId} from memcached:`, err);
-    })
-    .then((result) => {
-      if (result !== undefined) {
-        return result;
+  try {
+    const result = await getMemcached().get(cacheId);
+    if (result !== undefined) {
+      return result;
+    }
+  } catch (error) {
+    logger.error(`Error getting ${cacheId} from memcached: ${error}`);
+  }
+
+  try {
+    const snapcraftYaml = await internalGetSnapcraftYaml(owner, name, token);
+    const snapcraftData = {};
+    for (const index of Object.keys(snapcraftYaml)) {
+      if (SNAPCRAFT_INFO_WHITELIST.indexOf(index) >= 0) {
+        snapcraftData[index] = snapcraftYaml[index];
       }
+    }
 
-      return internalGetSnapcraftYaml(owner, name, token)
-        .then((snapcraftYaml) => {
-          const snapcraftData = {};
-          for (const index of Object.keys(snapcraftYaml)) {
-            if (SNAPCRAFT_INFO_WHITELIST.indexOf(index) >= 0) {
-              snapcraftData[index] = snapcraftYaml[index];
-            }
-          }
-
-          return getMemcached().set(cacheId, snapcraftData, 3600)
-            .then(() => snapcraftData);
-        })
-        .catch(() => null);
-    });
+    await getMemcached().set(cacheId, snapcraftData, 3600);
+    return snapcraftData;
+  } catch (error) {
+    return null;
+  }
 };
 
-export const listRepositories = (req, res) => {
+export const listRepositories = async (req, res) => {
   const params = {
     affiliation: 'owner'
   };
@@ -130,35 +128,35 @@ export const listRepositories = (req, res) => {
   }
 
   const uri = REPOSITORY_ENDPOINT + '?' + qs.stringify(params);
-  requestGitHub.get(uri, { token: req.session.token, json: true })
-    .then((response) => {
-      if (response.statusCode !== 200) {
-        return res.status(response.statusCode).send({
-          status: 'error',
-          payload: {
-            code: 'github-list-repositories-error',
-            message: response.body.message
-          }
-        });
+  const response = await requestGitHub.get(uri, {
+    token: req.session.token, json: true
+  });
+  if (response.statusCode !== 200) {
+    return res.status(response.statusCode).send({
+      status: 'error',
+      payload: {
+        code: 'github-list-repositories-error',
+        message: response.body.message
       }
-
-      const body = {
-        status: 'success',
-        payload: {
-          code: 'github-list-repositories',
-          repos: response.body
-        }
-      };
-
-      if (response.headers.link) {
-        body.pageLinks = parseLinkHeader(response.headers.link);
-      }
-
-      return res.status(response.statusCode).send(body);
     });
+  }
+
+  const body = {
+    status: 'success',
+    payload: {
+      code: 'github-list-repositories',
+      repos: response.body
+    }
+  };
+
+  if (response.headers.link) {
+    body.pageLinks = parseLinkHeader(response.headers.link);
+  }
+
+  return res.status(response.statusCode).send(body);
 };
 
-export const createWebhook = (req, res) => {
+export const createWebhook = async (req, res) => {
   const { owner, name } = req.body;
 
   let secret;
@@ -176,32 +174,32 @@ export const createWebhook = (req, res) => {
 
   const uri = `/repos/${owner}/${name}/hooks`;
   const options = getRequest(owner, name, req.session.token, secret);
-  requestGitHub.post(uri, options)
-    .then((response) => {
-      if (response.statusCode !== 201) {
-        logger.info(response.body);
-        switch (response.body.message) {
-          case 'Not Found':
-            // Repository does not exist or access not granted
-            return res.status(404).send(RESPONSE_NOT_FOUND);
-          case 'Bad credentials':
-            // Authentication failed
-            return res.status(401).send(RESPONSE_AUTHENTICATION_FAILED);
-          case 'Validation Failed':
-            // Webhook already created
-            return res.status(422).send(RESPONSE_ALREADY_CREATED);
-          default:
-            // Something else
-            logger.error('GitHub API error', response.statusCode);
-            return res.status(500).send(RESPONSE_OTHER);
-        }
+  try {
+    const response = await requestGitHub.post(uri, options);
+    if (response.statusCode !== 201) {
+      logger.info(response.body);
+      switch (response.body.message) {
+        case 'Not Found':
+          // Repository does not exist or access not granted
+          return res.status(404).send(RESPONSE_NOT_FOUND);
+        case 'Bad credentials':
+          // Authentication failed
+          return res.status(401).send(RESPONSE_AUTHENTICATION_FAILED);
+        case 'Validation Failed':
+          // Webhook already created
+          return res.status(422).send(RESPONSE_ALREADY_CREATED);
+        default:
+          // Something else
+          logger.error('GitHub API error', response.statusCode);
+          return res.status(500).send(RESPONSE_OTHER);
       }
+    }
 
-      return res.status(201).send(RESPONSE_CREATED);
-    }).catch((err) => {
-      logger.error('GitHub API error', err);
-      return res.status(500).send(err.message);
-    });
+    return res.status(201).send(RESPONSE_CREATED);
+  } catch (error) {
+    logger.error('GitHub API error', error);
+    return res.status(500).send(error.message);
+  }
 };
 
 const getRequest = (owner, name, token, secret) => {
