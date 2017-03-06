@@ -8,7 +8,8 @@ function withRepository(WrappedComponent) {
   class WithRepository extends Component {
 
     componentDidMount() {
-      if (!this.props.repository && this.props.fullName) {
+      if ((!this.props.repository && this.props.fullName) ||
+          (this.props.repository.fullName !== this.props.fullName)) {
         this.props.dispatch(setGitHubRepository(this.props.fullName));
       }
     }
@@ -22,7 +23,11 @@ function withRepository(WrappedComponent) {
     render() {
       const { fullName, ...passThroughProps } = this.props; // eslint-disable-line no-unused-vars
 
-      return (this.props.repository
+      // only render if current repo in the store matches repo in URL params
+      const { repository } = this.props;
+      const isReady = repository && repository.fullName === fullName;
+
+      return (isReady
         ? <WrappedComponent {...passThroughProps} />
         : null
       );
