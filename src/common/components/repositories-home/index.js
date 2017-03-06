@@ -14,6 +14,9 @@ import Spinner from '../spinner';
 // loading container styles not to duplicate .spinner class
 import { spinner as spinnerStyles } from '../../containers/container.css';
 
+let interval;
+const SNAP_POLL_PERIOD = (15 * 1000);
+
 class RepositoriesHome extends Component {
   fetchData(props) {
     const { snaps } = props;
@@ -33,12 +36,22 @@ class RepositoriesHome extends Component {
 
   componentDidMount() {
     const { authenticated } = this.props.auth;
+    const { dispatch } = this.props;
     const owner = this.props.user.login;
 
     if (authenticated) {
-      this.props.dispatch(fetchUserSnaps(owner));
+      dispatch(fetchUserSnaps(owner));
+      if (!interval) {
+        interval = setInterval(() => {
+          dispatch(fetchUserSnaps(owner, false));
+        }, SNAP_POLL_PERIOD);
+      }
     }
+  }
 
+  componentWillUnmount() {
+    clearInterval(interval);
+    interval = null;
   }
 
   componentWillReceiveProps(nextProps) {
@@ -109,3 +122,4 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps)(withRouter(RepositoriesHome));
+export const raw = RepositoriesHome;

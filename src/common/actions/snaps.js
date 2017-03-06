@@ -12,14 +12,16 @@ export const REMOVE_SNAP = 'REMOVE_SNAP';
 export const REMOVE_SNAP_SUCCESS = 'REMOVE_SNAP_SUCCESS';
 export const REMOVE_SNAP_ERROR = 'REMOVE_SNAP_ERROR';
 
-export function fetchUserSnaps(owner) {
+export function fetchUserSnaps(owner, showFetching = true) {
   return (dispatch) => {
     const url = `${BASE_URL}/api/launchpad/snaps/list`;
     const query = `owner=${encodeURIComponent(owner)}`;
 
-    dispatch({
-      type: FETCH_SNAPS
-    });
+    if (showFetching) {
+      dispatch({
+        type: FETCH_SNAPS
+      });
+    }
 
     return fetch(`${url}?${query}`, {
       headers: { 'Content-Type': 'application/json' },
