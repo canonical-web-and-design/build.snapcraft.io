@@ -43,33 +43,33 @@ describe('Launchpad', () => {
   });
 
   describe('get', () => {
-    it('handles successful response', () => {
+    it('handles successful response', async () => {
       lp.get('/devel/people')
         .matchHeader('Authorization', checkAuthorization)
         .matchHeader('Accept', /^application\/json$/)
         .reply(200, { entry: { resource_type_link: 'foo' } });
 
-      return getLaunchpad().get('/people').then(result => {
-        expect(result.entry).toBeA(Entry);
-        expect(result.entry.resource_type_link).toEqual('foo');
-      });
+      const result = await getLaunchpad().get('/people');
+      expect(result.entry).toBeA(Entry);
+      expect(result.entry.resource_type_link).toEqual('foo');
     });
 
-    it('handles failing response', () => {
+    it('handles failing response', async () => {
       lp.get('/devel/people').reply(503);
 
-      return getLaunchpad().get('/people').then(result => {
+      try {
+        const result = await getLaunchpad().get('/people');
         assert(false, 'Expected promise to be rejected; got %s instead',
                result);
-      }, error => {
+      } catch (error) {
         expect(error.response.status).toEqual(503);
         expect(error.uri).toEqual(`${LP_API_URL}/devel/people`);
-      });
+      }
     });
   });
 
   describe('named_get', () => {
-    it('handles successful response', () => {
+    it('handles successful response', async () => {
       lp.get('/devel/people')
         .query({ 'ws.op': 'getByEmail', 'email': 'foo@example.com' })
         .matchHeader('Authorization', checkAuthorization)
@@ -79,41 +79,40 @@ describe('Launchpad', () => {
           name: 'foo'
         });
 
-      return getLaunchpad().named_get(
-        '/people', 'getByEmail', { parameters: { email: 'foo@example.com' } })
-        .then(result => {
-          expect(result).toBeA(Entry);
-          expect(result.name).toEqual('foo');
-        });
+      const result = await getLaunchpad().named_get('/people', 'getByEmail', {
+        parameters: { email: 'foo@example.com' }
+      });
+      expect(result).toBeA(Entry);
+      expect(result.name).toEqual('foo');
     });
 
-    it('handles failing response', () => {
+    it('handles failing response', async () => {
       lp.get('/devel/people').query({ 'ws.op': 'getByEmail' }).reply(503);
 
-      return getLaunchpad().named_get('/people', 'getByEmail').then(result => {
+      try {
+        const result = await getLaunchpad().named_get('/people', 'getByEmail');
         assert(false, 'Expected promise to be rejected; got %s instead',
                result);
-      }, error => {
+      } catch (error) {
         expect(error.response.status).toEqual(503);
         expect(error.uri).toEqual(
           `${LP_API_URL}/devel/people?ws.op=getByEmail`);
-      });
+      }
     });
   });
 
   describe('named_post', () => {
-    it('handles successful response', () => {
+    it('handles successful response', async () => {
       lp.post('/devel/people', { 'ws.op': 'newTeam' })
         .matchHeader('Authorization', checkAuthorization)
         .reply(200, { entry: { resource_type_link: 'foo' } });
 
-      return getLaunchpad().named_post('/people', 'newTeam').then(result => {
-        expect(result.entry).toBeA(Entry);
-        expect(result.entry.resource_type_link).toEqual('foo');
-      });
+      const result = await getLaunchpad().named_post('/people', 'newTeam');
+      expect(result.entry).toBeA(Entry);
+      expect(result.entry.resource_type_link).toEqual('foo');
     });
 
-    it('handles factory response', () => {
+    it('handles factory response', async () => {
       lp.post('/devel/people', { 'ws.op': 'newTeam', 'name': 'foo' })
         .matchHeader('Authorization', checkAuthorization)
         .reply(201, '', { 'Location': `${LP_API_URL}/devel/~foo` });
@@ -123,29 +122,29 @@ describe('Launchpad', () => {
           name: 'foo'
         });
 
-      return getLaunchpad().named_post(
-        '/people', 'newTeam', { parameters: { name: 'foo' } })
-        .then(result => {
-          expect(result).toBeA(Entry);
-          expect(result.name).toEqual('foo');
-        });
+      const result = await getLaunchpad().named_post('/people', 'newTeam', {
+        parameters: { name: 'foo' }
+      });
+      expect(result).toBeA(Entry);
+      expect(result.name).toEqual('foo');
     });
 
-    it('handles failing response', () => {
+    it('handles failing response', async () => {
       lp.post('/devel/people').reply(503);
 
-      return getLaunchpad().named_post('/people', 'newTeam').then(result => {
+      try {
+        const result = await getLaunchpad().named_post('/people', 'newTeam');
         assert(false, 'Expected promise to be rejected; got %s instead',
                result);
-      }, error => {
+      } catch (error) {
         expect(error.response.status).toEqual(503);
         expect(error.uri).toEqual(`${LP_API_URL}/devel/people`);
-      });
+      }
     });
   });
 
   describe('patch', () => {
-    it('handles successful response', () => {
+    it('handles successful response', async () => {
       lp.post('/devel/~foo', { 'display_name': 'Foo' })
         .matchHeader('Authorization', checkAuthorization)
         .matchHeader('Accept', /^application\/json$/)
@@ -157,50 +156,50 @@ describe('Launchpad', () => {
           display_name: 'Foo'
         });
 
-      return getLaunchpad().patch('/~foo', { 'display_name': 'Foo' })
-        .then(result => {
-          expect(result).toBeA(Entry);
-          expect(result.display_name).toEqual('Foo');
-        });
+      const result = await getLaunchpad().patch('/~foo', {
+        'display_name': 'Foo'
+      });
+      expect(result).toBeA(Entry);
+      expect(result.display_name).toEqual('Foo');
     });
 
-    it('handles failing response', () => {
+    it('handles failing response', async () => {
       lp.post('/devel/~foo').reply(503);
 
-      return getLaunchpad().patch('/~foo', { 'display_name': 'Foo' })
-        .then(result => {
-          assert(false, 'Expected promise to be rejected; got %s instead',
-                 result);
-        }, error => {
-          expect(error.response.status).toEqual(503);
-          expect(error.uri).toEqual(`${LP_API_URL}/devel/~foo`);
+      try {
+        const result = await getLaunchpad().patch('/~foo', {
+          'display_name': 'Foo'
         });
+        assert(false, 'Expected promise to be rejected; got %s instead',
+               result);
+      } catch (error) {
+        expect(error.response.status).toEqual(503);
+        expect(error.uri).toEqual(`${LP_API_URL}/devel/~foo`);
+      }
     });
   });
 
   describe('delete', () => {
-    it('handles successful response', () => {
+    it('handles successful response', async () => {
       lp.delete('/devel/~foo')
         .matchHeader('Authorization', checkAuthorization)
         .reply(200, 'null');
 
-      return getLaunchpad().delete('/~foo').then(
-        (result) => {
-          expect(result).toBe(null);
-        });
+      const result = await getLaunchpad().delete('/~foo');
+      expect(result).toBe(null);
     });
 
-    it('handles failing response', () => {
+    it('handles failing response', async () => {
       lp.delete('/devel/~foo').reply(503);
 
-      return getLaunchpad().delete('/~foo')
-        .then((result) => {
-          assert(false, 'Expected promise to be rejected; got %s instead',
-                 result);
-        }, (error) => {
-          expect(error.response.status).toEqual(503);
-          expect(error.uri).toEqual(`${LP_API_URL}/devel/~foo`);
-        });
+      try {
+        const result = await getLaunchpad().delete('/~foo');
+        assert(false, 'Expected promise to be rejected; got %s instead',
+               result);
+      } catch (error) {
+        expect(error.response.status).toEqual(503);
+        expect(error.uri).toEqual(`${LP_API_URL}/devel/~foo`);
+      }
     });
   });
 
@@ -260,20 +259,18 @@ describe('Launchpad', () => {
       }
     };
 
-    it('does not modify URI on PATCH', () => {
-      return getLaunchpad().wrap_resource_on_success(
-        fake_response, original_uri, 'PATCH')
-        .then(result => {
-          expect(result.uri).toEqual(original_uri);
-        });
+    it('does not modify URI on PATCH', async () => {
+      const result = await getLaunchpad().wrap_resource_on_success(
+        fake_response, original_uri, 'PATCH'
+      );
+      expect(result.uri).toEqual(original_uri);
     });
 
-    it('replaces the URI on POST with the value of self_link', () => {
-      return getLaunchpad().wrap_resource_on_success(
-        fake_response, original_uri, 'POST')
-        .then(result => {
-          expect(result.uri).toEqual(updated_uri);
-        });
+    it('replaces the URI on POST with the value of self_link', async () => {
+      const result = await getLaunchpad().wrap_resource_on_success(
+        fake_response, original_uri, 'POST'
+      );
+      expect(result.uri).toEqual(updated_uri);
     });
   });
 });

@@ -41,7 +41,7 @@ describe('Resources', () => {
       expect(collection.entries[1].name).toEqual('two');
     });
 
-    it('retrieves a subset of the collection', () => {
+    it('retrieves a subset of the collection', async () => {
       let entries = [];
       for (let i = 0; i < 100; i++) {
         entries.push({ name: `person${i}` });
@@ -67,11 +67,10 @@ describe('Resources', () => {
         getLaunchpad(), `${LP_API_URL}/devel/~foo/ppas`, representation);
       expect(collection.total_size).toEqual(100);
       expect(collection.entries.length).toEqual(75);
-      return collection.lp_slice(75, 25).then(slice => {
-        expect(slice.entries.length).toEqual(25);
-        expect(slice.entries[0].name).toEqual('person75');
-        expect(slice.entries[24].name).toEqual('person99');
-      });
+      const slice = await collection.lp_slice(75, 25);
+      expect(slice.entries.length).toEqual(25);
+      expect(slice.entries[0].name).toEqual('person75');
+      expect(slice.entries[24].name).toEqual('person99');
     });
 
     it('allows iteration over the collection', async () => {
@@ -146,7 +145,7 @@ describe('Resources', () => {
       expect(entry.name).toEqual('foo');
     });
 
-    it('saves modified attributes', () => {
+    it('saves modified attributes', async () => {
       lp.post('/devel/~foo', { 'display_name': 'Bar' })
         .matchHeader('X-HTTP-Method-Override', /^PATCH$/)
         .reply(200, {
@@ -167,8 +166,8 @@ describe('Resources', () => {
         getLaunchpad(), `${LP_API_URL}/devel/~foo`, representation);
       entry.display_name = 'Bar';
       expect(entry.dirty_attributes).toEqual(['display_name']);
-      return entry.lp_save()
-        .then(() => { expect(entry.dirty_attributes).toEqual([]); });
+      await entry.lp_save();
+      expect(entry.dirty_attributes).toEqual([]);
     });
 
     it('doesn\'t expose internal properties', () => {
@@ -185,7 +184,7 @@ describe('Resources', () => {
       ]);
     });
 
-    it('can be deleted', () => {
+    it('can be deleted', async () => {
       lp.delete('/devel/~foo')
         .reply(200, 'null');
 
@@ -195,8 +194,8 @@ describe('Resources', () => {
       };
       const entry = new Entry(
         getLaunchpad(), `${LP_API_URL}/devel/~foo`, representation);
-      return entry.lp_delete()
-        .then(() => lp.done());
+      await entry.lp_delete();
+      lp.done();
     });
   });
 });
