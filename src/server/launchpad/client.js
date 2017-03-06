@@ -52,7 +52,7 @@ export class Launchpad {
    * Get the current state of a resource.
    * @returns {Promise<Resource|Object, ResourceError>}
    */
-  get(uri, config) {
+  async get(uri, config) {
     if (config === undefined) {
       config = {};
     }
@@ -74,13 +74,12 @@ export class Launchpad {
       uri += '?' + qs.stringify(parameters, { indices: false });
     }
 
-    return fetch(uri, { headers: headers }).then(response => {
-      if (Math.floor(response.status / 100) == 2) {
-        return this.wrap_resource_on_success(response, uri, 'GET');
-      } else {
-        throw new ResourceError(response, this, uri, 'GET');
-      }
-    });
+    const response = await fetch(uri, { headers: headers });
+    if (Math.floor(response.status / 100) == 2) {
+      return this.wrap_resource_on_success(response, uri, 'GET');
+    } else {
+      throw new ResourceError(response, this, uri, 'GET');
+    }
   }
 
   /**
@@ -99,7 +98,7 @@ export class Launchpad {
    * Perform a named POST operation on the given URI.
    * @returns {Promise<Resource|Object, ResourceError>}
    */
-  named_post(uri, operation_name, config) {
+  async named_post(uri, operation_name, config) {
     if (config === undefined) {
       config = {};
     }
@@ -110,29 +109,28 @@ export class Launchpad {
     };
     const parameters = { 'ws.op': operation_name, ...config.parameters };
 
-    return fetch(uri, {
+    const response = await fetch(uri, {
       method: 'POST',
       headers: headers,
       body: qs.stringify(parameters, { indices: false })
-    }).then(response => {
-      if (response.status === HTTP_CREATED) {
-        // A new object was created as a result of the operation.  Get that
-        // object instead.
-        var new_location = response.headers.get('Location');
-        return this.get(new_location, {});
-      } else if (Math.floor(response.status / 100) == 2) {
-        return this.wrap_resource_on_success(response, uri, 'POST');
-      } else {
-        throw new ResourceError(response, this, uri, 'POST');
-      }
     });
+    if (response.status === HTTP_CREATED) {
+      // A new object was created as a result of the operation.  Get that
+      // object instead.
+      var new_location = response.headers.get('Location');
+      return this.get(new_location, {});
+    } else if (Math.floor(response.status / 100) == 2) {
+      return this.wrap_resource_on_success(response, uri, 'POST');
+    } else {
+      throw new ResourceError(response, this, uri, 'POST');
+    }
   }
 
   /**
    * Patch the resource at the given URI with an updated representation.
    * @returns {Promise<Resource|Object, ResourceError>}
    */
-  patch(uri, representation, config) {
+  async patch(uri, representation, config) {
     if (config === undefined) {
       config = {};
     }
@@ -146,38 +144,36 @@ export class Launchpad {
       'X-Content-Type-Override': 'application/json'
     };
 
-    return fetch(uri, {
+    const response = await fetch(uri, {
       method: 'POST',
       headers: headers,
       body: JSON.stringify(representation)
-    }).then(response => {
-      if (Math.floor(response.status / 100) == 2) {
-        return this.wrap_resource_on_success(response, uri, 'PATCH');
-      } else {
-        throw new ResourceError(response, this, uri, 'PATCH');
-      }
     });
+    if (Math.floor(response.status / 100) == 2) {
+      return this.wrap_resource_on_success(response, uri, 'PATCH');
+    } else {
+      throw new ResourceError(response, this, uri, 'PATCH');
+    }
   }
 
   /**
    * Delete the resource at the given URI.
    * @returns {Promise<Resource|Object, ResourceError>}
    */
-  delete(uri) {
+  async delete(uri) {
     uri = normalizeURI(this.base_uri, uri);
 
     const headers = this.makeHeaders();
 
-    return fetch(uri, {
+    const response = await fetch(uri, {
       method: 'DELETE',
       headers: headers
-    }).then((response) => {
-      if (Math.floor(response.status / 100) == 2) {
-        return this.wrap_resource_on_success(response, uri, 'DELETE');
-      } else {
-        throw new ResourceError(response, this, uri, 'DELETE');
-      }
     });
+    if (Math.floor(response.status / 100) == 2) {
+      return this.wrap_resource_on_success(response, uri, 'DELETE');
+    } else {
+      throw new ResourceError(response, this, uri, 'DELETE');
+    }
   }
 
   /** Given a representation, turn it into a subclass of Resource. */
@@ -223,19 +219,18 @@ export class Launchpad {
   }
 
   /** Common handler for successful responses, wrapping as appropriate. */
-  wrap_resource_on_success(response, uri, method) {
+  async wrap_resource_on_success(response, uri, method) {
     const media_type = response.headers.get('Content-Type');
     if (media_type.startsWith('application/json')) {
-      return response.json().then(representation => {
-        // If the object fetched has a self_link, make that the object's uri
-        // for use in other api methods off of that object.  During a PATCH
-        // request the caller is the object.  Leave the original_uri alone.
-        // Otherwise make the uri the object coming back.
-        if (representation && representation.self_link && method !== 'PATCH') {
-          uri = representation.self_link;
-        }
-        return this.wrap_resource(uri, representation);
-      });
+      const representation = await response.json();
+      // If the object fetched has a self_link, make that the object's uri
+      // for use in other api methods off of that object.  During a PATCH
+      // request the caller is the object.  Leave the original_uri alone.
+      // Otherwise make the uri the object coming back.
+      if (representation && representation.self_link && method !== 'PATCH') {
+        uri = representation.self_link;
+      }
+      return this.wrap_resource(uri, representation);
     } else {
       return response.text();
     }

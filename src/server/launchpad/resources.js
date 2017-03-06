@@ -117,7 +117,7 @@ export class Entry extends Resource {
   }
 
   /** Write modifications to this entry back to the web service. */
-  lp_save(config) {
+  async lp_save(config) {
     const representation = {};
     for (const attribute of this.dirty_attributes) {
       representation[attribute] = this[attribute];
@@ -127,8 +127,8 @@ export class Entry extends Resource {
       headers['If-Match'] = this['http_etag'];
     }
     const uri = normalizeURI(this.lp_client.base_uri, this['self_link']);
-    return this.lp_client.patch(uri, representation, config, headers)
-      .then(() => { this.dirty_attributes = []; });
+    await this.lp_client.patch(uri, representation, config, headers);
+    this.dirty_attributes = [];
   }
 
   /** Delete this entry. */
