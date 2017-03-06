@@ -19,7 +19,7 @@ export default class HelpInstallSnap extends Component {
           </code>
         </pre>
         <p className={ styles.p }>
-          Don’t have snapd installed? <a className={ styles.external } href={ HELP_INSTALL_URL }>Install it now</a>.
+          Don’t have snapd installed? <a className={ styles.external } href={ HELP_INSTALL_URL } target="_blank">Install it now</a>.
         </p>
       </div>
     );
