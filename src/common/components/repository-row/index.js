@@ -197,7 +197,14 @@ class RepositoryRow extends Component {
       registerNameStatus.snapName : snap.store_name
     );
 
-    const hasBuilt = latestBuild && snap.snapcraft_data;
+    const hasBuilt = !!(latestBuild && snap.snapcraft_data);
+    const hasLog = !!(hasBuilt && latestBuild.buildLogUrl);
+
+    // only link to builds that have log available
+    const latestBuildUrl = hasLog
+      ? `/${fullName}/builds/${latestBuild.buildId}`
+      : null;
+
     const isActive = (
       showNameMismatchDropdown ||
       showUnconfiguredDropdown ||
@@ -228,14 +235,10 @@ class RepositoryRow extends Component {
           { this.renderSnapName.call(this, registeredName, showRegisterNameInput) }
         </Data>
         <Data col="30">
-          {/*
-            TODO: show 'Loading' when waiting for status?
-              and also show 'Never built' when no builds available
-          */}
           { hasBuilt
             ? (
               <BuildStatus
-                link={ `/${fullName}/builds/${latestBuild.buildId}`}
+                link={ latestBuildUrl }
                 colour={ latestBuild.colour }
                 statusMessage={ latestBuild.statusMessage }
                 dateStarted={ latestBuild.dateStarted }
@@ -354,31 +357,29 @@ class RepositoryRow extends Component {
 
 RepositoryRow.propTypes = {
   snap: PropTypes.shape({
-    resource_type_link: PropTypes.string,
     git_repository_url: PropTypes.string,
-    self_link: PropTypes.string,
     store_name: PropTypes.string,
     snapcraft_data: PropTypes.object
   }),
   latestBuild: PropTypes.shape({
     buildId: PropTypes.string,
-    status: PropTypes.string,
+    buildLogUrl: PropTypes.string,
+    colour: PropTypes.string,
+    dateStarted: PropTypes.string,
     statusMessage: PropTypes.string
   }),
   fullName: PropTypes.string,
   authStore: PropTypes.shape({
     authenticated: PropTypes.bool,
-    hasDischarge: PropTypes.bool,
-    isFetching: PropTypes.bool,
-    signedAgreement: PropTypes.bool,
     userName: PropTypes.string
   }),
   registerNameStatus: PropTypes.shape({
-    isFetching: PropTypes.bool,
-    success: PropTypes.bool,
-    error: PropTypes.object
+    success: PropTypes.bool
   }),
   dispatch: PropTypes.func.isRequired
 };
 
+// FIXME:
+// `connect` shouldn't be used just to add dispatch to props
+// this makes it much harder to test it as it get wrapped
 export default connect()(RepositoryRow);
