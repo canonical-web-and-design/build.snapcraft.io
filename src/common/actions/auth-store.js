@@ -86,11 +86,10 @@ export function extractSSOCaveat(macaroon) {
   return ssoCaveats[0].caveatId;
 }
 
-function getPackageUploadRequestPermission() {
+async function getPackageUploadRequestPermission() {
   const lifetime = conf.get('STORE_PACKAGE_UPLOAD_REQUEST_LIFETIME');
-  let caveatId;
 
-  return fetch(`${conf.get('STORE_API_URL')}/acl/`, {
+  const response = await fetch(`${conf.get('STORE_API_URL')}/acl/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -103,37 +102,33 @@ function getPackageUploadRequestPermission() {
         .add(lifetime, 'seconds')
         .format('YYYY-MM-DD[T]HH:mm:ss.SSS')
     })
-  })
-    .then((response) => response.json().then((json) => {
-      if (response.status !== 200 || !json.macaroon) {
-        throw new Error('The store did not return a valid macaroon.');
-      }
-      const rootRaw = json['macaroon'];
-      const root = MacaroonsBuilder.deserialize(rootRaw);
-      caveatId = extractSSOCaveat(root);
-      return localforage.setItem('package_upload_request', {
-        root: rootRaw,
-      });
-    }))
-    .then(() => caveatId);
+  });
+  const json = await response.json();
+  if (response.status !== 200 || !json.macaroon) {
+    throw new Error('The store did not return a valid macaroon.');
+  }
+  const rootRaw = json['macaroon'];
+  const root = MacaroonsBuilder.deserialize(rootRaw);
+  const caveatId = extractSSOCaveat(root);
+  await localforage.setItem('package_upload_request', { root: rootRaw });
+  return caveatId;
 }
 
 export function signIntoStore(location) { // location for tests
-  return (dispatch) => {
+  return async (dispatch) => {
     dispatch({ type: SIGN_INTO_STORE });
 
-    return getPackageUploadRequestPermission()
-      .then((caveatId) => {
-        const loginQuery = {
-          starting_url: (location || window.location).href,
-          caveat_id: caveatId
-        };
-        (location || window.location).href =
-          `${BASE_URL}/login/authenticate?${qs.stringify(loginQuery)}`;
-      })
-      .catch((error) => {
-        dispatch(signIntoStoreError(error));
-      });
+    try {
+      const caveatId = await getPackageUploadRequestPermission();
+      const loginQuery = {
+        starting_url: (location || window.location).href,
+        caveat_id: caveatId
+      };
+      (location || window.location).href =
+        `${BASE_URL}/login/authenticate?${qs.stringify(loginQuery)}`;
+    } catch (error) {
+      dispatch(signIntoStoreError(error));
+    }
   };
 }
 
@@ -163,41 +158,42 @@ export function checkPackageUploadRequest(rootRaw, dischargeRaw) {
 }
 
 export function getSSODischarge() {
-  let dischargeRaw;
-  return (dispatch) => {
+  return async (dispatch) => {
     dispatch({ type: GET_SSO_DISCHARGE });
 
-    return fetch(`${BASE_URL}/login/sso-discharge`, {
-      headers: { 'Accept': 'application/json' },
-      credentials: 'same-origin'
-    })
-      .then(checkStatus)
-      .then((response) => response.json())
-      .then((json) => {
-        dischargeRaw = json.payload.discharge;
-        return localforage.getItem('package_upload_request');
-      })
-      .then((packageUploadRequest) => {
-        if (packageUploadRequest === null) {
-          throw new Error('No store root macaroon saved in local storage.');
-        }
-        checkPackageUploadRequest(packageUploadRequest.root, dischargeRaw);
-        return localforage.setItem('package_upload_request', {
-          ...packageUploadRequest,
-          discharge: dischargeRaw
+    try {
+      const response = await fetch(`${BASE_URL}/login/sso-discharge`, {
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
+      });
+      await checkStatus(response);
+      const json = await response.json();
+      const dischargeRaw = json.payload.discharge;
+      const packageUploadRequest = await localforage.getItem(
+        'package_upload_request'
+      );
+      if (packageUploadRequest === null) {
+        throw new Error('No store root macaroon saved in local storage.');
+      }
+      checkPackageUploadRequest(packageUploadRequest.root, dischargeRaw);
+      await localforage.setItem('package_upload_request', {
+        ...packageUploadRequest,
+        discharge: dischargeRaw
+      });
+      try {
+        await fetch(`${BASE_URL}/login/sso-discharge`, {
+          method: 'DELETE',
+          credentials: 'same-origin'
         });
-      })
-      .then(() => {
+      } catch (error) {
         // It's obviously better if this succeeds, but we can't do anything
         // useful about it if it fails; better to just let the user carry
         // on.
-        return fetch(`${BASE_URL}/login/sso-discharge`, {
-          method: 'DELETE',
-          credentials: 'same-origin'
-        }).catch(() => {});
-      })
-      .then(() => dispatch(getSSODischargeSuccess()))
-      .catch((error) => dispatch(getSSODischargeError(error)));
+      }
+      dispatch(getSSODischargeSuccess());
+    } catch (error) {
+      dispatch(getSSODischargeError(error));
+    }
   };
 }
 
@@ -216,26 +212,29 @@ export function getSSODischargeError(error) {
 }
 
 export function checkSignedIntoStore() {
-  return (dispatch) => {
+  return async (dispatch) => {
     dispatch({ type: CHECK_SIGNED_INTO_STORE });
-    return localforage.getItem('package_upload_request')
-      .then((packageUploadRequest) => {
-        let authenticated;
-        if (packageUploadRequest === null) {
+    try {
+      const packageUploadRequest = await localforage.getItem(
+        'package_upload_request'
+      );
+      let authenticated;
+      if (packageUploadRequest === null) {
+        authenticated = false;
+      } else {
+        try {
+          checkPackageUploadRequest(
+            packageUploadRequest.root, packageUploadRequest.discharge
+          );
+          authenticated = true;
+        } catch (e) {
           authenticated = false;
-        } else {
-          try {
-            checkPackageUploadRequest(
-              packageUploadRequest.root, packageUploadRequest.discharge
-            );
-            authenticated = true;
-          } catch (e) {
-            authenticated = false;
-          }
         }
-        return dispatch(checkSignedIntoStoreSuccess(authenticated));
-      })
-      .catch((error) => dispatch(checkSignedIntoStoreError(error)));
+      }
+      dispatch(checkSignedIntoStoreSuccess(authenticated));
+    } catch (error) {
+      dispatch(checkSignedIntoStoreError(error));
+    }
   };
 }
 
@@ -254,38 +253,36 @@ function checkSignedIntoStoreError(error) {
   };
 }
 
-function fetchAccountInfo(root, discharge) {
+async function fetchAccountInfo(root, discharge) {
   const query = { root, discharge };
-  return fetch(`${BASE_URL}/api/store/account?${qs.stringify(query)}`, {
+  const accountUrl = `${BASE_URL}/api/store/account?${qs.stringify(query)}`;
+  const response = await fetch(accountUrl, {
     headers: { 'Accept': 'application/json' }
-  })
-    .then((response) => {
-      if (response.status >= 200 && response.status < 300) {
-        return { signedAgreement: true, hasShortNamespace: true };
-      } else {
-        return response.json().then((json) => {
-          const payload = json.error_list ? json.error_list[0] : json;
-          if (response.status === 403 && payload.code === 'user-not-ready') {
-            const data = { signedAgreement: null, hasShortNamespace: null };
-            if (payload.message.indexOf('has not signed agreement') !== -1) {
-              data.signedAgreement = false;
-            }
-            if (payload.message.indexOf('missing short namespace') !== -1) {
-              data.hasShortNamespace = false;
-            }
-            return data;
-          } else {
-            throw getError(response, { status: 'error', payload });
-          }
-        });
+  });
+  if (response.status >= 200 && response.status < 300) {
+    return { signedAgreement: true, hasShortNamespace: true };
+  } else {
+    const json = await response.json();
+    const payload = json.error_list ? json.error_list[0] : json;
+    if (response.status === 403 && payload.code === 'user-not-ready') {
+      const data = { signedAgreement: null, hasShortNamespace: null };
+      if (payload.message.indexOf('has not signed agreement') !== -1) {
+        data.signedAgreement = false;
       }
-    });
+      if (payload.message.indexOf('missing short namespace') !== -1) {
+        data.hasShortNamespace = false;
+      }
+      return data;
+    } else {
+      throw getError(response, { status: 'error', payload });
+    }
+  }
 }
 
-function setShortNamespace(root, discharge, userName) {
+async function setShortNamespace(root, discharge, userName) {
   // Try setting the short namespace to the SSO username.  This may not
   // work, but it's the best we can do automatically.
-  return fetch(`${BASE_URL}/api/store/account`, {
+  const response = await fetch(`${BASE_URL}/api/store/account`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -293,69 +290,48 @@ function setShortNamespace(root, discharge, userName) {
       root,
       discharge
     })
-  })
-    .then((response) => {
-      if (response.status >= 200 && response.status < 300) {
-        return { signedAgreement: null, hasShortNamespace: true };
-      } else {
-        return response.json().then((json) => {
-          const payload = json.error_list ? json.error_list[0] : json;
-          if (response.status === 403 && payload.code === 'user-not-ready' &&
-              payload.message.indexOf('has not signed agreement') !== -1) {
-            return { signedAgreement: false, hasShortNamespace: false };
-          } else {
-            throw getError(response, { status: 'error', payload });
-          }
-        });
-      }
-    })
-    .then((data) => {
-      if (data.signedAgreement === null) {
-        return fetchAccountInfo(root, discharge)
-          .then((data) => {
-            // fetchAccountInfo might not be able to work out whether a
-            // short namespace is set in some cases, but we know it is since
-            // we just set it.
-            if (data.hasShortNamespace === null) {
-              data.hasShortNamespace = true;
-            }
-            return data;
-          });
-      } else {
-        return data;
-      }
-    });
+  });
+  if (response.status >= 200 && response.status < 300) {
+    const data = await fetchAccountInfo(root, discharge);
+    // fetchAccountInfo might not be able to work out whether a short
+    // namespace is set in some cases, but we know it is since we just set
+    // it.
+    if (data.hasShortNamespace === null) {
+      data.hasShortNamespace = true;
+    }
+    return data;
+  } else {
+    const json = await response.json();
+    const payload = json.error_list ? json.error_list[0] : json;
+    if (response.status === 403 && payload.code === 'user-not-ready' &&
+        payload.message.indexOf('has not signed agreement') !== -1) {
+      return { signedAgreement: false, hasShortNamespace: false };
+    } else {
+      throw getError(response, { status: 'error', payload });
+    }
+  }
 }
 
 export function getAccountInfo(userName, macaroons) {
-  return (dispatch) => {
+  return async (dispatch) => {
     dispatch({ type: GET_ACCOUNT_INFO });
 
-    let root;
-    let discharge;
-    return new Promise((resolve, reject) => {
+    try {
+      let root;
+      let discharge;
       if (macaroons !== undefined) {
         ({ root, discharge } = macaroons);
-        return resolve();
       } else {
-        return getPackageUploadRequestMacaroon()
-          .then((result) => {
-            ({ root, discharge } = result);
-            return resolve();
-          })
-          .catch((error) => reject(error));
+        ({ root, discharge } = await getPackageUploadRequestMacaroon());
       }
-    })
-      .then(() => fetchAccountInfo(root, discharge))
-      .then((data) => {
-        if (data.hasShortNamespace === false) {
-          return setShortNamespace(root, discharge, userName);
-        } else {
-          return data;
-        }
-      })
-      .then((data) => dispatch(getAccountInfoSuccess(data)))
-      .catch((error) => dispatch(getAccountInfoError(error)));
+      let data = await fetchAccountInfo(root, discharge);
+      if (data.hasShortNamespace === false) {
+        data = await setShortNamespace(root, discharge, userName);
+      }
+      dispatch(getAccountInfoSuccess(data));
+    } catch (error) {
+      dispatch(getAccountInfoError(error));
+    }
   };
 }
 
@@ -379,12 +355,13 @@ export function signAgreementSuccess() {
 }
 
 export function signOut(location) { // location for tests
-  return (dispatch) => {
-    return localforage.removeItem('package_upload_request')
-      .then(() => {
-        (location || window.location).href = `${BASE_URL}/auth/logout`;
-      })
-      .catch((error) => dispatch(signOutError(error)));
+  return async (dispatch) => {
+    try {
+      await localforage.removeItem('package_upload_request');
+      (location || window.location).href = `${BASE_URL}/auth/logout`;
+    } catch (error) {
+      dispatch(signOutError(error));
+    }
   };
 }
 
