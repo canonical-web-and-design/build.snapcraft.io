@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import session from 'express-session';
 import url from 'url';
 import path from 'path';
+import promBundle from 'express-prom-bundle';
 import expressWinston from 'express-winston';
 import raven from 'raven';
 import favicon from 'serve-favicon';
@@ -11,7 +12,8 @@ import * as routes from './routes/';
 import { conf } from './helpers/config';
 import sessionConfig from './helpers/session';
 import logging from './logging';
-import setRevisionHeader from './middleware/set-revision-header.js';
+import setRevisionHeader from './middleware/set-revision-header';
+import trustedNetworks from './middleware/trusted-networks';
 
 const appUrl = url.parse(conf.get('BASE_URL'));
 const app = Express();
@@ -46,8 +48,11 @@ app.use(expressWinston.logger({
 app.use(helmet());
 app.use(session(sessionConfig(conf)));
 app.use(Express.static(__dirname + '/../public', { maxAge: '365d' }));
+const metricsBundle = promBundle({ autoregister: false });
+app.use(metricsBundle);
 
 // routes
+app.use('/metrics', trustedNetworks, metricsBundle.metricsMiddleware);
 app.use('/', routes.login);
 app.use('/api', routes.github);
 app.use('/api', routes.launchpad);

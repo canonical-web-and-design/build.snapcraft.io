@@ -91,6 +91,9 @@
     "big.js": {
       "version": "3.1.3"
     },
+    "bintrees": {
+      "version": "1.0.1"
+    },
     "body-parser": {
       "version": "1.15.2",
       "dependencies": {
@@ -296,6 +299,9 @@
           "version": "6.2.0"
         }
       }
+    },
+    "express-prom-bundle": {
+      "version": "2.1.0"
     },
     "express-session": {
       "version": "1.14.2"
@@ -756,6 +762,9 @@
     "process": {
       "version": "0.5.2"
     },
+    "prom-client": {
+      "version": "6.3.0"
+    },
     "promise": {
       "version": "7.1.1"
     },
@@ -979,6 +988,9 @@
     "symbol-observable": {
       "version": "1.0.4"
     },
+    "tdigest": {
+      "version": "0.1.1"
+    },
     "through": {
       "version": "2.3.8"
     },
@@ -1015,6 +1027,12 @@
     },
     "unreachable-branch-transform": {
       "version": "0.3.0"
+    },
+    "url-value-parser": {
+      "version": "1.0.0"
+    },
+    "util-extend": {
+      "version": "1.0.3"
     },
     "utils-merge": {
       "version": "1.0.0"

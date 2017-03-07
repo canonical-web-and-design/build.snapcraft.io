@@ -32,6 +32,7 @@ def configure(cache):
         hookenv.config('github_auth_client_secret') or '')
     github_webhook_secret = hookenv.config('github_webhook_secret') or ''
     http_proxy = hookenv.config('http_proxy') or ''
+    trusted_networks = (hookenv.config('trusted_networks') or '').split()
     if session_secret and memcache_session_secret:
         render(
             source='snap-build_systemd.j2',
@@ -53,6 +54,7 @@ def configure(cache):
                 'github_auth_client_secret': github_auth_client_secret,
                 'github_webhook_secret': github_webhook_secret,
                 'http_proxy': http_proxy,
+                'trusted_networks': trusted_networks,
             })
         check_call(['systemctl', 'enable', basename(SYSTEMD_CONFIG)])
         check_call(['systemctl', 'daemon-reload'])

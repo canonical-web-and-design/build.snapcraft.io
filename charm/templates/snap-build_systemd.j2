@@ -19,6 +19,7 @@ Environment='GITHUB_AUTH_CLIENT_ID={{ github_auth_client_id }}'
 Environment='GITHUB_AUTH_CLIENT_SECRET={{ github_auth_client_secret }}'
 Environment='GITHUB_WEBHOOK_SECRET={{ github_webhook_secret }}'
 Environment='HTTP_PROXY={{ http_proxy }}'
+Environment='TRUSTED_NETWORKS={{ trusted_networks | join(",") }}'
 WorkingDirectory={{ working_dir }}
 User={{ user }}
 ExecStart=/usr/bin/npm run start-build -- --env=environments/{{ environment }}.env
