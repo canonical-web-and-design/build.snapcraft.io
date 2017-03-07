@@ -74,7 +74,10 @@ build: $(PAYLOAD)
 deploy: build
 	juju deploy $(CHARMDIR)
 	juju deploy memcached
+	juju deploy postgresql
 	juju add-relation $(NAME) memcached
+	juju add-relation $(NAME) postgresql:db
+	juju add-relation $(NAME) postgresql:db-admin
 	juju config $(NAME) session_secret='its a secret' \
 		environment=$(DEPLOY_ENV) \
 		memcache_session_secret='its another secret'

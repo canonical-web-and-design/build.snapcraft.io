@@ -9,7 +9,3 @@ series:
 requires:
   cache: 
     interface: memcache
-  db:
-    interface: pgsql
-  db-admin:
-    interface: pgsql

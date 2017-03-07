@@ -1,0 +1,14 @@
+//  This file is managed by Juju; ANY CHANGES WILL BE OVERWRITTEN
+// --------------------------------------------------------------
+
+module.exports = {
+
+  '{{ environment }}': {
+    client: 'pg',
+    connection: '{{ db_conn }}',
+    migrations: {
+      tableName: 'knex_migrations'
+    }
+  }
+
+}

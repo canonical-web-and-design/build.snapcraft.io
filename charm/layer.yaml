@@ -1,13 +1,23 @@
 repo: git@github.com:canonical-ols/build.snapcraft.io.git
 includes:
+    - layer:leadership
     - layer:ols-http
+    - layer:ols-pg
     - interface:memcache
 options:
+    basic:
+        packages:
+            - python3-psycopg2
     ols:
         service_name: snap-build
         user: ubuntu
         tarball_payload: false
-
+# Ignore the migrate action from layer:ols-pg for now, since we handle that
+# in response to leadership election instead.  Perhaps in future we should
+# supply our own version of this action.
+ignore:
+    - actions
+    - actions.yaml
 exclude:
     - tmp
     - Makefile

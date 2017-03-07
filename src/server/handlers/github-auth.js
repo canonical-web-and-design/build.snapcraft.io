@@ -1,6 +1,7 @@
 import request from 'request';
 import logging from '../logging';
 
+import { GitHubUser } from '../db/models/github-user';
 import { conf } from '../helpers/config';
 import { requestUser } from './github';
 
@@ -75,6 +76,25 @@ export const verify = (req, res, next) => {
     req.session.githubAuthenticated = true;
     req.session.token = body.access_token;
     req.session.user = userResponse.body;
+
+    // Save user info to DB
+    try {
+      let dbUser = await GitHubUser.where({ github_id: userResponse.body.id })
+        .fetch();
+      if (dbUser === null) {
+        dbUser = GitHubUser.forge({ github_id: userResponse.body.id });
+      }
+      await dbUser.set({
+        name: userResponse.body.name || null,
+        login: userResponse.body.login,
+        last_login_at: new Date()
+      });
+      if (dbUser.hasChanged()) {
+        await dbUser.save();
+      }
+    } catch (error) {
+      return next(error);
+    }
 
     // Redirect to logged in URL
     res.redirect('/dashboard');

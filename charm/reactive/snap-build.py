@@ -2,23 +2,80 @@ from glob import glob
 from re import search
 from os.path import basename, dirname, join
 from subprocess import check_call, check_output
+from textwrap import dedent
+
+import psycopg2
 
 from charmhelpers.core import hookenv
 from charmhelpers.core.host import restart_on_change
 from charmhelpers.core.templating import render
-from charms.reactive import when, when_not, set_state
 from charms.apt import queue_install
+from charms.leadership import leader_set
+from charms.reactive import when, when_not, set_state
 from ols.base import check_port, code_dir, logs_dir, service_name, user
 from ols.http import port
 
 
 SYSTEMD_CONFIG = '/lib/systemd/system/snap-build.service'
+KNEXFILE_NORMAL = join(code_dir(), 'knexfile-normal.js')
+KNEXFILE_ADMIN = join(code_dir(), 'knexfile-admin.js')
 
 
+def quote_identifier(identifier):
+    return '"{}"'.format(identifier.encode('US-ASCII').replace('"', '""'))
+
+
+@when('db-admin.master.available')
+@when('ols.configured')
+@when('leadership.is_leader')
+@when_not('leadership.set.migrated')
+def migrate(pgsql):
+    db_name = hookenv.config('db_name')
+    if pgsql.master is None or pgsql.master.dbname != db_name:
+        return
+    environment = hookenv.config('environment')
+    render(
+        source='knexfile.js.j2',
+        target=KNEXFILE_ADMIN,
+        context={
+            'environment': environment,
+            'db_conn': pgsql.master.uri,
+        })
+    # knex's migration facilities don't include granting database
+    # privileges.  We don't care very deeply about fine-grained privileges
+    # here, so let's just grant general query and manipulation access (but
+    # not schema modification) to our roles.
+    roles = hookenv.config('db_roles')
+    if isinstance(roles, str):
+        roles = [roles]
+    con = psycopg2.connect(pgsql.master)
+    with con.cursor() as cur:
+        quoted_roles = ', '.join(quote_identifier(role) for role in roles)
+        cur.execute(dedent('''\
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public
+            GRANT ALL PRIVILEGES ON TABLES TO {}
+            ''').format(quoted_roles))
+        cur.execute(dedent('''\
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public
+            GRANT ALL PRIVILEGES ON SEQUENCES TO {}
+            ''').format(quoted_roles))
+    migrate_cmd = [
+        'npm', 'run', 'migrate:latest', '--',
+        '--knexfile', KNEXFILE_ADMIN, '--env', environment,
+        ]
+    check_call(migrate_cmd, cwd=code_dir())
+    leader_set(migrated=True)
+
+
+@when('leadership.set.migrated')
 @when('cache.available')
+@when('db.master.available')
 @when('ols.service.installed')
-@restart_on_change({SYSTEMD_CONFIG: ['snap-build']}, stopstart=True)
-def configure(cache):
+@restart_on_change({
+    SYSTEMD_CONFIG: ['snap-build'],
+    KNEXFILE_NORMAL: ['snap-build'],
+    }, stopstart=True)
+def configure(pgsql, cache):
     environment = hookenv.config('environment')
     session_secret = hookenv.config('session_secret')
     memcache_session_secret = hookenv.config('memcache_session_secret')
@@ -34,6 +91,13 @@ def configure(cache):
     http_proxy = hookenv.config('http_proxy') or ''
     trusted_networks = (hookenv.config('trusted_networks') or '').split()
     if session_secret and memcache_session_secret:
+        render(
+            source='knexfile.js.j2',
+            target=KNEXFILE_NORMAL,
+            context={
+                'environment': environment,
+                'db_conn': pgsql.master.uri,
+            })
         render(
             source='snap-build_systemd.j2',
             target=SYSTEMD_CONFIG,
@@ -53,6 +117,7 @@ def configure(cache):
                 'github_auth_client_id': github_auth_client_id,
                 'github_auth_client_secret': github_auth_client_secret,
                 'github_webhook_secret': github_webhook_secret,
+                'knex_config_path': KNEXFILE_NORMAL,
                 'http_proxy': http_proxy,
                 'trusted_networks': trusted_networks,
             })
