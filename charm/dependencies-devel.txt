@@ -1,3 +1,4 @@
+build-essential
 bzr
 charm-tools
 git
