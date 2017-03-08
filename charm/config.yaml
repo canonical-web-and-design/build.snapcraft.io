@@ -32,5 +32,7 @@ options:
     http_proxy:
         type: string
         description: HTTP proxy URL
+    db_name:
+        default: "snap_build"
     db_roles:
         default: "snap_build"

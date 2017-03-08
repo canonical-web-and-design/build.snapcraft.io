@@ -22,7 +22,9 @@ KNEXFILE_ADMIN = join(code_dir(), 'knexfile-admin.js')
 
 
 def quote_identifier(identifier):
-    return '"{}"'.format(identifier.encode('US-ASCII').replace('"', '""'))
+    # Fail if it's not ASCII.
+    identifier.encode('US-ASCII')
+    return '"{}"'.format(identifier.replace('"', '""'))
 
 
 @when('db-admin.master.available')
