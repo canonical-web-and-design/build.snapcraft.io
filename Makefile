@@ -60,9 +60,9 @@ clean:
 $(DIST):
 	rm -rf $(DISTDIR)
 	mkdir -p $(DISTDIR)
-	npm install || (cat npm-debug.log && exit 1)
+	npm install --nodedir=/usr || (cat npm-debug.log && exit 1)
 	npm run build
-	npm install --production || (cat npm-debug.log && exit 1)
+	npm install --nodedir=/usr --production || (cat npm-debug.log && exit 1)
 	touch $@
 
 $(PAYLOAD): $(CHARM) $(DIST) version-info build-exclude.txt $(SRC) $(SRC)/* $(SRC_PREQS)
