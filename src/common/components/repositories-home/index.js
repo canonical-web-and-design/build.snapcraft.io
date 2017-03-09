@@ -36,14 +36,14 @@ class RepositoriesHome extends Component {
 
   componentDidMount() {
     const { authenticated } = this.props.auth;
-    const { dispatch } = this.props;
+    const { updateSnaps } = this.props;
     const owner = this.props.user.login;
 
     if (authenticated) {
-      dispatch(fetchUserSnaps(owner));
+      updateSnaps(owner);
       if (!interval) {
         interval = setInterval(() => {
-          dispatch(fetchUserSnaps(owner));
+          updateSnaps(owner);
         }, SNAP_POLL_PERIOD);
       }
     }
@@ -103,7 +103,8 @@ RepositoriesHome.propTypes = {
   snaps: PropTypes.object.isRequired,
   snapBuilds: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
-  router: PropTypes.object.isRequired
+  router: PropTypes.object.isRequired,
+  updateSnaps: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
@@ -122,5 +123,13 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(withRouter(RepositoriesHome));
+function mapDispatchToProps(dispatch) {
+  return {
+    updateSnaps: (owner) => {
+      dispatch(fetchUserSnaps(owner));
+    }
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(RepositoriesHome));
 export const RepositoriesHomeRaw = RepositoriesHome;

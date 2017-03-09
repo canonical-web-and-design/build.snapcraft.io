@@ -1,17 +1,10 @@
 import React from 'react';
 import expect from 'expect';
 import { shallow } from 'enzyme';
-import proxyquire from 'proxyquire';
 import sinon from 'sinon';
 
-const RepositoriesHome = proxyquire(
-  '../../../../../../src/common/components/repositories-home',
-  {
-    '../../actions/snaps': {
-      fetchUserSnaps: sinon.stub().returns({ type: 'FETCH_SNAP_REPOSITORIES' })
-    }
-  }
-).RepositoriesHomeRaw;
+import { RepositoriesHomeRaw as RepositoriesHome } from '../../../../../../src/common/components/repositories-home';
+
 let clock;
 
 describe('The RepositoriesHome component', () => {
@@ -36,7 +29,7 @@ describe('The RepositoriesHome component', () => {
         user: {},
         snaps: {},
         snapBuilds: {},
-        dispatch: sinon.spy(),
+        updateSnaps: expect.createSpy(),
         router: {}
       };
 
@@ -52,18 +45,18 @@ describe('The RepositoriesHome component', () => {
         wrapper.instance().componentWillUnmount();
       });
 
-      it('should dispatch fetchUserSnaps immediately', () => {
-        expect(props.dispatch.calledWith({ type: 'FETCH_SNAP_REPOSITORIES' })).toBe(true);
+      it('should call updateSnaps callback immediately', () => {
+        expect(props.updateSnaps).toHaveBeenCalled();
       });
 
       context('and after fifteen seconds', () => {
         beforeEach(() => {
-          props.dispatch.reset();
+          props.updateSnaps.reset();
           clock.tick(15000);
         });
 
-        it('should dispatch fetchUserSnaps again', () => {
-          expect(props.dispatch.calledWith({ type: 'FETCH_SNAP_REPOSITORIES' })).toBe(true);
+        it('should dispatch updateSnaps callback again', () => {
+          expect(props.updateSnaps).toHaveBeenCalled();
         });
       });
     });
@@ -73,12 +66,12 @@ describe('The RepositoriesHome component', () => {
         wrapper.instance().componentDidMount();
         clock.tick(60000);
         wrapper.instance().componentWillUnmount();
-        props.dispatch.reset();
+        props.updateSnaps.reset();
       });
 
-      it('should not dispatch fetchSnaps again', () => {
+      it('should not updateSnaps callback again', () => {
         clock.tick(60000);
-        expect(props.dispatch.calledWith({ type: 'FETCH_SNAP_REPOSITORIES' })).toBe(false);
+        expect(props.updateSnaps).toNotHaveBeenCalled();
       });
     });
   });
