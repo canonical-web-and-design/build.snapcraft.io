@@ -3,11 +3,9 @@ import * as RegisterNameActionTypes from '../actions/register-name';
 import { getGitHubRepoUrl } from '../helpers/github-url';
 
 function findSnapByFullName(snaps, fullName) {
-  const snap = snaps.filter((snap) => {
+  return snaps.find((snap) => {
     return snap.git_repository_url === getGitHubRepoUrl(fullName);
-  })[0];
-
-  return snap;
+  });
 }
 
 function updateRegisteredName(snaps, fullName, snapName) {
