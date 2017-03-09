@@ -42,12 +42,12 @@ def migrate(pgsql):
     db_name = hookenv.config('db_name')
     if pgsql.master is None or pgsql.master.dbname != db_name:
         return
-    environment = hookenv.config('environment')
+    node_env = get_node_env(hookenv.config('environment'))
     render(
         source='knexfile.js.j2',
         target=KNEXFILE_ADMIN,
         context={
-            'node_env': get_node_env(environment),
+            'node_env': node_env,
             'db_conn': pgsql.master.uri,
         })
     # knex's migration facilities don't include granting database
@@ -70,7 +70,7 @@ def migrate(pgsql):
             ''').format(quoted_roles))
     migrate_cmd = [
         'npm', 'run', 'migrate:latest', '--',
-        '--knexfile', KNEXFILE_ADMIN, '--env', environment,
+        '--knexfile', KNEXFILE_ADMIN, '--env', node_env,
         ]
     check_call(migrate_cmd, cwd=code_dir())
     leader_set(migrated=True)
