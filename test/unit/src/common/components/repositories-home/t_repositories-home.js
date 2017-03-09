@@ -11,7 +11,7 @@ const RepositoriesHome = proxyquire(
       fetchUserSnaps: sinon.stub().returns({ type: 'FETCH_SNAP_REPOSITORIES' })
     }
   }
-).raw;
+).RepositoriesHomeRaw;
 let clock;
 
 describe('The RepositoriesHome component', () => {

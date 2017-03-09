@@ -123,4 +123,4 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps)(withRouter(RepositoriesHome));
-export const raw = RepositoriesHome;
+export const RepositoriesHomeRaw = RepositoriesHome;
