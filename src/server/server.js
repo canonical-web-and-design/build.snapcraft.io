@@ -8,6 +8,7 @@ import expressWinston from 'express-winston';
 import raven from 'raven';
 import favicon from 'serve-favicon';
 
+import startAllMetrics from './metrics/';
 import * as routes from './routes/';
 import { conf } from './helpers/config';
 import sessionConfig from './helpers/session';
@@ -48,7 +49,9 @@ app.use(expressWinston.logger({
 app.use(helmet());
 app.use(session(sessionConfig(conf)));
 app.use(Express.static(__dirname + '/../public', { maxAge: '365d' }));
+
 const metricsBundle = promBundle({ autoregister: false });
+startAllMetrics();
 app.use(metricsBundle);
 
 // routes
