@@ -9,7 +9,6 @@ import {
 } from '../../actions/auth-store';
 import { createSnap } from '../../actions/create-snap';
 import RepositoryRow from '../repository-row';
-import Spinner from '../spinner';
 import { Table, Head, Body, Row, Header } from '../vanilla/table-interactive';
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
 
@@ -100,15 +99,11 @@ class RepositoriesList extends Component {
   }
 
   render() {
-    const isLoading = this.props.snaps.isFetching;
+    const { snaps } = this.props.snaps;
+    const hasSnaps = (snaps && Object.keys(snaps).length > 0);
 
     return (
       <div className={styles.repositoriesList}>
-        { isLoading &&
-          <div className={ spinnerStyles }>
-            <Spinner />
-          </div>
-        }
         <Table>
           <Head>
             <Row>
@@ -119,8 +114,8 @@ class RepositoriesList extends Component {
             </Row>
           </Head>
           <Body>
-            { this.props.snaps.success &&
-              this.props.snaps.snaps.map(this.renderRow.bind(this))
+            { hasSnaps &&
+              snaps.map(this.renderRow.bind(this))
             }
           </Body>
         </Table>

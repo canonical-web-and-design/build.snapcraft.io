@@ -43,7 +43,7 @@ class RepositoriesHome extends Component {
       dispatch(fetchUserSnaps(owner));
       if (!interval) {
         interval = setInterval(() => {
-          dispatch(fetchUserSnaps(owner, false));
+          dispatch(fetchUserSnaps(owner));
         }, SNAP_POLL_PERIOD);
       }
     }
@@ -89,10 +89,11 @@ class RepositoriesHome extends Component {
 
   render() {
     const { snaps } = this.props;
+    const hasSnaps = (snaps.snaps && Object.keys(snaps.snaps).length > 0);
     // show spinner until we know if user has any enabled repos
-    return (snaps.success || snaps.error)
-        ? this.renderRepositoriesList()
-        : this.renderSpinner();
+    return (snaps.isFetching && !hasSnaps)
+      ? this.renderSpinner()
+      : this.renderRepositoriesList();
   }
 }
 

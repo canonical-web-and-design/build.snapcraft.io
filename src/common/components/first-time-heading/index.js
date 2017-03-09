@@ -30,7 +30,7 @@ class FirstTimeHeading extends Component {
     let message = null;
     let progress = null;
 
-    if (snapsStore.success) {
+    if (snaps) {
       // no repos added yet
       if (snaps.length === 0) {
         message = 'Let’s get started! First, choose one or more GitHub repos for building.';
