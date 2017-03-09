@@ -9,12 +9,7 @@ export const hasNamedSnaps = createSelector(
   [getSnaps, getNames],
   (snaps, names) => {
     return snaps.snaps.some((snap) => {
-      if (typeof(snap.store_name) === 'string') return true;
-
-      const { fullName } = parseGitHubRepoUrl(snap.git_repository_url);
-      const registerNameStatus = names[fullName] || {};
-
-      return !!registerNameStatus.success;
+      return typeof(snap.store_name) === 'string';
     });
   }
 );

@@ -75,10 +75,10 @@ class RepositoriesList extends Component {
     const { fullName } = parseGitHubRepoUrl(snap.git_repository_url);
 
     let latestBuild = null;
-    const snapBuild = snapBuilds[fullName];
+    const currentSnapBuilds = snapBuilds[fullName];
 
-    if (snapBuild && snapBuild.success && snapBuild.builds.length) {
-      latestBuild = snapBuilds.builds[0];
+    if (currentSnapBuilds && currentSnapBuilds.success && currentSnapBuilds.builds.length) {
+      latestBuild = currentSnapBuilds.builds[0];
     }
 
     const registerNameStatus = registerName[fullName] || {};
