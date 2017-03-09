@@ -37,11 +37,13 @@ class RepositoryRow extends Component {
       snapName = '';
     }
 
+    console.log(props.registerNameIsOpen);
+
     this.state = {
       snapName,
       nameMismatchDropdownExpanded: false,
       unconfiguredDropdownExpanded: false,
-      unregisteredDropdownExpanded: false,
+      unregisteredDropdownExpanded: props.registerNameIsOpen,
       removeDropdownExpanded: false,
       signAgreement: false
     };
