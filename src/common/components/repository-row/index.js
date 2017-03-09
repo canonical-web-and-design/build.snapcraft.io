@@ -37,8 +37,6 @@ class RepositoryRow extends Component {
       snapName = '';
     }
 
-    console.log(props.registerNameIsOpen);
-
     this.state = {
       snapName,
       nameMismatchDropdownExpanded: false,
