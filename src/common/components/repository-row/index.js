@@ -376,7 +376,8 @@ RepositoryRow.propTypes = {
   registerNameStatus: PropTypes.shape({
     success: PropTypes.bool
   }),
-  dispatch: PropTypes.func.isRequired
+  dispatch: PropTypes.func.isRequired,
+  registerNameIsOpen: PropTypes.bool
 };
 
 // FIXME:
