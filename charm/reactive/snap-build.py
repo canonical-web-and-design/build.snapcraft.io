@@ -21,6 +21,13 @@ KNEXFILE_NORMAL = join(code_dir(), 'knexfile-normal.js')
 KNEXFILE_ADMIN = join(code_dir(), 'knexfile-admin.js')
 
 
+def get_node_env(environment):
+    if environment in ('staging', 'production'):
+        return 'production'
+    else:
+        return 'development'
+
+
 def quote_identifier(identifier):
     # Fail if it's not ASCII.
     identifier.encode('US-ASCII')
@@ -40,7 +47,7 @@ def migrate(pgsql):
         source='knexfile.js.j2',
         target=KNEXFILE_ADMIN,
         context={
-            'environment': environment,
+            'node_env': get_node_env(environment),
             'db_conn': pgsql.master.uri,
         })
     # knex's migration facilities don't include granting database
@@ -97,9 +104,13 @@ def configure(pgsql, cache):
             source='knexfile.js.j2',
             target=KNEXFILE_NORMAL,
             context={
-                'environment': environment,
+                'node_env': get_node_env(environment),
                 'db_conn': pgsql.master.uri,
             })
+        # XXX cjwatson 2017-03-08: Set NODE_ENV from here instead of in .env
+        # files?  This may make more sense as part of entirely getting rid
+        # of {staging,production}.env
+        # (https://github.com/canonical-ols/build.snapcraft.io/issues/276).
         render(
             source='snap-build_systemd.j2',
             target=SYSTEMD_CONFIG,
