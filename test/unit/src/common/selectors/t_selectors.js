@@ -1,8 +1,8 @@
 import expect from 'expect';
 
-import { hasNamedSnaps } from '../../../../../src/common/selectors';
+import { hasNoRegisteredNames } from '../../../../../src/common/selectors';
 
-describe('hasNamedSnaps', function() {
+describe('hasNoRegisteredNames', function() {
 
   const stateWithNoName = {
     snaps: {
@@ -19,17 +19,19 @@ describe('hasNamedSnaps', function() {
   };
 
   it('should be false when no names in store', function() {
-    expect(hasNamedSnaps(stateWithNoName)).toBe(false);
-    expect(hasNamedSnaps.recomputations()).toBe(1);
+    expect(hasNoRegisteredNames(stateWithNoName)).toBe(true);
   });
 
   it('should be true when name in snaps', function() {
-    expect(hasNamedSnaps(stateWithName)).toBe(true);
-    expect(hasNamedSnaps.recomputations()).toBe(2);
+    expect(hasNoRegisteredNames(stateWithName)).toBe(false);
+  });
+
+  it('should not memoize the selector', function() {
+    expect(hasNoRegisteredNames.recomputations()).toBe(2);
   });
 
   it('should memoize the selector', function() {
-    expect(hasNamedSnaps(stateWithName)).toBe(true);
-    expect(hasNamedSnaps.recomputations()).toBe(2);
+    expect(hasNoRegisteredNames(stateWithName)).toBe(false);
+    expect(hasNoRegisteredNames.recomputations()).toBe(2);
   });
 });

@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { hasNamedSnaps } from '../../selectors'
+import { hasNoRegisteredNames } from '../../selectors';
 import { conf } from '../../helpers/config';
 import {
   checkSignedIntoStore,
@@ -71,7 +71,7 @@ class RepositoriesList extends Component {
   }
 
   renderRow(snap, index) {
-    const { hasNamedSnaps, registerName, snapBuilds, authStore } = this.props;
+    const { hasNoRegisteredNames, registerName, snapBuilds, authStore } = this.props;
     const { fullName } = parseGitHubRepoUrl(snap.git_repository_url);
 
     let latestBuild = null;
@@ -91,7 +91,7 @@ class RepositoriesList extends Component {
         fullName={ fullName }
         authStore={ authStore }
         registerNameStatus={ registerNameStatus }
-        registerNameIsOpen={ !index && !hasNamedSnaps }
+        registerNameIsOpen={ !index && hasNoRegisteredNames }
       />
     );
   }
@@ -138,7 +138,8 @@ RepositoriesList.propTypes = {
   registerName: PropTypes.object,
   snaps: PropTypes.object,
   snapBuilds: PropTypes.object,
-  dispatch: PropTypes.func.isRequired
+  dispatch: PropTypes.func.isRequired,
+  hasNoRegisteredNames: PropTypes.bool
 };
 
 function mapStateToProps(state) {
@@ -156,7 +157,7 @@ function mapStateToProps(state) {
     registerName,
     snaps,
     snapBuilds,
-    hasNamedSnaps: hasNamedSnaps(state)
+    hasNoRegisteredNames: hasNoRegisteredNames(state)
   };
 }
 
