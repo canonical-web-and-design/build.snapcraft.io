@@ -72,6 +72,7 @@ class RepositoriesList extends Component {
   renderRow(snap, index) {
     const { hasNoRegisteredNames, registerName, snapBuilds, authStore } = this.props;
     const { fullName } = parseGitHubRepoUrl(snap.git_repository_url);
+    const isFirstInList = index === 0;
 
     let latestBuild = null;
     const currentSnapBuilds = snapBuilds[fullName];
@@ -90,7 +91,7 @@ class RepositoriesList extends Component {
         fullName={ fullName }
         authStore={ authStore }
         registerNameStatus={ registerNameStatus }
-        registerNameIsOpen={ !index && hasNoRegisteredNames }
+        registerNameIsOpen={ isFirstInList && hasNoRegisteredNames }
       />
     );
   }
