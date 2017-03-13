@@ -37,7 +37,7 @@ class FirstTimeHeading extends Component {
         progress = [SIGNALS.DONE, SIGNALS.ACTIVE, SIGNALS.DEFAULT];
       // at least one repo, but none have a name yet
       } else if (snaps.filter(hasStoreName).length === 0) {
-        message = 'Great! To publish a snap to the store, it needs a unique name. Try registering one now.';
+        message = 'Great! Next, register a snap name for publishing.';
         progress = [SIGNALS.DONE, SIGNALS.DONE, SIGNALS.ACTIVE];
       // at least one repo has a name but no snapcraft.yaml, and none have both
       } else if (snaps.filter(hasStoreNameButNotSnapcraftData).length &&
