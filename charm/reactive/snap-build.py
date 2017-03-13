@@ -9,6 +9,7 @@ import psycopg2
 from charmhelpers.core import hookenv
 from charmhelpers.core.host import restart_on_change
 from charmhelpers.core.templating import render
+from charms import promreg
 from charms.apt import queue_install
 from charms.leadership import leader_set
 from charms.reactive import when, when_not, set_state
@@ -178,3 +179,11 @@ def install_custom_nodejs():
         # us, we can't due to the conditional nature of installing these
         # packages *only* if the .deb file isn't used
         queue_install(['npm', 'nodejs', 'nodejs-legacy'])
+
+
+@when('service.configured')
+@when_not('service.promreg_done')
+def register_with_prometheus():
+    environment = hookenv.config('environment')
+    promreg.register(None, 8000, {'environment': environment})
+    set_state('service.promreg_done')
