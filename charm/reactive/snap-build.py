@@ -80,6 +80,7 @@ def migrate(pgsql):
 @when('leadership.set.migrated')
 @when('cache.available')
 @when('db.master.available')
+@when('ols.pg.configured')
 @when('ols.service.installed')
 @restart_on_change({
     SYSTEMD_CONFIG: ['snap-build'],
