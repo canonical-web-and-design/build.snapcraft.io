@@ -45,7 +45,7 @@ export function fetchBuildsError(id, error) {
 export function fetchSnap(repositoryUrl) {
   const { fullName } = parseGitHubRepoUrl(repositoryUrl);
 
-  return (dispatch) => {
+  return async (dispatch) => {
     if (repositoryUrl) {
       dispatch({
         type: FETCH_BUILDS,
@@ -56,20 +56,20 @@ export function fetchSnap(repositoryUrl) {
 
       repositoryUrl = encodeURIComponent(repositoryUrl);
       const url = `${BASE_URL}/api/launchpad/snaps?repository_url=${repositoryUrl}`;
-      return fetch(url)
-        .then(checkStatus)
-        .then(response => response.json())
-        .then((json) => {
-          const snap = json.payload.snap;
-          dispatch({
-            type: FETCH_SNAP_SUCCESS,
-            payload: {
-              id: fullName,
-              snap
-            }
-          });
-        })
-        .catch((error) => dispatch(fetchBuildsError(fullName, error)));
+      try {
+        const response = await checkStatus(await fetch(url));
+        const json = await response.json();
+        const snap = json.payload.snap;
+        dispatch({
+          type: FETCH_SNAP_SUCCESS,
+          payload: {
+            id: fullName,
+            snap
+          }
+        });
+      } catch (error) {
+        dispatch(fetchBuildsError(fullName, error));
+      }
     }
   };
 }
@@ -78,7 +78,7 @@ export function fetchSnap(repositoryUrl) {
 export function fetchBuilds(repositoryUrl, snapLink) {
   const { fullName } = parseGitHubRepoUrl(repositoryUrl);
 
-  return (dispatch) => {
+  return async (dispatch) => {
     if (snapLink) {
       dispatch({
         type: FETCH_BUILDS,
@@ -89,11 +89,13 @@ export function fetchBuilds(repositoryUrl, snapLink) {
 
       snapLink = encodeURIComponent(snapLink);
       const url = `${BASE_URL}/api/launchpad/builds?snap=${snapLink}`;
-      return fetch(url)
-        .then(checkStatus)
-        .then(response => response.json())
-        .then((json) => dispatch(fetchBuildsSuccess(fullName, json.payload.builds)))
-        .catch((error) => dispatch(fetchBuildsError(fullName, error)));
+      try {
+        const response = await checkStatus(await fetch(url));
+        const json = await response.json();
+        dispatch(fetchBuildsSuccess(fullName, json.payload.builds));
+      } catch (error) {
+        dispatch(fetchBuildsError(fullName, error));
+      }
     }
   };
 }
@@ -102,7 +104,7 @@ export function fetchBuilds(repositoryUrl, snapLink) {
 export function requestBuilds(repositoryUrl) {
   const { fullName } = parseGitHubRepoUrl(repositoryUrl);
 
-  return (dispatch) => {
+  return async (dispatch) => {
     if (repositoryUrl) {
       dispatch({
         type: FETCH_BUILDS,
@@ -117,11 +119,13 @@ export function requestBuilds(repositoryUrl) {
         body: JSON.stringify({ repository_url: repositoryUrl })
       };
 
-      return fetch(url, settings)
-        .then(checkStatus)
-        .then((response) => response.json())
-        .then((json) => dispatch(fetchBuildsSuccess(fullName, json.payload.builds)))
-        .catch((error) => dispatch(fetchBuildsError(fullName, error)));
+      try {
+        const response = await checkStatus(await fetch(url, settings));
+        const json = await response.json();
+        dispatch(fetchBuildsSuccess(fullName, json.payload.builds));
+      } catch (error) {
+        dispatch(fetchBuildsError(fullName, error));
+      }
     }
   };
 }
