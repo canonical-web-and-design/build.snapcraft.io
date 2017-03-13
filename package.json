@@ -73,6 +73,7 @@
     "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",
     "request": "^2.79.0",
+    "reselect": "^2.5.4",
     "serve-favicon": "^2.4.0",
     "winston": "^2.3.0",
     "winston-daily-rotate-file": "^1.4.2",

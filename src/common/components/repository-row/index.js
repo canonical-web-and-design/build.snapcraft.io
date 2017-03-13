@@ -41,7 +41,7 @@ class RepositoryRow extends Component {
       snapName,
       nameMismatchDropdownExpanded: false,
       unconfiguredDropdownExpanded: false,
-      unregisteredDropdownExpanded: false,
+      unregisteredDropdownExpanded: props.registerNameIsOpen,
       removeDropdownExpanded: false,
       signAgreement: false
     };
@@ -376,7 +376,8 @@ RepositoryRow.propTypes = {
   registerNameStatus: PropTypes.shape({
     success: PropTypes.bool
   }),
-  dispatch: PropTypes.func.isRequired
+  dispatch: PropTypes.func.isRequired,
+  registerNameIsOpen: PropTypes.bool
 };
 
 // FIXME:

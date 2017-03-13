@@ -1,13 +1,13 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
+import { hasNoRegisteredNames } from '../../selectors';
 import { conf } from '../../helpers/config';
 import {
   checkSignedIntoStore,
   getAccountInfo,
   getSSODischarge
 } from '../../actions/auth-store';
-import { createSnap } from '../../actions/create-snap';
 import RepositoryRow from '../repository-row';
 import Spinner from '../spinner';
 import { Table, Head, Body, Row, Header } from '../vanilla/table-interactive';
@@ -69,17 +69,19 @@ class RepositoriesList extends Component {
     }
   }
 
-  renderRow(snap) {
+  renderRow(snap, index) {
+    const { hasNoRegisteredNames, registerName, snapBuilds, authStore } = this.props;
     const { fullName } = parseGitHubRepoUrl(snap.git_repository_url);
+    const isFirstInList = index === 0;
 
     let latestBuild = null;
-    const snapBuilds = this.props.snapBuilds[fullName];
+    const currentSnapBuilds = snapBuilds[fullName];
 
-    if (snapBuilds && snapBuilds.success && snapBuilds.builds.length) {
-      latestBuild = snapBuilds.builds[0];
+    if (currentSnapBuilds && currentSnapBuilds.success && currentSnapBuilds.builds.length) {
+      latestBuild = currentSnapBuilds.builds[0];
     }
 
-    const registerNameStatus = this.props.registerName[fullName] || {};
+    const registerNameStatus = registerName[fullName] || {};
 
     return (
       <RepositoryRow
@@ -87,16 +89,11 @@ class RepositoriesList extends Component {
         snap={ snap }
         latestBuild={ latestBuild }
         fullName={ fullName }
-        authStore={ this.props.authStore }
+        authStore={ authStore }
         registerNameStatus={ registerNameStatus }
+        registerNameIsOpen={ isFirstInList && hasNoRegisteredNames }
       />
     );
-  }
-
-  onButtonClick(repository) {
-    if (repository) {
-      this.props.dispatch(createSnap(repository.url));
-    }
   }
 
   render() {
@@ -135,7 +132,8 @@ RepositoriesList.propTypes = {
   registerName: PropTypes.object,
   snaps: PropTypes.object,
   snapBuilds: PropTypes.object,
-  dispatch: PropTypes.func.isRequired
+  dispatch: PropTypes.func.isRequired,
+  hasNoRegisteredNames: PropTypes.bool
 };
 
 function mapStateToProps(state) {
@@ -152,7 +150,8 @@ function mapStateToProps(state) {
     authStore,
     registerName,
     snaps,
-    snapBuilds
+    snapBuilds,
+    hasNoRegisteredNames: hasNoRegisteredNames(state)
   };
 }
 
