@@ -211,7 +211,10 @@ export const internalGetSnapcraftYaml = async (owner, name, token) => {
     try {
       const response = await fetchSnapcraftYaml(path, owner, name, token);
       try {
-        return yaml.safeLoad(response.body);
+        return {
+          contents: yaml.safeLoad(response.body),
+          path
+        };
       } catch (e) {
         throw new PreparedError(400, RESPONSE_SNAPCRAFT_YAML_PARSE_FAILED);
       }
@@ -241,7 +244,8 @@ export const getSnapcraftYaml = async (req, res) => {
       status: 'success',
       payload: {
         code: 'snapcraft-yaml-found',
-        contents: snapcraftYaml
+        path: snapcraftYaml.path,
+        contents: snapcraftYaml.contents
       }
     });
   } catch (error) {

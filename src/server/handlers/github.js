@@ -101,12 +101,19 @@ export const getSnapcraftData = async (repositoryUrl, token) => {
   try {
     const snapcraftYaml = await internalGetSnapcraftYaml(owner, name, token);
     const snapcraftData = {};
-    for (const index of Object.keys(snapcraftYaml)) {
+    for (const index of Object.keys(snapcraftYaml.contents)) {
       if (SNAPCRAFT_INFO_WHITELIST.indexOf(index) >= 0) {
-        snapcraftData[index] = snapcraftYaml[index];
+        snapcraftData[index] = snapcraftYaml.contents[index];
       }
     }
 
+    // copy snapcraft.yaml path from repo into snapcraftData
+    //
+    // XXX we are mixing our custom `path` into data from snapcraft.yaml file
+    // currently there is no `path` defined in snapcraft syntax
+    // https://snapcraft.io/docs/build-snaps/syntax
+    // and also we whitelist only `name`, so no collision should occur
+    snapcraftData.path = snapcraftYaml.path;
     await getMemcached().set(cacheId, snapcraftData, 3600);
     return snapcraftData;
   } catch (error) {
