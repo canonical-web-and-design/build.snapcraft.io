@@ -7,12 +7,12 @@ interface/interface-memcache        git+ssh://git.launchpad.net/~ubuntuone-hacke
 interface/interface-pgsql           git+ssh://git.launchpad.net/interface-pgsql;revno=v2.0.1
 
 layer                               @
-layer/layer-apt                     git+ssh://git.launchpad.net/layer-apt;revno=608bdf5
+layer/layer-apt                     git+ssh://git.launchpad.net/layer-apt;revno=7377e1f
 layer/layer-basic                   lp:~ubuntuone-hackers/ols-charm-deps/layer-basic;revno=62
 layer/layer-leadership              git+ssh://git.launchpad.net/layer-leadership;revno=8846afc
 layer/layer-ols                     lp:~ubuntuone-pqm-team/ols-charm-deps/layer-ols;revno=17
 layer/layer-ols-http                lp:~ubuntuone-pqm-team/ols-charm-deps/layer-ols-http;revno=3
-layer/layer-ols-pg                  lp:~ubuntuone-pqm-team/ols-charm-deps/layer-ols-pg;revno=3
-layer/layer-promreg-client          git+ssh://git.launchpad.net/~timkuhlman/prometheus-registration/+git/layer-promreg-client;revno=4c91c19
+layer/layer-ols-pg                  lp:~ubuntuone-pqm-team/ols-charm-deps/layer-ols-pg;revno=4
+layer/layer-promreg-client          git+ssh://git.launchpad.net/~timkuhlman/prometheus-registration/+git/layer-promreg-client;revno=0f9f74b
 
 wheels                              git+ssh://git.launchpad.net/~ubuntuone-hackers/ols-charm-deps/+git/wheels
