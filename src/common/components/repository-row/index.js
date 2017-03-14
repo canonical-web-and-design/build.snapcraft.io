@@ -10,14 +10,14 @@ import {
   NameMismatchDropdown,
   RemoveRepoDropdown,
   UnconfiguredDropdown,
-  UnregisteredDropdown
+  RegisterNameDropdown
 } from './dropdowns';
 import {
   TickIcon,
   ErrorIcon
 } from './icons';
 import { signIntoStore } from '../../actions/auth-store';
-import { registerName, registerNameError } from '../../actions/register-name';
+import { registerName, registerNameError, registerNameClear } from '../../actions/register-name';
 import { removeSnap } from '../../actions/snaps';
 
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
@@ -149,9 +149,10 @@ class RepositoryRow extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.registerNameStatus.success &&
         !this.props.registerNameStatus.success) {
-      this.closeUnregisteredTimerID = window.setTimeout(
-        this.closeUnregisteredDropdown.bind(this), 2000
-      );
+      this.closeUnregisteredTimerID = window.setTimeout(() => {
+        this.closeUnregisteredDropdown();
+        this.props.dispatch(registerNameClear(this.props.fullName));
+      }, 2000);
     }
   }
 
@@ -261,7 +262,9 @@ class RepositoryRow extends Component {
         { showNameMismatchDropdown && <NameMismatchDropdown snap={snap} /> }
         { showUnconfiguredDropdown && <UnconfiguredDropdown snap={snap} /> }
         { showUnregisteredDropdown &&
-          <UnregisteredDropdown
+          <RegisterNameDropdown
+            registeredName={registeredName}
+            snapcraftData={snap.snapcraft_data}
             snapName={this.state.snapName}
             authStore={authStore}
             registerNameStatus={registerNameStatus}
@@ -269,6 +272,7 @@ class RepositoryRow extends Component {
             onRegisterClick={this.onRegisterClick.bind(this, snap.git_repository_url)}
             onSignInClick={this.onSignInClick.bind(this)}
             onCancelClick={this.onUnregisteredClick.bind(this)}
+            onSnapNameChange={this.onSnapNameChange.bind(this)}
           />
         }
         { showRemoveDropdown &&
@@ -314,12 +318,8 @@ class RepositoryRow extends Component {
       );
     } else if (snapcraft_data && store_name && snapcraft_data.name !== store_name){
       return (
-        <span>
-          <ErrorIcon />
-          {' ' /* space between inline elements */}
-          <a onClick={this.onNameMismatchClick.bind(this)}>
-            Doesn’t match
-          </a>
+        <span onClick={this.onNameMismatchClick.bind(this)}>
+          <ErrorIcon /> <a>Doesn’t match</a>
         </span>
       );
     }
@@ -330,8 +330,8 @@ class RepositoryRow extends Component {
   renderSnapName(registeredName, showRegisterNameInput) {
     if (registeredName !== null) {
       return (
-        <span>
-          <TickIcon /> { registeredName }
+        <span onClick={this.onUnregisteredClick.bind(this)}>
+          <TickIcon /> <a>{ registeredName }</a>
         </span>
       );
     } else if (showRegisterNameInput) {

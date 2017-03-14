@@ -12,6 +12,7 @@ const BASE_URL = conf.get('BASE_URL');
 export const REGISTER_NAME = 'REGISTER_NAME';
 export const REGISTER_NAME_SUCCESS = 'REGISTER_NAME_SUCCESS';
 export const REGISTER_NAME_ERROR = 'REGISTER_NAME_ERROR';
+export const REGISTER_NAME_CLEAR = 'REGISTER_NAME_CLEAR';
 
 // XXX cjwatson 2017-02-08: Hardcoded for now, but should eventually be
 // configurable.
@@ -197,5 +198,14 @@ export function registerNameError(id, error) {
       error
     },
     error: true
+  };
+}
+
+export function registerNameClear(id) {
+  return {
+    type: REGISTER_NAME_CLEAR,
+    payload: {
+      id
+    }
   };
 }

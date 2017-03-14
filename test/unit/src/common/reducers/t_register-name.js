@@ -90,4 +90,32 @@ describe('registerName reducers', () => {
       });
     });
   });
+
+  context('REGISTER_NAME_CLEAR', () => {
+    it('handles name registration clearing', () => {
+      const state = {
+        ...initialState,
+        [id]: {
+          ...initialStatus,
+          snapName,
+          success: true,
+          isFetching: true
+        }
+      };
+
+      const action = {
+        type: ActionTypes.REGISTER_NAME_CLEAR,
+        payload: {
+          id
+        }
+      };
+
+      expect(registerName(state, action)[id]).toEqual({
+        snapName: null,
+        isFetching: false,
+        success: false,
+        error: null
+      });
+    });
+  });
 });

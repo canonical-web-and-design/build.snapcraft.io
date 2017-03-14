@@ -17,3 +17,13 @@
   background-size: 0.7em;
   padding-right: 0.9em;
 }
+
+.caption ul {
+  list-style: disc;
+  margin-left: 2em;
+  margin-bottom: 1em;
+}
+
+.snapNameInput {
+  width: 250px;
+}

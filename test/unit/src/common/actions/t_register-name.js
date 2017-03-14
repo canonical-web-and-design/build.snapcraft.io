@@ -33,7 +33,8 @@ const {
   internalRegisterName,
   registerName,
   registerNameSuccess,
-  registerNameError
+  registerNameError,
+  registerNameClear
 } = registerNameModule;
 const ActionTypes = registerNameModule;
 
@@ -457,6 +458,28 @@ describe('register name actions', () => {
         type: ActionTypes.REGISTER_NAME_ERROR,
         error: true,
         payload: { id, error }
+      };
+
+      store.dispatch(action);
+      expect(store.getActions()).toInclude(expectedAction);
+    });
+
+    it('creates a valid flux standard action', () => {
+      expect(isFSA(action)).toBe(true);
+    });
+  });
+
+  context('registerNameClear', () => {
+    let id = 'foo/bar';
+
+    beforeEach(() => {
+      action = registerNameClear(id);
+    });
+
+    it('creates an action to clear register name entry', () => {
+      const expectedAction = {
+        type: ActionTypes.REGISTER_NAME_CLEAR,
+        payload: { id }
       };
 
       store.dispatch(action);
