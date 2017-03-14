@@ -52,7 +52,7 @@ class RepositoriesHome extends Component {
 
     return (
       <div>
-        <FirstTimeHeading snaps={snaps} snapBuilds={snapBuilds} />
+        <FirstTimeHeading snaps={snaps} snapBuilds={snapBuilds} isOnMyRepos={true} />
         <div className={ styles['button-container'] }>
           <HeadingThree>Repos to build and publish</HeadingThree>
           <div>
