@@ -3,7 +3,7 @@ import ipaddr from 'ipaddr.js';
 
 import { matchNetworks } from '../../../../../src/server/middleware/trusted-networks';
 
-describe.only('matchNetworks', () => {
+describe('matchNetworks', () => {
   context('with no trusted networks', () => {
     it('accepts loopback IPv4 address', () => {
       expect(matchNetworks('127.0.0.1', [])).toBe(true);
