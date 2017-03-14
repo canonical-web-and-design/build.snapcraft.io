@@ -6,6 +6,9 @@ Description=Build snaps from GitHub repositories
 
 [Service]
 Type=simple
+{%- if base_url %}
+Environment='BASE_URL={{ base_url }}'
+{%- endif %}
 Environment='SESSION_SECRET={{ session_secret }}'
 Environment='LOGS_PATH={{ logs_path }}'
 Environment='MEMCACHED_HOST={{ cache_hosts | join(",") }}'

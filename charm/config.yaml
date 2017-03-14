@@ -1,4 +1,7 @@
 options:
+    base_url:
+        type: string
+        description: Base URL of the service
     session_secret:
         type: string
         description: Secret key for signing session cookie IDs

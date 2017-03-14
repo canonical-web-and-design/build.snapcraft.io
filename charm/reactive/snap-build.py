@@ -3,6 +3,16 @@ from re import search
 from os.path import basename, dirname, join
 from subprocess import check_call, check_output
 from textwrap import dedent
+try:
+    from urllib.parse import (
+        urljoin,
+        urlparse,
+        )
+except ImportError:
+    from urlparse import (
+        urljoin,
+        urlparse,
+        )
 
 import psycopg2
 
@@ -93,6 +103,7 @@ def configure(pgsql, cache):
         hookenv.log('Database context not available yet; skipping')
         return
     environment = hookenv.config('environment')
+    base_url = hookenv.config('base_url')
     session_secret = hookenv.config('session_secret')
     memcache_session_secret = hookenv.config('memcache_session_secret')
     sentry_dsn = hookenv.config('sentry_dsn')
@@ -124,6 +135,7 @@ def configure(pgsql, cache):
             context={
                 'working_dir': code_dir(),
                 'user': user(),
+                'base_url': base_url,
                 'session_secret': session_secret,
                 'logs_path': logs_dir(),
                 'environment': environment,
@@ -182,8 +194,28 @@ def install_custom_nodejs():
 
 
 @when('service.configured')
-@when_not('service.promreg_done')
+@when('leadership.is_leader')
+@when_not('leadership.set.promreg_done')
 def register_with_prometheus():
     environment = hookenv.config('environment')
-    promreg.register(None, 8000, {'environment': environment})
-    set_state('service.promreg_done')
+    base_url = hookenv.config('base_url')
+    if not base_url:
+        # Work out the base URL from the environment file.  This is entirely
+        # backwards, but it makes things easier temporarily.
+        env_path = join(
+            code_dir(), 'environments', '{}.env'.format(environment))
+        try:
+            with open(env_path) as env_file:
+                for line in env_file:
+                    if line.startswith('BASE_URL='):
+                        base_url = line[len('BASE_URL='):]
+        except IOError:
+            pass
+    if not base_url:
+        hookenv.log('Not registering with Prometheus: base_url not set')
+        return
+    # Using port 80 and letting Prometheus follow the redirection is easier
+    # than getting it to use HTTPS from the start.
+    promreg.register(
+        urlparse(base_url).hostname, 80, {'environment': environment})
+    leader_set(promreg_done=True)
