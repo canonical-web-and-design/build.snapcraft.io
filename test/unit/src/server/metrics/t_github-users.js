@@ -9,6 +9,10 @@ describe('The GitHub users metric', () => {
     await GitHubUser.query('truncate').fetch();
   });
 
+  afterEach(() => {
+    promClient.register.clear();
+  });
+
   it('returns the number of rows in GitHubUser', async () => {
     for (let i = 0; i < 5; i++) {
       const user = GitHubUser.forge({
