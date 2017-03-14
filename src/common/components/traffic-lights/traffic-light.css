@@ -21,6 +21,10 @@ $signal-colour-default: $light-grey;
   z-index:10;
 }
 
+.signal::before {
+  content: "\0000a0"
+}
+
 .signal::after {
   content:'';
   display: block;
@@ -38,10 +42,6 @@ $signal-colour-default: $light-grey;
   background: #fff;
   border: 2px solid $success;
   color: $signal-colour-default;
-}
-
-.done::before {
-  content: "\0000a0";
 }
 
 .done {

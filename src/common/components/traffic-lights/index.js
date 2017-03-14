@@ -23,7 +23,7 @@ export class Signal extends Component {
 
     return (
       <div className={ styles.box }>
-        <div className={ classNames(styles.signal, signalStyle) }></div>
+        <div className={ classNames(styles.signal, signalStyle) } />
         <p>{ message }</p>
       </div>
     );
