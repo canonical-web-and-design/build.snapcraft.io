@@ -2,10 +2,15 @@ import expect from 'expect';
 import promClient from 'prom-client';
 
 import { GitHubUser } from '../../../../../src/server/db/models/github-user';
-import updateGitHubUsersTotal from '../../../../../src/server/metrics/github-users';
 
 describe('The GitHub users metric', () => {
+  let updateGitHubUsersTotal;
+
   beforeEach(async () => {
+    // this needs to be required in test rather then imported
+    // to make sure it registers metrics when tests are run and cleared in after hook
+    updateGitHubUsersTotal = require('../../../../../src/server/metrics/github-users').default;
+
     await GitHubUser.query('truncate').fetch();
   });
 
