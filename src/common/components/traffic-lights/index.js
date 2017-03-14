@@ -32,7 +32,6 @@ export class Signal extends Component {
 
 Signal.propTypes = {
   state: PropTypes.number.isRequired,
-  label: PropTypes.string.isRequired,
   message: PropTypes.string
 };
 
