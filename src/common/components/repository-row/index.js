@@ -161,7 +161,6 @@ class RepositoryRow extends Component {
     const newSnapProp = nextProps.snap;
     if (snapNameIsMismatched(oldSnapProp) && !snapNameIsMismatched(newSnapProp)) {
       this.setState({
-        ...this.state,
         nameMismatchDropdownExpanded: false
       });
     }
