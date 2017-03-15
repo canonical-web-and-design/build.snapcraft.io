@@ -14,6 +14,9 @@ import Spinner from '../spinner';
 // loading container styles not to duplicate .spinner class
 import { spinner as spinnerStyles } from '../../containers/container.css';
 
+let interval;
+const SNAP_POLL_PERIOD = (15 * 1000);
+
 class RepositoriesHome extends Component {
   fetchData(props) {
     const { snaps } = props;
@@ -33,12 +36,22 @@ class RepositoriesHome extends Component {
 
   componentDidMount() {
     const { authenticated } = this.props.auth;
+    const { updateSnaps } = this.props;
     const owner = this.props.user.login;
 
     if (authenticated) {
-      this.props.dispatch(fetchUserSnaps(owner));
+      updateSnaps(owner);
+      if (!interval) {
+        interval = setInterval(() => {
+          updateSnaps(owner);
+        }, SNAP_POLL_PERIOD);
+      }
     }
+  }
 
+  componentWillUnmount() {
+    clearInterval(interval);
+    interval = null;
   }
 
   componentWillReceiveProps(nextProps) {
@@ -76,10 +89,11 @@ class RepositoriesHome extends Component {
 
   render() {
     const { snaps } = this.props;
+    const hasSnaps = (snaps.snaps && Object.keys(snaps.snaps).length > 0);
     // show spinner until we know if user has any enabled repos
-    return (snaps.success || snaps.error)
-        ? this.renderRepositoriesList()
-        : this.renderSpinner();
+    return (snaps.isFetching && !hasSnaps)
+      ? this.renderSpinner()
+      : this.renderRepositoriesList();
   }
 }
 
@@ -89,7 +103,8 @@ RepositoriesHome.propTypes = {
   snaps: PropTypes.object.isRequired,
   snapBuilds: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
-  router: PropTypes.object.isRequired
+  router: PropTypes.object.isRequired,
+  updateSnaps: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
@@ -108,4 +123,13 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(withRouter(RepositoriesHome));
+function mapDispatchToProps(dispatch) {
+  return {
+    updateSnaps: (owner) => {
+      dispatch(fetchUserSnaps(owner));
+    }
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(RepositoriesHome));
+export const RepositoriesHomeRaw = RepositoriesHome;

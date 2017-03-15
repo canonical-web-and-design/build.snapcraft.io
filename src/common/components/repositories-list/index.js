@@ -9,12 +9,9 @@ import {
   getSSODischarge
 } from '../../actions/auth-store';
 import RepositoryRow from '../repository-row';
-import Spinner from '../spinner';
 import { Table, Head, Body, Row, Header } from '../vanilla/table-interactive';
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
 
-// loading container styles not to duplicate .spinner class
-import { spinner as spinnerStyles } from '../../containers/container.css';
 import styles from './repositoriesList.css';
 
 const SNAP_NAME_NOT_REGISTERED_ERROR_CODE = 'snap-name-not-registered';
@@ -97,15 +94,11 @@ class RepositoriesList extends Component {
   }
 
   render() {
-    const isLoading = this.props.snaps.isFetching;
+    const { snaps } = this.props.snaps;
+    const hasSnaps = (snaps && Object.keys(snaps).length > 0);
 
     return (
       <div className={styles.repositoriesList}>
-        { isLoading &&
-          <div className={ spinnerStyles }>
-            <Spinner />
-          </div>
-        }
         <Table>
           <Head>
             <Row>
@@ -116,8 +109,8 @@ class RepositoriesList extends Component {
             </Row>
           </Head>
           <Body>
-            { this.props.snaps.success &&
-              this.props.snaps.snaps.map(this.renderRow.bind(this))
+            { hasSnaps &&
+              snaps.map(this.renderRow.bind(this))
             }
           </Body>
         </Table>
