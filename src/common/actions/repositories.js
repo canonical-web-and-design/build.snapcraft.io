@@ -18,7 +18,7 @@ export function setRepositories(repos) {
 }
 
 export function fetchUserRepositories(pageNumber) {
-  return (dispatch) => {
+  return async (dispatch) => {
     let urlParts = [BASE_URL, 'api/github/repos'];
 
     dispatch({
@@ -29,30 +29,25 @@ export function fetchUserRepositories(pageNumber) {
       urlParts.push('page/' + pageNumber);
     }
 
-    return fetch(urlParts.join('/'), {
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin'
-    })
-      .then(checkStatus)
-      .then(response => {
-        return response.json().then(result => {
-          if (result.status !== 'success') {
-            throw getError(response, result);
-          }
-          dispatch(setRepositories({
-            repos: result.payload.repos,
-            links: result.pageLinks
-          }));
-        })
-        .catch(error => {
-          return Promise.reject(error);
-        });
-      })
-      .catch(error => {
-        // TODO: Replace with logging helper
-        console.warn(error); // eslint-disable-line no-console
-        dispatch(fetchRepositoriesError(error));
+    try {
+      const response = await fetch(urlParts.join('/'), {
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin'
       });
+      await checkStatus(response);
+      const result = await response.json();
+      if (result.status !== 'success') {
+        throw getError(response, result);
+      }
+      dispatch(setRepositories({
+        repos: result.payload.repos,
+        links: result.pageLinks
+      }));
+    } catch (error) {
+      // TODO: Replace with logging helper
+      console.warn(error); // eslint-disable-line no-console
+      dispatch(fetchRepositoriesError(error));
+    }
   };
 }
 

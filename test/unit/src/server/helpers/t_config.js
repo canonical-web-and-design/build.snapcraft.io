@@ -29,7 +29,7 @@ describe('The config helper conf.get method', () => {
       });
 
       afterEach(() => {
-        process.env.EXAMPLE_CONFIG_KEY = undefined;
+        delete process.env.EXAMPLE_CONFIG_KEY;
       });
 
       it('should return "http://process.env.com"', () => {
@@ -44,7 +44,7 @@ describe('The config helper conf.get method', () => {
     });
 
     afterEach(() => {
-      process.env.EXAMPLE_CONFIG_KEY = undefined;
+      delete process.env.EXAMPLE_CONFIG_KEY;
     });
 
     it('should reuturn "http://process.env.com"', () => {

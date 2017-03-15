@@ -40,6 +40,17 @@ export function registerName(state = {}, action) {
           error: payload.error
         }
       };
+    case ActionTypes.REGISTER_NAME_CLEAR:
+      return {
+        ...state,
+        [payload.id]: {
+          //...state[payload.id],
+          snapName: null,
+          isFetching: false,
+          success: false,
+          error: null
+        }
+      };
     default:
       return state;
   }

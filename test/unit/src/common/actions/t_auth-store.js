@@ -145,6 +145,7 @@ describe('store authentication actions', () => {
     });
 
     afterEach(() => {
+      api.done();
       nock.cleanAll();
       localForageStub.clear();
     });
@@ -161,16 +162,13 @@ describe('store authentication actions', () => {
           });
       });
 
-      it('stores an error', () => {
+      it('stores an error', async () => {
         const expectedMessage = 'No SSO discharge macaroon stored';
 
-        return store.dispatch(getSSODischarge())
-          .then(() => {
-            api.done();
-            const action = store.getActions().filter(
-              (a) => a.type === ActionTypes.GET_SSO_DISCHARGE_ERROR)[0];
-            expect(action.payload.message).toBe(expectedMessage);
-          });
+        await store.dispatch(getSSODischarge());
+        const action = store.getActions().filter(
+          (a) => a.type === ActionTypes.GET_SSO_DISCHARGE_ERROR)[0];
+        expect(action.payload.message).toBe(expectedMessage);
       });
     });
 
@@ -186,17 +184,14 @@ describe('store authentication actions', () => {
           });
       });
 
-      it('stores an error', () => {
+      it('stores an error', async () => {
         const expectedMessage = 'No store root macaroon saved in local ' +
                                 'storage.';
 
-        return store.dispatch(getSSODischarge())
-          .then(() => {
-            api.done();
-            const action = store.getActions().filter(
-              (a) => a.type === ActionTypes.GET_SSO_DISCHARGE_ERROR)[0];
-            expect(action.payload.message).toBe(expectedMessage);
-          });
+        await store.dispatch(getSSODischarge());
+        const action = store.getActions().filter(
+          (a) => a.type === ActionTypes.GET_SSO_DISCHARGE_ERROR)[0];
+        expect(action.payload.message).toBe(expectedMessage);
       });
     });
 
@@ -227,16 +222,13 @@ describe('store authentication actions', () => {
           });
       });
 
-      it('stores an error', () => {
+      it('stores an error', async () => {
         const expectedMessage = 'Store root macaroon has expired.';
 
-        return store.dispatch(getSSODischarge())
-          .then(() => {
-            api.done();
-            const action = store.getActions().filter(
-              (a) => a.type === ActionTypes.GET_SSO_DISCHARGE_ERROR)[0];
-            expect(action.payload.message).toBe(expectedMessage);
-          });
+        await store.dispatch(getSSODischarge());
+        const action = store.getActions().filter(
+          (a) => a.type === ActionTypes.GET_SSO_DISCHARGE_ERROR)[0];
+        expect(action.payload.message).toBe(expectedMessage);
       });
     });
 
@@ -262,17 +254,14 @@ describe('store authentication actions', () => {
           });
       });
 
-      it('stores an error', () => {
+      it('stores an error', async () => {
         const expectedMessage = 'SSO discharge macaroon does not match ' +
                                 'store root macaroon.';
 
-        return store.dispatch(getSSODischarge())
-          .then(() => {
-            api.done();
-            const action = store.getActions().filter(
-              (a) => a.type === ActionTypes.GET_SSO_DISCHARGE_ERROR)[0];
-            expect(action.payload.message).toBe(expectedMessage);
-          });
+        await store.dispatch(getSSODischarge());
+        const action = store.getActions().filter(
+          (a) => a.type === ActionTypes.GET_SSO_DISCHARGE_ERROR)[0];
+        expect(action.payload.message).toBe(expectedMessage);
       });
     });
 
@@ -302,14 +291,11 @@ describe('store authentication actions', () => {
           .reply(204);
       });
 
-      it('creates a success action', () => {
-        return store.dispatch(getSSODischarge())
-          .then(() => {
-            api.done();
-            expect(store.getActions()).toHaveActionOfType(
-              ActionTypes.GET_SSO_DISCHARGE_SUCCESS
-            );
-          });
+      it('creates a success action', async () => {
+        await store.dispatch(getSSODischarge());
+        expect(store.getActions()).toHaveActionOfType(
+          ActionTypes.GET_SSO_DISCHARGE_SUCCESS
+        );
       });
     });
   });
@@ -322,6 +308,7 @@ describe('store authentication actions', () => {
     });
 
     afterEach(() => {
+      storeApi.done();
       nock.cleanAll();
       localForageStub.clear();
     });
@@ -335,18 +322,15 @@ describe('store authentication actions', () => {
           });
       });
 
-      it('stores an error', () => {
+      it('stores an error', async () => {
         const expectedMessage = 'The store did not return a valid macaroon.';
 
         const location = {};
-        return store.dispatch(signIntoStore(location))
-          .then(() => {
-            expect(location).toExcludeKey('href');
-            storeApi.done();
-            const action = store.getActions().filter(
-              (a) => a.type === ActionTypes.SIGN_INTO_STORE_ERROR)[0];
-            expect(action.payload.message).toBe(expectedMessage);
-          });
+        await store.dispatch(signIntoStore(location));
+        expect(location).toExcludeKey('href');
+        const action = store.getActions().filter(
+          (a) => a.type === ActionTypes.SIGN_INTO_STORE_ERROR)[0];
+        expect(action.payload.message).toBe(expectedMessage);
       });
     });
 
@@ -379,29 +363,25 @@ describe('store authentication actions', () => {
           .reply(200, { macaroon: root.serialize() });
       });
 
-      it('stores the macaroon in local storage', () => {
+      it('stores the macaroon in local storage', async () => {
         const location = {};
-        return store.dispatch(signIntoStore(location))
-          .then(() => {
-            expect(localForageStub.store.package_upload_request).toEqual({
-              root: root.serialize()
-            });
-          });
+        await store.dispatch(signIntoStore(location));
+        expect(localForageStub.store.package_upload_request).toEqual({
+          root: root.serialize()
+        });
       });
 
-      it('redirects to /login/authenticate', () => {
+      it('redirects to /login/authenticate', async () => {
         const startingUrl = `${conf.get('BASE_URL')}/dashboard`;
         const location = { href: startingUrl };
-        return store.dispatch(signIntoStore(location))
-          .then(() => {
-            expect(url.parse(location.href, true)).toMatch({
-              path: '/login/authenticate',
-              query: {
-                starting_url: startingUrl,
-                caveat_id: 'sso caveat'
-              }
-            });
-          });
+        await store.dispatch(signIntoStore(location));
+        expect(url.parse(location.href, true)).toMatch({
+          path: '/login/authenticate',
+          query: {
+            starting_url: startingUrl,
+            caveat_id: 'sso caveat'
+          }
+        });
       });
     });
   });
@@ -418,27 +398,25 @@ describe('store authentication actions', () => {
         );
       });
 
-      it('stores an error', () => {
+      it('stores an error', async () => {
         const expectedMessage = 'Something went wrong!';
 
-        return store.dispatch(checkSignedIntoStore())
-          .then(() => {
-            const action = store.getActions().filter(
-              (a) => a.type === ActionTypes.CHECK_SIGNED_INTO_STORE_ERROR)[0];
-            expect(action.payload.message).toBe(expectedMessage);
-          });
+        await store.dispatch(checkSignedIntoStore());
+        const action = store.getActions().filter(
+          (a) => a.type === ActionTypes.CHECK_SIGNED_INTO_STORE_ERROR)[0];
+        expect(action.payload.message).toBe(expectedMessage);
       });
     });
 
-    context('when local storage does not contain root macaroon', () => {
-      it('stores unauthenticated status', () => {
+    context('when local storage does not contain root macaroon', async () => {
+      it('stores unauthenticated status', async () => {
         const expectedAction = {
           type: ActionTypes.CHECK_SIGNED_INTO_STORE_SUCCESS,
           payload: false
         };
 
-        return store.dispatch(checkSignedIntoStore())
-          .then(() => expect(store.getActions()).toInclude(expectedAction));
+        await store.dispatch(checkSignedIntoStore());
+        expect(store.getActions()).toInclude(expectedAction);
       });
     });
 
@@ -456,14 +434,14 @@ describe('store authentication actions', () => {
         };
       });
 
-      it('stores unauthenticated status', () => {
+      it('stores unauthenticated status', async () => {
         const expectedAction = {
           type: ActionTypes.CHECK_SIGNED_INTO_STORE_SUCCESS,
           payload: false
         };
 
-        return store.dispatch(checkSignedIntoStore())
-          .then(() => expect(store.getActions()).toInclude(expectedAction));
+        await store.dispatch(checkSignedIntoStore());
+        expect(store.getActions()).toInclude(expectedAction);
       });
     });
 
@@ -481,14 +459,14 @@ describe('store authentication actions', () => {
         };
       });
 
-      it('stores authenticated status', () => {
+      it('stores authenticated status', async () => {
         const expectedAction = {
           type: ActionTypes.CHECK_SIGNED_INTO_STORE_SUCCESS,
           payload: true
         };
 
-        return store.dispatch(checkSignedIntoStore())
-          .then(() => expect(store.getActions()).toInclude(expectedAction));
+        await store.dispatch(checkSignedIntoStore());
+        expect(store.getActions()).toInclude(expectedAction);
       });
     });
   });
@@ -512,32 +490,27 @@ describe('store authentication actions', () => {
     });
 
     afterEach(() => {
+      api.done();
       nock.cleanAll();
       localForageStub.clear();
     });
 
-    it('stores a GET_ACCOUNT_INFO action', () => {
+    it('stores a GET_ACCOUNT_INFO action', async () => {
       const expectedAction = { type: ActionTypes.GET_ACCOUNT_INFO };
-      return store.dispatch(getAccountInfo('test-user'))
-        .then(() => {
-          expect(store.getActions()).toInclude(expectedAction);
-          api.done();
-        });
+      await store.dispatch(getAccountInfo('test-user'));
+      expect(store.getActions()).toInclude(expectedAction);
     });
 
     it('stores an error if there is no package upload request ' +
-       'macaroon', () => {
-      return store.dispatch(getAccountInfo('test-user'))
-        .then(() => {
-          const action = store.getActions().filter(
-            (a) => a.type === ActionTypes.GET_ACCOUNT_INFO_ERROR)[0];
-          expect(action.payload.json.payload).toEqual({
-            code: 'not-logged-into-store',
-            message: 'Not logged into store',
-            detail: 'No package_upload_request macaroons in local storage'
-          });
-          api.done();
-        });
+       'macaroon', async () => {
+      await store.dispatch(getAccountInfo('test-user'));
+      const action = store.getActions().filter(
+        (a) => a.type === ActionTypes.GET_ACCOUNT_INFO_ERROR)[0];
+      expect(action.payload.json.payload).toEqual({
+        code: 'not-logged-into-store',
+        message: 'Not logged into store',
+        detail: 'No package_upload_request macaroons in local storage'
+      });
     });
 
     context('if there is an package upload request macaroon', () => {
@@ -562,23 +535,20 @@ describe('store authentication actions', () => {
         localForageStub.store['package_upload_request'] = { root, discharge };
       });
 
-      it('stores an error on failure to get account information', () => {
+      it('stores an error on failure to get account information', async () => {
         api.get('/store/account')
           .query(true)
           .reply(501, { error_list: [accountAssertionsDisabledError] });
-        return store.dispatch(getAccountInfo('test-user'))
-          .then(() => {
-            const action = store.getActions().filter(
-              (a) => a.type === ActionTypes.GET_ACCOUNT_INFO_ERROR)[0];
-            expect(action.payload.json.payload).toEqual(
-              accountAssertionsDisabledError
-            );
-            api.done();
-          });
+        await store.dispatch(getAccountInfo('test-user'));
+        const action = store.getActions().filter(
+          (a) => a.type === ActionTypes.GET_ACCOUNT_INFO_ERROR)[0];
+        expect(action.payload.json.payload).toEqual(
+          accountAssertionsDisabledError
+        );
       });
 
       it('stores success action if getting account information succeeds ' +
-         'and returns a short namespace', () => {
+         'and returns a short namespace', async () => {
         api.get('/store/account')
           .query(true)
           .reply(200, {});
@@ -586,15 +556,12 @@ describe('store authentication actions', () => {
           type: ActionTypes.GET_ACCOUNT_INFO_SUCCESS,
           payload: { signedAgreement: true, hasShortNamespace: true }
         };
-        return store.dispatch(getAccountInfo('test-user'))
-          .then(() => {
-            expect(store.getActions()).toInclude(expectedAction);
-            api.done();
-          });
+        await store.dispatch(getAccountInfo('test-user'));
+        expect(store.getActions()).toInclude(expectedAction);
       });
 
       it('stores success action if getting account information fails ' +
-         'because of an unsigned agreement', () => {
+         'because of an unsigned agreement', async () => {
         api.get('/store/account')
           .query(true)
           .reply(403, { error_list: [unsignedAgreementError] });
@@ -602,11 +569,8 @@ describe('store authentication actions', () => {
           type: ActionTypes.GET_ACCOUNT_INFO_SUCCESS,
           payload: { signedAgreement: false, hasShortNamespace: null }
         };
-        return store.dispatch(getAccountInfo('test-user'))
-          .then(() => {
-            expect(store.getActions()).toInclude(expectedAction);
-            api.done();
-          });
+        await store.dispatch(getAccountInfo('test-user'));
+        expect(store.getActions()).toInclude(expectedAction);
       });
 
       context('if getting account information fails because of a missing ' +
@@ -617,33 +581,28 @@ describe('store authentication actions', () => {
             .reply(403, { error_list: [missingShortNamespaceError] });
         });
 
-        it('stores an error on failure to set the short namespace', () => {
+        it('stores an error on failure to set the short ' +
+           'namespace', async () => {
           api.patch('/store/account', { short_namespace: 'test-user' })
             .reply(409, { error_list: [shortNamespaceInUseError] });
-          return store.dispatch(getAccountInfo('test-user'))
-            .then(() => {
-              const action = store.getActions().filter(
-                (a) => a.type === ActionTypes.GET_ACCOUNT_INFO_ERROR)[0];
-              expect(action.payload.json.payload).toEqual(
-                shortNamespaceInUseError
-              );
-              api.done();
-            });
+          await store.dispatch(getAccountInfo('test-user'));
+          const action = store.getActions().filter(
+            (a) => a.type === ActionTypes.GET_ACCOUNT_INFO_ERROR)[0];
+          expect(action.payload.json.payload).toEqual(
+            shortNamespaceInUseError
+          );
         });
 
         it('stores success action if setting the short namespace fails ' +
-           'because of an unsigned agreement', () => {
+           'because of an unsigned agreement', async () => {
           api.patch('/store/account', { short_namespace: 'test-user' })
             .reply(403, { error_list: [unsignedAgreementError] });
           const expectedAction = {
             type: ActionTypes.GET_ACCOUNT_INFO_SUCCESS,
             payload: { signedAgreement: false, hasShortNamespace: false }
           };
-          return store.dispatch(getAccountInfo('test-user'))
-            .then(() => {
-              expect(store.getActions()).toInclude(expectedAction);
-              api.done();
-            });
+          await store.dispatch(getAccountInfo('test-user'));
+          expect(store.getActions()).toInclude(expectedAction);
         });
 
         context('if setting the short namespace succeeds', () => {
@@ -652,23 +611,21 @@ describe('store authentication actions', () => {
               .reply(204);
           });
 
-          it('stores an error if getting account information fails', () => {
+          it('stores an error if getting account information ' +
+             'fails', async () => {
             api.get('/store/account')
               .query(true)
               .reply(501, { error_list: [accountAssertionsDisabledError] });
-            return store.dispatch(getAccountInfo('test-user'))
-              .then(() => {
-                const action = store.getActions().filter(
-                  (a) => a.type === ActionTypes.GET_ACCOUNT_INFO_ERROR)[0];
-                expect(action.payload.json.payload).toEqual(
-                  accountAssertionsDisabledError
-                );
-                api.done();
-              });
+            await store.dispatch(getAccountInfo('test-user'));
+            const action = store.getActions().filter(
+              (a) => a.type === ActionTypes.GET_ACCOUNT_INFO_ERROR)[0];
+            expect(action.payload.json.payload).toEqual(
+              accountAssertionsDisabledError
+            );
           });
 
           it('stores success action if getting account information ' +
-             'succeeds', () => {
+             'succeeds', async () => {
             api.get('/store/account')
               .query(true)
               .reply(200, {});
@@ -676,15 +633,12 @@ describe('store authentication actions', () => {
               type: ActionTypes.GET_ACCOUNT_INFO_SUCCESS,
               payload: { signedAgreement: true, hasShortNamespace: true }
             };
-            return store.dispatch(getAccountInfo('test-user'))
-              .then(() => {
-                expect(store.getActions()).toInclude(expectedAction);
-                api.done();
-              });
+            await store.dispatch(getAccountInfo('test-user'));
+            expect(store.getActions()).toInclude(expectedAction);
           });
 
           it('stores success action if getting account information fails ' +
-             'because of an unsigned agreement', () => {
+             'because of an unsigned agreement', async () => {
             api.get('/store/account')
               .query(true)
               .reply(403, { error_list: [unsignedAgreementError] });
@@ -692,11 +646,8 @@ describe('store authentication actions', () => {
               type: ActionTypes.GET_ACCOUNT_INFO_SUCCESS,
               payload: { signedAgreement: false, hasShortNamespace: true }
             };
-            return store.dispatch(getAccountInfo('test-user'))
-              .then(() => {
-                expect(store.getActions()).toInclude(expectedAction);
-                api.done();
-              });
+            await store.dispatch(getAccountInfo('test-user'));
+            expect(store.getActions()).toInclude(expectedAction);
           });
         });
       });
@@ -724,24 +675,20 @@ describe('store authentication actions', () => {
         );
       });
 
-      it('stores an error', () => {
+      it('stores an error', async () => {
         const expectedMessage = 'Something went wrong!';
 
         const location = {};
-        return store.dispatch(signOut(location))
-          .then(() => {
-            const action = store.getActions().filter(
-              (a) => a.type === ActionTypes.SIGN_OUT_OF_STORE_ERROR)[0];
-            expect(action.payload.message).toBe(expectedMessage);
-          });
+        await store.dispatch(signOut(location));
+        const action = store.getActions().filter(
+          (a) => a.type === ActionTypes.SIGN_OUT_OF_STORE_ERROR)[0];
+        expect(action.payload.message).toBe(expectedMessage);
       });
 
-      it('does not redirect', () => {
+      it('does not redirect', async () => {
         const location = {};
-        return store.dispatch(signOut(location))
-          .then(() => {
-            expect(location).toExcludeKey('href');
-          });
+        await store.dispatch(signOut(location));
+        expect(location).toExcludeKey('href');
       });
     });
 
@@ -750,24 +697,18 @@ describe('store authentication actions', () => {
         localForageStub.store['package_upload_request'] = 'dummy';
       });
 
-      it('removes the item', () => {
+      it('removes the item', async () => {
         const location = {};
-        return store.dispatch(signOut(location))
-          .then(() => {
-            expect(localForageStub.store).toExcludeKey(
-              'package_upload_request'
-            );
-          });
+        await store.dispatch(signOut(location));
+        expect(localForageStub.store).toExcludeKey('package_upload_request');
       });
 
-      it('redirects to /auth/logout', () => {
+      it('redirects to /auth/logout', async () => {
         const location = {};
-        return store.dispatch(signOut(location))
-          .then(() => {
-            expect(url.parse(location.href, true)).toMatch({
-              path: '/auth/logout'
-            });
-          });
+        await store.dispatch(signOut(location));
+        expect(url.parse(location.href, true)).toMatch({
+          path: '/auth/logout'
+        });
       });
     });
   });

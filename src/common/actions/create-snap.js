@@ -18,30 +18,27 @@ export function setGitHubRepository(value) {
   };
 }
 
-export function createWebhook(repository) {
+export async function createWebhook(repository) {
   const { owner, name } = repository;
-  return fetch(`${BASE_URL}/api/github/webhook`, {
+  const response = await fetch(`${BASE_URL}/api/github/webhook`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ owner, name }),
     credentials: 'same-origin'
-  })
-    .then((response) => {
-      if (response.status >= 200 && response.status < 300) {
-        return response;
-      } else {
-        return response.json().then((json) => {
-          if (json.payload && json.payload.code === 'github-already-created') {
-            return response;
-          }
-          throw getError(response, json);
-        });
-      }
-    });
+  });
+  if (response.status >= 200 && response.status < 300) {
+    return response;
+  } else {
+    const json = await response.json();
+    if (json.payload && json.payload.code === 'github-already-created') {
+      return response;
+    }
+    throw getError(response, json);
+  }
 }
 
 export function createSnap(repository) {
-  return (dispatch) => {
+  return async (dispatch) => {
     const repositoryUrl = repository.url;
     if (repositoryUrl) {
       const { fullName } = repository;
@@ -51,18 +48,19 @@ export function createSnap(repository) {
         payload: { id: fullName }
       });
 
-      return createWebhook(repository)
-        .then(() => {
-          return fetch(`${BASE_URL}/api/launchpad/snaps`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ repository_url: repositoryUrl }),
-            credentials: 'same-origin'
-          });
-        })
-        .then(checkStatus)
-        .then(() => dispatch(createSnapSuccess(fullName)))
-        .catch((error) => dispatch(createSnapError(fullName, error)));
+      try {
+        await createWebhook(repository);
+        const response = await fetch(`${BASE_URL}/api/launchpad/snaps`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ repository_url: repositoryUrl }),
+          credentials: 'same-origin'
+        });
+        await checkStatus(response);
+        dispatch(createSnapSuccess(fullName));
+      } catch (error) {
+        dispatch(createSnapError(fullName, error));
+      }
     }
   };
 }

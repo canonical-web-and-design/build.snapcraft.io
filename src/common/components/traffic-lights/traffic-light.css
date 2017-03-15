@@ -1,4 +1,4 @@
-$signal-colour-default: $mid-grey;
+$signal-colour-default: $light-grey;
 
 .trafficlight {
   display: flex;
@@ -12,39 +12,42 @@ $signal-colour-default: $mid-grey;
   color: #fff;
   display: inline-block;
   font-size: 1.5rem;
-  height: 50px;
+  height: 32px;
   margin-bottom: .625rem;
-  padding: .65rem 1.15rem;
   text-align: center;
-  width: 50px;
+  width: 32px;
   line-height:1.286;
   position: relative;
   z-index:10;
+}
+
+.signal::before {
+  content: "\0000a0"
 }
 
 .signal::after {
   content:'';
   display: block;
   height: 4px;
-  width: 450%;
+  width: 850%;
   background: $signal-colour-default;
   position: absolute;
   top:50%;
-  left:100%;
+  left:106%;
   z-index:-1;
   margin-top:-2px;
 }
 
 .active {
-  background: $information;
-}
-
-.done::before {
-  content: "\0000a0";
+  background: #fff;
+  border: 2px solid $success;
+  color: $signal-colour-default;
 }
 
 .done {
   background: $success url(./white-tick.svg) 50% 50% no-repeat;
+  background-size: 60%;
+  border: 2px solid $success;
 }
 
 .done::after {

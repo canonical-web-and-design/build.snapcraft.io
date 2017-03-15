@@ -11,6 +11,7 @@ const BuildRow = (props) => {
     repository,
     architecture,
     buildId,
+    buildLogUrl,
     duration,
     colour,
     statusMessage,
@@ -24,10 +25,18 @@ const BuildRow = (props) => {
     humanDuration = '';
   }
 
+  // only link to builds that have log available
+  const buildUrl = buildLogUrl
+    ? `/${repository.fullName}/builds/${buildId}`
+    : null;
+
   return (
     <Row key={ buildId }>
       <Data col="20">
-        <Link to={`/${repository.fullName}/builds/${buildId}`}>{`#${buildId}`}</Link>
+        { buildUrl
+          ? <Link to={buildUrl}>{`#${buildId}`}</Link>
+          : <span>{`#${buildId}`}</span>
+        }
       </Data>
       <Data col="20">
         {architecture}
@@ -36,7 +45,12 @@ const BuildRow = (props) => {
         {humanDuration}
       </Data>
       <Data col="40">
-        <BuildStatus colour={colour} statusMessage={statusMessage} dateStarted={dateStarted} />
+        <BuildStatus
+          link={buildUrl}
+          colour={colour}
+          statusMessage={statusMessage}
+          dateStarted={dateStarted}
+        />
       </Data>
     </Row>
   );
@@ -45,12 +59,12 @@ const BuildRow = (props) => {
 BuildRow.propTypes = {
   // params from URL
   repository: PropTypes.shape({
-    owner: PropTypes.string,
-    name: PropTypes.string
+    fullName: PropTypes.string
   }),
 
   // build properties
   buildId:  PropTypes.string,
+  buildLogUrl: PropTypes.string,
   architecture: PropTypes.string,
   colour:  PropTypes.oneOf(['green', 'yellow', 'red', 'grey']),
   statusMessage: PropTypes.string,

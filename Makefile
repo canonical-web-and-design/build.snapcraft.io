@@ -60,9 +60,9 @@ clean:
 $(DIST):
 	rm -rf $(DISTDIR)
 	mkdir -p $(DISTDIR)
-	npm install || (cat npm-debug.log && exit 1)
+	npm install --nodedir=/usr || (cat npm-debug.log && exit 1)
 	npm run build
-	npm install --production || (cat npm-debug.log && exit 1)
+	npm install --nodedir=/usr --production || (cat npm-debug.log && exit 1)
 	touch $@
 
 $(PAYLOAD): $(CHARM) $(DIST) version-info build-exclude.txt $(SRC) $(SRC)/* $(SRC_PREQS)
@@ -74,7 +74,10 @@ build: $(PAYLOAD)
 deploy: build
 	juju deploy $(CHARMDIR)
 	juju deploy memcached
+	juju deploy postgresql
 	juju add-relation $(NAME) memcached
+	juju add-relation $(NAME):db postgresql:db
+	juju add-relation $(NAME):db-admin postgresql:db-admin
 	juju config $(NAME) session_secret='its a secret' \
 		environment=$(DEPLOY_ENV) \
 		memcache_session_secret='its another secret'

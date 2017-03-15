@@ -22,6 +22,12 @@ describe('The GitHub API endpoint', () => {
   describe('get snapcraft.yaml route', () => {
     const fullName = 'anowner/aname';
 
+    let apiResponse;
+
+    beforeEach(() => {
+      apiResponse = supertest(app).get(`/github/snapcraft-yaml/${fullName}`);
+    });
+
     context('when snap/snapcraft.yaml is valid', () => {
 
       beforeEach(() => {
@@ -31,27 +37,25 @@ describe('The GitHub API endpoint', () => {
       });
 
       afterEach(() => {
+        scope.done();
         nock.cleanAll();
       });
 
-      it('should successfully return', (done) => {
-        supertest(app)
-          .get('/github/snapcraft-yaml/anowner/aname')
-          .expect(200, done);
+      it('should successfully return', async () => {
+        await apiResponse.expect(200);
       });
 
-      it('should return a "success" status', (done) => {
-        supertest(app)
-          .get('/github/snapcraft-yaml/anowner/aname')
-          .expect(hasStatus('success'))
-          .end(done);
+      it('should return a "success" status', async () => {
+        await apiResponse.expect(hasStatus('success'));
       });
 
-      it('should return a body with a "snapcraft-yaml-found" message', (done) => {
-        supertest(app)
-          .get('/github/snapcraft-yaml/anowner/aname')
-          .expect(hasMessage('snapcraft-yaml-found'))
-          .end(done);
+      it('should return a body with a "snapcraft-yaml-found" message', async () => {
+        await apiResponse.expect(hasMessage('snapcraft-yaml-found'));
+      });
+
+      it('should return a path to snap/snapcraft.yaml', async () => {
+        const response = await apiResponse;
+        expect(response.body.payload.path).toBe('snap/snapcraft.yaml');
       });
 
     });
@@ -67,29 +71,26 @@ describe('The GitHub API endpoint', () => {
       });
 
       afterEach(() => {
+        scope.done();
         nock.cleanAll();
       });
 
-      it('should successfully return', (done) => {
-        supertest(app)
-          .get('/github/snapcraft-yaml/anowner/aname')
-          .expect(200, done);
+      it('should successfully return', async () => {
+        await apiResponse.expect(200);
       });
 
-      it('should return a "success" status', (done) => {
-        supertest(app)
-          .get('/github/snapcraft-yaml/anowner/aname')
-          .expect(hasStatus('success'))
-          .end(done);
+      it('should return a "success" status', async () => {
+        await apiResponse.expect(hasStatus('success'));
       });
 
-      it('should return a body with a "snapcraft-yaml-found" message', (done) => {
-        supertest(app)
-          .get('/github/snapcraft-yaml/anowner/aname')
-          .expect(hasMessage('snapcraft-yaml-found'))
-          .end(done);
+      it('should return a body with a "snapcraft-yaml-found" message', async () => {
+        await apiResponse.expect(hasMessage('snapcraft-yaml-found'));
       });
 
+      it('should return a path to snapcraft.yaml', async () => {
+        const response = await apiResponse;
+        expect(response.body.payload.path).toBe('snapcraft.yaml');
+      });
     });
 
     context('when /.snapcraft.yaml is valid', () => {
@@ -105,29 +106,26 @@ describe('The GitHub API endpoint', () => {
       });
 
       afterEach(() => {
+        scope.done();
         nock.cleanAll();
       });
 
-      it('should successfully return', (done) => {
-        supertest(app)
-          .get('/github/snapcraft-yaml/anowner/aname')
-          .expect(200, done);
+      it('should successfully return', async () => {
+        await apiResponse.expect(200);
       });
 
-      it('should return a "success" status', (done) => {
-        supertest(app)
-          .get('/github/snapcraft-yaml/anowner/aname')
-          .expect(hasStatus('success'))
-          .end(done);
+      it('should return a "success" status', async () => {
+        await apiResponse.expect(hasStatus('success'));
       });
 
-      it('should return a body with a "snapcraft-yaml-found" message', (done) => {
-        supertest(app)
-          .get('/github/snapcraft-yaml/anowner/aname')
-          .expect(hasMessage('snapcraft-yaml-found'))
-          .end(done);
+      it('should return a body with a "snapcraft-yaml-found" message', async () => {
+        await apiResponse.expect(hasMessage('snapcraft-yaml-found'));
       });
 
+      it('should return a path to .snapcraft.yaml', async () => {
+        const response = await apiResponse;
+        expect(response.body.payload.path).toBe('.snapcraft.yaml');
+      });
     });
 
     context('when there is no valid snapcraft.yaml file', () => {
@@ -143,27 +141,20 @@ describe('The GitHub API endpoint', () => {
       });
 
       afterEach(() => {
+        scope.done();
         nock.cleanAll();
       });
 
-      it('should return 404 error', (done) => {
-        supertest(app)
-          .get('/github/snapcraft-yaml/anowner/aname')
-          .expect(404, done);
+      it('should return 404 error', async () => {
+        await apiResponse.expect(404);
       });
 
-      it('should return a "error" status', (done) => {
-        supertest(app)
-          .get('/github/snapcraft-yaml/anowner/aname')
-          .expect(hasStatus('error'))
-          .end(done);
+      it('should return a "error" status', async () => {
+        await apiResponse.expect(hasStatus('error'));
       });
 
-      it('should return a body with a "snapcraft-yaml-found" message', (done) => {
-        supertest(app)
-          .get('/github/snapcraft-yaml/anowner/aname')
-          .expect(hasMessage('github-snapcraft-yaml-not-found'))
-          .end(done);
+      it('should return a body with a "snapcraft-yaml-not-found" message', async () => {
+        await apiResponse.expect(hasMessage('github-snapcraft-yaml-not-found'));
       });
 
     });

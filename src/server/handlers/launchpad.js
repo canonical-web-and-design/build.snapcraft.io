@@ -101,39 +101,36 @@ export const getRepositoryUrlCacheId = (repositoryUrl) => `url:${repositoryUrl}`
 
 // Wrap errors in a promise chain so that they always end up as a
 // PreparedError.
-const prepareError = (error) => {
+const prepareError = async (error) => {
   if (error.status && error.body) {
     // The error comes with a prepared representation.
-    return Promise.resolve(error);
+    return error;
   } else if (error.response) {
     // if it's ResourceError from LP client at least for the moment
     // we just wrap the error we get from LP
-    return error.response.text().then((text) => {
-      logger.error('Launchpad API error:', text);
-      return new PreparedError(error.response.status, {
-        status: 'error',
-        payload: {
-          code: 'lp-error',
-          message: text
-        }
-      });
+    const text = await error.response.text();
+    logger.error('Launchpad API error:', text);
+    return new PreparedError(error.response.status, {
+      status: 'error',
+      payload: {
+        code: 'lp-error',
+        message: text
+      }
     });
   } else {
-    return Promise.resolve(new PreparedError(500, {
+    return new PreparedError(500, {
       status: 'error',
       payload: {
         code: 'internal-error',
         message: error.message
       }
-    }));
+    });
   }
 };
 
-const sendError = (res, error) => {
-  return prepareError(error)
-    .then((preparedError) => {
-      res.status(preparedError.status).send(preparedError.body);
-    });
+const sendError = async (res, error) => {
+  const preparedError = await prepareError(error);
+  res.status(preparedError.status).send(preparedError.body);
 };
 
 const checkGitHubStatus = (response) => {
@@ -163,29 +160,27 @@ const checkGitHubStatus = (response) => {
   return response;
 };
 
-const checkAdminPermissions = (session, repositoryUrl) => {
+const checkAdminPermissions = async (session, repositoryUrl) => {
   if (!session || !session.token) {
-    return Promise.reject(new PreparedError(401, RESPONSE_NOT_LOGGED_IN));
+    throw new PreparedError(401, RESPONSE_NOT_LOGGED_IN);
   }
   const token = session.token;
 
   const parsed = parseGitHubUrl(repositoryUrl);
   if (parsed === null || parsed.owner === null || parsed.name === null) {
     logger.info(`Cannot parse "${repositoryUrl}"`);
-    return Promise.reject(new PreparedError(400, RESPONSE_GITHUB_BAD_URL));
+    throw new PreparedError(400, RESPONSE_GITHUB_BAD_URL);
   }
 
   const uri = `/repos/${parsed.owner}/${parsed.name}`;
   const options = { token, json: true };
   logger.info(`Checking permissions for ${parsed.owner}/${parsed.name}`);
-  return requestGitHub.get(uri, options)
-    .then(checkGitHubStatus)
-    .then((response) => {
-      if (!response.body.permissions || !response.body.permissions.admin) {
-        throw new PreparedError(401, RESPONSE_GITHUB_NO_ADMIN_PERMISSIONS);
-      }
-      return { owner: parsed.owner, name: parsed.name, token };
-    });
+  const response = await requestGitHub.get(uri, options);
+  await checkGitHubStatus(response);
+  if (!response.body.permissions || !response.body.permissions.admin) {
+    throw new PreparedError(401, RESPONSE_GITHUB_NO_ADMIN_PERMISSIONS);
+  }
+  return { owner: parsed.owner, name: parsed.name, token };
 };
 
 const makeSnapName = (url) => {
@@ -197,7 +192,7 @@ const makeSnapName = (url) => {
 // around is a bit cumbersome at the moment.
 
 // helper function that fetches snapcraft.yaml with a given path in given repo
-const fetchSnapcraftYaml = (path, owner, name, token) => {
+const fetchSnapcraftYaml = async (path, owner, name, token) => {
   const uri = `/repos/${owner}/${name}/contents/${path}`;
   const options = {
     token,
@@ -205,54 +200,57 @@ const fetchSnapcraftYaml = (path, owner, name, token) => {
   };
   logger.info(`Fetching ${path} from ${owner}/${name}`);
 
-  return requestGitHub.get(uri, options).then(checkGitHubStatus);
+  const response = await requestGitHub.get(uri, options);
+  await checkGitHubStatus(response);
+  return response;
 };
 
-// helper function that fetches given snapcraft.yaml if error from previous promise is 404
-const fetchSnapcraftYamlOn404 = (error, path, owner, name, token) => {
-  if (error.status === 404 && error.body &&
-      error.body.payload.code === RESPONSE_GITHUB_NOT_FOUND.payload.code) {
-    return fetchSnapcraftYaml(path, owner, name, token);
-  }
-  throw error;
-};
-
-export const internalGetSnapcraftYaml = (owner, name, token) => {
-  return fetchSnapcraftYaml('snap/snapcraft.yaml', owner, name, token)
-    .catch((error) => {
-      // if /snap/snapcraft.yaml not found try to fetch /snapcraft.yaml
-      return fetchSnapcraftYamlOn404(error, 'snapcraft.yaml', owner, name, token);
-    })
-    .catch((error) => {
-      // if /snapcraft.yaml not found try to fetch /.snapcraft.yaml
-      return fetchSnapcraftYamlOn404(error, '.snapcraft.yaml', owner, name, token);
-    })
-    .then((response) => {
+export const internalGetSnapcraftYaml = async (owner, name, token) => {
+  const paths = ['snap/snapcraft.yaml', 'snapcraft.yaml', '.snapcraft.yaml'];
+  for (const path of paths) {
+    try {
+      const response = await fetchSnapcraftYaml(path, owner, name, token);
       try {
-        return yaml.safeLoad(response.body);
+        return {
+          contents: yaml.safeLoad(response.body),
+          path
+        };
       } catch (e) {
         throw new PreparedError(400, RESPONSE_SNAPCRAFT_YAML_PARSE_FAILED);
       }
-    });
+    } catch (error) {
+      if (path !== paths[paths.length - 1] &&
+          error.status === 404 && error.body &&
+          error.body.payload.code === RESPONSE_GITHUB_NOT_FOUND.payload.code) {
+        continue;
+      } else {
+        throw error;
+      }
+    }
+  }
 };
 
-export const getSnapcraftYaml = (req, res) => {
+export const getSnapcraftYaml = async (req, res) => {
   if (!req.session || !req.session.token) {
     return Promise.reject(new PreparedError(401, RESPONSE_NOT_LOGGED_IN));
   }
   const token = req.session.token;
 
-  return internalGetSnapcraftYaml(req.params.owner, req.params.name, token)
-    .then((snapcraftYaml) => {
-      return res.status(200).send({
-        status: 'success',
-        payload: {
-          code: 'snapcraft-yaml-found',
-          contents: snapcraftYaml
-        }
-      });
-    })
-    .catch((error) => sendError(res, error));
+  try {
+    const snapcraftYaml = await internalGetSnapcraftYaml(
+      req.params.owner, req.params.name, token
+    );
+    return res.status(200).send({
+      status: 'success',
+      payload: {
+        code: 'snapcraft-yaml-found',
+        path: snapcraftYaml.path,
+        contents: snapcraftYaml.contents
+      }
+    });
+  } catch (error) {
+    return sendError(res, error);
+  }
 };
 
 const requestNewSnap = (repositoryUrl) => {
@@ -277,168 +275,151 @@ const requestNewSnap = (repositoryUrl) => {
   });
 };
 
-export const newSnap = (req, res) => {
+export const newSnap = async (req, res) => {
   const repositoryUrl = req.body.repository_url;
 
-  let owner;
-  let snapUrl;
   // We need admin permissions in order to be able to install a webhook later.
-  checkAdminPermissions(req.session, repositoryUrl)
-    .then((result) => {
-      owner = result.owner;
-      return requestNewSnap(repositoryUrl);
-    })
-    .then((result) => {
-      // as new snap is created we need to clear list of snaps from cache
-      const urlPrefix = getRepoUrlPrefix(owner);
-      const cacheId = getUrlPrefixCacheId(urlPrefix);
+  try {
+    const { owner } = await checkAdminPermissions(req.session, repositoryUrl);
+    const result = await requestNewSnap(repositoryUrl);
+    // as new snap is created we need to clear list of snaps from cache
+    const urlPrefix = getRepoUrlPrefix(owner);
+    const cacheId = getUrlPrefixCacheId(urlPrefix);
 
-      return getMemcached().del(cacheId)
-        .catch((err) => {
-          logger.error(`Error deleting ${cacheId} from memcached:`, err);
-        })
-        .then(() => {
-          snapUrl = result.self_link;
-          logger.info(`Created ${snapUrl}`);
-          return res.status(201).send({
-            status: 'success',
-            payload: {
-              code: 'snap-created',
-              message: snapUrl
-            }
-          });
-        });
-    })
-    .catch((error) => sendError(res, error));
+    await getMemcached().del(cacheId);
+    const snapUrl = result.self_link;
+    logger.info(`Created ${snapUrl}`);
+    return res.status(201).send({
+      status: 'success',
+      payload: {
+        code: 'snap-created',
+        message: snapUrl
+      }
+    });
+  } catch (error) {
+    return sendError(res, error);
+  }
 };
 
 export const internalFindSnap = async (repositoryUrl) => {
   const cacheId = getRepositoryUrlCacheId(repositoryUrl);
   const lpClient = getLaunchpad();
 
-  return getMemcached().get(cacheId)
-    .catch((err) => {
-      logger.error(`Error getting ${cacheId} from memcached:`, err);
-    })
-    .then((result) => {
-      if (result !== undefined) {
-        return lpClient.wrap_resource(result.self_link, result);
-      }
+  try {
+    const result = await getMemcached().get(cacheId);
+    if (result !== undefined) {
+      return lpClient.wrap_resource(result.self_link, result);
+    }
+  } catch (error) {
+    logger.error(`Error getting ${cacheId} from memcached: ${error}`);
+  }
 
-      return lpClient.named_get('/+snaps', 'findByURL', {
-        parameters: { url: repositoryUrl }
-      })
-        .catch((error) => {
-          if (error.response.status === 404) {
-            throw new PreparedError(404, RESPONSE_SNAP_NOT_FOUND);
-          }
-          // At least for the moment, we just wrap the error we get from
-          // Launchpad.
-          return error.response.text().then((text) => {
-            throw new PreparedError(error.response.status, {
-              status: 'error',
-              payload: {
-                code: 'lp-error',
-                message: text
-              }
-            });
-          });
-        })
-        .then(async (result) => {
-          const username = conf.get('LP_API_USERNAME');
-          // https://github.com/babel/babel-eslint/issues/415
-          for await (const entry of result) { // eslint-disable-line semi
-            if (entry.owner_link.endsWith(`/~${username}`)) {
-              return getMemcached().set(cacheId, entry, 3600)
-                .then(() => entry);
-            }
-          }
-          throw new PreparedError(404, RESPONSE_SNAP_NOT_FOUND);
-        });
+  let entries;
+  try {
+    entries = await lpClient.named_get('/+snaps', 'findByURL', {
+      parameters: { url: repositoryUrl }
     });
+  } catch (error) {
+    if (error.response.status === 404) {
+      throw new PreparedError(404, RESPONSE_SNAP_NOT_FOUND);
+    }
+    // At least for the moment, we just wrap the error we get from
+    // Launchpad.
+    const text = await error.response.text();
+    throw new PreparedError(error.response.status, {
+      status: 'error',
+      payload: {
+        code: 'lp-error',
+        message: text
+      }
+    });
+  }
+  const username = conf.get('LP_API_USERNAME');
+  // https://github.com/babel/babel-eslint/issues/415
+  for await (const entry of entries) { // eslint-disable-line semi
+    if (entry.owner_link.endsWith(`/~${username}`)) {
+      await getMemcached().set(cacheId, entry, 3600);
+      return entry;
+    }
+  }
+  throw new PreparedError(404, RESPONSE_SNAP_NOT_FOUND);
 };
 
-const internalFindSnapsByPrefix = (urlPrefix) => {
+const internalFindSnapsByPrefix = async (urlPrefix) => {
   const username = conf.get('LP_API_USERNAME');
   const cacheId = getUrlPrefixCacheId(urlPrefix);
   const lpClient = getLaunchpad();
 
-  return getMemcached().get(cacheId)
-    .catch((err) => {
-      logger.error(`Error getting ${cacheId} from memcached:`, err);
-    })
-    .then((result) => {
-      if (result !== undefined) {
-        return result.map((entry) => {
-          return lpClient.wrap_resource(entry.self_link, entry);
-        });
-      }
+  try {
+    const result = await getMemcached().get(cacheId);
+    if (result !== undefined) {
+      return result.map((entry) => {
+        return lpClient.wrap_resource(entry.self_link, entry);
+      });
+    }
+  } catch (error) {
+    logger.error(`Error getting ${cacheId} from memcached: ${error}`);
+  }
 
-      return lpClient.named_get('/+snaps', 'findByURLPrefix', {
-        parameters: {
-          url_prefix: urlPrefix,
-          owner: `/~${username}`
-        }
-      })
-        .then((result) => {
-          return getMemcached().set(cacheId, result.entries, 3600)
-            .then(() => result.entries);
-        })
-        .catch((error) => {
-          // At least for the moment, we just wrap the error we get from
-          // Launchpad.
-          return error.response.text().then((text) => {
-            throw new PreparedError(error.response.status, {
-              status: 'error',
-              payload: {
-                code: 'lp-error',
-                message: text
-              }
-            });
-          });
-        });
+  try {
+    const result = await lpClient.named_get('/+snaps', 'findByURLPrefix', {
+      parameters: {
+        url_prefix: urlPrefix,
+        owner: `/~${username}`
+      }
     });
+    await getMemcached().set(cacheId, result.entries, 3600);
+    return result.entries;
+  } catch (error) {
+    // At least for the moment, we just wrap the error we get from
+    // Launchpad.
+    const text = await error.response.text();
+    throw new PreparedError(error.response.status, {
+      status: 'error',
+      payload: {
+        code: 'lp-error',
+        message: text
+      }
+    });
+  }
 };
 
-export const findSnaps = (req, res) => {
+export const findSnaps = async (req, res) => {
   const owner = req.query.owner || req.session.user.login;
   const urlPrefix = getRepoUrlPrefix(owner);
-  internalFindSnapsByPrefix(urlPrefix)
-    .then((snaps) => {
-      return Promise.all(snaps.map((snap) => {
-        return getSnapcraftData(snap.git_repository_url, req.session.token)
-          .then((snapcraftData) => {
-            return {
-              ...snap,
-              snapcraft_data: snapcraftData
-            };
-          });
-      }))
-        .then((snaps) => {
-          return res.status(200).send({
-            status: 'success',
-            payload: {
-              code: 'snaps-found',
-              snaps: snaps
-            }
-          });
-        });
-    })
-    .catch((error) => sendError(res, error));
+  try {
+    const rawSnaps = await internalFindSnapsByPrefix(urlPrefix);
+    const snaps = await Promise.all(rawSnaps.map(async (snap) => {
+      const snapcraftData = await getSnapcraftData(
+        snap.git_repository_url, req.session.token
+      );
+      return { ...snap, snapcraft_data: snapcraftData };
+    }));
+    return res.status(200).send({
+      status: 'success',
+      payload: {
+        code: 'snaps-found',
+        snaps: snaps
+      }
+    });
+  } catch (error) {
+    return sendError(res, error);
+  }
 };
 
-export const findSnap = (req, res) => {
-  internalFindSnap(req.query.repository_url)
-    .then((snap) => {
-      return res.status(200).send({
-        status: 'success',
-        payload: {
-          code: 'snap-found',
-          snap
-        }
-      });
-    })
-    .catch((error) => sendError(res, error));
+export const findSnap = async (req, res) => {
+  try {
+    const snap = await internalFindSnap(req.query.repository_url);
+    return res.status(200).send({
+      status: 'success',
+      payload: {
+        code: 'snap-found',
+        snap
+      }
+    });
+  } catch (error) {
+    return sendError(res, error);
+  }
 };
 
 const clearSnapCache = (repositoryUrl) => {
@@ -456,48 +437,44 @@ const clearSnapCache = (repositoryUrl) => {
   ]);
 };
 
-export const authorizeSnap = (req, res) => {
+export const authorizeSnap = async (req, res) => {
   const repositoryUrl = req.body.repository_url;
   const snapName = req.body.snap_name;
   const series = req.body.series;
   const channels = req.body.channels;
   const macaroon = req.body.macaroon;
-  let snapUrl;
 
-  return checkAdminPermissions(req.session, repositoryUrl)
-    .then(() => internalFindSnap(repositoryUrl))
-    .then((result) => {
-      snapUrl = result.self_link;
-      return getLaunchpad().patch(snapUrl, {
-        store_upload: true,
-        store_series_link: `/+snappy-series/${series}`,
-        store_name: snapName,
-        store_channels: channels
-      });
-    })
-    .then(() => {
-      return getLaunchpad().named_post(snapUrl, 'completeAuthorization', {
-        parameters: { root_macaroon: macaroon }
-      });
-    })
-    .then(() => {
-      logger.info(`Completed authorization of ${snapUrl}`);
+  try {
+    await checkAdminPermissions(req.session, repositoryUrl);
+    const result = await internalFindSnap(repositoryUrl);
+    const snapUrl = result.self_link;
+    await getLaunchpad().patch(snapUrl, {
+      store_upload: true,
+      store_series_link: `/+snappy-series/${series}`,
+      store_name: snapName,
+      store_channels: channels
+    });
+    await getLaunchpad().named_post(snapUrl, 'completeAuthorization', {
+      parameters: { root_macaroon: macaroon }
+    });
+    logger.info(`Completed authorization of ${snapUrl}`);
 
-      // authorized snaps have snap_name updated, so we need to invalidate snaps caches
-      return clearSnapCache(repositoryUrl).then(() => {
-        return res.status(200).send({
-          status: 'success',
-          payload: {
-            code: 'snap-authorized',
-            message: 'Snap uploads authorized'
-          }
-        });
-      });
-    })
-    .catch((error) => sendError(res, error));
+    // authorized snaps have snap_name updated, so we need to invalidate
+    // snaps caches
+    await clearSnapCache(repositoryUrl);
+    return res.status(200).send({
+      status: 'success',
+      payload: {
+        code: 'snap-authorized',
+        message: 'Snap uploads authorized'
+      }
+    });
+  } catch (error) {
+    return sendError(res, error);
+  }
 };
 
-export const getSnapBuilds = (req, res) => {
+export const getSnapBuilds = async (req, res) => {
   const snapUrl = req.query.snap;
 
   const start = typeof req.query.start !== 'undefined' ? req.query.start : 0;
@@ -513,85 +490,77 @@ export const getSnapBuilds = (req, res) => {
     });
   }
 
-  return getLaunchpad().get(snapUrl).then((snap) => {
-    return getLaunchpad().get(snap.builds_collection_link, { start: start, size: size })
-      .then((builds) => {
-        return res.status(200).send({
-          status: 'success',
-          payload: {
-            code: 'snap-builds-found',
-            builds: builds.entries
-          }
-        });
-      });
-  })
-  .catch((error) => sendError(res, error));
+  try {
+    const snap = await getLaunchpad().get(snapUrl);
+    const builds = await getLaunchpad().get(snap.builds_collection_link, {
+      start: start, size: size
+    });
+    return res.status(200).send({
+      status: 'success',
+      payload: {
+        code: 'snap-builds-found',
+        builds: builds.entries
+      }
+    });
+  } catch (error) {
+    return sendError(res, error);
+  }
 };
 
-export const internalRequestSnapBuilds = (snap) => {
+export const internalRequestSnapBuilds = async (snap) => {
   // Request builds, then make sure that auto_build is enabled so that
   // future push events will cause the webhook to dispatch builds.  Doing
   // things in this order ensures that Launchpad's internal
   // `SnapSet.makeAutoBuilds` code won't come along and dispatch an extra
   // set of builds between these two requests.
   const lpClient = getLaunchpad();
-  return lpClient.named_post(snap.self_link, 'requestAutoBuilds')
-    .then((builds) => {
-      if (!snap.auto_build) {
-        return lpClient.patch(snap.self_link, { auto_build: true })
-          .then(() => builds);
-      } else {
-        return builds;
+  const builds = await lpClient.named_post(
+    snap.self_link, 'requestAutoBuilds'
+  );
+  if (!snap.auto_build) {
+    await lpClient.patch(snap.self_link, { auto_build: true });
+  }
+  return builds;
+};
+
+export const requestSnapBuilds = async (req, res) => {
+  try {
+    await checkAdminPermissions(req.session, req.body.repository_url);
+    const snap = await internalFindSnap(req.body.repository_url);
+    const builds = await internalRequestSnapBuilds(snap);
+    return res.status(201).send({
+      status: 'success',
+      payload: {
+        code: 'snap-builds-requested',
+        builds: builds
       }
     });
+  } catch (error) {
+    return sendError(res, error);
+  }
 };
 
-export const requestSnapBuilds = (req, res) => {
-  checkAdminPermissions(req.session, req.body.repository_url)
-    .then(() => internalFindSnap(req.body.repository_url))
-    .then(internalRequestSnapBuilds)
-    .then((builds) => {
-      return res.status(201).send({
-        status: 'success',
-        payload: {
-          code: 'snap-builds-requested',
-          builds: builds
-        }
-      });
-    })
-    .catch((error) => sendError(res, error));
-};
+export const deleteSnap = async (req, res) => {
+  try {
+    const { owner } = await checkAdminPermissions(
+      req.session, req.body.repository_url
+    );
+    const snap = await internalFindSnap(req.body.repository_url);
+    await snap.lp_delete();
 
-export const deleteSnap = (req, res) => {
-  let owner;
-  checkAdminPermissions(req.session, req.body.repository_url)
-    .then((result) => {
-      owner = result.owner;
-      return internalFindSnap(req.body.repository_url);
-    })
-    .then((snap) => snap.lp_delete())
-    .then(() => {
-      const urlPrefix = getRepoUrlPrefix(owner);
-      const prefixCacheId = getUrlPrefixCacheId(urlPrefix);
-      const repoCacheId = getRepositoryUrlCacheId(req.body.repository_url);
-
-      return getMemcached().del(prefixCacheId)
-        .catch((err) => {
-          logger.error(`Error deleting ${prefixCacheId} from memcached:`, err);
-        })
-        .then(() => getMemcached().del(repoCacheId))
-        .catch((err) => {
-          logger.error(`Error deleting ${repoCacheId} from memcached:`, err);
-        })
-        .then(() => {
-          return res.status(200).send({
-            status: 'success',
-            payload: {
-              code: 'snap-deleted',
-              message: 'Snap deleted'
-            }
-          });
-        });
-    })
-    .catch((error) => sendError(res, error));
+    const urlPrefix = getRepoUrlPrefix(owner);
+    const prefixCacheId = getUrlPrefixCacheId(urlPrefix);
+    const repoCacheId = getRepositoryUrlCacheId(req.body.repository_url);
+    await getMemcached().del(prefixCacheId);
+    await getMemcached().del(repoCacheId);
+    return res.status(200).send({
+      status: 'success',
+      payload: {
+        code: 'snap-deleted',
+        message: 'Snap deleted'
+      }
+    });
+  } catch (error) {
+    return sendError(res, error);
+  }
 };

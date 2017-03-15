@@ -18,14 +18,12 @@ const stateStyles = [
 export class Signal extends Component {
 
   render() {
-    const { state, label, message } = this.props;
+    const { state, message } = this.props;
     const signalStyle = stateStyles[state];
 
     return (
       <div className={ styles.box }>
-        <div className={ classNames(styles.signal, signalStyle) }>
-          { (state === SIGNALS.DONE) ? '' : label }
-        </div>
+        <div className={ classNames(styles.signal, signalStyle) } />
         <p>{ message }</p>
       </div>
     );
@@ -34,7 +32,6 @@ export class Signal extends Component {
 
 Signal.propTypes = {
   state: PropTypes.number.isRequired,
-  label: PropTypes.string.isRequired,
   message: PropTypes.string
 };
 
@@ -45,13 +42,10 @@ export default class TrafficLights extends Component {
 
     this.state = {
       signals: [{
-        label: '1',
         message: 'Connect to Github'
       }, {
-        label: '2',
         message: 'Choose a repo'
       }, {
-        label: '3',
         message: 'Name and YAML'
       }]
     };

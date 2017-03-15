@@ -4,7 +4,8 @@
   padding: 0;
   border-bottom: 0;
   display: inline-block;
-  vertical-align: middle;
+  vertical-align: baseline;
+  margin-bottom: -2px; /* to center it with text */
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }

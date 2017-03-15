@@ -4,8 +4,7 @@ import { conf } from '../../../helpers/config';
 
 import Button from '../../vanilla/button';
 import { Row, Data, Dropdown } from '../../vanilla/table-interactive';
-import { Message } from '../../forms';
-import { TickIcon } from '../icons';
+import { TickIcon, ErrorIcon } from '../icons';
 
 import styles from './dropdowns.css';
 
@@ -34,7 +33,15 @@ Agreement.propTypes = {
 
 // partial component for rendering caption of the dropdown based on current state
 const Caption = (props) => {
-  const { authStore, registerNameStatus, onSignAgreementChange } = props;
+  const {
+    registeredName,
+    authStore,
+    registerNameStatus,
+    onSignAgreementChange,
+    snapName,
+    snapcraftData,
+    onSnapNameChange
+  } = props;
 
   // If the user has signed into the store but we haven't fetched the
   // resulting discharge macaroon, we need to wait for that before
@@ -47,6 +54,66 @@ const Caption = (props) => {
   );
 
   let caption;
+  let changeForm;
+  let message;
+
+  const helpText = (
+    <div className={ styles.helpText }>
+      Lower-case letters, numbers, and hyphens only.
+    </div>
+  );
+
+  const changeRegisteredName = !!registeredName;
+
+  // only show "change name" info and form if there is a name registered already,
+  // user is authenticated and we are not showing register success message
+  const showChangeForm = (
+    changeRegisteredName &&
+    authStore.authenticated &&
+    !registerNameStatus.success
+  );
+
+  const showHelpText = !showChangeForm && (authStoreFetchingDischarge || authStore.authenticated);
+
+  if (changeRegisteredName) {
+    // if user is changing already registered name
+    if (!authStore.authenticated) {
+      message = 'You need to sign in to Ubuntu One to change a snap’s registered name.';
+    }
+  } else {
+    // if user is registering new name
+    message = 'To publish to the snap store, this repo needs a registered name.';
+    if (!authStore.authenticated) {
+      message += ' You need to sign in to Ubuntu One to register a name.';
+    }
+  }
+
+  if (showChangeForm) {
+    changeForm = (
+      <div>
+        If you change the registered name:
+        <ul>
+          { snapcraftData.name === registeredName &&
+            <li>Builds will stop until you update the snapcraft.yaml to match.</li>
+          }
+          <li>The old name will remain registered to you and can be used for another snap later.</li>
+        </ul>
+        <p>
+          <label>New name:
+            {' ' /* force space between inline elements */}
+            <input
+              className={ styles.snapNameInput }
+              type='text'
+              value={ snapName }
+              onChange={ onSnapNameChange }
+            />
+          </label>
+        </p>
+        { helpText }
+      </div>
+    );
+  }
+
   if (registerNameStatus.success) {
     caption = (
       <div>
@@ -58,41 +125,40 @@ const Caption = (props) => {
     && registerNameStatus.error.json.payload
     && registerNameStatus.error.json.payload.code === 'already_registered') {
     caption = (
-      <Message status='error'>
-        <p>Sorry, that name is already taken. Try a different name.</p>
+      <div>
+        <p><ErrorIcon /> Sorry, that name is already taken. Try a different name.</p>
         <p className={ styles.helpText }>
           If you think you should have sole rights to the name,
           you can <a href={ FILE_NAME_CLAIM_URL } target='_blank'>file a claim</a>.
         </p>
-      </Message>
+      </div>
     );
   } else if (registerNameStatus.error) {
     caption = (
-      <Message status='error'>
-        { registerNameStatus.error.message }
-      </Message>
+      <p><ErrorIcon /> { registerNameStatus.error.message }</p>
     );
   } else {
     caption = (
       <div>
-        To publish to the snap store, this repo needs a registered name.
-        { !authStore.authenticated &&
-          ' You need to sign in to Ubuntu One to register a name.'
-        }
-        { (authStoreFetchingDischarge || authStore.authenticated) &&
-          <div className={ styles.helpText }>
-            Lower-case letters, numbers, and hyphens only.
-          </div>
-        }
+        { message }
+        { showHelpText && helpText }
         { userMustSignAgreement && <Agreement onChange={onSignAgreementChange}/> }
       </div>
     );
   }
 
-  return caption;
+  return (
+    <div className={styles.caption}>
+      { changeForm }
+      { caption }
+    </div>
+  );
 };
 
 Caption.propTypes = {
+  registeredName: PropTypes.string,
+  snapName: PropTypes.string,
+  snapcraftData: PropTypes.object,
   authStore: PropTypes.shape({
     authenticated: PropTypes.bool,
     hasDischarge: PropTypes.bool,
@@ -104,12 +170,13 @@ Caption.propTypes = {
     error: PropTypes.object
   }),
 
-  onSignAgreementChange: PropTypes.func.isRequired
+  onSignAgreementChange: PropTypes.func.isRequired,
+  onSnapNameChange: PropTypes.func.isRequired
 };
 
 // partial component to render action buttons of the dropdown based on current state
 const ActionButtons = (props) => {
-  const { authStore, registerNameStatus, snapName } = props;
+  const { authStore, registeredName, registerNameStatus, snapName } = props;
   const { onCancelClick, onSignInClick, onRegisterClick } = props;
 
   // by default show 'Sign in' button
@@ -129,7 +196,7 @@ const ActionButtons = (props) => {
       snapName === '' ||
       !!registerNameStatus.error
     );
-    actionText = 'Register name';
+    actionText = registeredName ? 'Register new name' : 'Register name';
     actionOnClick = onRegisterClick;
   }
 
@@ -156,6 +223,7 @@ ActionButtons.propTypes = {
     authenticated: PropTypes.bool,
     isFetching: PropTypes.bool
   }),
+  registeredName: PropTypes.string,
   registerNameStatus: PropTypes.shape({
     isFetching: PropTypes.bool,
     success: PropTypes.bool,
@@ -168,21 +236,26 @@ ActionButtons.propTypes = {
 };
 
 // main dropdown component exported from this module
-const UnregisteredDropdown = (props) => {
+const RegisterNameDropdown = (props) => {
   return (
     <Dropdown>
       <Row>
         <Data col="100">
           <Caption
+            registeredName={props.registeredName}
+            snapName={props.snapName}
+            snapcraftData={props.snapcraftData}
             authStore={props.authStore}
             registerNameStatus={props.registerNameStatus}
             onSignAgreementChange={props.onSignAgreementChange}
+            onSnapNameChange={props.onSnapNameChange}
           />
         </Data>
       </Row>
       <Row>
         <ActionButtons
           authStore={props.authStore}
+          registeredName={props.registeredName}
           registerNameStatus={props.registerNameStatus}
           snapName={props.snapName}
           onRegisterClick={props.onRegisterClick}
@@ -194,15 +267,17 @@ const UnregisteredDropdown = (props) => {
   );
 };
 
-UnregisteredDropdown.propTypes = {
+RegisterNameDropdown.propTypes = {
   snapName: PropTypes.string,
   authStore: PropTypes.object,
+  registeredName: PropTypes.string,
   registerNameStatus: PropTypes.object,
-
+  snapcraftData: PropTypes.object,
+  onSnapNameChange: PropTypes.func.isRequired,
   onSignAgreementChange: PropTypes.func.isRequired,
   onRegisterClick: PropTypes.func.isRequired,
   onSignInClick: PropTypes.func.isRequired,
   onCancelClick: PropTypes.func.isRequired,
 };
 
-export default UnregisteredDropdown;
+export default RegisterNameDropdown;

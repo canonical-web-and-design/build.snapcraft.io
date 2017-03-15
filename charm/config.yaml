@@ -1,4 +1,7 @@
 options:
+    base_url:
+        type: string
+        description: Base URL of the service
     session_secret:
         type: string
         description: Secret key for signing session cookie IDs
@@ -32,3 +35,7 @@ options:
     http_proxy:
         type: string
         description: HTTP proxy URL
+    db_name:
+        default: "snap_build"
+    db_roles:
+        default: "snap_build"

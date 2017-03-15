@@ -53,3 +53,7 @@ version-info.txt
 # Environment variables
 .env
 environments/development.env
+
+# Development and test SQLite databases
+/dev.sqlite3
+/test.sqlite3

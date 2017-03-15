@@ -1,6 +1,9 @@
 import Memcached from 'memcached';
 
 import { conf } from '../helpers/config';
+import logging from '../logging';
+
+const logger = logging.getLogger('express');
 
 let memcached = null;
 
@@ -36,12 +39,19 @@ const getInMemoryMemcachedStub = () => {
   return memcachedStub;
 };
 
-const promisifyMethod = (rawMemcached, name) => {
+const promisifyMethod = (rawMemcached, name, logError) => {
   return (...args) => {
     return new Promise((resolve, reject) => {
       rawMemcached[name](...args, (err, result) => {
         if (err) {
-          reject(err);
+          if (logError) {
+            logger.error(
+              `memcached.${name}(${args.toString()}) failed: ${err}`
+            );
+            resolve(undefined);
+          } else {
+            reject(err);
+          }
         } else {
           resolve(result);
         }
@@ -55,7 +65,7 @@ const promisifyMemcached = (rawMemcached) => {
 
   wrapper.get = promisifyMethod(rawMemcached, 'get');
   wrapper.set = promisifyMethod(rawMemcached, 'set');
-  wrapper.del = promisifyMethod(rawMemcached, 'del');
+  wrapper.del = promisifyMethod(rawMemcached, 'del', true);
 
   return wrapper;
 };

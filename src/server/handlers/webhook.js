@@ -26,7 +26,7 @@ export const makeWebhookSecret = (owner, name) => {
 
 // Response bodies won't go anywhere very useful, but at least try to send
 // meaningful codes.
-export const notify = (req, res) => {
+export const notify = async (req, res) => {
   const signature = req.headers['x-hub-signature'];
   const { owner, name } = req.params;
 
@@ -63,34 +63,25 @@ export const notify = (req, res) => {
   } else {
     const repositoryUrl = getGitHubRepoUrl(owner, name);
     const cacheId = getSnapcraftYamlCacheId(repositoryUrl);
-    let snap;
     // Clear snap name cache before starting.
     // XXX cjwatson 2017-02-16: We could be smarter about this by looking at
     // the content of the push event.
-    return getMemcached().del(cacheId)
-      .catch((err) => {
-        logger.error(`Error deleting ${cacheId} from memcached:`, err);
-      })
-      .then(() => internalFindSnap(repositoryUrl))
-      .then((result) => {
-        snap = result;
-        if (!snap.store_name) {
-          throw 'Cannot build snap until name is registered';
-        }
-        if (!snap.auto_build) {
-          // XXX cjwatson 2017-02-16: Cache returned snap name, if any.
-          return internalGetSnapcraftYaml(owner, name);
-        }
-      })
-      .then(() => internalRequestSnapBuilds(snap))
-      .then(() => {
-        logger.info(`Requested builds of ${repositoryUrl}.`);
-        return res.status(200).send();
-      })
-      .catch((error) => {
-        logger.error(`Failed to request builds of ${repositoryUrl}: ` +
-                     `${error}.`);
-        return res.status(500).send();
-      });
+    await getMemcached().del(cacheId);
+    try {
+      const snap = await internalFindSnap(repositoryUrl);
+      if (!snap.store_name) {
+        throw 'Cannot build snap until name is registered';
+      }
+      if (!snap.auto_build) {
+        // XXX cjwatson 2017-02-16: Cache returned snap name, if any.
+        await internalGetSnapcraftYaml(owner, name);
+      }
+      await internalRequestSnapBuilds(snap);
+      logger.info(`Requested builds of ${repositoryUrl}.`);
+      return res.status(200).send();
+    } catch (error) {
+      logger.error(`Failed to request builds of ${repositoryUrl}: ${error}.`);
+      return res.status(500).send();
+    }
   }
 };

@@ -11,4 +11,5 @@ Caches snap data for given repository URL.
 ## `lp:snapcraft_data:https://github.com/:owner/:name`
 
 Caches JSON subset of data from `snapcraft.yaml` found in given repository.
-Currently it contains only a snap name.
+Currently it contains only a snap `name` from `snapcraft.yaml` file and a `path`
+to snapcraft.yaml file in given repository.

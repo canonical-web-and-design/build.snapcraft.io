@@ -10,14 +10,14 @@ import {
   NameMismatchDropdown,
   RemoveRepoDropdown,
   UnconfiguredDropdown,
-  UnregisteredDropdown
+  RegisterNameDropdown
 } from './dropdowns';
 import {
   TickIcon,
   ErrorIcon
 } from './icons';
 import { signIntoStore } from '../../actions/auth-store';
-import { registerName, registerNameError } from '../../actions/register-name';
+import { registerName, registerNameError, registerNameClear } from '../../actions/register-name';
 import { removeSnap } from '../../actions/snaps';
 
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
@@ -41,7 +41,7 @@ class RepositoryRow extends Component {
       snapName,
       nameMismatchDropdownExpanded: false,
       unconfiguredDropdownExpanded: false,
-      unregisteredDropdownExpanded: false,
+      unregisteredDropdownExpanded: props.registerNameIsOpen,
       removeDropdownExpanded: false,
       signAgreement: false
     };
@@ -149,9 +149,10 @@ class RepositoryRow extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.registerNameStatus.success &&
         !this.props.registerNameStatus.success) {
-      this.closeUnregisteredTimerID = window.setTimeout(
-        this.closeUnregisteredDropdown.bind(this), 2000
-      );
+      this.closeUnregisteredTimerID = window.setTimeout(() => {
+        this.closeUnregisteredDropdown();
+        this.props.dispatch(registerNameClear(this.props.fullName));
+      }, 2000);
     }
   }
 
@@ -197,7 +198,14 @@ class RepositoryRow extends Component {
       registerNameStatus.snapName : snap.store_name
     );
 
-    const hasBuilt = latestBuild && snap.snapcraft_data;
+    const hasBuilt = !!(latestBuild && snap.snapcraft_data);
+    const hasLog = !!(hasBuilt && latestBuild.buildLogUrl);
+
+    // only link to builds that have log available
+    const latestBuildUrl = hasLog
+      ? `/${fullName}/builds/${latestBuild.buildId}`
+      : null;
+
     const isActive = (
       showNameMismatchDropdown ||
       showUnconfiguredDropdown ||
@@ -228,14 +236,10 @@ class RepositoryRow extends Component {
           { this.renderSnapName.call(this, registeredName, showRegisterNameInput) }
         </Data>
         <Data col="30">
-          {/*
-            TODO: show 'Loading' when waiting for status?
-              and also show 'Never built' when no builds available
-          */}
           { hasBuilt
             ? (
               <BuildStatus
-                link={ `/${fullName}/builds/${latestBuild.buildId}`}
+                link={ latestBuildUrl }
                 colour={ latestBuild.colour }
                 statusMessage={ latestBuild.statusMessage }
                 dateStarted={ latestBuild.dateStarted }
@@ -258,7 +262,9 @@ class RepositoryRow extends Component {
         { showNameMismatchDropdown && <NameMismatchDropdown snap={snap} /> }
         { showUnconfiguredDropdown && <UnconfiguredDropdown snap={snap} /> }
         { showUnregisteredDropdown &&
-          <UnregisteredDropdown
+          <RegisterNameDropdown
+            registeredName={registeredName}
+            snapcraftData={snap.snapcraft_data}
             snapName={this.state.snapName}
             authStore={authStore}
             registerNameStatus={registerNameStatus}
@@ -266,6 +272,7 @@ class RepositoryRow extends Component {
             onRegisterClick={this.onRegisterClick.bind(this, snap.git_repository_url)}
             onSignInClick={this.onSignInClick.bind(this)}
             onCancelClick={this.onUnregisteredClick.bind(this)}
+            onSnapNameChange={this.onSnapNameChange.bind(this)}
           />
         }
         { showRemoveDropdown &&
@@ -311,12 +318,8 @@ class RepositoryRow extends Component {
       );
     } else if (snapcraft_data && store_name && snapcraft_data.name !== store_name){
       return (
-        <span>
-          <ErrorIcon />
-          {' ' /* space between inline elements */}
-          <a onClick={this.onNameMismatchClick.bind(this)}>
-            Doesn’t match
-          </a>
+        <span onClick={this.onNameMismatchClick.bind(this)}>
+          <ErrorIcon /> <a>Doesn’t match</a>
         </span>
       );
     }
@@ -327,8 +330,8 @@ class RepositoryRow extends Component {
   renderSnapName(registeredName, showRegisterNameInput) {
     if (registeredName !== null) {
       return (
-        <span>
-          <TickIcon /> { registeredName }
+        <span onClick={this.onUnregisteredClick.bind(this)}>
+          <TickIcon /> <a>{ registeredName }</a>
         </span>
       );
     } else if (showRegisterNameInput) {
@@ -354,31 +357,30 @@ class RepositoryRow extends Component {
 
 RepositoryRow.propTypes = {
   snap: PropTypes.shape({
-    resource_type_link: PropTypes.string,
     git_repository_url: PropTypes.string,
-    self_link: PropTypes.string,
     store_name: PropTypes.string,
     snapcraft_data: PropTypes.object
   }),
   latestBuild: PropTypes.shape({
     buildId: PropTypes.string,
-    status: PropTypes.string,
+    buildLogUrl: PropTypes.string,
+    colour: PropTypes.string,
+    dateStarted: PropTypes.string,
     statusMessage: PropTypes.string
   }),
   fullName: PropTypes.string,
   authStore: PropTypes.shape({
     authenticated: PropTypes.bool,
-    hasDischarge: PropTypes.bool,
-    isFetching: PropTypes.bool,
-    signedAgreement: PropTypes.bool,
     userName: PropTypes.string
   }),
   registerNameStatus: PropTypes.shape({
-    isFetching: PropTypes.bool,
-    success: PropTypes.bool,
-    error: PropTypes.object
+    success: PropTypes.bool
   }),
-  dispatch: PropTypes.func.isRequired
+  dispatch: PropTypes.func.isRequired,
+  registerNameIsOpen: PropTypes.bool
 };
 
+// FIXME:
+// `connect` shouldn't be used just to add dispatch to props
+// this makes it much harder to test it as it get wrapped
 export default connect()(RepositoryRow);

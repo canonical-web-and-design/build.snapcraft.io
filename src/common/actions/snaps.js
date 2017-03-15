@@ -13,7 +13,7 @@ export const REMOVE_SNAP_SUCCESS = 'REMOVE_SNAP_SUCCESS';
 export const REMOVE_SNAP_ERROR = 'REMOVE_SNAP_ERROR';
 
 export function fetchUserSnaps(owner) {
-  return (dispatch) => {
+  return async (dispatch) => {
     const url = `${BASE_URL}/api/launchpad/snaps/list`;
     const query = `owner=${encodeURIComponent(owner)}`;
 
@@ -21,24 +21,20 @@ export function fetchUserSnaps(owner) {
       type: FETCH_SNAPS
     });
 
-    return fetch(`${url}?${query}`, {
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin'
-    })
-      .then(checkStatus)
-      .then(response => {
-        return response.json().then(result => {
-          if (result.status !== 'success') {
-            throw getError(response, result);
-          }
-
-          dispatch(fetchSnapsSuccess(result.payload.snaps));
-        })
-        .catch(error => {
-          return Promise.reject(error);
-        });
-      })
-      .catch(error => dispatch(fetchSnapsError(error)));
+    try {
+      const response = await fetch(`${url}?${query}`, {
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin'
+      });
+      await checkStatus(response);
+      const result = await response.json();
+      if (result.status !== 'success') {
+        throw getError(response, result);
+      }
+      dispatch(fetchSnapsSuccess(result.payload.snaps));
+    } catch (error) {
+      dispatch(fetchSnapsError(error));
+    }
   };
 }
 
@@ -58,29 +54,28 @@ export function fetchSnapsError(error) {
 }
 
 export function removeSnap(repositoryUrl) {
-  return (dispatch) => {
+  return async (dispatch) => {
     dispatch({
       type: REMOVE_SNAP,
       payload: { repository_url: repositoryUrl }
     });
 
-    return fetch(`${BASE_URL}/api/launchpad/snaps/delete`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ repository_url: repositoryUrl }),
-      credentials: 'same-origin'
-    })
-      .then(checkStatus)
-      .then((response) => {
-        return response.json().then((result) => {
-          if (result.status !== 'success') {
-            throw getError(response, result);
-          }
-
-          dispatch(removeSnapSuccess(repositoryUrl));
-        });
-      })
-      .catch((error) => dispatch(removeSnapError(repositoryUrl, error)));
+    try {
+      const response = await fetch(`${BASE_URL}/api/launchpad/snaps/delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ repository_url: repositoryUrl }),
+        credentials: 'same-origin'
+      });
+      await checkStatus(response);
+      const result = await response.json();
+      if (result.status !== 'success') {
+        throw getError(response, result);
+      }
+      dispatch(removeSnapSuccess(repositoryUrl));
+    } catch (error) {
+      dispatch(removeSnapError(repositoryUrl, error));
+    }
   };
 }
 

@@ -5,7 +5,8 @@ import expect from 'expect';
 import url from 'url';
 
 import auth from '../../../../../src/server/routes/github-auth';
-import { conf } from '../../../../../src/server/helpers/config.js';
+import { GitHubUser } from '../../../../../src/server/db/models/github-user';
+import { conf } from '../../../../../src/server/helpers/config';
 
 const GITHUB_AUTH_LOGIN_URL = conf.get('GITHUB_AUTH_LOGIN_URL');
 const GITHUB_AUTH_CLIENT_ID = conf.get('GITHUB_AUTH_CLIENT_ID');
@@ -94,10 +95,11 @@ describe('The login route', () => {
       });
 
       context('when user data retrieved from GH', () => {
-        beforeEach(() => {
+        beforeEach(async () => {
           nock(conf.get('GITHUB_API_ENDPOINT'))
             .get('/user')
-            .reply(200, { login: 'anowner' });
+            .reply(200, { id: 123, login: 'anowner' });
+          await GitHubUser.query('truncate').fetch();
         });
 
         it('should call GitHub API endpoint to get an auth token', (done) => {
@@ -110,6 +112,18 @@ describe('The login route', () => {
               done(err);
             }
           );
+        });
+
+        it('should save user data in database', async () => {
+          await supertest(app)
+            .get('/auth/verify')
+            .query({ code: 'foo', state: 'bar' })
+            .send();
+          const dbUser = await GitHubUser.where({ github_id: 123 }).fetch();
+          expect(dbUser.serialize()).toMatch({
+            github_id: 123,
+            login: 'anowner'
+          });
         });
 
         it('should redirect request to the dashboard select repositories view', (done) => {

@@ -1,7 +1,9 @@
+build-essential
 bzr
 charm-tools
-python-codetree
 git
+libpq-dev
 make
+python-codetree
 rsync
 virtualenv
