@@ -23,7 +23,7 @@ export class Signal extends Component {
 
     return (
       <div className={ styles.box }>
-        <div className={ classNames(styles.signal, signalStyle) }></div>
+        <div className={ classNames(styles.signal, signalStyle) } />
         <p>{ message }</p>
       </div>
     );
@@ -32,7 +32,6 @@ export class Signal extends Component {
 
 Signal.propTypes = {
   state: PropTypes.number.isRequired,
-  label: PropTypes.string.isRequired,
   message: PropTypes.string
 };
 
