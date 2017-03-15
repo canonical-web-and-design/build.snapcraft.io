@@ -7,6 +7,7 @@ import { Message } from '../components/forms';
 import Spinner from '../components/spinner';
 import HelpInstallSnap from '../components/help/install-snap';
 import { HeadingOne } from '../components/vanilla/heading';
+import Breadcrumbs from '../components/vanilla/breadcrumbs';
 
 import withRepository from './with-repository';
 import withSnapBuilds from './with-snap-builds';
@@ -26,8 +27,11 @@ class Builds extends Component {
         <Helmet
           title={`${repository.fullName} builds`}
         />
+        <Breadcrumbs>
+          <Link to={'/dashboard'}>My repos</Link>
+        </Breadcrumbs>
         <HeadingOne>
-          <Link to={`/${repository.fullName}/builds`}>{repository.fullName}</Link>
+          {repository.fullName}
         </HeadingOne>
         <BuildHistory repository={repository} />
         { isLoading &&

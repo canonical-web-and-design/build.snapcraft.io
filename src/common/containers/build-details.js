@@ -10,6 +10,7 @@ import { Message } from '../components/forms';
 import HelpInstallSnap from '../components/help/install-snap';
 import { HeadingOne, HeadingThree } from '../components/vanilla/heading';
 import Spinner from '../components/spinner';
+import Breadcrumbs from '../components/vanilla/breadcrumbs';
 
 import withRepository from './with-repository';
 import withSnapBuilds from './with-snap-builds';
@@ -26,8 +27,12 @@ class BuildDetails extends Component {
         <Helmet
           title={`${repository.fullName} builds`}
         />
+        <Breadcrumbs>
+          <Link to={'/dashboard'}>My repos</Link>
+          <Link to={`/${repository.fullName}/builds`}>{repository.fullName}</Link>
+        </Breadcrumbs>
         <HeadingOne>
-          <Link to={`/${repository.fullName}/builds`}>{repository.fullName}</Link> build #{buildId}
+          Build #{buildId}
         </HeadingOne>
         { error &&
           <Message status='error'>{ error.message || error }</Message>
