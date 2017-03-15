@@ -154,6 +154,17 @@ class RepositoryRow extends Component {
         this.props.dispatch(registerNameClear(this.props.fullName));
       }, 2000);
     }
+
+    // Close snap name mismatch dropdown if
+    // name is updated and fixed
+    const oldSnapProp = this.props.snap;
+    const newSnapProp = nextProps.snap;
+    if (snapNameIsMismatched(oldSnapProp) && !snapNameIsMismatched(newSnapProp)) {
+      this.setState({
+        ...this.state,
+        nameMismatchDropdownExpanded: false
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -310,13 +321,13 @@ class RepositoryRow extends Component {
   }
 
   renderConfiguredStatus(snap) {
-    const { snapcraft_data, store_name } = snap;
+    const { snapcraft_data } = snap;
 
     if (!snapcraft_data) {
       return (
         <a onClick={this.onConfiguredClick.bind(this)}>Not configured</a>
       );
-    } else if (snapcraft_data && store_name && snapcraft_data.name !== store_name){
+    } else if (snapNameIsMismatched(snap)){
       return (
         <span onClick={this.onNameMismatchClick.bind(this)}>
           <ErrorIcon /> <a>Doesn’t match</a>
@@ -353,6 +364,12 @@ class RepositoryRow extends Component {
   }
 
 
+}
+
+function snapNameIsMismatched(snap) {
+  const { snapcraft_data, store_name } = snap;
+
+  return snapcraft_data && store_name && snapcraft_data.name !== store_name;
 }
 
 RepositoryRow.propTypes = {
