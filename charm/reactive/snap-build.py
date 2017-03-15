@@ -208,7 +208,7 @@ def register_with_prometheus():
             with open(env_path) as env_file:
                 for line in env_file:
                     if line.startswith('BASE_URL='):
-                        base_url = line[len('BASE_URL='):]
+                        base_url = line[len('BASE_URL='):].rstrip('\n')
         except IOError:
             pass
     if not base_url:
