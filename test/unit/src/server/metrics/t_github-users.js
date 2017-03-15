@@ -30,10 +30,14 @@ describe('The GitHub users metric', () => {
     }
     await updateGitHubUsersTotal();
     const metricName = 'bsi_github_users_total';
-    expect(promClient.register.getSingleMetric(metricName).get()).toMatch({
-      name: metricName,
+    expect(promClient.register.getSingleMetric(metricName).get()).toEqual({
       type: 'gauge',
-      values: [{ value: 5 }]
+      name: metricName,
+      help: 'Total number of GitHub users who have ever logged in.',
+      values: [{
+        labels: { metric_type: 'kpi' },
+        value: 5
+      }]
     });
   });
 });
