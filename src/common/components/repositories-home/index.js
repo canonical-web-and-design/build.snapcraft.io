@@ -29,7 +29,7 @@ class RepositoriesHome extends Component {
       }
 
       snaps.snaps.forEach((snap) => {
-        this.props.dispatch(fetchBuilds(snap.git_repository_url, snap.self_link));
+        this.props.fetchBuilds(snap.git_repository_url, snap.self_link);
       });
     }
   }
@@ -102,9 +102,9 @@ RepositoriesHome.propTypes = {
   user: PropTypes.object,
   snaps: PropTypes.object.isRequired,
   snapBuilds: PropTypes.object.isRequired,
-  dispatch: PropTypes.func.isRequired,
   router: PropTypes.object.isRequired,
-  updateSnaps: PropTypes.func.isRequired
+  updateSnaps: PropTypes.func.isRequired,
+  fetchBuilds: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
@@ -127,6 +127,9 @@ function mapDispatchToProps(dispatch) {
   return {
     updateSnaps: (owner) => {
       dispatch(fetchUserSnaps(owner));
+    },
+    fetchBuilds: (repositoryUrl, snapLink) => {
+      dispatch(fetchBuilds(repositoryUrl, snapLink));
     }
   };
 }
