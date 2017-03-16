@@ -91,7 +91,7 @@ FirstTimeHeading.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    snapsLoaded: state.snaps.success,
+    snapsLoaded: !!state.snaps,
     hasNoRegisteredNames: hasNoRegisteredNames(state),
     hasNoSnapsWithRegisteredNameAndSnapcraftData: snapsWithRegisteredNameAndSnapcraftData(state).length === 0,
     hasSnapsWithRegisteredNameAndNoSnapcraftData: snapsWithRegisteredNameAndNoSnapcraftData(state).length > 0,
