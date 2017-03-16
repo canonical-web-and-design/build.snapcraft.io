@@ -47,7 +47,7 @@ describe('<RepositoryRowView />', () => {
 
     context('configureIsOpen prop is true', function() {
       it('should render unconfigured dropdown', function() {
-        view.setProps({ configureIsOpen: true });
+        view.setProps({ configureIsOpen: true, snap: { snapcraft_data: null } });
         expect(view.find(UnconfiguredDropdown).length).toBe(1);
       });
     });
@@ -74,6 +74,7 @@ describe('<RepositoryRowView />', () => {
 
       it('should render UnconfiguredDropdown', function() {
         component.toggleDropdownState('unconfiguredDropdownExpanded');
+        view.setProps({ snap: { snapcraft_data: null } });
         expect(view.find(UnconfiguredDropdown).length).toBe(1);
       });
 
