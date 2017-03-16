@@ -7,15 +7,16 @@ const HELP_INSTALL_URL = 'https://snapcraft.io/docs/core/install';
 
 export default class HelpInstallSnap extends Component {
   render() {
-    const { headline, name, revision } = this.props;
+    const { children, headline, name, revision } = this.props;
     const revOption = revision ? `--revision=${ revision }` : '';
+    const command = children || `sudo snap install --edge ${name} ${revOption}`;
 
     return (
       <div className={ styles.strip }>
         <HeadingThree>{ headline }</HeadingThree>
         <pre>
           <code className={ styles.cli }>
-            sudo snap install --edge { name } { revOption }
+            {command}
           </code>
         </pre>
         <p className={ styles.p }>
@@ -28,6 +29,12 @@ export default class HelpInstallSnap extends Component {
 
 HelpInstallSnap.propTypes = {
   headline: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  revision: PropTypes.number
+  // name is only required if there is no children specified
+  name: (props, propName, componentName) => {
+    if (typeof props.children === 'undefined' && typeof props[propName] !== 'string') {
+      return new Error(`The prop '${propName}' in ${componentName} should be a string if no children are specified.`);
+    }
+  },
+  revision: PropTypes.number,
+  children: PropTypes.node
 };

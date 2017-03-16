@@ -22,6 +22,27 @@ class BuildDetails extends Component {
     const { repository, buildId, build } = this.props;
     const { snap, error, isFetching } = this.props.snapBuilds;
 
+    const buildFailed = (build.statusMessage === 'Failed to build');
+    let helpBox;
+
+    if (buildFailed) {
+      // if build has failed show snapcraft debug instruction
+      helpBox = (
+        <HelpInstallSnap headline='To debug this build:'>
+          snap install --edge --classic snapcraft # if you don’t have snapcraft already<br/>
+          snapcraft cleanbuild --debug
+        </HelpInstallSnap>
+      );
+    } else if (snap && snap.store_name) {
+      // otherwise if we have snap name show install instructions
+      helpBox = (
+        <HelpInstallSnap
+          headline='To test the latest successful build on your PC or cloud instance:'
+          name={ snap.store_name }
+        />
+      );
+    }
+
     return (
       <div className={ styles.container }>
         <Helmet
@@ -58,14 +79,9 @@ class BuildDetails extends Component {
             </div>
           </div>
         }
+        { helpBox }
         { isFetching &&
           <div className={styles.spinner}><Spinner /></div>
-        }
-        { snap && snap.store_name &&
-          <HelpInstallSnap
-            headline='To test the latest successful build on your PC or cloud instance:'
-            name={ snap.store_name }
-          />
         }
       </div>
     );
