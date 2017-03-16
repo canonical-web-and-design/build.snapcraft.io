@@ -29,7 +29,12 @@ export default class HelpInstallSnap extends Component {
 
 HelpInstallSnap.propTypes = {
   headline: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
+  // name is only required if there is no children specified
+  name: (props, propName, componentName) => {
+    if (typeof props.children === 'undefined' && typeof props[propName] !== 'string') {
+      return new Error(`The prop '${propName}' in ${componentName} should be a string if no children are specified.`);
+    }
+  },
   revision: PropTypes.number,
   children: PropTypes.node
 };
