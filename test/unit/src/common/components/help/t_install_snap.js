@@ -6,20 +6,45 @@ import HelpInstallSnap from '../../../../../../src/common/components/help/instal
 
 describe('<HelpInstallSnap />', function() {
 
-  const name = 'needleinhaystack';
-  const revision = 14159265358979;
-
   let wrapper;
+  const heading='This is just a test';
 
-  beforeEach(function() {
-    wrapper = shallow(<HelpInstallSnap name={ name } revision={ revision } />);
+  context('when rendered with name and revision', () => {
+    const name = 'needleinhaystack';
+    const revision = 14159265358979;
+
+    beforeEach(function() {
+      wrapper = shallow(<HelpInstallSnap heading={heading} name={ name } revision={ revision } />);
+    });
+
+    it('should include snap name', function() {
+      expect(wrapper.text()).toInclude(name);
+    });
+
+    it('should include revision number', function() {
+      expect(wrapper.text()).toInclude(revision);
+    });
+
+    it('should include help link', function() {
+      expect(wrapper.text()).toInclude('Don’t have snapd installed?');
+    });
   });
 
-  it('should include snap name', function() {
-    expect(/needleinhaystack/.test(wrapper.text())).toExist();
-  });
+  context('when rendered with children', () => {
+    beforeEach(function() {
+      wrapper = shallow(<HelpInstallSnap heading={heading}>command test</HelpInstallSnap>);
+    });
 
-  it('should include revision number', function() {
-    expect(/14159265358979/.test(wrapper.text())).toExist();
+    it('should include command passed as children', function() {
+      expect(wrapper.text()).toInclude('command test');
+    });
+
+    it('should not include snap install instructions', function() {
+      expect(wrapper.text()).toNotInclude('snap install');
+    });
+
+    it('should include help link', function() {
+      expect(wrapper.text()).toInclude('Don’t have snapd installed?');
+    });
   });
 });

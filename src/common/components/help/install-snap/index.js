@@ -9,13 +9,14 @@ export default class HelpInstallSnap extends Component {
   render() {
     const { headline, name, revision } = this.props;
     const revOption = revision ? `--revision=${ revision }` : '';
+    const command = this.props.children || `sudo snap install --edge ${name} ${revOption}`;
 
     return (
       <div className={ styles.strip }>
         <HeadingThree>{ headline }</HeadingThree>
         <pre>
           <code className={ styles.cli }>
-            sudo snap install --edge { name } { revOption }
+            {command}
           </code>
         </pre>
         <p className={ styles.p }>
@@ -29,5 +30,6 @@ export default class HelpInstallSnap extends Component {
 HelpInstallSnap.propTypes = {
   headline: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  revision: PropTypes.number
+  revision: PropTypes.number,
+  children: PropTypes.node
 };
