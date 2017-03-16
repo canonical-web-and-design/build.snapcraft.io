@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
 
@@ -16,7 +17,7 @@ import styles from './container.css';
 
 class Builds extends Component {
   render() {
-    const { repository } = this.props;
+    const { user, repository } = this.props;
     const { isFetching, success, error, snap } = this.props.snapBuilds;
 
     // only show spinner when data is loading for the first time
@@ -27,9 +28,11 @@ class Builds extends Component {
         <Helmet
           title={`${repository.fullName} builds`}
         />
-        <Breadcrumbs>
-          <Link to={'/dashboard'}>My repos</Link>
-        </Breadcrumbs>
+        { user &&
+          <Breadcrumbs>
+            <Link to={`/user/${user.login}`}>My repos</Link>
+          </Breadcrumbs>
+        }
         <HeadingOne>
           {repository.fullName}
         </HeadingOne>
@@ -53,6 +56,9 @@ class Builds extends Component {
 }
 
 Builds.propTypes = {
+  user: PropTypes.shape({
+    login: PropTypes.string
+  }),
   repository: PropTypes.shape({
     owner: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
@@ -70,4 +76,10 @@ Builds.propTypes = {
   })
 };
 
-export default withRepository(withSnapBuilds(Builds));
+const mapStateToProps = (state) => {
+  return {
+    user: state.user
+  };
+};
+
+export default withRepository(withSnapBuilds(connect(mapStateToProps)(Builds)));

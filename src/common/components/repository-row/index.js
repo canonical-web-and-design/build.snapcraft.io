@@ -242,7 +242,7 @@ export class RepositoryRowView extends Component {
 
     // only link to builds that have log available
     const latestBuildUrl = hasLog
-      ? `/${fullName}/builds/${latestBuild.buildId}`
+      ? `/user/${fullName}/${latestBuild.buildId}`
       : null;
 
     const isActive = (
@@ -262,7 +262,7 @@ export class RepositoryRowView extends Component {
         <Data col="27">
           { hasBuilt
             ? (
-              <Link to={ `/${fullName}/builds` }>{ fullName }</Link>
+              <Link to={ `/user/${fullName}` }>{ fullName }</Link>
             )
             : (
               <span>{ fullName }</span>

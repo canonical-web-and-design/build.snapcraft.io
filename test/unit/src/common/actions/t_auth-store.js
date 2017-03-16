@@ -372,7 +372,7 @@ describe('store authentication actions', () => {
       });
 
       it('redirects to /login/authenticate', async () => {
-        const startingUrl = `${conf.get('BASE_URL')}/dashboard`;
+        const startingUrl = `${conf.get('BASE_URL')}/user/anowner`;
         const location = { href: startingUrl };
         await store.dispatch(signIntoStore(location));
         expect(url.parse(location.href, true)).toMatch({

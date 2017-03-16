@@ -97,7 +97,7 @@ export const verify = (req, res, next) => {
     }
 
     // Redirect to logged in URL
-    res.redirect('/dashboard');
+    res.redirect(`/user/${req.session.user.login}`);
   });
 };
 

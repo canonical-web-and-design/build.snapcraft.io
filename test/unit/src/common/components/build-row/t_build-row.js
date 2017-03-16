@@ -32,13 +32,13 @@ describe('<BuildRow />', function() {
     });
 
     it('should contain Link to build page', () => {
-      const expectedUrl = `/${TEST_REPO.fullName}/builds/${TEST_BUILD.buildId}`;
+      const expectedUrl = `/user/${TEST_REPO.fullName}/${TEST_BUILD.buildId}`;
       expect(element.find(Link).length).toBe(1);
       expect(element.find(Link).prop('to')).toBe(expectedUrl);
     });
 
     it('should contain BuildStatus linked to build page', () => {
-      const expectedUrl = `/${TEST_REPO.fullName}/builds/${TEST_BUILD.buildId}`;
+      const expectedUrl = `/user/${TEST_REPO.fullName}/${TEST_BUILD.buildId}`;
       expect(element.find('BuildStatus').length).toBe(1);
       expect(element.find('BuildStatus').prop('link')).toBe(expectedUrl);
     });

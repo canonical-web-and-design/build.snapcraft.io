@@ -30,10 +30,11 @@ export class SelectRepositoryListComponent extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const user = this.props.user;
     const repositoriesStatus = nextProps.repositoriesStatus;
     const ids = Object.keys(repositoriesStatus);
     if (ids.length && ids.every((id) => repositoriesStatus[id].success)) {
-      this.props.router.push('/dashboard');
+      this.props.router.push(`/user/${user.login}`);
     }
   }
 
@@ -117,6 +118,7 @@ export class SelectRepositoryListComponent extends Component {
   }
 
   render() {
+    const { user } = this.props;
     const isLoading = this.props.repositories.isFetching;
     const { selectedRepos } = this.props.selectRepositoriesForm;
     const { repos, success } = this.props.repositories;
@@ -143,7 +145,7 @@ export class SelectRepositoryListComponent extends Component {
           <div className={ styles['footer-right'] }>
             <div className={ styles['button-wrapper'] }>
               { repos && repos.length > 0 &&
-                <LinkButton appearance="neutral" to="/dashboard">
+                <LinkButton appearance="neutral" to={`/user/${user.login}`}>
                   Cancel
                 </LinkButton>
               }
@@ -172,6 +174,7 @@ export class SelectRepositoryListComponent extends Component {
 }
 
 SelectRepositoryListComponent.propTypes = {
+  user: PropTypes.object,
   snaps: PropTypes.object,
   repositories: PropTypes.object,
   repositoriesStatus: PropTypes.object,
@@ -183,6 +186,7 @@ SelectRepositoryListComponent.propTypes = {
 
 function mapStateToProps(state) {
   const {
+    user,
     snaps,
     repositories,
     repositoriesStatus,
@@ -190,6 +194,7 @@ function mapStateToProps(state) {
   } = state;
 
   return {
+    user,
     snaps,
     repositories,
     repositoriesStatus,

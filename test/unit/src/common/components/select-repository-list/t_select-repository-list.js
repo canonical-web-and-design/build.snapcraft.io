@@ -17,6 +17,10 @@ describe('<SelectRepositoryListComponent /> instance', function() {
       props = {
         router: {},
         dispatch: () => {},
+        user: {
+          name: 'Joe Doe',
+          login: 'jdoe'
+        },
         selectRepositoriesForm: {
           selectedRepos: 'foo'
         },

@@ -24,7 +24,7 @@ class RepositoriesHome extends Component {
     if (snaps.success) {
       // if user doesn't have enabled repos open add repositories view
       if (snaps.snaps.length === 0) {
-        this.props.router.replace('/dashboard/select-repositories');
+        this.props.router.replace('/select-repositories');
         return;
       }
 
@@ -69,7 +69,7 @@ class RepositoriesHome extends Component {
         <div className={ styles['button-container'] }>
           <HeadingThree>Repos to build and publish</HeadingThree>
           <div>
-            <LinkButton appearance="neutral" to="/dashboard/select-repositories">
+            <LinkButton appearance="neutral" to="/select-repositories">
               Add repos…
             </LinkButton>
           </div>

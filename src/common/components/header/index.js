@@ -24,7 +24,7 @@ export default class Header extends Component {
                     Hi, {user.name || user.login}
                   </span>
                 }
-                <Link to="/dashboard" className={ styles.link }>Dashboard</Link>
+                <Link to={`/user/${user.login}`} className={ styles.link }>My repos</Link>
                 <a
                   className={ styles.link }
                   onClick={ this.onLogoutClick.bind(this) }

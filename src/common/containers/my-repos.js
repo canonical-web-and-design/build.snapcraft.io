@@ -5,7 +5,7 @@ import RepositoriesHome from '../components/repositories-home';
 import UserAvatar from '../components/user-avatar';
 import styles from './container.css';
 
-class Dashboard extends Component {
+class MyRepos extends Component {
   render() {
     return (
       <div className={ styles.container }>
@@ -19,4 +19,4 @@ class Dashboard extends Component {
   }
 }
 
-export default Dashboard;
+export default MyRepos;

@@ -101,7 +101,7 @@ describe('<RepositoryRowView />', () => {
     });
 
     it('should contain BuildStatus linked to build page', () => {
-      const expectedUrl = `/${props.fullName}/builds/${props.latestBuild.buildId}`;
+      const expectedUrl = `/user/${props.fullName}/${props.latestBuild.buildId}`;
 
       expect(view.find('BuildStatus').length).toBe(1);
       expect(view.find('BuildStatus').prop('link')).toBe(expectedUrl);

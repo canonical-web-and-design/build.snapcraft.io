@@ -16,6 +16,7 @@ import * as images from '../images';
 
 class Landing extends Component {
   render() {
+    const { user } = this.props;
     return (
       <div>
         <div className={ containerStyles.strip }>
@@ -45,7 +46,7 @@ class Landing extends Component {
                 { this.props.auth.authenticated
                   ? (
                     <div>
-                      Hi { this.props.user.name || this.props.user.login }, <a href="/dashboard">let’s check out your repos</a>.
+                      Hi { user.name || user.login }, <a href={`/user/${user.login}`}>let’s check out your repos</a>.
                     </div>
                   )
                   : (

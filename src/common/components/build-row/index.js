@@ -27,7 +27,7 @@ const BuildRow = (props) => {
 
   // only link to builds that have log available
   const buildUrl = buildLogUrl
-    ? `/${repository.fullName}/builds/${buildId}`
+    ? `/user/${repository.fullName}/${buildId}`
     : null;
 
   return (
