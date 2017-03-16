@@ -23,8 +23,10 @@ const EditConfigDropdown = ({ repositoryUrl, configFilePath }) => {
       <Row>
         <Data col="100">
           <p>
-            This repo has a snapcraft.yaml file.
-            <a href={ templateUrl } target="_blank"> You can edit the file on GitHub.</a>
+            This repo has a snapcraft.yaml file.{' '}
+            <a href={ templateUrl } target="_blank" rel="noreferrer noopener">
+              You can edit the file on GitHub.
+            </a>
           </p>
         </Data>
       </Row>

@@ -372,7 +372,7 @@ export class RepositoryRowView extends Component {
 
     return (
       <span onClick={this.onConfiguredClick.bind(this)}>
-        <TickIcon />
+        <a><TickIcon /></a>
       </span>
     );
   }
