@@ -5,19 +5,25 @@ import { parseGitHubRepoUrl } from '../helpers/github-url';
 const getSnaps = state => state.snaps;
 const getSnapBuilds = state => state.snapBuilds;
 
-// returns bool - true if there are any snaps in state
+/**
+ * @returns {Boolean} true if there are any snaps in state
+ */
 export const hasSnaps = createSelector(
   [getSnaps],
   (snaps) => snaps.snaps ? snaps.snaps.length > 0 : false
 );
 
-// returns bool - true if there are no snaps in state
+/**
+ * @returns {Boolean} true if there are no snaps in state
+ */
 export const hasNoSnaps = createSelector(
   [getSnaps],
   (snaps) => snaps.snaps ? snaps.snaps.length === 0 : true
 );
 
-// returns bool - true if there are no snaps with registered name in state
+/**
+ * @returns {Boolean} true if there are no snaps with registered names in state
+ */
 export const hasNoRegisteredNames = createSelector(
   [getSnaps],
   (snaps) => {
@@ -27,7 +33,21 @@ export const hasNoRegisteredNames = createSelector(
   }
 );
 
-// returns array - snaps that have both registered name and snapcraft data
+/**
+ * @returns {Boolean} true if there are no configured snaps
+ */
+export const hasNoConfiguredSnaps = createSelector(
+  [getSnaps],
+  (snaps) => {
+    return snaps.snaps ? !snaps.snaps.some((snap) => {
+      return snap.snapcraft_data;
+    }) : true;
+  }
+);
+
+/**
+ * @returns {Array} snaps that have both registered name and snapcraft data
+ */
 export const snapsWithRegisteredNameAndSnapcraftData = createSelector(
   [getSnaps],
   (snaps) => {
@@ -37,7 +57,9 @@ export const snapsWithRegisteredNameAndSnapcraftData = createSelector(
   }
 );
 
-// returns array - snaps that have registered name but no snapcraft data
+/**
+ * @returns {Array} snaps that have registered name but no snapcraft data
+ */
 export const snapsWithRegisteredNameAndNoSnapcraftData = createSelector(
   [getSnaps],
   (snaps) => {
@@ -47,7 +69,9 @@ export const snapsWithRegisteredNameAndNoSnapcraftData = createSelector(
   }
 );
 
-// returns array - snaps with registered name and snapcraft data, but no builds
+/**
+ * @returns {Array} snaps with registered name and snapcraft data, but no builds
+ */
 export const snapsWithNoBuilds = createSelector(
   [snapsWithRegisteredNameAndSnapcraftData, getSnapBuilds],
   (snaps, snapBuilds) => {
