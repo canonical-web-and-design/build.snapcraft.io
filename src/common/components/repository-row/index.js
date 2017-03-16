@@ -11,6 +11,7 @@ import {
   NameMismatchDropdown,
   RemoveRepoDropdown,
   UnconfiguredDropdown,
+  EditConfigDropdown,
   RegisterNameDropdown
 } from './dropdowns';
 import {
@@ -83,6 +84,7 @@ export class RepositoryRowView extends Component {
       // close all dropdowns
       nameMismatchDropdownExpanded: false,
       unconfiguredDropdownExpanded: false,
+      editConfigDropdownExpanded: false,
       unregisteredDropdownExpanded: false,
       removeDropdownExpanded: false,
 
@@ -92,6 +94,10 @@ export class RepositoryRowView extends Component {
   }
 
   onConfiguredClick() {
+    this.toggleDropdownState('editConfigDropdownExpanded');
+  }
+
+  onNotConfiguredClick() {
     this.toggleDropdownState('unconfiguredDropdownExpanded');
   }
 
@@ -162,9 +168,7 @@ export class RepositoryRowView extends Component {
 
     // Close snap name mismatch dropdown if
     // name is updated and fixed
-    const oldSnapProp = this.props.snap;
-    const newSnapProp = nextProps.snap;
-    if (snapNameIsMismatched(oldSnapProp) && !snapNameIsMismatched(newSnapProp)) {
+    if (snapNameIsMismatched(this.props.snap) && !snapNameIsMismatched(nextProps.snap)) {
       this.setState({
         nameMismatchDropdownExpanded: false
       });
@@ -179,6 +183,14 @@ export class RepositoryRowView extends Component {
     if (nextProps.configureIsOpen !== this.props.configureIsOpen) {
       this.setState({
         unconfiguredDropdownExpanded: nextProps.configureIsOpen
+      });
+    }
+
+    // Close edit config dropdown if
+    // snapcraft.yml file is deleted
+    if (snapIsConfigured(this.props.snap) && !snapIsConfigured(nextProps.snap)) {
+      this.setState({
+        editConfigDropdownExpanded: false
       });
     }
   }
@@ -212,7 +224,8 @@ export class RepositoryRowView extends Component {
       registerNameStatus
     } = this.props;
 
-    const showUnconfiguredDropdown = this.state.unconfiguredDropdownExpanded;
+    const showUnconfiguredDropdown = !snapIsConfigured(snap) && this.state.unconfiguredDropdownExpanded;
+    const showEditConfigDropdown = this.state.editConfigDropdownExpanded;
     const showUnregisteredDropdown = this.state.unregisteredDropdownExpanded;
     const showRemoveDropdown = this.state.removeDropdownExpanded;
     const showNameMismatchDropdown = this.state.nameMismatchDropdownExpanded;
@@ -235,6 +248,7 @@ export class RepositoryRowView extends Component {
     const isActive = (
       showNameMismatchDropdown ||
       showUnconfiguredDropdown ||
+      showEditConfigDropdown   ||
       showUnregisteredDropdown ||
       showRemoveDropdown
     );
@@ -287,6 +301,12 @@ export class RepositoryRowView extends Component {
         </Data>
         { showNameMismatchDropdown && <NameMismatchDropdown snap={snap} /> }
         { showUnconfiguredDropdown && <UnconfiguredDropdown snap={snap} /> }
+        { showEditConfigDropdown &&
+          <EditConfigDropdown
+            repositoryUrl={ snap.git_repository_url }
+            configFilePath={ snap.snapcraft_data.path }
+          />
+        }
         { showUnregisteredDropdown &&
           <RegisterNameDropdown
             registeredName={registeredName}
@@ -340,7 +360,7 @@ export class RepositoryRowView extends Component {
 
     if (!snapcraft_data) {
       return (
-        <a onClick={this.onConfiguredClick.bind(this)}>Not configured</a>
+        <a onClick={this.onNotConfiguredClick.bind(this)}>Not configured</a>
       );
     } else if (snapNameIsMismatched(snap)){
       return (
@@ -350,7 +370,11 @@ export class RepositoryRowView extends Component {
       );
     }
 
-    return <TickIcon />;
+    return (
+      <span onClick={this.onConfiguredClick.bind(this)}>
+        <a><TickIcon /></a>
+      </span>
+    );
   }
 
   renderSnapName(registeredName, showRegisterNameInput) {
@@ -379,11 +403,13 @@ export class RepositoryRowView extends Component {
   }
 }
 
-function snapNameIsMismatched(snap) {
+const snapNameIsMismatched = (snap) => {
   const { snapcraft_data, store_name } = snap;
 
   return snapcraft_data && store_name && snapcraft_data.name !== store_name;
-}
+};
+
+const snapIsConfigured = (snap) => !!snap.snapcraft_data;
 
 RepositoryRowView.propTypes = {
   snap: PropTypes.shape({
