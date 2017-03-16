@@ -42,8 +42,8 @@ function withRepository(WrappedComponent) {
   };
 
   const mapStateToProps = (state, ownProps) => {
-    const owner = ownProps.params.owner.toLowerCase();
-    const name = ownProps.params.name.toLowerCase();
+    const owner = ownProps.params.owner;
+    const name = ownProps.params.name;
     const fullName = `${owner}/${name}`;
     const repository = state.repository;
 

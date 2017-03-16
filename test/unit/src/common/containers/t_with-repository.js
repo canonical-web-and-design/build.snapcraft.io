@@ -92,6 +92,19 @@ describe('WithRepository', () => {
     });
   });
 
+  context('when repo name is CamelCase', () => {
+    const camelCaseParams = { owner: 'AnOwner', name: 'AName' };
+
+    beforeEach(() => {
+      renderDummy(REPO, camelCaseParams);
+    });
+
+    it('should properly build fullName from URL params', () => {
+      const { owner, name } = camelCaseParams;
+      expect(wrapper.prop('fullName')).toEqual(`${owner}/${name}`);
+    });
+  });
+
   // Shallow render Dummy component wrapped in withRepository container
   // with given repository (mocked in the store) and URL params.
   // Assigns wrapper, instance and wrapped variables later used in tests.

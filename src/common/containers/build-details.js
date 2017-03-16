@@ -92,7 +92,7 @@ BuildDetails.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const buildId = ownProps.params.buildId.toLowerCase();
+  const buildId = ownProps.params.buildId;
   const build = ownProps.snapBuilds.builds.filter((build) => build.buildId === buildId)[0];
 
   return {

@@ -45,7 +45,7 @@ function withSnapBuilds(WrappedComponent) {
     render() {
       const { snap, ...passThroughProps } = this.props; // eslint-disable-line no-unused-vars
 
-      return (this.props.snap
+      return (this.props.snapBuilds.success || this.props.snapBuilds.error
         ? <WrappedComponent {...passThroughProps} />
         : null
       );
@@ -56,6 +56,7 @@ function withSnapBuilds(WrappedComponent) {
   WithSnapBuilds.propTypes = {
     repository: PropTypes.object,
     snap: PropTypes.object,
+    snapBuilds: PropTypes.object,
     dispatch: PropTypes.func.isRequired
   };
 
