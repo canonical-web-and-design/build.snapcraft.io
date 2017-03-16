@@ -55,26 +55,15 @@ describe('<SelectRepositoryListComponent /> instance', function() {
     });
   });
 
-  context('when user has some repos selected', function() {
-    let wrapper;
-
-    beforeEach(function() {
-
-      props.selectRepositoriesForm = {
-        selectedRepos: [{
-          fullName: 'foo/bar'
-        }]
-      };
-
-      wrapper = shallow(<SelectRepositoryListComponent { ...props } />);
+    xit('should flag matching repos as enabled', function() {
+      expect(instance.filterEnabledRepos(props.repositories.repos)[0].enabled).toBe(true);
     });
-
-    it('should not disable Add button', function() {
-      expect(wrapper.find('Button').prop('disabled')).toNotBe(true);
+    xit('should flag non matching repos as not enabled', function() {
+      expect(instance.filterEnabledRepos(props.repositories.repos)[1].enabled).toBe(false);
     });
-
-    it('should show message about 1 selected repo', function() {
-      expect(wrapper.html()).toInclude('1 selected');
+    xit('should reset the enabled flags if we change the snaps list', function() {
+      props.snaps.snaps[0].git_repository_url = 'bar/baz';
+      expect(instance.filterEnabledRepos(props.repositories.repos)[0].enabled).toBe(false);
     });
   });
 

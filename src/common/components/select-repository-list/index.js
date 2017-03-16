@@ -3,20 +3,25 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
 import { conf } from '../../helpers/config';
-import { createSnaps, createSnapsClear } from '../../actions/create-snap';
-import {
-  toggleRepository,
-  unselectAllRepositories
-} from '../../actions/select-repositories-form';
+import { buildRepositories } from '../../actions/repository';
 import SelectRepositoryRow from '../select-repository-row';
 import Spinner from '../spinner';
 import PageLinks from '../page-links';
 import Button, { LinkButton } from '../vanilla/button';
 import { HeadingThree } from '../vanilla/heading';
-import { fetchUserRepositories } from '../../actions/repositories';
-import { hasRepository, hasSnapForRepository } from '../../helpers/repositories';
-import { isAddingSnaps } from '../../selectors';
-
+import {
+  fetchUserRepositories,
+} from '../../actions/repositories';
+import {
+  resetRepository,
+  toggleRepositorySelection,
+} from '../../actions/repository';
+import {
+  getEnabledRepositories,
+  getSelectedRepositories,
+  getRepositoriesToBuild,
+  hasFailedRepositories
+} from '../../selectors/index.js';
 import styles from './styles.css';
 
 // loading container styles not to duplicate .spinner class
@@ -27,19 +32,13 @@ const SNAP_NAME_NOT_REGISTERED_ERROR_CODE = 'snap-name-not-registered';
 export class SelectRepositoryListComponent extends Component {
 
   componentDidMount() {
-    this.props.dispatch(createSnapsClear());
-    this.props.dispatch(unselectAllRepositories());
+    this.props.selectedRepositories.map(id => {
+      this.props.dispatch(resetRepository(id));
+    });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const user = this.props.user;
-    const repositoriesStatus = nextProps.repositoriesStatus;
-    const ids = Object.keys(repositoriesStatus);
-    if (ids.length && ids.every((id) => repositoriesStatus[id].success)) {
-      this.props.router.push(`/user/${user.login}`);
-    }
-  }
-
+  // TODO this can be moved too select-repository-row as the error prop is on
+  // the repository object passed to it
   getSnapNotRegisteredMessage(snapName) {
     const devportalUrl = conf.get('STORE_DEVPORTAL_URL');
     const registerNameUrl = `${devportalUrl}/click-apps/register-name/` +
@@ -53,47 +52,49 @@ export class SelectRepositoryListComponent extends Component {
     </span>;
   }
 
+  // TODO this can be moved too select-repository-row as the error prop is on
+  // the repository object passed to it
   getErrorMessage(error) {
-    if (error) {
-      const payload = error.json.payload;
+
+    const { payload = undefined } = error;
+
+    if (payload) {
       if (payload.code === SNAP_NAME_NOT_REGISTERED_ERROR_CODE) {
         return this.getSnapNotRegisteredMessage(payload.snap_name);
       } else {
-        return error.message;
+        return payload.message;
       }
     }
   }
 
-  renderRepository(repo) {
-    const { repositoriesStatus, selectRepositoriesForm, snaps } = this.props;
-    const { fullName } = repo;
-    const status = repositoriesStatus[fullName] || {};
+  renderRepository(id) {
+    const repository = this.props.entities.repos[id];
+    const { full_name } = repository;
 
-    const selected = hasRepository(selectRepositoriesForm.selectedRepos, repo);
-    const enabled = snaps.success && hasSnapForRepository(snaps.snaps, repo);
+    const isEnabled = !!this.props.enabledRepositories[id];
 
     return (
       <SelectRepositoryRow
-        key={ `repo_${repo.fullName}` }
-        repository={ repo }
-        onChange={ this.onSelectRepository.bind(this, repo) }
-        errorMsg= { this.getErrorMessage(status.error) }
-        // row is checked if repo is already enabled or selected by user
-        checked={ selected || enabled }
-        // input is disabled when repo is already enabled or snaps are being added
-        disabled={ enabled || this.props.isAddingSnaps }
+        key={ `repo_${full_name}` }
+        repository={ repository }
+        onChange={ this.onSelectRepository.bind(this, id) }
+        errorMsg={ repository.__error && this.getErrorMessage(repository.__error) }
+        isEnabled={ isEnabled }
       />
     );
   }
 
-  onSelectRepository(repository) {
-    this.props.dispatch(toggleRepository(repository));
+  onSelectRepository(id) {
+    this.props.dispatch(toggleRepositorySelection(id));
   }
 
+  // XXX it's not a submit, there's no form, rename to ~handleAddButtonClick
   onSubmit() {
-    const { selectedRepos } = this.props.selectRepositoriesForm;
-    if (selectedRepos.length) {
-      this.props.dispatch(createSnaps(selectedRepos));
+    const { repositoriesToBuild } = this.props;
+
+    // TODO else "You have not selected any repositories"
+    if (repositoriesToBuild.length) {
+      this.props.dispatch(buildRepositories(repositoriesToBuild));
     }
   }
 
@@ -101,36 +102,57 @@ export class SelectRepositoryListComponent extends Component {
     this.props.dispatch(fetchUserRepositories(pageNumber));
   }
 
+  pageSlice(array, pageLinks) {
+    const PAGE_SIZE = 30; // XXX move to config or state
+    const { next, prev } = pageLinks;
+    let out = [];
+
+    if (next) {
+      out = array.slice((next - 2) * PAGE_SIZE, (next - 1) * PAGE_SIZE - 1);
+    } else if (prev) {
+      out = array.slice(prev * 30);
+    } else {
+      out = array;
+    }
+
+    return out;
+  }
+
   render() {
-    const { user, isAddingSnaps } = this.props;
-    const isLoading = this.props.repositories.isFetching;
-    const { selectedRepos } = this.props.selectRepositoriesForm;
-    const { repos, success } = this.props.repositories;
-    const pageLinks = this.renderPageLinks.call(this);
+    const { selectedRepositories } = this.props;
+    const { ids, error, isFetching, pageLinks } = this.props.repositories;
+    const pagination = this.renderPageLinks(pageLinks);
 
     let renderedRepos = null;
 
-    if (success) {
-      renderedRepos = this.props.repositories.repos.map(this.renderRepository.bind(this));
+    // XXX if not success, then what? we lose the previously good list of repos?
+    if (!error) {
+
+      renderedRepos = this.pageSlice(ids, pageLinks)
+        .map((id) => {
+          return this.renderRepository(id);
+        });
+    } else {
+      // TODO show error message and keep old repo list
     }
 
     const buttonSpinner = isLoading || isAddingSnaps;
 
     return (
       <div>
-        { isLoading &&
+        { isFetching &&
           <div className={ spinnerStyles }><Spinner /></div>
         }
         { renderedRepos }
-        { pageLinks }
+        { pagination }
         <div className={ styles.footer }>
           <HeadingThree>
-            { selectedRepos.length } selected
+            { selectedRepositories.length } selected
           </HeadingThree>
           <div className={ styles['footer-right'] }>
             <div className={ styles['button-wrapper'] }>
-              { repos && repos.length > 0 &&
-                <LinkButton appearance="neutral" to={`/user/${user.login}`}>
+              { ids && ids.length > 0 &&
+                <LinkButton appearance="neutral" to="/dashboard">
                   Cancel
                 </LinkButton>
               }
@@ -151,9 +173,8 @@ export class SelectRepositoryListComponent extends Component {
     );
   }
 
-  renderPageLinks() {
-    const pageLinks = this.props.repositories.pageLinks;
-    if (this.props.repositories.success && pageLinks) {
+  renderPageLinks(pageLinks) {
+    if (pageLinks) {
       return (
         <div className={ styles['page-links-container'] }>
           <PageLinks { ...pageLinks } onClick={ this.onPageLinkClick.bind(this) } />
@@ -164,33 +185,38 @@ export class SelectRepositoryListComponent extends Component {
 }
 
 SelectRepositoryListComponent.propTypes = {
-  user: PropTypes.object,
-  snaps: PropTypes.object,
+  dispatch: PropTypes.func.isRequired,
+  entities: PropTypes.object.isRequired,
+  onSelectRepository: PropTypes.func,
   repositories: PropTypes.object,
   repositoriesStatus: PropTypes.object,
-  selectRepositoriesForm: PropTypes.object,
-  isAddingSnaps: PropTypes.bool,
-  onSelectRepository: PropTypes.func,
   router: PropTypes.object.isRequired,
-  dispatch: PropTypes.func.isRequired
+  snaps: PropTypes.object,
+  selectedRepositories: PropTypes.array,
+  repositoriesToBuild: PropTypes.array,
+  enabledRepositories: PropTypes.object,
+  hasFailedRepositories: PropTypes.bool
 };
 
 function mapStateToProps(state) {
   const {
     user,
     snaps,
+    entities,
     repositories,
-    repositoriesStatus,
-    selectRepositoriesForm
+    repositoriesStatus
   } = state;
 
   return {
     user,
     snaps,
-    repositories,
+    entities,
+    repositories, // ?repository-pagination
     repositoriesStatus,
-    selectRepositoriesForm,
-    isAddingSnaps: isAddingSnaps(state)
+    selectedRepositories: getSelectedRepositories(state),
+    repositoriesToBuild: getRepositoriesToBuild(state),
+    enabledRepositories: getEnabledRepositories(state),
+    hasFailedRepositories: hasFailedRepositories(state)
   };
 }
 

@@ -1,13 +1,15 @@
 import qs from 'qs';
 import url from 'url';
+import { normalize } from 'normalizr';
 
-import { parseGitHubRepoUrl } from '../../common/helpers/github-url';
-import { conf } from '../helpers/config';
-import requestGitHub from '../helpers/github';
-import { getMemcached } from '../helpers/memcached';
+import { repoList } from './schema';
 import logging from '../logging';
+import requestGitHub from '../helpers/github';
+import { conf } from '../helpers/config';
+import { getMemcached } from '../helpers/memcached';
 import { internalGetSnapcraftYaml } from './launchpad';
 import { makeWebhookSecret } from './webhook';
+import { parseGitHubRepoUrl } from '../../common/helpers/github-url';
 
 const logger = logging.getLogger('express');
 const REPOSITORY_ENDPOINT = '/user/repos';
@@ -150,10 +152,9 @@ export const listRepositories = async (req, res) => {
 
   const body = {
     status: 'success',
-    payload: {
-      code: 'github-list-repositories',
-      repos: response.body
-    }
+    code: 'github-list-repositories',
+    // XXX drop response specific prop, make response a little more general purpose
+    ...normalize(response.body, repoList)
   };
 
   if (response.headers.link) {
@@ -165,8 +166,8 @@ export const listRepositories = async (req, res) => {
 
 export const createWebhook = async (req, res) => {
   const { owner, name } = req.body;
-
   let secret;
+
   try {
     secret = makeWebhookSecret(owner, name);
   } catch (e) {

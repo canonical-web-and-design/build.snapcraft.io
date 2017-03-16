@@ -2,17 +2,18 @@ import 'isomorphic-fetch';
 
 import { checkStatus, getError } from '../helpers/api';
 import { conf } from '../helpers/config';
+import { fetchUserSnaps } from './snaps.js';
 
 const BASE_URL = conf.get('BASE_URL');
 
-export const FETCH_REPOSITORIES = 'FETCH_ALL_REPOSITORIES';
-export const FETCH_REPOSITORIES_ERROR = 'FETCH_REPOSITORIES_ERROR';
-export const SET_REPOSITORIES = 'SET_REPOSITORIES';
-export const SET_REPOSITORY_PAGE_LINKS = 'SET_REPOSITORY_PAGE_LINKS';
+export const REPOSITORIES_REQUEST = 'REPOSITORIES_REQUEST';
+export const REPOSITORIES_SUCCESS = 'REPOSITORIES_SUCCESS';
+export const REPOSITORIES_FAILURE = 'REPOSITORIES_FAILURE';
 
-export function setRepositories(repos) {
+
+export function fetchRepositoriesSuccess(repos) {
   return {
-    type: SET_REPOSITORIES,
+    type: REPOSITORIES_SUCCESS,
     payload: repos
   };
 }
@@ -22,7 +23,7 @@ export function fetchUserRepositories(pageNumber) {
     let urlParts = [BASE_URL, 'api/github/repos'];
 
     dispatch({
-      type: FETCH_REPOSITORIES
+      type: REPOSITORIES_REQUEST
     });
 
     if (pageNumber) {
@@ -39,10 +40,8 @@ export function fetchUserRepositories(pageNumber) {
       if (result.status !== 'success') {
         throw getError(response, result);
       }
-      dispatch(setRepositories({
-        repos: result.payload.repos,
-        links: result.pageLinks
-      }));
+
+      dispatch(fetchRepositoriesSuccess(result));
     } catch (error) {
       // TODO: Replace with logging helper
       console.warn(error); // eslint-disable-line no-console
@@ -53,8 +52,19 @@ export function fetchUserRepositories(pageNumber) {
 
 export function fetchRepositoriesError(error) {
   return {
-    type: FETCH_REPOSITORIES_ERROR,
+    type: REPOSITORIES_FAILURE,
     payload: error,
     error: true
+  };
+}
+
+// XXX may need to split out the fetch from the success and failure dispatch
+// to ensure than fetchRepositoriesSuccess happens in sync with refreshed user snaps
+export function fetchUserRepositoriesAndSnaps(owner) {
+  return (dispatch) => {
+    return Promise.all([
+      dispatch(fetchUserRepositories()),
+      dispatch(fetchUserSnaps(owner))
+    ]);
   };
 }

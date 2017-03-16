@@ -7,30 +7,20 @@ import * as ActionTypes from '../../../../../src/common/actions/repositories';
 describe('repositories reducers', () => {
   const initialState = {
     isFetching: false,
-    success: false,
     pageLinks: {},
     error: null,
-    repos: []
+    ids: []
   };
 
-  const REPOS = [{
-    full_name: 'anowner/aname',
-    name: 'aname',
-    owner: { login: 'anowner' }
-  },
-  {
-    full_name: 'test/test',
-    name: 'test',
-    owner: { login: 'test' }
-  }];
+  const ids = ['foo', 'bar', 'baz'];
 
   it('should return the initial state', () => {
     expect(repositories(undefined, {})).toEqual(initialState);
   });
 
-  context('FETCH_REPOSITORIES', () => {
+  context('REPOSITORIES_REQUEST', () => {
     const action = {
-      type: ActionTypes.FETCH_REPOSITORIES,
+      type: ActionTypes.REPOSITORIES_REQUEST,
       payload: 'test'
     };
 
@@ -42,7 +32,7 @@ describe('repositories reducers', () => {
     });
   });
 
-  context('SET_REPOSITORIES', () => {
+  context('REPOSITORIES_SUCCESS', () => {
     const state = {
       ...initialState,
       isFetching: true,
@@ -50,32 +40,14 @@ describe('repositories reducers', () => {
     };
 
     const action = {
-      type: ActionTypes.SET_REPOSITORIES,
+      type: ActionTypes.REPOSITORIES_SUCCESS,
       payload: {
-        repos: REPOS
+        ids
       }
     };
 
-    it('should store parsed repository data', () => {
-      repositories(state, action).repos.forEach((repo, i) => {
-        expect(repo.fullName).toEqual(REPOS[i].full_name);
-        expect(repo.name).toEqual(REPOS[i].name);
-        expect(repo.owner).toEqual(REPOS[i].owner.login);
-      });
-    });
-
-    it('should store full repository info', () => {
-      repositories(state, action).repos.forEach((repo, i) => {
-        expect(repo.repo).toEqual(REPOS[i]);
-      });
-    });
-
     it('should stop fetching', () => {
       expect(repositories(state, action).isFetching).toBe(false);
-    });
-
-    it('should store success state', () => {
-      expect(repositories(state, action).success).toBe(true);
     });
 
     it('should clean error', () => {
@@ -83,16 +55,15 @@ describe('repositories reducers', () => {
     });
   });
 
-  context('FETCH_REPOSITORIES_ERROR', () => {
+  context('REPOSITORIES_FAILURE', () => {
     const state = {
       ...initialState,
-      success: true,
-      repos: REPOS,
+      ids,
       isFetching: true
     };
 
     const action = {
-      type: ActionTypes.FETCH_REPOSITORIES_ERROR,
+      type: ActionTypes.REPOSITORIES_FAILURE,
       payload: 'Something went wrong!',
       error: true
     };
@@ -101,7 +72,6 @@ describe('repositories reducers', () => {
       expect(repositories(state, action)).toEqual({
         ...state,
         isFetching: false,
-        success: false,
         error: action.payload
       });
     });

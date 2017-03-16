@@ -871,6 +871,9 @@
     "normalize.css": {
       "version": "5.0.0"
     },
+    "normalizr": {
+      "version": "3.2.2"
+    },
     "number-is-nan": {
       "version": "1.0.1"
     },

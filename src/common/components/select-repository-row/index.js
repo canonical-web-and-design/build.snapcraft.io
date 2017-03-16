@@ -4,14 +4,16 @@ import classNames from 'classnames';
 import styles from './selectRepositoryRow.css';
 
 class SelectRepositoryRow extends Component {
+
   render() {
     const {
       errorMsg,
       repository,
       onChange,
-      checked,
-      disabled
+      isEnabled
     } = this.props;
+
+    const isChecked = repository.__isSelected;
 
     const rowClass = classNames({
       [styles.repositoryRow]: true,
@@ -21,17 +23,15 @@ class SelectRepositoryRow extends Component {
 
     return (
       <div className={ rowClass }>
-        { onChange &&
-          <input
-            id={ repository.fullName }
-            type="checkbox"
-            onChange={ this.onChange.bind(this) }
-            checked={ checked }
-            disabled={ disabled }
-          />
-        }
+        <input
+          id={ repository.full_name }
+          type="checkbox"
+          checked={ isChecked || isEnabled }
+          onChange={ onChange }
+          disabled={ isEnabled }
+        />
         <div>
-          <label htmlFor={ repository.fullName }>{repository.fullName}</label>
+          <label htmlFor={ repository.full_name }>{repository.full_name}</label>
         </div>
         { errorMsg &&
           <div className={ styles.errorMessage }>
@@ -41,24 +41,21 @@ class SelectRepositoryRow extends Component {
       </div>
     );
   }
-
-  onChange(event) {
-    this.props.onChange(event);
-  }
 }
 
 SelectRepositoryRow.defaultProps = {
-  checked: false
+  __isSelected: false,
+  isEnabled: false
 };
 
 SelectRepositoryRow.propTypes = {
   errorMsg: PropTypes.node,
   repository: PropTypes.shape({
-    fullName: PropTypes.string.isRequired
+    full_name: PropTypes.string.isRequired
   }).isRequired,
-  checked: PropTypes.bool,
-  disabled: PropTypes.bool,
-  onChange: PropTypes.func
+  isEnabled: PropTypes.bool,
+  onChange: PropTypes.func,
+  __isSelected: PropTypes.bool
 };
 
 export default SelectRepositoryRow;

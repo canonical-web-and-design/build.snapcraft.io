@@ -31,7 +31,13 @@ export function fetchUserSnaps(owner) {
       if (result.status !== 'success') {
         throw getError(response, result);
       }
-      dispatch(fetchSnapsSuccess(result.payload.snaps));
+      // TODO partly changed to deal with repositories refactor, needs further
+      // work to remove snaps altogether - sstewart, 03/04/17
+      dispatch(fetchSnapsSuccess({
+        snaps: result.payload.snaps,
+        result: result.result,
+        entities: result.entities
+      }));
     } catch (error) {
       dispatch(fetchSnapsError(error));
     }

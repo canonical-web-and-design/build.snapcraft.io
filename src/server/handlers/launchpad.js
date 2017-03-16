@@ -2,6 +2,7 @@ import { createHash } from 'crypto';
 
 import yaml from 'js-yaml';
 import parseGitHubUrl from 'parse-github-url';
+import { normalize } from 'normalizr';
 
 import db from '../db';
 import { conf } from '../helpers/config';
@@ -10,6 +11,7 @@ import requestGitHub from '../helpers/github';
 import getLaunchpad from '../launchpad';
 import { getSnapcraftData } from './github';
 import logging from '../logging';
+import { snapList } from './schema.js';
 
 const logger = logging.getLogger('express');
 
@@ -462,7 +464,8 @@ export const findSnaps = async (req, res) => {
       payload: {
         code: 'snaps-found',
         snaps: snaps
-      }
+      },
+      ...normalize(snaps, snapList)
     });
   } catch (error) {
     return sendError(res, error);

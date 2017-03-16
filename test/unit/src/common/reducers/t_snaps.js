@@ -10,6 +10,7 @@ describe('snaps reducers', () => {
     success: false,
     error: null,
     snaps: null,
+    ids: []
   };
 
   const SNAPS = [{

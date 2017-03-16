@@ -1,7 +1,10 @@
+import union from 'lodash/union';
+
 import * as ActionTypes from '../actions/snaps';
 import * as RegisterNameActionTypes from '../actions/register-name';
 import { getGitHubRepoUrl } from '../helpers/github-url';
 
+// TODO move to selector
 function findSnapByFullName(snaps, fullName) {
   return snaps.find((snap) => {
     return snap.git_repository_url === getGitHubRepoUrl(fullName);
@@ -30,6 +33,7 @@ export function snaps(state = {
   success: false,
   error: null,
   snaps: null,
+  ids: []
 }, action) {
   switch(action.type) {
     case ActionTypes.FETCH_SNAPS:
@@ -39,14 +43,17 @@ export function snaps(state = {
         success: false,
         error: null
       };
+      // XXX a little confusing because we're not refactoring this yet, just
+      // making do for the repositories refactor
     case ActionTypes.FETCH_SNAPS_SUCCESS:
       return {
         ...state,
         isFetching: false,
         success: true,
         snaps: [
-          ...action.payload
+          ...action.payload.snaps
         ],
+        ids: union(state.ids, action.payload.result),
         error: null
       };
     case ActionTypes.FETCH_SNAPS_ERROR:
