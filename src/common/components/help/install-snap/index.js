@@ -7,9 +7,9 @@ const HELP_INSTALL_URL = 'https://snapcraft.io/docs/core/install';
 
 export default class HelpInstallSnap extends Component {
   render() {
-    const { headline, name, revision } = this.props;
+    const { children, headline, name, revision } = this.props;
     const revOption = revision ? `--revision=${ revision }` : '';
-    const command = this.props.children || `sudo snap install --edge ${name} ${revOption}`;
+    const command = children || `sudo snap install --edge ${name} ${revOption}`;
 
     return (
       <div className={ styles.strip }>
