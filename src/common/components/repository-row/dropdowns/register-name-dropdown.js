@@ -11,6 +11,10 @@ import styles from './dropdowns.css';
 const FILE_NAME_CLAIM_URL = `${conf.get('STORE_DEVPORTAL_URL')}/click-apps/register-name/`;
 const AGREEMENT_URL = `${conf.get('STORE_DEVPORTAL_URL')}/tos/`;
 
+const getErrorCode = (error) => {
+  return error && error.json && error.json.payload && error.json.payload.code;
+};
+
 // partial component for rendering Developer Programme Aggreement checkbox
 const Agreement = (props) => {
   const checkbox = <input type="checkbox" onChange={ props.onChange } />;
@@ -114,19 +118,22 @@ const Caption = (props) => {
     );
   }
 
+  const errorCode = getErrorCode(registerNameStatus.error);
+
   if (registerNameStatus.success) {
     caption = (
       <div>
         <TickIcon /> Registered successfully
       </div>
     );
-  } else if ( registerNameStatus.error
-    && registerNameStatus.error.json
-    && registerNameStatus.error.json.payload
-    && registerNameStatus.error.json.payload.code === 'already_registered') {
+  } else if (errorCode === 'already_registered' || errorCode === 'reserved_name') {
+    const reason = (errorCode === 'reserved_name'
+      ? 'that name is reserved'
+      : 'that name is already taken'
+    );
     caption = (
       <div>
-        <p><ErrorIcon /> Sorry, that name is already taken. Try a different name.</p>
+        <p><ErrorIcon /> Sorry, { reason }. Try a different name.</p>
         <p className={ styles.helpText }>
           If you think you should have sole rights to the name,
           you can <a href={ FILE_NAME_CLAIM_URL } target='_blank'>file a claim</a>.
