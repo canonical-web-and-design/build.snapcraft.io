@@ -55,7 +55,10 @@ class RepositoriesHome extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.snaps.success !== nextProps.snaps.success) {
+    const snapsLength = nextProps.snaps.snaps && nextProps.snaps.snaps.length;
+
+    if ((this.props.snaps.success !== nextProps.snaps.success)
+        || (snapsLength === 0)) {
       this.fetchData(nextProps);
     }
   }
@@ -89,9 +92,14 @@ class RepositoriesHome extends Component {
 
   render() {
     const { snaps } = this.props;
-    const hasSnaps = (snaps.snaps && Object.keys(snaps.snaps).length > 0);
-    // show spinner until we know if user has any enabled repos
-    return (snaps.isFetching && !hasSnaps)
+    const hasSnaps = (snaps.snaps && snaps.snaps.length > 0);
+
+    // show spinner if snaps data was not yet fetched (snaps list is empty)
+    // (to avoid spinner during polling we are not checking `success` or `isFetching`
+    //
+    // when snaps are loaded and user doesn't have any, they will be redirected
+    // to select repositories (so spinner won't be showing endlessly)
+    return !hasSnaps
       ? this.renderSpinner()
       : this.renderRepositoriesList();
   }

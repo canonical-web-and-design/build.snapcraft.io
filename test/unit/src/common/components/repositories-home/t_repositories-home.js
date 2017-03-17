@@ -18,6 +18,74 @@ describe('The RepositoriesHome component', () => {
     clock.restore();
   });
 
+  context('when snaps are not loaded', () => {
+    let wrapper;
+
+    beforeEach(() => {
+      props = {
+        auth: {
+          authenticated: true
+        },
+        user: {},
+        snaps: {},
+        snapBuilds: {},
+        fetchBuilds: () => {},
+        updateSnaps: () => {},
+        router: {}
+      };
+
+      wrapper = shallow(<RepositoriesHome { ...props } />);
+    });
+
+    it('should render spinner', () => {
+      expect(wrapper.find('Spinner').length).toBe(1);
+    });
+  });
+
+  context('when user has no snaps', () => {
+    let wrapper;
+
+    beforeEach(() => {
+      props = {
+        auth: {
+          authenticated: true
+        },
+        user: {},
+        snaps: {
+          success: true,
+          snaps: []
+        },
+        snapBuilds: {},
+        fetchBuilds: () => {},
+        updateSnaps: () => {},
+        router: {
+          replace: expect.createSpy()
+        }
+      };
+
+      wrapper = shallow(<RepositoriesHome { ...props } />);
+    });
+
+    it('should render spinner', () => {
+      expect(wrapper.find('Spinner').length).toBe(1);
+    });
+
+    context('and component recieves props', () => {
+      beforeEach(() => {
+        wrapper.instance().componentDidMount();
+        wrapper.instance().componentWillReceiveProps(props);
+      });
+
+      afterEach(() => {
+        wrapper.instance().componentWillUnmount();
+      });
+
+      it('should redirect to select repositories', () => {
+        expect(props.router.replace).toHaveBeenCalledWith('/select-repositories');
+      });
+    });
+  });
+
   context('when user is logged in', () => {
     let wrapper;
 
