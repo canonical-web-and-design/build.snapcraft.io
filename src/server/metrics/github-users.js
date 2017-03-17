@@ -1,6 +1,6 @@
 import promClient from 'prom-client';
 
-import { GitHubUser } from '../db/models/github-user';
+import db from '../db';
 
 const gitHubUsersTotal = new promClient.Gauge(
   'bsi_github_users_total',
@@ -8,6 +8,9 @@ const gitHubUsersTotal = new promClient.Gauge(
   ['metric_type']
 );
 
-export default async function updateGitHubUsersTotal() {
-  gitHubUsersTotal.set({ metric_type: 'kpi' }, await GitHubUser.count());
+export default async function updateGitHubUsersTotal(trx) {
+  gitHubUsersTotal.set(
+    { metric_type: 'kpi' },
+    await db.model('GitHubUser').count('*', { transacting: trx })
+  );
 }

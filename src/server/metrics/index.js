@@ -1,9 +1,12 @@
+import db from '../db';
 import updateGitHubUsersTotal from './github-users';
 
 let existingInterval = null;
 
-async function updateAllMetrics() {
-  await updateGitHubUsersTotal();
+function updateAllMetrics() {
+  return db.transaction(async (trx) => {
+    await updateGitHubUsersTotal(trx);
+  });
 }
 
 export default async function startAllMetrics() {

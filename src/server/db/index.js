@@ -4,6 +4,7 @@ import Bookshelf from 'bookshelf';
 
 import { conf } from '../helpers/config';
 import logging from '../logging';
+import registerModels from './models';
 
 let knexConfigPath = conf.get('KNEX_CONFIG_PATH');
 if (!path.isAbsolute(knexConfigPath)) {
@@ -25,5 +26,7 @@ if (!config) {
 
 const connection = knex(config);
 const db = new Bookshelf(connection);
+db.plugin('registry');
+registerModels(db);
 
 export default db;

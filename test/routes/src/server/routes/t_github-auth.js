@@ -5,7 +5,7 @@ import expect from 'expect';
 import url from 'url';
 
 import auth from '../../../../../src/server/routes/github-auth';
-import { GitHubUser } from '../../../../../src/server/db/models/github-user';
+import db from '../../../../../src/server/db';
 import { conf } from '../../../../../src/server/helpers/config';
 
 const GITHUB_AUTH_LOGIN_URL = conf.get('GITHUB_AUTH_LOGIN_URL');
@@ -99,7 +99,7 @@ describe('The login route', () => {
           nock(conf.get('GITHUB_API_ENDPOINT'))
             .get('/user')
             .reply(200, { id: 123, login: 'anowner' });
-          await GitHubUser.query('truncate').fetch();
+          await db.model('GitHubUser').query('truncate').fetch();
         });
 
         it('should call GitHub API endpoint to get an auth token', (done) => {
@@ -119,7 +119,8 @@ describe('The login route', () => {
             .get('/auth/verify')
             .query({ code: 'foo', state: 'bar' })
             .send();
-          const dbUser = await GitHubUser.where({ github_id: 123 }).fetch();
+          const dbUser = await db.model('GitHubUser').where({ github_id: 123 })
+            .fetch();
           expect(dbUser.serialize()).toMatch({
             github_id: 123,
             login: 'anowner'
