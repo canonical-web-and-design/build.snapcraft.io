@@ -238,12 +238,6 @@ export class RepositoryRowView extends Component {
     );
 
     const hasBuilt = !!(latestBuild && snap.snapcraft_data);
-    const hasLog = !!(hasBuilt && latestBuild.buildLogUrl);
-
-    // only link to builds that have log available
-    const latestBuildUrl = hasLog
-      ? `/user/${fullName}/${latestBuild.buildId}`
-      : null;
 
     const isActive = (
       showNameMismatchDropdown ||
@@ -279,7 +273,7 @@ export class RepositoryRowView extends Component {
           { hasBuilt
             ? (
               <BuildStatus
-                link={ latestBuildUrl }
+                link={ `/user/${fullName}` }
                 colour={ latestBuild.colour }
                 statusMessage={ latestBuild.statusMessage }
                 dateStarted={ latestBuild.dateStarted }
