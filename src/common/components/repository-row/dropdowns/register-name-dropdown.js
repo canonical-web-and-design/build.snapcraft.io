@@ -142,6 +142,7 @@ const Caption = (props) => {
         <p className={ styles.helpText }>
           If you think you should have sole rights to the name,
           you can
+          {' '}
           <a
             href={ FILE_NAME_CLAIM_URL }
             target='_blank'
