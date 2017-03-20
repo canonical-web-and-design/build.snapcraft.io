@@ -32,6 +32,9 @@ module.exports = {
         'SwitchCase': 1
       }
     ],
+    'react/jsx-no-target-blank': [
+      2
+    ],
     'react/jsx-indent': [
       'error',
       2

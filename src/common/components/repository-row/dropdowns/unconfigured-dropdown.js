@@ -40,14 +40,32 @@ const UnconfiguredDropdown = (props) => {
             installable, and runnable.
           </p>
           <p className={ styles.helpText }>
-            <a href={ LEARN_THE_BASICS_LINK } target="_blank">Learn the basics</a>,
-            or
-            <a href={ getTemplateUrl(snap) } target="_blank"> get started with a template</a>.
+            <a
+              href={ LEARN_THE_BASICS_LINK }
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Learn the basics
+            </a>,
+            or {' '}
+            <a
+              href={ getTemplateUrl(snap) }
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              get started with a template
+            </a>.
           </p>
           <p className={ styles.helpText }>
-            Don’t have snapcraft?
-            <a href={ INSTALL_IT_LINK } target="_blank"> Install it on your own PC </a>
-            for testing.
+            Don’t have snapcraft? {' '}
+            <a
+              href={ INSTALL_IT_LINK }
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Install it on your own PC
+            </a>
+            {' '} for testing.
           </p>
         </Data>
       </Row>
