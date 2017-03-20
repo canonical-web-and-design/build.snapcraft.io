@@ -10,13 +10,12 @@ export function getError(response, json) {
   return error;
 }
 
-export function checkStatus(response) {
+export async function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response;
   } else {
-    return response.json().then((json) => {
-      throw getError(response, json);
-    });
+    const json = await response.json();
+    throw getError(response, json);
   }
 }
 

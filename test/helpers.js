@@ -44,36 +44,30 @@ export function makeLocalForageStub() {
   const store = {};
   return {
     store,
-    getItem: (key) => {
-      return new Promise((resolve) => setTimeout(resolve, 1))
-        .then(() => {
-          if (key in store) {
-            const value = store[key];
-            if (value instanceof Error) {
-              throw value;
-            } else {
-              return value;
-            }
-          } else {
-            return null;
-          }
-        });
+    getItem: async (key) => {
+      await new Promise((resolve) => setTimeout(resolve, 1));
+      if (key in store) {
+        const value = store[key];
+        if (value instanceof Error) {
+          throw value;
+        } else {
+          return value;
+        }
+      } else {
+        return null;
+      }
     },
-    setItem: (key, value) => {
-      return new Promise((resolve) => setTimeout(resolve, 1))
-        .then(() => {
-          store[key] = value;
-        });
+    setItem: async (key, value) => {
+      await new Promise((resolve) => setTimeout(resolve, 1));
+      store[key] = value;
     },
-    removeItem: (key) => {
-      return new Promise((resolve) => setTimeout(resolve, 1))
-        .then(() => {
-          if (key in store && store[key] instanceof Error) {
-            throw store[key];
-          } else {
-            delete store[key];
-          }
-        });
+    removeItem: async (key) => {
+      await new Promise((resolve) => setTimeout(resolve, 1));
+      if (key in store && store[key] instanceof Error) {
+        throw store[key];
+      } else {
+        delete store[key];
+      }
     },
     clear: () => {
       for (const key of Object.keys(store)) {

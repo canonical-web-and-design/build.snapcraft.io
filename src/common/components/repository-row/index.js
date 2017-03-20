@@ -53,13 +53,12 @@ export class RepositoryRowView extends Component {
     localforage.setItem(`repository_row_${this.props.snap.git_repository_url}`, this.state);
   }
 
-  loadState() {
-    localforage.getItem(`repository_row_${this.props.snap.git_repository_url}`)
-      .then((state) => {
-        if (state) {
-          this.setState(state);
-        }
-      });
+  async loadState() {
+    const item = `repository_row_${this.props.snap.git_repository_url}`;
+    const state = await localforage.getItem(item);
+    if (state) {
+      this.setState(state);
+    }
   }
 
   clearState() {

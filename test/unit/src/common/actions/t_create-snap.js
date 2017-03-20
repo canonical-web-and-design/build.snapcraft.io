@@ -73,46 +73,43 @@ describe('create snap actions', () => {
     });
 
     afterEach(() => {
+      scope.done();
       nock.cleanAll();
     });
 
-    it('throws an error on failure to create webhook', () => {
+    it('throws an error on failure to create webhook', async () => {
       scope
         .post('/api/github/webhook', { owner: 'foo', name: 'bar' })
         .reply(404, {
           status: 'error',
           payload: { code: 'github-repository-not-found' }
         });
-      return createWebhook(repository)
-        .then(() => { throw new Error('unexpected success'); })
-        .catch((error) => {
-          scope.done();
-          expect(error.json.payload.code).toEqual(
-            'github-repository-not-found'
-          );
-        });
+      try {
+        await createWebhook(repository);
+        throw new Error('unexpected success');
+      } catch (error) {
+        expect(error.json.payload.code).toEqual('github-repository-not-found');
+      }
     });
 
-    it('succeeds if creating webhook says already created', () => {
+    it('succeeds if creating webhook says already created', async () => {
       scope
         .post('/api/github/webhook', { owner: 'foo', name: 'bar' })
         .reply(422, {
           status: 'error',
           payload: { code: 'github-already-created' }
         });
-      return createWebhook(repository)
-        .then(() => scope.done());
+      await createWebhook(repository);
     });
 
-    it('succeeds if creating webhook succeeds', () => {
+    it('succeeds if creating webhook succeeds', async () => {
       scope
         .post('/api/github/webhook', { owner: 'foo', name: 'bar' })
         .reply(201, {
           status: 'success',
           payload: { code: 'github-webhook-created' }
         });
-      return createWebhook(repository)
-        .then(() => scope.done());
+      await createWebhook(repository);
     });
   });
 
@@ -131,20 +128,18 @@ describe('create snap actions', () => {
     });
 
     afterEach(() => {
+      scope.done();
       nock.cleanAll();
     });
 
-    it('stores a CREATE_SNAPS_CLEAR action', () => {
-      return store.dispatch(createSnaps([ repository ]))
-        .then(() => {
-          expect(store.getActions()).toHaveActionOfType(
-            ActionTypes.CREATE_SNAPS_CLEAR
-          );
-          scope.done();
-        });
+    it('stores a CREATE_SNAPS_CLEAR action', async () => {
+      await store.dispatch(createSnaps([ repository ]));
+      expect(store.getActions()).toHaveActionOfType(
+        ActionTypes.CREATE_SNAPS_CLEAR
+      );
     });
 
-    it('stores an error if creating webhook fails', () => {
+    it('stores an error if creating webhook fails', async () => {
       scope
         .post('/api/github/webhook', { owner: 'foo', name: 'bar' })
         .reply(404, {
@@ -152,17 +147,14 @@ describe('create snap actions', () => {
           payload: { code: 'github-repository-not-found' }
         });
 
-      return store.dispatch(createSnaps([ repository ]))
-        .then(() => {
-          const errorAction = store.getActions().filter((action) => {
-            return action.type === ActionTypes.CREATE_SNAP_ERROR;
-          })[0];
-          expect(errorAction.payload.id).toBe('foo/bar');
-          expect(errorAction.payload.error.json.payload).toEqual({
-            code: 'github-repository-not-found'
-          });
-          scope.done();
-        });
+      await store.dispatch(createSnaps([ repository ]));
+      const errorAction = store.getActions().filter((action) => {
+        return action.type === ActionTypes.CREATE_SNAP_ERROR;
+      })[0];
+      expect(errorAction.payload.id).toBe('foo/bar');
+      expect(errorAction.payload.error.json.payload).toEqual({
+        code: 'github-repository-not-found'
+      });
     });
 
     context('if creating webhook succeeds', () => {
@@ -175,7 +167,7 @@ describe('create snap actions', () => {
           });
       });
 
-      it('stores an error on failure to create snap', () => {
+      it('stores an error on failure to create snap', async () => {
         scope
           .post('/api/launchpad/snaps', { repository_url: repository.url })
           .reply(400, {
@@ -186,21 +178,18 @@ describe('create snap actions', () => {
             }
           });
 
-        return store.dispatch(createSnaps([ repository ]))
-          .then(() => {
-            const errorAction = store.getActions().filter((action) => {
-              return action.type === ActionTypes.CREATE_SNAP_ERROR;
-            })[0];
-            expect(errorAction.payload.id).toBe('foo/bar');
-            expect(errorAction.payload.error.json.payload).toEqual({
-              code: 'not-logged-in',
-              message: 'Not logged in',
-            });
-            scope.done();
-          });
+        await store.dispatch(createSnaps([ repository ]));
+        const errorAction = store.getActions().filter((action) => {
+          return action.type === ActionTypes.CREATE_SNAP_ERROR;
+        })[0];
+        expect(errorAction.payload.id).toBe('foo/bar');
+        expect(errorAction.payload.error.json.payload).toEqual({
+          code: 'not-logged-in',
+          message: 'Not logged in',
+        });
       });
 
-      it('creates success action if creating snap succeeds', () => {
+      it('creates success action if creating snap succeeds', async () => {
         scope
           .post('/api/launchpad/snaps', { repository_url: repository.url })
           .reply(201, {
@@ -215,11 +204,8 @@ describe('create snap actions', () => {
           type: ActionTypes.CREATE_SNAP_SUCCESS,
           payload: { id: 'foo/bar' }
         };
-        return store.dispatch(createSnaps([ repository ]))
-          .then(() => {
-            expect(store.getActions()).toInclude(expectedAction);
-            scope.done();
-          });
+        await store.dispatch(createSnaps([ repository ]));
+        expect(store.getActions()).toInclude(expectedAction);
       });
     });
   });

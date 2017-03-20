@@ -9,8 +9,9 @@ let memcached = null;
 
 // Return a Promise that calls the given callback soon, but not immediately.
 // This helps to exercise asynchronicity bugs in memcached client code.
-const runSoon = (callback) => {
-  return new Promise((resolve) => setTimeout(resolve, 1)).then(callback);
+const runSoon = async (callback) => {
+  await new Promise((resolve) => setTimeout(resolve, 1));
+  callback();
 };
 
 const getMemcachedStub = () => {

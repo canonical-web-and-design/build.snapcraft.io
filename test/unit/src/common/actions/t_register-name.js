@@ -74,12 +74,13 @@ describe('register name actions', () => {
   });
 
   afterEach(() => {
+    scope.done();
     nock.cleanAll();
     localForageStub.clear();
   });
 
   context('internalRegisterName', () => {
-    it('throws an error on failure to register snap name', () => {
+    it('throws an error on failure to register snap name', async () => {
       scope
         .post('/api/store/register-name', { snap_name: 'test-snap' })
         .reply(409, {
@@ -87,19 +88,19 @@ describe('register name actions', () => {
           code: 'already_registered',
           detail: '\'test-snap\' is already registered.'
         });
-      return internalRegisterName(root, discharge, 'test-snap')
-        .then(() => { throw new Error('unexpected success'); })
-        .catch((error) => {
-          scope.done();
-          expect(error.json.payload).toEqual({
-            status: 409,
-            code: 'already_registered',
-            detail: '\'test-snap\' is already registered.'
-          });
+      try {
+        await internalRegisterName(root, discharge, 'test-snap');
+        throw new Error('unexpected success');
+      } catch (error) {
+        expect(error.json.payload).toEqual({
+          status: 409,
+          code: 'already_registered',
+          detail: '\'test-snap\' is already registered.'
         });
+      }
     });
 
-    it('succeeds if registering snap name says already owned', () => {
+    it('succeeds if registering snap name says already owned', async () => {
       scope
         .post('/api/store/register-name', { snap_name: 'test-snap' })
         .reply(409, {
@@ -107,48 +108,40 @@ describe('register name actions', () => {
           code: 'already_owned',
           detail: 'You already own \'test-snap\'.'
         });
-      return internalRegisterName(root, discharge, 'test-snap')
-        .then(() => scope.done());
+      await internalRegisterName(root, discharge, 'test-snap');
     });
 
-    it('succeeds if registering snap name succeeds', () => {
+    it('succeeds if registering snap name succeeds', async () => {
       // XXX check Authorization header
       scope
         .post('/api/store/register-name', { snap_name: 'test-snap' })
         .reply(201, { snap_id: 'test-snap-id' });
-      return internalRegisterName(root, discharge, 'test-snap')
-        .then(() => scope.done());
+      await internalRegisterName(root, discharge, 'test-snap');
     });
   });
 
   context('registerName', () => {
-    it('stores a REGISTER_NAME action', () => {
+    it('stores a REGISTER_NAME action', async () => {
       const expectedAction = {
         type: ActionTypes.REGISTER_NAME,
         payload: { id: 'foo/bar', snapName: 'test-snap' }
       };
-      return store.dispatch(registerName(repository, 'test-snap'))
-        .then(() => {
-          expect(store.getActions()).toInclude(expectedAction);
-          scope.done();
-        });
+      await store.dispatch(registerName(repository, 'test-snap'));
+      expect(store.getActions()).toInclude(expectedAction);
     });
 
     it('stores an error if there is no package upload request ' +
-       'macaroon', () => {
-      return store.dispatch(registerName(repository, 'test-snap'))
-        .then(() => {
-          const errorAction = store.getActions().filter((action) => {
-            return action.type === ActionTypes.REGISTER_NAME_ERROR;
-          })[0];
-          expect(errorAction.payload.id).toBe('foo/bar');
-          expect(errorAction.payload.error.json.payload).toEqual({
-            code: 'not-logged-into-store',
-            message: 'Not logged into store',
-            detail: 'No package_upload_request macaroons in local storage'
-          });
-          scope.done();
-        });
+       'macaroon', async () => {
+      await store.dispatch(registerName(repository, 'test-snap'));
+      const errorAction = store.getActions().filter((action) => {
+        return action.type === ActionTypes.REGISTER_NAME_ERROR;
+      })[0];
+      expect(errorAction.payload.id).toBe('foo/bar');
+      expect(errorAction.payload.error.json.payload).toEqual({
+        code: 'not-logged-into-store',
+        message: 'Not logged into store',
+        detail: 'No package_upload_request macaroons in local storage'
+      });
     });
 
     context('if there is a package upload request macaroon', () => {
@@ -156,7 +149,7 @@ describe('register name actions', () => {
         localForageStub.store['package_upload_request'] = { root, discharge };
       });
 
-      it('stores an error if signing agreement and that fails', () => {
+      it('stores an error if signing agreement and that fails', async () => {
         const error = {
           code: 'internal-server-error',
           message: 'Internal server error'
@@ -164,19 +157,17 @@ describe('register name actions', () => {
         scope
           .post('/api/store/agreement', { latest_tos_accepted: true })
           .reply(500, { error_list: [error] });
-        return store.dispatch(registerName(repository, 'test-snap', {
+        await store.dispatch(registerName(repository, 'test-snap', {
           signAgreement: 'test-user'
-        })).then(() => {
-          const errorAction = store.getActions().filter((action) => {
-            return action.type === ActionTypes.REGISTER_NAME_ERROR;
-          })[0];
-          expect(errorAction.payload.id).toBe('foo/bar');
-          expect(errorAction.payload.error.json.payload).toEqual(error);
-          scope.done();
-        });
+        }));
+        const errorAction = store.getActions().filter((action) => {
+          return action.type === ActionTypes.REGISTER_NAME_ERROR;
+        })[0];
+        expect(errorAction.payload.id).toBe('foo/bar');
+        expect(errorAction.payload.error.json.payload).toEqual(error);
       });
 
-      it('stores an error on failure to register snap name', () => {
+      it('stores an error on failure to register snap name', async () => {
         scope
           .post('/api/store/register-name', { snap_name: 'test-snap' })
           .reply(409, {
@@ -184,19 +175,16 @@ describe('register name actions', () => {
             code: 'already_registered',
             detail: '\'test-snap\' is already registered.'
           });
-        return store.dispatch(registerName(repository, 'test-snap'))
-          .then(() => {
-            const errorAction = store.getActions().filter((action) => {
-              return action.type === ActionTypes.REGISTER_NAME_ERROR;
-            })[0];
-            expect(errorAction.payload.id).toBe('foo/bar');
-            expect(errorAction.payload.error.json.payload).toEqual({
-              status: 409,
-              code: 'already_registered',
-              detail: '\'test-snap\' is already registered.'
-            });
-            scope.done();
-          });
+        await store.dispatch(registerName(repository, 'test-snap'));
+        const errorAction = store.getActions().filter((action) => {
+          return action.type === ActionTypes.REGISTER_NAME_ERROR;
+        })[0];
+        expect(errorAction.payload.id).toBe('foo/bar');
+        expect(errorAction.payload.error.json.payload).toEqual({
+          status: 409,
+          code: 'already_registered',
+          detail: '\'test-snap\' is already registered.'
+        });
       });
 
       context('if registering snap name succeeds', () => {
@@ -210,8 +198,12 @@ describe('register name actions', () => {
           storeScope = nock(conf.get('STORE_API_URL'));
         });
 
+        afterEach(() => {
+          storeScope.done();
+        });
+
         it('stores an error on failure to get package upload ' +
-           'macaroon', () => {
+           'macaroon', async () => {
           storeScope
             .post('/acl/', {
               packages: [{ name: 'test-snap', series: '16' }],
@@ -223,19 +215,16 @@ describe('register name actions', () => {
               error_code: 'resource-not-found'
             });
 
-          return store.dispatch(registerName(repository, 'test-snap'))
-            .then(() => {
-              const errorAction = store.getActions().filter((action) => {
-                return action.type === ActionTypes.REGISTER_NAME_ERROR;
-              })[0];
-              expect(errorAction.payload.id).toBe('foo/bar');
-              expect(errorAction.payload.error.json.payload).toEqual({
-                code: 'snap-name-not-registered',
-                message: 'Snap name is not registered in the store',
-                snap_name: 'test-snap'
-              });
-              scope.done();
-            });
+          await store.dispatch(registerName(repository, 'test-snap'));
+          const errorAction = store.getActions().filter((action) => {
+            return action.type === ActionTypes.REGISTER_NAME_ERROR;
+          })[0];
+          expect(errorAction.payload.id).toBe('foo/bar');
+          expect(errorAction.payload.error.json.payload).toEqual({
+            code: 'snap-name-not-registered',
+            message: 'Snap name is not registered in the store',
+            snap_name: 'test-snap'
+          });
         });
 
         context('if getting package upload macaroon succeeds', () => {
@@ -245,7 +234,7 @@ describe('register name actions', () => {
               .reply(200, { macaroon: 'dummy-package-upload-macaroon' });
           });
 
-          it('stores an error on failure to authorize snap', () => {
+          it('stores an error on failure to authorize snap', async () => {
             scope
               .post('/api/launchpad/snaps/authorize', {
                 repository_url: repository.url,
@@ -262,18 +251,15 @@ describe('register name actions', () => {
                 }
               });
 
-            return store.dispatch(registerName(repository, 'test-snap'))
-              .then(() => {
-                const errorAction = store.getActions().filter((action) => {
-                  return action.type === ActionTypes.REGISTER_NAME_ERROR;
-                })[0];
-                expect(errorAction.payload.id).toBe('foo/bar');
-                expect(errorAction.payload.error.json.payload).toEqual({
-                  'code': 'not-logged-in',
-                  'message': 'Not logged in'
-                });
-                scope.done();
-              });
+            await store.dispatch(registerName(repository, 'test-snap'));
+            const errorAction = store.getActions().filter((action) => {
+              return action.type === ActionTypes.REGISTER_NAME_ERROR;
+            })[0];
+            expect(errorAction.payload.id).toBe('foo/bar');
+            expect(errorAction.payload.error.json.payload).toEqual({
+              'code': 'not-logged-in',
+              'message': 'Not logged in'
+            });
           });
 
           context('if authorizing snap succeeds', () => {
@@ -294,17 +280,14 @@ describe('register name actions', () => {
                 .reply(204);
             });
 
-            it('creates success action if not requesting builds', () => {
-              return store.dispatch(registerName(repository, 'test-snap'))
-                .then(() => {
-                  expect(store.getActions()).toInclude(expectedAction);
-                  scope.done();
-                });
+            it('creates success action if not requesting builds', async () => {
+              await store.dispatch(registerName(repository, 'test-snap'));
+              expect(store.getActions()).toInclude(expectedAction);
             });
 
             context('if requesting builds', () => {
               it('stores success and error actions if requesting builds ' +
-                 'fails', () => {
+                 'fails', async () => {
                 scope
                   .post('/api/launchpad/snaps/request-builds', {
                     repository_url: repository.url
@@ -317,19 +300,16 @@ describe('register name actions', () => {
                     }
                   });
 
-                return store.dispatch(registerName(repository, 'test-snap', {
+                await store.dispatch(registerName(repository, 'test-snap', {
                   requestBuilds: true
-                }))
-                  .then(() => {
-                    const actions = store.getActions();
-                    expect(actions).toInclude(expectedAction);
-                    expect(actions).toHaveActionOfType(FETCH_BUILDS_ERROR);
-                    scope.done();
-                  });
+                }));
+                const actions = store.getActions();
+                expect(actions).toInclude(expectedAction);
+                expect(actions).toHaveActionOfType(FETCH_BUILDS_ERROR);
               });
 
               it('stores success actions if requesting builds ' +
-                 'succeeds', () => {
+                 'succeeds', async () => {
                 scope
                   .post('/api/launchpad/snaps/request-builds', {
                     repository_url: repository.url
@@ -342,15 +322,12 @@ describe('register name actions', () => {
                     }
                   });
 
-                return store.dispatch(registerName(repository, 'test-snap', {
+                await store.dispatch(registerName(repository, 'test-snap', {
                   requestBuilds: true
-                }))
-                  .then(() => {
-                    const actions = store.getActions();
-                    expect(actions).toInclude(expectedAction);
-                    expect(actions).toHaveActionOfType(FETCH_BUILDS_SUCCESS);
-                    scope.done();
-                  });
+                }));
+                const actions = store.getActions();
+                expect(actions).toInclude(expectedAction);
+                expect(actions).toHaveActionOfType(FETCH_BUILDS_SUCCESS);
               });
             });
 
@@ -361,7 +338,7 @@ describe('register name actions', () => {
                   .reply(200, { latest_tos_accepted: true });
               });
 
-              it('sets short namespace if unset', () => {
+              it('sets short namespace if unset', async () => {
                 const error = {
                   code: 'user-not-ready',
                   message: 'Developer profile is missing short namespace.'
@@ -384,18 +361,15 @@ describe('register name actions', () => {
                   type: GET_ACCOUNT_INFO_SUCCESS,
                   payload: { signedAgreement: true, hasShortNamespace: true }
                 };
-                return store.dispatch(registerName(repository, 'test-snap', {
+                await store.dispatch(registerName(repository, 'test-snap', {
                   signAgreement: 'test-user'
-                }))
-                  .then(() => {
-                    const actions = store.getActions();
-                    expect(actions).toInclude(expectedAccountAction);
-                    expect(actions).toInclude(expectedAction);
-                    scope.done();
-                  });
+                }));
+                const actions = store.getActions();
+                expect(actions).toInclude(expectedAccountAction);
+                expect(actions).toInclude(expectedAction);
               });
 
-              it('leaves short namespace alone if already set', () => {
+              it('leaves short namespace alone if already set', async () => {
                 scope
                   .get('/api/store/account')
                   .query(true)
@@ -405,15 +379,12 @@ describe('register name actions', () => {
                   type: GET_ACCOUNT_INFO_SUCCESS,
                   payload: { signedAgreement: true, hasShortNamespace: true }
                 };
-                return store.dispatch(registerName(repository, 'test-snap', {
+                await store.dispatch(registerName(repository, 'test-snap', {
                   signAgreement: 'test-user'
-                }))
-                  .then(() => {
-                    const actions = store.getActions();
-                    expect(actions).toInclude(expectedAccountAction);
-                    expect(actions).toInclude(expectedAction);
-                    scope.done();
-                  });
+                }));
+                const actions = store.getActions();
+                expect(actions).toInclude(expectedAccountAction);
+                expect(actions).toInclude(expectedAction);
               });
             });
           });
