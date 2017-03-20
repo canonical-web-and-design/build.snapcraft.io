@@ -5,6 +5,7 @@ interface/interface-http            lp:~ubuntuone-hackers/ols-charm-deps/interfa
 interface/interface-juju-info       lp:~ubuntuone-hackers/ols-charm-deps/interface-juju-info;revno=6
 interface/interface-memcache        git+ssh://git.launchpad.net/~ubuntuone-hackers/ols-charm-deps/+git/interface-memcache;revno=5ccddd9
 interface/interface-pgsql           git+ssh://git.launchpad.net/interface-pgsql;revno=v2.0.1
+interface/interface-prometheus      lp:~ubuntuone-hackers/ols-charm-deps/juju-interface-prometheus;revno=1
 
 layer                               @
 layer/layer-apt                     git+ssh://git.launchpad.net/layer-apt;revno=7377e1f
