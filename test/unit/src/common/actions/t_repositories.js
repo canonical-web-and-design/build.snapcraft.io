@@ -84,6 +84,7 @@ describe('repositories actions', () => {
     });
 
     afterEach(() => {
+      api.done();
       nock.cleanAll();
     });
 
@@ -105,14 +106,11 @@ describe('repositories actions', () => {
           });
       });
 
-      it('should store repositories on fetch success', () => {
-        return store.dispatch(fetchUserRepositories())
-          .then(() => {
-            api.done();
-            expect(store.getActions()).toHaveActionOfType(
-              ActionTypes.SET_REPOSITORIES
-            );
-          });
+      it('should store repositories on fetch success', async () => {
+        await store.dispatch(fetchUserRepositories());
+        expect(store.getActions()).toHaveActionOfType(
+          ActionTypes.SET_REPOSITORIES
+        );
       });
     });
 
@@ -128,20 +126,15 @@ describe('repositories actions', () => {
           });
       });
 
-      it('should store no pageLinks', () => {
-        return store.dispatch(fetchUserRepositories())
-          .then(() => {
-            api.done();
-            expect(store.getActions()).notToHaveActionOfType(
-              ActionTypes.SET_REPOSITORY_PAGE_LINKS
-            );
-          });
+      it('should store no pageLinks', async () => {
+        await store.dispatch(fetchUserRepositories());
+        expect(store.getActions()).notToHaveActionOfType(
+          ActionTypes.SET_REPOSITORY_PAGE_LINKS
+        );
       });
     });
 
-
-    it('should store error on Launchpad request failure', () => {
-
+    it('should store error on Launchpad request failure', async () => {
       api.get('/api/github/repos')
         .reply(404, {
           status: 'error',
@@ -151,12 +144,10 @@ describe('repositories actions', () => {
           }
         });
 
-      return store.dispatch(fetchUserRepositories())
-        .then(() => {
-          expect(store.getActions()).toHaveActionOfType(
-            ActionTypes.FETCH_REPOSITORIES_ERROR
-          );
-        });
+      await store.dispatch(fetchUserRepositories());
+      expect(store.getActions()).toHaveActionOfType(
+        ActionTypes.FETCH_REPOSITORIES_ERROR
+      );
     });
 
   });

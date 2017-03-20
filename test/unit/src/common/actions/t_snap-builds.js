@@ -88,10 +88,11 @@ describe('snap builds actions', () => {
     });
 
     afterEach(() => {
+      api.done();
       nock.cleanAll();
     });
 
-    it('should store builds on fetch success', () => {
+    it('should store builds on fetch success', async () => {
       const snapUrl = 'https://api.launchpad.net/devel/~foo/+snap/bar';
 
       api.get('/api/launchpad/builds')
@@ -104,16 +105,13 @@ describe('snap builds actions', () => {
           }
         });
 
-      return store.dispatch(fetchBuilds(repositoryUrl, snapUrl))
-        .then(() => {
-          api.done();
-          expect(store.getActions()).toHaveActionOfType(
-            ActionTypes.FETCH_BUILDS_SUCCESS
-          );
-        });
+      await store.dispatch(fetchBuilds(repositoryUrl, snapUrl));
+      expect(store.getActions()).toHaveActionOfType(
+        ActionTypes.FETCH_BUILDS_SUCCESS
+      );
     });
 
-    it('should store error on Launchpad request failure', () => {
+    it('should store error on Launchpad request failure', async () => {
       const barUrl = 'https://api.launchpad.net/devel/~foo/+snap/bad';
 
       api.get('/api/launchpad/builds')
@@ -126,12 +124,10 @@ describe('snap builds actions', () => {
           }
         });
 
-      return store.dispatch(fetchBuilds(repositoryUrl, barUrl))
-        .then(() => {
-          expect(store.getActions()).toHaveActionOfType(
-            ActionTypes.FETCH_BUILDS_ERROR
-          );
-        });
+      await store.dispatch(fetchBuilds(repositoryUrl, barUrl));
+      expect(store.getActions()).toHaveActionOfType(
+        ActionTypes.FETCH_BUILDS_ERROR
+      );
     });
 
   });
@@ -144,10 +140,12 @@ describe('snap builds actions', () => {
     });
 
     afterEach(() => {
+      api.done();
       nock.cleanAll();
     });
 
-    it('should dispatch FETCH_SNAP_SUCCESS with snap info on success', () => {
+    it('should dispatch FETCH_SNAP_SUCCESS with snap info on ' +
+       'success', async () => {
       const repo = 'foo/bar';
       const repositoryUrl = `https://github.com/${repo}`;
       const snapUrl = 'https://api.launchpad.net/devel/~foo/+snap/bar';
@@ -166,19 +164,14 @@ describe('snap builds actions', () => {
           }
         });
 
-      return store.dispatch(fetchSnap(repositoryUrl))
-        .then(() => {
-          api.done();
-          expect(store.getActions()).toInclude({
-            type: ActionTypes.FETCH_SNAP_SUCCESS,
-            payload: {
-              id: repo,
-              snap: {
-                self_link: snapUrl
-              }
-            }
-          });
-        });
+      await store.dispatch(fetchSnap(repositoryUrl));
+      expect(store.getActions()).toInclude({
+        type: ActionTypes.FETCH_SNAP_SUCCESS,
+        payload: {
+          id: repo,
+          snap: { self_link: snapUrl }
+        }
+      });
     });
 
     context('on builds call failure', () => {
@@ -196,21 +189,18 @@ describe('snap builds actions', () => {
         });
       });
 
-      it('should dispatch error action', () => {
-        return store.dispatch(fetchBuilds(repositoryUrl, barUrl))
-          .then(() => {
-            expect(store.getActions()).toHaveActionOfType(
-              ActionTypes.FETCH_BUILDS_ERROR
-            );
-          });
+      it('should dispatch error action', async () => {
+        await store.dispatch(fetchBuilds(repositoryUrl, barUrl));
+        expect(store.getActions()).toHaveActionOfType(
+          ActionTypes.FETCH_BUILDS_ERROR
+        );
       });
 
-      it('should pass error message from repsponse to action', () => {
-        return store.dispatch(fetchBuilds(repositoryUrl, barUrl))
-          .then(() => {
-            const action = store.getActions().filter(a => a.type === ActionTypes.FETCH_BUILDS_ERROR)[0];
-            expect(action.payload.error.message).toBe('Bad snap URL');
-          });
+      it('should pass error message from repsponse to action', async () => {
+        await store.dispatch(fetchBuilds(repositoryUrl, barUrl));
+        const action = store.getActions()
+          .filter((a) => a.type === ActionTypes.FETCH_BUILDS_ERROR)[0];
+        expect(action.payload.error.message).toBe('Bad snap URL');
       });
 
     });
@@ -233,21 +223,18 @@ describe('snap builds actions', () => {
           });
       });
 
-      it('should dispatch error action', () => {
-        return store.dispatch(fetchSnap(repositoryUrl))
-          .then(() => {
-            expect(store.getActions()).toHaveActionOfType(
-              ActionTypes.FETCH_BUILDS_ERROR
-            );
-          });
+      it('should dispatch error action', async () => {
+        await store.dispatch(fetchSnap(repositoryUrl));
+        expect(store.getActions()).toHaveActionOfType(
+          ActionTypes.FETCH_BUILDS_ERROR
+        );
       });
 
-      it('should pass error message from repsponse to action', () => {
-        return store.dispatch(fetchSnap(repositoryUrl))
-          .then(() => {
-            const action = store.getActions().filter(a => a.type === ActionTypes.FETCH_BUILDS_ERROR)[0];
-            expect(action.payload.error.message).toBe('Bad repo URL');
-          });
+      it('should pass error message from repsponse to action', async () => {
+        await store.dispatch(fetchSnap(repositoryUrl));
+        const action = store.getActions()
+          .filter((a) => a.type === ActionTypes.FETCH_BUILDS_ERROR)[0];
+        expect(action.payload.error.message).toBe('Bad repo URL');
       });
 
     });
@@ -264,10 +251,11 @@ describe('snap builds actions', () => {
     });
 
     afterEach(() => {
+      api.done();
       nock.cleanAll();
     });
 
-    it('should store builds on request success', () => {
+    it('should store builds on request success', async () => {
       api
         .post('/api/launchpad/snaps/request-builds', {
           repository_url: repositoryUrl
@@ -280,16 +268,13 @@ describe('snap builds actions', () => {
           }
         });
 
-      return store.dispatch(requestBuilds(repositoryUrl))
-        .then(() => {
-          api.done();
-          expect(store.getActions()).toHaveActionOfType(
-            ActionTypes.FETCH_BUILDS_SUCCESS
-          );
-        });
+      await store.dispatch(requestBuilds(repositoryUrl));
+      expect(store.getActions()).toHaveActionOfType(
+        ActionTypes.FETCH_BUILDS_SUCCESS
+      );
     });
 
-    it('should store error on Launchpad request failure', () => {
+    it('should store error on Launchpad request failure', async () => {
       api
         .post('/api/launchpad/snaps/request-builds', {
           repository_url: repositoryUrl
@@ -302,12 +287,10 @@ describe('snap builds actions', () => {
           }
         });
 
-      return store.dispatch(requestBuilds(repositoryUrl))
-        .then(() => {
-          expect(store.getActions()).toHaveActionOfType(
-            ActionTypes.FETCH_BUILDS_ERROR
-          );
-        });
+      await store.dispatch(requestBuilds(repositoryUrl));
+      expect(store.getActions()).toHaveActionOfType(
+        ActionTypes.FETCH_BUILDS_ERROR
+      );
     });
   });
 
