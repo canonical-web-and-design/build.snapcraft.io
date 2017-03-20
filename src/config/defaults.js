@@ -4,6 +4,7 @@ export default {
   BASE_URL: 'http://localhost:8000',
   WEBPACK_DEV_URL: 'http://localhost:8001',
   NODE_ENV: 'development',
+  ENVIRONMENT: 'development',
   UBUNTU_SSO_URL: 'https://login.ubuntu.com',
   OPENID_VERIFY_URL: 'http://localhost:8000/login/verify',
   LP_API_URL: 'https://api.launchpad.net',

@@ -36,7 +36,7 @@ describe('The GitHub users metric', () => {
         name: metricName,
         help: 'Total number of GitHub users who have ever logged in.',
         values: [{
-          labels: { metric_type: 'kpi' },
+          labels: { environment: 'test', metric_type: 'kpi' },
           value: 5
         }]
       });
