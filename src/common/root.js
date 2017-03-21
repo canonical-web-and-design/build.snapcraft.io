@@ -9,7 +9,6 @@ import store from './store';
 
 const history = syncHistoryWithStore(browserHistory, store);
 
-
 export default class Root extends Component {
   render() {
     return (

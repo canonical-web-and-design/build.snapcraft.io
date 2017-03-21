@@ -3,6 +3,33 @@ import ReactDOM from 'react-dom/server';
 import Helmet from 'react-helmet';
 import { Provider } from 'react-redux';
 
+import { conf } from '../helpers/config';
+
+const GAID = conf.get('GOOGLE_ANALYTICS_ID');
+
+const googleTagManager = GAID ?
+  <script
+    dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer', '${GAID}')` }}
+  /> : null;
+
+const googleTagManagerNoScript = GAID ?
+  <noscript>
+    <iframe
+      src="https://www.googletagmanager.com/ns.html?id=${GAID}"
+      height="0"
+      width="0"
+      style={{
+        display: 'none',
+        visibility: 'hidden'
+      }}
+    />
+  </noscript>
+  : null;
+
 export default class Html extends Component {
   render() {
     const { assets, store, component, config } = this.props;
@@ -16,6 +43,7 @@ export default class Html extends Component {
     return (
       <html {...attrs}>
         <head>
+          { googleTagManager }
           {head.title.toComponent()}
           {head.meta.toComponent()}
           {head.link.toComponent()}
@@ -31,6 +59,7 @@ export default class Html extends Component {
           }
         </head>
         <body>
+          { googleTagManagerNoScript }
           <div id="content" dangerouslySetInnerHTML={{ __html: content }}/>
           <script
             dangerouslySetInnerHTML={{ __html: `window.__CONFIG__ = ${JSON.stringify(config)}` }}

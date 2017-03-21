@@ -3,6 +3,7 @@ import { routerMiddleware } from 'react-router-redux';
 import { browserHistory } from 'react-router';
 import thunk from 'redux-thunk';
 import rootReducer from '../reducers';
+import { analytics } from '../middleware';
 
 export default function configureStore(preloadedState) {
   const store = createStore(
@@ -10,6 +11,7 @@ export default function configureStore(preloadedState) {
     preloadedState,
     compose(
       applyMiddleware(
+        analytics,
         thunk,
         routerMiddleware(browserHistory)
       ),
