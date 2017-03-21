@@ -49,6 +49,7 @@ const Caption = (props) => {
     onSignAgreementChange,
     snapName,
     snapcraftData,
+    onRegisterSubmit,
     onSnapNameChange
   } = props;
 
@@ -107,7 +108,7 @@ const Caption = (props) => {
           }
           <li>The old name will remain registered to you and can be used for another snap later.</li>
         </ul>
-        <p>
+        <form onSubmit={onRegisterSubmit}>
           <label>New name:
             {' ' /* force space between inline elements */}
             <input
@@ -117,7 +118,7 @@ const Caption = (props) => {
               onChange={ onSnapNameChange }
             />
           </label>
-        </p>
+        </form>
         { helpText }
       </div>
     );
@@ -190,6 +191,7 @@ Caption.propTypes = {
     error: PropTypes.object
   }),
 
+  onRegisterSubmit: PropTypes.func.isRequired,
   onSignAgreementChange: PropTypes.func.isRequired,
   onSnapNameChange: PropTypes.func.isRequired
 };
@@ -197,7 +199,7 @@ Caption.propTypes = {
 // partial component to render action buttons of the dropdown based on current state
 const ActionButtons = (props) => {
   const { authStore, registeredName, registerNameStatus, snapName } = props;
-  const { onCancelClick, onSignInClick, onRegisterClick } = props;
+  const { onCancelClick, onSignInClick, onRegisterSubmit } = props;
 
   // by default show 'Sign in' button
   let actionText = 'Sign in...';
@@ -217,7 +219,7 @@ const ActionButtons = (props) => {
       !!registerNameStatus.error
     );
     actionText = registeredName ? 'Register new name' : 'Register name';
-    actionOnClick = onRegisterClick;
+    actionOnClick = onRegisterSubmit;
   }
 
   return (
@@ -250,7 +252,7 @@ ActionButtons.propTypes = {
     error: PropTypes.object
   }),
 
-  onRegisterClick: PropTypes.func.isRequired,
+  onRegisterSubmit: PropTypes.func.isRequired,
   onSignInClick: PropTypes.func.isRequired,
   onCancelClick: PropTypes.func.isRequired,
 };
@@ -267,6 +269,7 @@ const RegisterNameDropdown = (props) => {
             snapcraftData={props.snapcraftData}
             authStore={props.authStore}
             registerNameStatus={props.registerNameStatus}
+            onRegisterSubmit={props.onRegisterSubmit}
             onSignAgreementChange={props.onSignAgreementChange}
             onSnapNameChange={props.onSnapNameChange}
           />
@@ -278,7 +281,7 @@ const RegisterNameDropdown = (props) => {
           registeredName={props.registeredName}
           registerNameStatus={props.registerNameStatus}
           snapName={props.snapName}
-          onRegisterClick={props.onRegisterClick}
+          onRegisterSubmit={props.onRegisterSubmit}
           onSignInClick={props.onSignInClick}
           onCancelClick={props.onCancelClick}
         />
@@ -295,7 +298,7 @@ RegisterNameDropdown.propTypes = {
   snapcraftData: PropTypes.object,
   onSnapNameChange: PropTypes.func.isRequired,
   onSignAgreementChange: PropTypes.func.isRequired,
-  onRegisterClick: PropTypes.func.isRequired,
+  onRegisterSubmit: PropTypes.func.isRequired,
   onSignInClick: PropTypes.func.isRequired,
   onCancelClick: PropTypes.func.isRequired,
 };
