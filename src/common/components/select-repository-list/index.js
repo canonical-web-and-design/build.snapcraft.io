@@ -151,7 +151,11 @@ export class SelectRepositoryListComponent extends Component {
               }
             </div>
             <div className={ styles['button-wrapper'] }>
-              <Button onClick={ this.onSubmit.bind(this) } appearance={ 'positive' }>
+              <Button
+                appearance={ 'positive' }
+                disabled={ !selectedRepos.length }
+                onClick={ this.onSubmit.bind(this) }
+              >
                 Add
               </Button>
             </div>
