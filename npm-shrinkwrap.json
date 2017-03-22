@@ -832,6 +832,9 @@
     "node-fetch": {
       "version": "1.6.3"
     },
+    "node-uuid": {
+      "version": "1.4.8"
+    },
     "normalize-package-data": {
       "version": "2.3.5"
     },

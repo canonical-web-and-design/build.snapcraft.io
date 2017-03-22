@@ -44,6 +44,10 @@ export const handleMatch = (req, res, error, redirectLocation, renderProps) => {
       initialState.user = req.session.user;
     }
 
+    const csrfToken = req.session.csrfTokens
+      ? req.session.csrfTokens[req.session.csrfTokens.length - 1]
+      : null;
+
     if (req.session.error) {
       initialState['authError'] = { message: req.session.error };
       delete req.session.error;
@@ -82,6 +86,7 @@ export const handleMatch = (req, res, error, redirectLocation, renderProps) => {
           component={ component }
           config={ getClientConfig(conf) }
           assets={ assets }
+          csrfToken={ csrfToken }
         />
       ));
   } else {

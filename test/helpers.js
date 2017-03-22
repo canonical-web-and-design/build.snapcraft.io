@@ -1,6 +1,8 @@
 import expect from 'expect';
 import proxyquire from 'proxyquire';
 import { Map } from 'immutable';
+import { EOL } from 'os';
+import { inspect } from 'util';
 
 // Custom assertions
 expect.extend({
@@ -25,6 +27,18 @@ expect.extend({
       }).length === 0,
       'Expected dispatched actions not to have action %s',
       expected
+    );
+
+    return this;
+  }
+});
+
+expect.extend({
+  toHaveActionsMatching(predicate) {
+    expect.assert(
+      this.actual.filter(predicate).length > 0,
+      `Expected dispatched actions to have action matching supplied predicate.${EOL}
+       Actual: ${inspect(this.actual, { depth: 3 })}`
     );
 
     return this;
