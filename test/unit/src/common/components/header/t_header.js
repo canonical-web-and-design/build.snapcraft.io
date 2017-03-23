@@ -17,10 +17,6 @@ describe('<Header />', function() {
       expect(element.findWhere(isLinkTo('/')).length).toBe(1);
     });
 
-    it('should not render my repos link', () => {
-      expect(element.findWhere(isLinkTo('/user/jdoe')).length).toBe(0);
-    });
-
     it('should render sign in link', () => {
       expect(element.find({ href: '/auth/authenticate' }).length).toBe(1);
     });
@@ -42,10 +38,6 @@ describe('<Header />', function() {
 
     it('should render user name', () => {
       expect(element.html().indexOf('Hi, Joe Doe')).toBeGreaterThan(0);
-    });
-
-    it('should render my repos link', () => {
-      expect(element.findWhere(isLinkTo('/user/jdoe')).length).toBe(1);
     });
 
     it('should render sign out link', () => {
