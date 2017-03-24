@@ -32,7 +32,7 @@ $error-color: $error;
   background-color: $error-color;
 }
 
-.repositoryEnabled {
+.disabled {
   opacity: 0.5;
 }
 

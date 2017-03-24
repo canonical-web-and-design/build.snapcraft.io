@@ -4,6 +4,7 @@ import { parseGitHubRepoUrl } from '../helpers/github-url';
 
 const getSnaps = state => state.snaps;
 const getSnapBuilds = state => state.snapBuilds;
+const getRepositoriesStatus = state => state.repositoriesStatus;
 
 /**
  * @returns {Boolean} true if there are any snaps in state
@@ -85,5 +86,16 @@ export const snapsWithNoBuilds = createSelector(
       }
       return false;
     });
+  }
+);
+
+/**
+ * @returns {Boolean} true if any snap create request is still fetching
+ */
+export const isAddingSnaps = createSelector(
+  [getRepositoriesStatus],
+  (repositoriesStatus) => {
+    const ids = Object.keys(repositoriesStatus);
+    return !!(ids.length && ids.some((id) => repositoriesStatus[id].isFetching));
   }
 );

@@ -6,7 +6,8 @@ import {
   hasNoRegisteredNames,
   snapsWithRegisteredNameAndSnapcraftData,
   snapsWithRegisteredNameAndNoSnapcraftData,
-  snapsWithNoBuilds
+  snapsWithNoBuilds,
+  isAddingSnaps
 } from '../../../../../src/common/selectors';
 
 describe('selectors', function() {
@@ -178,6 +179,46 @@ describe('selectors', function() {
         snapcraft_data: { name: 'bsi-test-iii' }
       });
     });
+  });
+
+  context('isAddingSnaps', function() {
+    const stateNoRepos = {
+      repositoriesStatus: {}
+    };
+
+    const stateNotFetching = {
+      repositoriesStatus: {
+        'foo/bar': {
+          isFetching: false,
+          error: null,
+          success: false
+        }
+      }
+    };
+
+    const stateFetching = {
+      repositoriesStatus: {
+        'foo/bar': {
+          isFetching: true,
+          error: null,
+          success: false
+        }
+      }
+    };
+
+    it('should be false when no repo have status', function() {
+      expect(isAddingSnaps(stateNoRepos)).toBe(false);
+    });
+
+    it('should be false when no snaps are being created', function() {
+      expect(isAddingSnaps(stateNotFetching)).toBe(false);
+    });
+
+    it('should be true if any snap is currently fetching', function() {
+      expect(isAddingSnaps(stateFetching)).toBe(true);
+    });
+
+
   });
 
 });

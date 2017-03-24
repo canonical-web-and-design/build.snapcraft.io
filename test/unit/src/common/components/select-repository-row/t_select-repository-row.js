@@ -77,19 +77,14 @@ describe('The SelectRepositoryRow component', () => {
         });
       });
 
-      context('and the isEnabled prop is "true"', () => {
+      context('and the disabled prop is "true"', () => {
         beforeEach(() => {
-          props.isEnabled = true;
+          props.disabled = true;
         });
 
         it('should contain a disabled checkbox', () => {
           const component = shallow(<SelectRepositoryRow { ...props } />);
           expect(component.find('input[disabled=true]').length).toBe(1);
-        });
-
-        it('should contain a checked checkbox', () => {
-          const component = shallow(<SelectRepositoryRow { ...props } />);
-          expect(component.find('input[checked=true]').length).toBe(1);
         });
       });
     });

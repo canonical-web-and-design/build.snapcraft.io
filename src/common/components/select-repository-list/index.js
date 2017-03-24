@@ -14,7 +14,9 @@ import PageLinks from '../page-links';
 import Button, { LinkButton } from '../vanilla/button';
 import { HeadingThree } from '../vanilla/heading';
 import { fetchUserRepositories } from '../../actions/repositories';
-import { hasRepository } from '../../helpers/repositories';
+import { hasRepository, hasSnapForRepository } from '../../helpers/repositories';
+import { isAddingSnaps } from '../../selectors';
+
 import styles from './styles.css';
 
 // loading container styles not to duplicate .spinner class
@@ -63,20 +65,23 @@ export class SelectRepositoryListComponent extends Component {
   }
 
   renderRepository(repo) {
-    const { fullName, enabled } = repo;
-    const status = this.props.repositoriesStatus[fullName] || {};
-    const { selectedRepos } = this.props.selectRepositoriesForm;
+    const { repositoriesStatus, selectRepositoriesForm, snaps } = this.props;
+    const { fullName } = repo;
+    const status = repositoriesStatus[fullName] || {};
+
+    const selected = hasRepository(selectRepositoriesForm.selectedRepos, repo);
+    const enabled = snaps.success && hasSnapForRepository(snaps.snaps, repo);
 
     return (
       <SelectRepositoryRow
         key={ `repo_${repo.fullName}` }
         repository={ repo }
-        buttonLabel={ status.isFetching ? 'Creating...' : 'Create' }
-        buttonDisabled={ status.isFetching }
         onChange={ this.onSelectRepository.bind(this, repo) }
         errorMsg= { this.getErrorMessage(status.error) }
-        checked={ hasRepository(selectedRepos, repo) }
-        isEnabled={ enabled }
+        // row is checked if repo is already enabled or selected by user
+        checked={ selected || enabled }
+        // input is disabled when repo is already enabled or snaps are being added
+        disabled={ enabled || this.props.isAddingSnaps }
       />
     );
   }
@@ -96,40 +101,20 @@ export class SelectRepositoryListComponent extends Component {
     this.props.dispatch(fetchUserRepositories(pageNumber));
   }
 
-  filterEnabledRepos(repositories) {
-    const { success, snaps } = this.props.snaps;
-
-    if (success && snaps.length) {
-      for (let i = repositories.length; i--;) {
-        for (let j = snaps.length; j--;) {
-          const enabledRepo = snaps[j].git_repository_url;
-
-          if (enabledRepo === repositories[i].url) {
-            repositories[i].enabled = true;
-            break;
-          } else {
-            repositories[i].enabled = false;
-          }
-        }
-      }
-    }
-
-    return repositories;
-  }
-
   render() {
-    const { user } = this.props;
+    const { user, isAddingSnaps } = this.props;
     const isLoading = this.props.repositories.isFetching;
     const { selectedRepos } = this.props.selectRepositoriesForm;
     const { repos, success } = this.props.repositories;
     const pageLinks = this.renderPageLinks.call(this);
 
-    this.filterEnabledRepos(repos);
     let renderedRepos = null;
 
     if (success) {
       renderedRepos = this.props.repositories.repos.map(this.renderRepository.bind(this));
     }
+
+    const buttonSpinner = isLoading || isAddingSnaps;
 
     return (
       <div>
@@ -153,8 +138,9 @@ export class SelectRepositoryListComponent extends Component {
             <div className={ styles['button-wrapper'] }>
               <Button
                 appearance={ 'positive' }
-                disabled={ !selectedRepos.length }
+                disabled={ !selectedRepos.length || buttonSpinner }
                 onClick={ this.onSubmit.bind(this) }
+                isSpinner={buttonSpinner}
               >
                 Add
               </Button>
@@ -183,6 +169,7 @@ SelectRepositoryListComponent.propTypes = {
   repositories: PropTypes.object,
   repositoriesStatus: PropTypes.object,
   selectRepositoriesForm: PropTypes.object,
+  isAddingSnaps: PropTypes.bool,
   onSelectRepository: PropTypes.func,
   router: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired
@@ -202,7 +189,8 @@ function mapStateToProps(state) {
     snaps,
     repositories,
     repositoriesStatus,
-    selectRepositoriesForm
+    selectRepositoriesForm,
+    isAddingSnaps: isAddingSnaps(state)
   };
 }
 
