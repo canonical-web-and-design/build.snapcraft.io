@@ -7,7 +7,8 @@ export const registerName = async (req, res) => {
   const root = req.body.root;
   const discharge = req.body.discharge;
 
-  const response = await fetch(`${conf.get('STORE_API_URL')}/register-name/`, {
+  const url = `${conf.get('STORE_API_URL')}/register-name/`;
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Authorization': `Macaroon root="${root}", discharge="${discharge}"`,

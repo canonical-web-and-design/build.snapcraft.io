@@ -3,6 +3,7 @@ import { createHash } from 'crypto';
 import yaml from 'js-yaml';
 import parseGitHubUrl from 'parse-github-url';
 
+import db from '../db';
 import { conf } from '../helpers/config';
 import { getMemcached } from '../helpers/memcached';
 import requestGitHub from '../helpers/github';
@@ -281,20 +282,29 @@ export const newSnap = async (req, res) => {
   // We need admin permissions in order to be able to install a webhook later.
   try {
     const { owner } = await checkAdminPermissions(req.session, repositoryUrl);
-    const result = await requestNewSnap(repositoryUrl);
-    // as new snap is created we need to clear list of snaps from cache
-    const urlPrefix = getRepoUrlPrefix(owner);
-    const cacheId = getUrlPrefixCacheId(urlPrefix);
-
-    await getMemcached().del(cacheId);
-    const snapUrl = result.self_link;
-    logger.info(`Created ${snapUrl}`);
-    return res.status(201).send({
-      status: 'success',
-      payload: {
-        code: 'snap-created',
-        message: snapUrl
+    await db.transaction(async (trx) => {
+      if (req.session.user) {
+        await db.model('GitHubUser').incrementMetric(
+          { github_id: req.session.user.id }, 'snaps_added', 1,
+          { transacting: trx }
+        );
       }
+
+      const result = await requestNewSnap(repositoryUrl);
+      // as new snap is created we need to clear list of snaps from cache
+      const urlPrefix = getRepoUrlPrefix(owner);
+      const cacheId = getUrlPrefixCacheId(urlPrefix);
+
+      await getMemcached().del(cacheId);
+      const snapUrl = result.self_link;
+      logger.info(`Created ${snapUrl}`);
+      return res.status(201).send({
+        status: 'success',
+        payload: {
+          code: 'snap-created',
+          message: snapUrl
+        }
+      });
     });
   } catch (error) {
     return sendError(res, error);
@@ -384,6 +394,55 @@ const internalFindSnapsByPrefix = async (urlPrefix) => {
   }
 };
 
+// If we haven't yet initialized metrics related to the number of snaps for
+// this user, do that now making some reasonable assumptions about
+// historical data.  This may under-report if somebody manages to accumulate
+// more snaps than the Launchpad batch size (75) before triggering this, but
+// that shouldn't happen in practice.
+const initializeMetrics = async (gitHubId, snaps) => {
+  await db.transaction(async (trx) => {
+    const row = await db.model('GitHubUser')
+      .where({ github_id: gitHubId })
+      .fetch({ transacting: trx });
+    if (row) {
+      const rowData = row.serialize();
+      if (rowData.snaps_added === undefined ||
+          rowData.snaps_added === null) {
+        row.set({ snaps_added: snaps.length });
+      }
+      if (rowData.snaps_removed === undefined ||
+          rowData.snaps_removed === null) {
+        row.set({ snaps_removed: 0 });
+      }
+      if (rowData.names_registered === undefined ||
+          rowData.names_registered === null) {
+        const namesRegistered = snaps.filter((snap) => snap.store_name).length;
+        row.set({ names_registered: namesRegistered });
+      }
+      if (rowData.builds_requested === undefined ||
+          rowData.builds_requested === null) {
+        // This is potentially quite an expensive piece of initialization,
+        // but only the first time that a user who's been using the site
+        // since before this code landed comes back, so some one-time
+        // expense is tolerable.
+        try {
+          let buildsRequested = 0;
+          for (const snap of snaps) {
+            const builds = await getLaunchpad().get(
+              snap.builds_collection_link
+            );
+            buildsRequested += builds.total_size;
+          }
+          row.set({ builds_requested: buildsRequested });
+        } catch (error) {
+          logger.error(`Failed to fetch builds from Launchpad: ${error}`);
+        }
+      }
+      await row.save({}, { transacting: trx });
+    }
+  });
+};
+
 export const findSnaps = async (req, res) => {
   const owner = req.query.owner || req.session.user.login;
   const urlPrefix = getRepoUrlPrefix(owner);
@@ -395,6 +454,9 @@ export const findSnaps = async (req, res) => {
       );
       return { ...snap, snapcraft_data: snapcraftData };
     }));
+    if (req.session.user) {
+      await initializeMetrics(req.session.user.id, snaps);
+    }
     return res.status(200).send({
       status: 'success',
       payload: {
@@ -447,6 +509,18 @@ export const authorizeSnap = async (req, res) => {
   try {
     await checkAdminPermissions(req.session, repositoryUrl);
     const result = await internalFindSnap(repositoryUrl);
+    // Registration happened a short while ago; we increment the metric here
+    // in order to support having the client call `register-name` on the
+    // store directly rather than going via our backend.  As such, we don't
+    // need to roll this back if authorization fails.
+    await db.transaction(async (trx) => {
+      if (req.session && req.session.user) {
+        await db.model('GitHubUser').incrementMetric(
+          { github_id: req.session.user.id }, 'names_registered', 1,
+          { transacting: trx }
+        );
+      }
+    });
     const snapUrl = result.self_link;
     await getLaunchpad().patch(snapUrl, {
       store_upload: true,
@@ -507,7 +581,7 @@ export const getSnapBuilds = async (req, res) => {
   }
 };
 
-export const internalRequestSnapBuilds = async (snap) => {
+export const internalRequestSnapBuilds = async (snap, owner) => {
   // Request builds, then make sure that auto_build is enabled so that
   // future push events will cause the webhook to dispatch builds.  Doing
   // things in this order ensures that Launchpad's internal
@@ -520,14 +594,35 @@ export const internalRequestSnapBuilds = async (snap) => {
   if (!snap.auto_build) {
     await lpClient.patch(snap.self_link, { auto_build: true });
   }
+  // We can't do this properly transactionally (i.e. don't request builds if
+  // the DB connection fails), because we don't know how many builds we're
+  // going to request up-front.  If we find a way to fix that then we should
+  // rearrange this to increment the metric first and then roll it back if
+  // requesting builds fails.
+  try {
+    await db.transaction(async (trx) => {
+      // XXX cjwatson 2017-03-17: This will go wrong once we support
+      // organizations, since we have no way to know which developer to
+      // credit for the builds.  At the moment, the best we can do is to
+      // credit the owner of the repository.
+      await db.model('GitHubUser').incrementMetric(
+        { login: owner }, 'builds_requested', builds.length,
+        { transacting: trx }
+      );
+    });
+  } catch (error) {
+    logger.error(`Error incrementing builds_requested for ${owner}: ${error}`);
+  }
   return builds;
 };
 
 export const requestSnapBuilds = async (req, res) => {
   try {
-    await checkAdminPermissions(req.session, req.body.repository_url);
+    const { owner } = await checkAdminPermissions(
+      req.session, req.body.repository_url
+    );
     const snap = await internalFindSnap(req.body.repository_url);
-    const builds = await internalRequestSnapBuilds(snap);
+    const builds = await internalRequestSnapBuilds(snap, owner);
     return res.status(201).send({
       status: 'success',
       payload: {
@@ -546,19 +641,27 @@ export const deleteSnap = async (req, res) => {
       req.session, req.body.repository_url
     );
     const snap = await internalFindSnap(req.body.repository_url);
-    await snap.lp_delete();
-
-    const urlPrefix = getRepoUrlPrefix(owner);
-    const prefixCacheId = getUrlPrefixCacheId(urlPrefix);
-    const repoCacheId = getRepositoryUrlCacheId(req.body.repository_url);
-    await getMemcached().del(prefixCacheId);
-    await getMemcached().del(repoCacheId);
-    return res.status(200).send({
-      status: 'success',
-      payload: {
-        code: 'snap-deleted',
-        message: 'Snap deleted'
+    await db.transaction(async (trx) => {
+      if (req.session.user) {
+        await db.model('GitHubUser').incrementMetric(
+          { github_id: req.session.user.id }, 'snaps_removed', 1,
+          { transacting: trx }
+        );
       }
+      await snap.lp_delete();
+
+      const urlPrefix = getRepoUrlPrefix(owner);
+      const prefixCacheId = getUrlPrefixCacheId(urlPrefix);
+      const repoCacheId = getRepositoryUrlCacheId(req.body.repository_url);
+      await getMemcached().del(prefixCacheId);
+      await getMemcached().del(repoCacheId);
+      return res.status(200).send({
+        status: 'success',
+        payload: {
+          code: 'snap-deleted',
+          message: 'Snap deleted'
+        }
+      });
     });
   } catch (error) {
     return sendError(res, error);

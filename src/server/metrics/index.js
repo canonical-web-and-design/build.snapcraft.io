@@ -1,11 +1,13 @@
 import db from '../db';
 import updateGitHubUsersTotal from './github-users';
+import updateDeveloperUptake from './developer-uptake';
 
 let existingInterval = null;
 
 function updateAllMetrics() {
   return db.transaction(async (trx) => {
     await updateGitHubUsersTotal(trx);
+    await updateDeveloperUptake(trx);
   });
 }
 

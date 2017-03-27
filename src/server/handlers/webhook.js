@@ -76,7 +76,7 @@ export const notify = async (req, res) => {
         // XXX cjwatson 2017-02-16: Cache returned snap name, if any.
         await internalGetSnapcraftYaml(owner, name);
       }
-      await internalRequestSnapBuilds(snap);
+      await internalRequestSnapBuilds(snap, owner);
       logger.info(`Requested builds of ${repositoryUrl}.`);
       return res.status(200).send();
     } catch (error) {

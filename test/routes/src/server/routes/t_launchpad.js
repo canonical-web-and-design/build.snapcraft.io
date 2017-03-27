@@ -9,6 +9,7 @@ import {
   setupInMemoryMemcached
 } from '../../../../../src/server/helpers/memcached';
 import launchpad from '../../../../../src/server/routes/launchpad';
+import db from '../../../../../src/server/db';
 import { getSnapcraftYamlCacheId } from '../../../../../src/server/handlers/github';
 import {
   getUrlPrefixCacheId,
@@ -18,7 +19,7 @@ import { conf } from '../../../../../src/server/helpers/config.js';
 
 describe('The Launchpad API endpoint', () => {
   const app = Express();
-  const session = { 'token': 'secret' };
+  const session = { token: 'secret', user: { id: 123, login: 'anowner' } };
   app.use((req, res, next) => {
     req.session = session;
     next();
@@ -64,10 +65,18 @@ describe('The Launchpad API endpoint', () => {
     context('when user has admin permissions on repository', () => {
       const snapName = 'dummy-test-snap';
 
-      beforeEach(() => {
+      beforeEach(async () => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
           .get('/repos/anowner/aname')
           .reply(200, { permissions: { admin: true } });
+        await db.model('GitHubUser').query('truncate').fetch();
+        await db.model('GitHubUser')
+          .forge({
+            github_id: session.user.id,
+            login: session.user.login,
+            last_login_at: new Date()
+          })
+          .save();
       });
 
       afterEach(() => {
@@ -108,6 +117,18 @@ describe('The Launchpad API endpoint', () => {
                 'lp-error',
                 'There is already a snap package with the same name and owner.'))
             .end(done);
+        });
+
+        it('should leave snaps_added unmodified', async () => {
+          const dbUser = await db.model('GitHubUser')
+            .where({ github_id: session.user.id })
+            .fetch();
+          await dbUser.save({ snaps_added: 1 });
+          await supertest(app)
+            .post('/launchpad/snaps')
+            .send({ repository_url: 'https://github.com/anowner/aname' });
+          await dbUser.refresh();
+          expect(dbUser.get('snaps_added')).toEqual(1);
         });
       });
 
@@ -154,6 +175,28 @@ describe('The Launchpad API endpoint', () => {
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasMessage('snap-created', snapUrl))
             .end(done);
+        });
+
+        it('should leave snaps_added unmodified if it is unset', async () => {
+          await supertest(app)
+            .post('/launchpad/snaps')
+            .send({ repository_url: 'https://github.com/anowner/aname' });
+          const dbUser = await db.model('GitHubUser')
+            .where({ github_id: session.user.id })
+            .fetch();
+          expect(dbUser.get('snaps_added')).toBeFalsy();
+        });
+
+        it('should increment snaps_added if it is set', async () => {
+          const dbUser = await db.model('GitHubUser')
+            .where({ github_id: session.user.id })
+            .fetch();
+          await dbUser.save({ snaps_added: 1 });
+          await supertest(app)
+            .post('/launchpad/snaps')
+            .send({ repository_url: 'https://github.com/anowner/aname' });
+          await dbUser.refresh();
+          expect(dbUser.get('snaps_added')).toEqual(2);
         });
       });
     });
@@ -295,10 +338,18 @@ describe('The Launchpad API endpoint', () => {
   describe('list snaps route', () => {
     let apiResponse;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       apiResponse = supertest(app)
         .get('/launchpad/snaps/list')
         .query({ owner: 'anowner' });
+      await db.model('GitHubUser').query('truncate').fetch();
+      await db.model('GitHubUser')
+        .forge({
+          github_id: session.user.id,
+          login: session.user.login,
+          last_login_at: new Date()
+        })
+        .save();
     });
 
     context('when snaps exist', () => {
@@ -322,18 +373,23 @@ describe('The Launchpad API endpoint', () => {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~another-user`,
-            git_repository_url: 'https://github.com/another-user/test-snap'
+            git_repository_url: 'https://github.com/another-user/test-snap',
+            builds_collection_link: `${lp_api_base}/~another-user/+snap/` +
+                                    'test-snap/builds',
+            store_name: 'snap1'
           },
           {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~test-user`,
-            git_repository_url: 'https://github.com/test-user/test-snap'
+            git_repository_url: 'https://github.com/test-user/test-snap',
+            builds_collection_link: `${lp_api_base}/~test-user/+snap/` +
+                                    'test-snap/builds'
           }
         ];
 
-        lpApi = nock(lp_api_url)
-          .get('/devel/+snaps')
+        lpApi = nock(lp_api_url);
+        lpApi.get('/devel/+snaps')
           .query({
             'ws.op': 'findByURLPrefix',
             url_prefix: 'https://github.com/anowner/',
@@ -352,6 +408,22 @@ describe('The Launchpad API endpoint', () => {
           ghApi = nock(gh_api_url)
             .get(`/repos/${fullName}/contents/snap/snapcraft.yaml`)
             .reply(200, repoContents);
+          const builds_link = snap.builds_collection_link;
+          lpApi.get(builds_link.replace(lp_api_url, ''))
+            .optionally()
+            .reply(200, {
+              total_size: 2,
+              entries: [
+                {
+                  resource_type_link: `${lp_api_url}/devel/#snap_build`,
+                  self_link: `${builds_link.replace(/builds$/, '')}/+build/1`
+                },
+                {
+                  resource_type_link: `${lp_api_url}/devel/#snap_build`,
+                  self_link: `${builds_link.replace(/builds$/, '')}/+build/2`
+                }
+              ]
+            });
         });
 
       });
@@ -388,6 +460,39 @@ describe('The Launchpad API endpoint', () => {
         });
         expect(snap).toContain({
           snapcraft_data: { path: 'snap/snapcraft.yaml' }
+        });
+      });
+
+      it('should leave metrics unmodified if already set', async () => {
+        const dbUser = await db.model('GitHubUser')
+          .where({ github_id: session.user.id })
+          .fetch();
+        await dbUser.save({
+          snaps_added: 4,
+          snaps_removed: 2,
+          names_registered: 2,
+          builds_requested: 8
+        });
+        await apiResponse;
+        await dbUser.refresh();
+        expect(dbUser.serialize()).toMatch({
+          snaps_added: 4,
+          snaps_removed: 2,
+          names_registered: 2,
+          builds_requested: 8
+        });
+      });
+
+      it('should initialize metrics if unset', async () => {
+        await apiResponse;
+        const dbUser = await db.model('GitHubUser')
+          .where({ github_id: session.user.id })
+          .fetch();
+        expect(dbUser.serialize()).toMatch({
+          snaps_added: 2,
+          snaps_removed: 0,
+          names_registered: 1,
+          builds_requested: 4
         });
       });
 
@@ -494,6 +599,7 @@ describe('The Launchpad API endpoint', () => {
     context('when snaps are memcached', () => {
       const urlPrefix = 'https://github.com/anowner/';
       let testSnaps;
+      let lpApi;
 
       beforeEach(() => {
         const lp_api_url = conf.get('LP_API_URL');
@@ -504,13 +610,18 @@ describe('The Launchpad API endpoint', () => {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~another-user`,
-            git_repository_url: 'https://github.com/another-user/test-snap'
+            git_repository_url: 'https://github.com/another-user/test-snap',
+            builds_collection_link: `${lp_api_base}/~another-user/+snap/` +
+                                    'test-snap/builds',
+            store_name: 'snap1'
           },
           {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~test-user`,
-            git_repository_url: 'https://github.com/test-user/test-snap'
+            git_repository_url: 'https://github.com/test-user/test-snap',
+            builds_collection_link: `${lp_api_base}/~test-user/+snap/` +
+                                    'test-snap/builds'
           }
         ];
 
@@ -523,13 +634,32 @@ describe('The Launchpad API endpoint', () => {
           [getUrlPrefixCacheId(urlPrefix)]: testSnaps
         });
 
+        lpApi = nock(lp_api_url);
         testSnaps.map((snap) => {
           const cacheId = getSnapcraftYamlCacheId(snap.git_repository_url);
           getMemcached().cache[cacheId] = contents[snap.git_repository_url];
+          const builds_link = snap.builds_collection_link;
+          lpApi.get(builds_link.replace(lp_api_url, ''))
+            .optionally()
+            .reply(200, {
+              total_size: 2,
+              entries: [
+                {
+                  resource_type_link: `${lp_api_url}/devel/#snap_build`,
+                  self_link: `${builds_link.replace(/builds$/, '')}/+build/1`
+                },
+                {
+                  resource_type_link: `${lp_api_url}/devel/#snap_build`,
+                  self_link: `${builds_link.replace(/builds$/, '')}/+build/2`
+                }
+              ]
+            });
         });
       });
 
       afterEach(() => {
+        lpApi.done();
+        nock.cleanAll();
         resetMemcached();
       });
 
@@ -548,6 +678,39 @@ describe('The Launchpad API endpoint', () => {
         expect(responseSnaps.length).toEqual(testSnaps.length);
         expect(responseSnaps[0]).toContain(testSnaps[0]);
         expect(responseSnaps[1]).toContain(testSnaps[1]);
+      });
+
+      it('should leave metrics unmodified if already set', async () => {
+        const dbUser = await db.model('GitHubUser')
+          .where({ github_id: session.user.id })
+          .fetch();
+        await dbUser.save({
+          snaps_added: 4,
+          snaps_removed: 2,
+          names_registered: 2,
+          builds_requested: 8
+        });
+        await apiResponse;
+        await dbUser.refresh();
+        expect(dbUser.serialize()).toMatch({
+          snaps_added: 4,
+          snaps_removed: 2,
+          names_registered: 2,
+          builds_requested: 8
+        });
+      });
+
+      it('should initialize metrics if unset', async () => {
+        await apiResponse;
+        const dbUser = await db.model('GitHubUser')
+          .where({ github_id: session.user.id })
+          .fetch();
+        expect(dbUser.serialize()).toMatch({
+          snaps_added: 2,
+          snaps_removed: 0,
+          names_registered: 1,
+          builds_requested: 4
+        });
       });
 
     });
@@ -829,7 +992,7 @@ describe('The Launchpad API endpoint', () => {
         const lpApiBase = `${lpApiUrl}/devel`;
         let lpScope;
 
-        beforeEach(() => {
+        beforeEach(async () => {
           lpScope = nock(lpApiUrl);
           lpScope
             .get('/devel/+snaps')
@@ -848,6 +1011,14 @@ describe('The Launchpad API endpoint', () => {
                 }
               ]
             });
+          await db.model('GitHubUser').query('truncate').fetch();
+          await db.model('GitHubUser')
+            .forge({
+              github_id: session.user.id,
+              login: session.user.login,
+              last_login_at: new Date()
+            })
+            .save();
         });
 
         context('when setting snap attributes fails', () => {
@@ -878,6 +1049,40 @@ describe('The Launchpad API endpoint', () => {
                 expect(res.body.payload.code).toEqual('lp-error');
               })
               .end(done);
+          });
+
+          it('leaves names_registered unmodified if it is unset', async () => {
+            await supertest(app)
+              .post('/launchpad/snaps/authorize')
+              .send({
+                repository_url: 'https://github.com/anowner/aname',
+                snap_name: snapName,
+                series: '16',
+                channels: ['edge'],
+                macaroon: 'dummy-macaroon'
+              });
+            const dbUser = await db.model('GitHubUser')
+              .where({ github_id: session.user.id })
+              .fetch();
+            expect(dbUser.get('names_registered')).toBeFalsy();
+          });
+
+          it('increments names_registered if it is set', async () => {
+            const dbUser = await db.model('GitHubUser')
+              .where({ github_id: session.user.id })
+              .fetch();
+            await dbUser.save({ names_registered: 1 });
+            await supertest(app)
+              .post('/launchpad/snaps/authorize')
+              .send({
+                repository_url: 'https://github.com/anowner/aname',
+                snap_name: snapName,
+                series: '16',
+                channels: ['edge'],
+                macaroon: 'dummy-macaroon'
+              });
+            await dbUser.refresh();
+            expect(dbUser.get('names_registered')).toEqual(2);
           });
         });
 
@@ -919,6 +1124,40 @@ describe('The Launchpad API endpoint', () => {
                 lpScope.done();
                 done(err);
               });
+          });
+
+          it('leaves names_registered unmodified if it is unset', async () => {
+            await supertest(app)
+              .post('/launchpad/snaps/authorize')
+              .send({
+                repository_url: 'https://github.com/anowner/aname',
+                snap_name: snapName,
+                series: '16',
+                channels: ['edge'],
+                macaroon: 'dummy-macaroon'
+              });
+            const dbUser = await db.model('GitHubUser')
+              .where({ github_id: session.user.id })
+              .fetch();
+            expect(dbUser.get('names_registered')).toBeFalsy();
+          });
+
+          it('increments names_registered if it is set', async () => {
+            const dbUser = await db.model('GitHubUser')
+              .where({ github_id: session.user.id })
+              .fetch();
+            await dbUser.save({ names_registered: 1 });
+            await supertest(app)
+              .post('/launchpad/snaps/authorize')
+              .send({
+                repository_url: 'https://github.com/anowner/aname',
+                snap_name: snapName,
+                series: '16',
+                channels: ['edge'],
+                macaroon: 'dummy-macaroon'
+              });
+            await dbUser.refresh();
+            expect(dbUser.get('names_registered')).toEqual(2);
           });
 
           context('when snaps are memcached', () => {
@@ -1252,7 +1491,7 @@ describe('The Launchpad API endpoint', () => {
     let api;
 
     context('when snap exists', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
           .get('/repos/anowner/aname')
           .reply(200, { permissions: { admin: true } });
@@ -1270,6 +1509,14 @@ describe('The Launchpad API endpoint', () => {
               self_link: `${lp_api_base}${lp_snap_path}/+build/2`
             }
           ]);
+        await db.model('GitHubUser').query('truncate').fetch();
+        await db.model('GitHubUser')
+          .forge({
+            github_id: session.user.id,
+            login: session.user.login,
+            last_login_at: new Date()
+          })
+          .save();
       });
 
       afterEach(() => {
@@ -1354,6 +1601,28 @@ describe('The Launchpad API endpoint', () => {
               done(err);
             });
         });
+
+        it('leaves builds_requested unmodified if it is unset', async () => {
+          await supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .send({ repository_url: 'https://github.com/anowner/aname' });
+          const dbUser = await db.model('GitHubUser')
+            .where({ login: 'anowner' })
+            .fetch();
+          expect(dbUser.get('builds_requested')).toBeFalsy();
+        });
+
+        it('increments builds_requested if it is set', async () => {
+          const dbUser = await db.model('GitHubUser')
+            .where({ login: 'anowner' })
+            .fetch();
+          await dbUser.save({ builds_requested: 2 });
+          await supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .send({ repository_url: 'https://github.com/anowner/aname' });
+          await dbUser.refresh();
+          expect(dbUser.get('builds_requested')).toEqual(4);
+        });
       });
 
       context('when auto_build is true', () => {
@@ -1427,6 +1696,28 @@ describe('The Launchpad API endpoint', () => {
               api.done();
               done(err);
             });
+        });
+
+        it('leaves builds_requested unmodified if it is unset', async () => {
+          await supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .send({ repository_url: 'https://github.com/anowner/aname' });
+          const dbUser = await db.model('GitHubUser')
+            .where({ login: 'anowner' })
+            .fetch();
+          expect(dbUser.get('builds_requested')).toBeFalsy();
+        });
+
+        it('increments builds_requested if it is set', async () => {
+          const dbUser = await db.model('GitHubUser')
+            .where({ login: 'anowner' })
+            .fetch();
+          await dbUser.save({ builds_requested: 2 });
+          await supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .send({ repository_url: 'https://github.com/anowner/aname' });
+          await dbUser.refresh();
+          expect(dbUser.get('builds_requested')).toEqual(4);
         });
       });
     });
@@ -1556,8 +1847,16 @@ describe('The Launchpad API endpoint', () => {
     const lp_snap_path = `/~${lp_snap_user}/+snap/test-snap`;
     const repositoryUrl = 'https://github.com/anowner/aname';
 
-    beforeEach(() => {
+    beforeEach(async () => {
       setupInMemoryMemcached();
+      await db.model('GitHubUser').query('truncate').fetch();
+      await db.model('GitHubUser')
+        .forge({
+          github_id: session.user.id,
+          login: session.user.login,
+          last_login_at: new Date()
+        })
+        .save();
     });
 
     afterEach(() => {
@@ -1639,6 +1938,28 @@ describe('The Launchpad API endpoint', () => {
             expect(getMemcached().cache).toExcludeKey(repoCacheId);
             done();
           });
+      });
+
+      it('leaves snaps_removed unmodified if it is unset', async () => {
+        await supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl });
+        const dbUser = await db.model('GitHubUser')
+          .where({ github_id: session.user.id })
+          .fetch();
+        expect(dbUser.get('snaps_removed')).toBeFalsy();
+      });
+
+      it('increments snaps_removed if it is set', async () => {
+        const dbUser = await db.model('GitHubUser')
+          .where({ github_id: session.user.id })
+          .fetch();
+        await dbUser.save({ snaps_removed: 1 });
+        await supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl });
+        await dbUser.refresh();
+        expect(dbUser.get('snaps_removed')).toEqual(2);
       });
     });
 
@@ -1828,6 +2149,18 @@ describe('The Launchpad API endpoint', () => {
           .send({ repository_url: repositoryUrl })
           .expect(hasMessage('snap-not-found'))
           .end(done);
+      });
+
+      it('leaves snaps_removed unmodified', async () => {
+        const dbUser = await db.model('GitHubUser')
+          .where({ github_id: session.user.id })
+          .fetch();
+        await dbUser.save({ snaps_removed: 1 });
+        await supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl });
+        await dbUser.refresh();
+        expect(dbUser.get('snaps_removed')).toEqual(1);
       });
     });
   });
