@@ -1022,13 +1022,13 @@
       "version": "2.1.7"
     },
     "react": {
-      "version": "15.4.1"
+      "version": "15.4.2"
     },
     "react-deep-force-update": {
       "version": "2.0.1"
     },
     "react-dom": {
-      "version": "15.4.1"
+      "version": "15.4.2"
     },
     "react-helmet": {
       "version": "3.2.2"
