@@ -29,7 +29,11 @@ class BuildDetails extends Component {
       // if build has failed show snapcraft debug instruction
       helpBox = (
         <HelpInstallSnap headline='To debug this build:'>
-          snap install --edge --classic snapcraft # if you don’t have snapcraft already<br/>
+          sudo snap install lxd # if you don’t have LXD already<br/>
+          sudo snap install --classic --edge snapcraft # if you don’t have snapcraft already<br/>
+          <br/>
+          git clone {repository.url}<br/>
+          cd {repository.name}<br/>
           snapcraft cleanbuild --debug
         </HelpInstallSnap>
       );
