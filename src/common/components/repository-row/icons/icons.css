@@ -27,5 +27,5 @@
 
 .errorIcon {
   composes: icon;
-  background-image: url(http://assets.ubuntu.com/v1/d730daea-error.svg);
+  background-image: url(https://assets.ubuntu.com/v1/d730daea-error.svg);
 }
