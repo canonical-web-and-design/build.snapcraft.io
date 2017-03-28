@@ -13,7 +13,7 @@ export default class Header extends Component {
     return (
       <div className={ styles.header }>
         <nav className={ styles.container }>
-          <Link className={ styles.logo } to="/">
+          <Link className={ `${styles.logo} ${styles.beta}`} to="/">
             <img src={ wordmark } alt="Snapcraft.io" height={ 28 } />
           </Link>
           { authenticated

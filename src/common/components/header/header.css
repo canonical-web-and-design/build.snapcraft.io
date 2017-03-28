@@ -68,3 +68,17 @@ $text-color: $cool-grey;
 .link:last-child {
   border-right: 1px solid $border-color;
 }
+
+.beta {
+  position: relative;
+}
+
+.beta::after {
+  content: '';
+  background: url(https://assets.ubuntu.com/v1/e8ac33d1-header-beta-flag.svg);
+  height: 16px;
+  width: 32px;
+  position: absolute;
+  top: 11px;
+  right: -40px;
+}
