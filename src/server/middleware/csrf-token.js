@@ -6,7 +6,6 @@ export const generateToken = (req, res, next) => {
     return next();
   }
 
-  // TODO: Remove debug
   const csrfToken = uuid.v4();
   if (typeof req.session.csrfTokens === 'undefined') {
     req.session.csrfTokens = [];
