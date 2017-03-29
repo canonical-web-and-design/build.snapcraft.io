@@ -58,7 +58,11 @@ describe('snaps reducers', () => {
 
     const action = {
       type: ActionTypes.FETCH_SNAPS_SUCCESS,
-      response: { snaps: SNAPS }
+      payload: {
+        response: {
+          snaps: SNAPS
+        }
+      }
     };
 
     it('should stop fetching', () => {
@@ -90,7 +94,10 @@ describe('snaps reducers', () => {
 
     const action = {
       type: ActionTypes.FETCH_SNAPS_ERROR,
-      error: 'Something went wrong!'
+      payload: {
+        error: 'Something went wrong!'
+      },
+      error: true
     };
 
     it('should handle fetch failure', () => {
@@ -98,7 +105,7 @@ describe('snaps reducers', () => {
         ...state,
         isFetching: false,
         success: false,
-        error: action.error
+        error: action.payload.error
       });
     });
   });
@@ -175,7 +182,10 @@ describe('snaps reducers', () => {
 
     const action = {
       type: ActionTypes.REMOVE_SNAP_ERROR,
-      error: 'Something went wrong!'
+      payload: {
+        error: 'Something went wrong!'
+      },
+      error: true
     };
 
     it('clears fetching status', () => {

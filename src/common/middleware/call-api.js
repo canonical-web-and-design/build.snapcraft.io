@@ -36,13 +36,18 @@ export default defaults => () => next => async action => {
 
     return next(createAction({
       type: successType,
-      response: result.payload
+      payload: {
+        response: result.payload
+      }
     }));
   }
   catch(error) {
     return next(createAction({
       type: failureType,
-      error: error
+      payload: {
+        error: error
+      },
+      error: true
     }));
   }
 };
@@ -52,7 +57,8 @@ export default defaults => () => next => async action => {
 // of the request cycle. Bundles properties set
 // on the original action.
 function createActionWith(action, data) {
-  const finalAction = Object.assign({}, action, data);
+  const finalPayload = Object.assign({}, action.payload, data.payload);
+  const finalAction = Object.assign({}, action, data, { payload: finalPayload });
   // Remove properties invoke CALL_API
   delete finalAction[CALL_API];
 
