@@ -3,23 +3,12 @@ from re import search
 from os.path import basename, dirname, join
 from subprocess import check_call, check_output
 from textwrap import dedent
-try:
-    from urllib.parse import (
-        urljoin,
-        urlparse,
-        )
-except ImportError:
-    from urlparse import (
-        urljoin,
-        urlparse,
-        )
 
 import psycopg2
 
 from charmhelpers.core import hookenv
 from charmhelpers.core.host import restart_on_change
 from charmhelpers.core.templating import render
-from charms import promreg
 from charms.apt import queue_install
 from charms.leadership import leader_set
 from charms.reactive import when, when_not, set_state
@@ -191,31 +180,3 @@ def install_custom_nodejs():
         # us, we can't due to the conditional nature of installing these
         # packages *only* if the .deb file isn't used
         queue_install(['npm', 'nodejs', 'nodejs-legacy'])
-
-
-@when('service.configured')
-@when('leadership.is_leader')
-@when_not('leadership.set.promreg_done')
-def register_with_prometheus():
-    environment = hookenv.config('environment')
-    base_url = hookenv.config('base_url')
-    if not base_url:
-        # Work out the base URL from the environment file.  This is entirely
-        # backwards, but it makes things easier temporarily.
-        env_path = join(
-            code_dir(), 'environments', '{}.env'.format(environment))
-        try:
-            with open(env_path) as env_file:
-                for line in env_file:
-                    if line.startswith('BASE_URL='):
-                        base_url = line[len('BASE_URL='):].rstrip('\n')
-        except IOError:
-            pass
-    if not base_url:
-        hookenv.log('Not registering with Prometheus: base_url not set')
-        return
-    # Using port 80 and letting Prometheus follow the redirection is easier
-    # than getting it to use HTTPS from the start.
-    promreg.register(
-        urlparse(base_url).hostname, 80, {'environment': environment})
-    leader_set(promreg_done=True)

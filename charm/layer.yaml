@@ -3,7 +3,6 @@ includes:
     - layer:leadership
     - layer:ols-http
     - layer:ols-pg
-    - layer:promreg-client
     - interface:memcache
 options:
     basic:
