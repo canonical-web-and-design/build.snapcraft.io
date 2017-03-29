@@ -60,7 +60,9 @@ describe('snaps reducers', () => {
       type: ActionTypes.FETCH_SNAPS_SUCCESS,
       payload: {
         response: {
-          snaps: SNAPS
+          payload: {
+            snaps: SNAPS
+          }
         }
       }
     };

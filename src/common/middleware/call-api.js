@@ -37,7 +37,7 @@ export default defaults => () => next => async action => {
     return next(createAction({
       type: successType,
       payload: {
-        response: result.payload
+        response: result
       }
     }));
   }

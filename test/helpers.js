@@ -45,6 +45,18 @@ expect.extend({
   }
 });
 
+expect.extend({
+  toNotHaveActionsMatching(predicate) {
+    expect.assert(
+      this.actual.filter(predicate).length === 0,
+      `Expected dispatched actions to have action matching supplied predicate.${EOL}
+       Actual: ${inspect(this.actual, { depth: 3 })}`
+    );
+
+    return this;
+  }
+});
+
 export function requireWithMockConfigHelper(requirePath, modulePath, stub) {
   return proxyquire(requirePath, {
     [modulePath]: {

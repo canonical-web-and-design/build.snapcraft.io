@@ -45,7 +45,7 @@ export function snaps(state = {
         isFetching: false,
         success: true,
         snaps: [
-          ...action.payload.response.snaps
+          ...action.payload.response.payload.snaps
         ],
         error: null
       };
