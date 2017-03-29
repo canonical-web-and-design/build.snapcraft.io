@@ -2,7 +2,7 @@ import React, { PropTypes, Component } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 
-import Notification from '../components/notification';
+import Notification from '../components/vanilla/notification';
 
 import styles from './container.css';
 

@@ -2,7 +2,7 @@ import expect, { createSpy } from 'expect';
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import Notification from '../../../../../../src/common/components/notification';
+import Notification from '../../../../../../src/common/components/vanilla/notification';
 
 describe('The Notification component', () => {
   let element;
@@ -68,32 +68,19 @@ describe('The Notification component', () => {
     });
   });
 
-  context('when action is supplied', () => {
+  context('when onRemoveClick callback is supplied', () => {
     let callback = createSpy();
 
     beforeEach(() => {
       element = shallow(
         <Notification
-          action={ callback }
-          actionText='Dismiss'
+          onRemoveClick={ callback }
         />
       );
     });
 
-    it('should show an action link', () => {
-      expect(element.containsMatchingElement(<a>Dismiss</a>)).toExist();
-    });
-
-    context('and action link is clicked', () => {
-      beforeEach(() => {
-        element.instance().onActionClick({
-          preventDefault: () => {}
-        });
-      });
-
-      it('should call link callback', () => {
-        expect(callback).toHaveBeenCalled();
-      });
+    it('should render remove icon', () => {
+      expect(element.containsMatchingElement(<a tabIndex="0" onClick={callback} />)).toBe(true);
     });
   });
 });

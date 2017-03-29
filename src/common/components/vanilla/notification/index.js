@@ -4,7 +4,7 @@ import styles from './notification.css';
 
 export default class Notification extends Component {
   render() {
-    const { status, message, action, actionText } = this.props;
+    const { status, message, onRemoveClick } = this.props;
     const statusSuffix = status ? '-' + status : '';
 
     return (
@@ -13,23 +13,12 @@ export default class Notification extends Component {
           { status && this.getStatus(this.props.status) }
           { message }
           { this.props.children }
-          { action && actionText &&
-            <a
-              className={ styles.action }
-              onClick={ this.onActionClick.bind(this) }
-            >
-              { actionText }
-            </a>
-          }
         </p>
+        { onRemoveClick &&
+          <a tabIndex="0" className={styles.remove} onClick={onRemoveClick} />
+        }
       </div>
     );
-  }
-
-  onActionClick(event) {
-    event.preventDefault();
-
-    this.props.action();
   }
 
   getStatus(status) {
@@ -42,9 +31,8 @@ export default class Notification extends Component {
 }
 
 Notification.propTypes = {
-  children: PropTypes.string,
+  children: PropTypes.node,
   message: PropTypes.string,   // Alias of "children"
   status: PropTypes.oneOf([ 'error', 'success','warning' ]),
-  action: PropTypes.func,
-  actionText: PropTypes.string
+  onRemoveClick: PropTypes.func
 };

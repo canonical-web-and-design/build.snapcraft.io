@@ -12,8 +12,10 @@ import * as user from './user';
 import * as auth from './auth';
 import * as authStore from './auth-store';
 import * as registerName from './register-name';
+import * as betaNotification from './beta-notification';
 
 const rootReducer = combineReducers({
+  ...betaNotification,
   ...repository,
   ...repositories,
   ...repositoriesStatus,

@@ -1,8 +1,7 @@
 .notification {
-  /* TODO: Extract image */
-  background-color: $light-grey;
+  background-color: #FFF;
   border: 0;
-  border-color: $warm-grey;
+  border-color: $dark-grey;
   border-radius: .125rem;
   border-style: solid;
   border-top-width: 3px;
@@ -13,6 +12,7 @@
   padding: .625rem;
   text-align: center;
   width: 100%;
+  position: relative;
 }
 
 .notification-success {
@@ -36,22 +36,25 @@
   background-size: 16px 16px;
   margin: 0;
   text-align: left;
-  padding-left: 1.5rem;
 }
 
+.response-with-icon {
+  composes: response;
+  padding-left: 1.5rem;
+}
 .response-success {
   /* TODO: Extract image */
-  composes: response;
+  composes: response-with-icon;
   background-image: url("data:image/svg+xml,%3Csvg width='17px' height='17px' viewBox='0 0 17 17' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='notification-success' transform='translate(1.000000, 1.000000)'%3E%3Cg id='Page-3---colours'%3E%3Cg id='Notifications---single'%3E%3Cg id='Group'%3E%3Cg id='ICON'%3E%3Ccircle id='circle6710' stroke='$success' stroke-width='1.5' fill='$success' cx='7.2500086' cy='7.2500086' r='7.2500086'%3E%3C/circle%3E%3Cpolygon id='path6712' fill='#ffffff' points='11.0502986 4.1734486 10.9843986 4.2311486 6.2496486 8.3783686 3.4740786 5.9974286 2.6350186 6.9463086 6.2503386 10.7500186 11.7500086 4.9627786 11.0502986 4.1734886'%3E%3C/polygon%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
 .response-error {
-  composes: response;
+  composes: response-with-icon;
   background-image: url("data:image/svg+xml,%3Csvg width='16px' height='17px' viewBox='0 0 16 17' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cg id='Page-3---colours' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Notifications---single' transform='translate(-215.000000, -271.000000)'%3E%3Cg id='Group' transform='translate(205.000000, 254.000000)'%3E%3Cg id='ICON' transform='translate(10.000000, 17.000000)'%3E%3Crect id='rect6415' x='0' y='0.36218' width='16' height='16'%3E%3C/rect%3E%3Ccircle id='circle6417' stroke='$error' stroke-width='1.5' fill='$error' cx='8' cy='8.36218' r='7.2500086'%3E%3C/circle%3E%3Cpath d='M5.00001,5.36218 L11.00001,11.36218' id='path6479-8' stroke='#ffffff' stroke-width='1.5'%3E%3C/path%3E%3Cpath d='M11.00001,5.36218 L5.00001,11.36218' id='path6481-8' stroke='#ffffff' stroke-width='1.5'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
 .response-warning {
-  composes: response;
+  composes: response-with-icon;
   background-image: url("data:image/svg+xml,%3Csvg width='17px' height='17px' viewBox='0 0 17 17' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='notification-warning' transform='translate(1.000000, 1.000000)'%3E%3Cg id='Page-3---colours'%3E%3Cg id='Notifications---single'%3E%3Cg id='Group'%3E%3Cg id='ICON'%3E%3Ccircle id='circle5432' stroke='$warning' stroke-width='1.5' fill='$warning' cx='7.2500086' cy='7.2500086' r='7.2500086'%3E%3C/circle%3E%3Cpath d='M6.2500086,3.2500086 L6.2500086,8.2500086 L8.2500086,8.2500086 L8.2500086,3.2500086 L6.2500086,3.2500086 L6.2500086,3.2500086 L6.2500086,3.2500086 Z M6.2500086,9.2500086 L6.2500086,11.2500086 L8.2500086,11.2500086 L8.2500086,9.2500086 L6.2500086,9.2500086 L6.2500086,9.2500086 L6.2500086,9.2500086 Z' id='rect5434' fill='#ffffff'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
@@ -64,4 +67,16 @@
 .status {
   font-weight: 400;
   margin-right: .3125rem;
+}
+
+.remove {
+  background-image: url(https://assets.ubuntu.com/v1/89c10794-remove.svg);
+  background-repeat: no-repeat;
+  background-size: 18px 18px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  position: absolute;
+  top: 12px;
+  right: 10px;
 }

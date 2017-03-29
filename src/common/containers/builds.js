@@ -9,6 +9,7 @@ import Spinner from '../components/spinner';
 import HelpInstallSnap from '../components/help/install-snap';
 import { HeadingOne } from '../components/vanilla/heading';
 import Breadcrumbs from '../components/vanilla/breadcrumbs';
+import BetaNotification from '../components/beta-notification';
 
 import withRepository from './with-repository';
 import withSnapBuilds from './with-snap-builds';
@@ -28,6 +29,7 @@ class Builds extends Component {
         <Helmet
           title={`${repository.fullName} builds`}
         />
+        <BetaNotification />
         { user &&
           <Breadcrumbs>
             <Link to={`/user/${user.login}`}>My repos</Link>
