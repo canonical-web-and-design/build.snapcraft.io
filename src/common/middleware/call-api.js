@@ -17,15 +17,13 @@ export default defaults => () => next => async action => {
   validateDefaults(defaults);
   validateSettings(settings);
 
-  const [ successType, failureType ] = settings.types;
+  const [ requestType, successType, failureType ] = settings.types;
   const resource = defaults.endpoint + settings.path;
   const optionsWithCsrfToken = withCsrfToken(defaults.csrfToken, settings.options);
   const createAction = createActionWith.bind({}, action);
 
-  // If action has a type, dispatch the action next
-  if (action.type) {
-    next(createAction());
-  }
+  // Immediately dispatch request action
+  next(createAction({ type: requestType }));
 
   try {
     const response = await fetch(resource, optionsWithCsrfToken);
@@ -78,7 +76,7 @@ function validateSettings(settings) {
   if (!options) {
     throw new Error('Specify settings for API request');
   }
-  if (!Array.isArray(types) || types.length !== 2) {
+  if (!Array.isArray(types) || types.length !== 3) {
     throw new Error('Expected an array of three action types.');
   }
   if (!types.every(type => typeof type === 'string')) {
