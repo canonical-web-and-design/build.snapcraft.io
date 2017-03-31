@@ -4,11 +4,13 @@ import classNames from 'classnames';
 import styles from './heading.css';
 
 const Heading = (props) => {
-  const H = props.heading || 'h1';
+  const H = props.heading;
+  const className = props.className;
   const align = props.align;
   const headingClass = classNames({
     [styles[H]]: true,
-    [styles[align]]: align
+    [styles[align]]: align,
+    [className]: className
   });
   return (
     <H className={ headingClass }>
@@ -17,8 +19,14 @@ const Heading = (props) => {
   );
 };
 
+Heading.defaultProps = {
+  heading: 'h1',
+  className: ''
+};
+
 Heading.propTypes = {
   children: PropTypes.node,
+  className: PropTypes.string,
   align: React.PropTypes.oneOf(['left', 'right', 'center']),
   heading: PropTypes.oneOf(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
 };

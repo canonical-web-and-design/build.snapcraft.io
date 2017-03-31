@@ -5,6 +5,7 @@ import login from './login';
 import store from './store';
 import universal from './universal';
 import webhook from './webhook';
+import subscribe from './subscribe';
 
 export {
   githubAuth,
@@ -12,6 +13,7 @@ export {
   launchpad,
   login,
   store,
+  subscribe,
   webhook,
   universal
 };

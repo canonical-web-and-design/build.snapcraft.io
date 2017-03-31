@@ -1,0 +1,50 @@
+$border-color: $mid-grey;
+$border-color-focus: $warm-grey;
+$background-color: #FFF;
+
+.info {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.infoMsg {
+  margin-bottom: 12px;
+}
+
+.subscribeEmailLabel {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.subscribeEmailInput {
+  -webkit-appearance: textfield;
+  border-radius: 2px;
+  border: 1px solid $border-color;
+  background-color: $background-color;
+  font-size: 13px;
+  margin: 0;
+  outline: none;
+  padding: 6px 11px;
+  height: 33px; /* hardcoded to fit button height */
+  vertical-align: baseline;
+  font-weight: 300;
+
+  box-sizing: border-box;
+
+  margin-right: 12px;
+  width: 240px;
+  margin-bottom: 6px;
+}
+
+.subscribeEmailInput:active,
+.subscribeEmailInput:focus {
+  border-color: $border-color-focus;
+  outline: none;
+}
+
+.successMsg {
+  color: #888;
+}
+.errorMsg {
+  color: $error;
+}

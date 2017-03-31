@@ -147,8 +147,13 @@ $neutral-border-color: $dark-grey;
   box-sizing: content-box;
 }
 
-.embiggened {
+.bigger {
   margin-top: 2.4em;
   padding: .5em 1.5em;
   font-size: 1.5em;
+}
+
+.smaller {
+  padding: 6px 12px;
+  font-size: 13px;
 }

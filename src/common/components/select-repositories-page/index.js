@@ -8,6 +8,9 @@ import SelectRepositoryList from '../select-repository-list';
 import { HeadingThree } from '../vanilla/heading';
 import FirstTimeHeading from '../first-time-heading';
 import { CardHighlighted } from '../vanilla/card';
+import PrivateReposInfo from '../private-repos-info';
+
+import styles from './select-repositories-page.css';
 
 class SelectRepositoriesPage extends Component {
   componentDidMount() {
@@ -44,9 +47,10 @@ class SelectRepositoriesPage extends Component {
       <div>
         <FirstTimeHeading snaps={snaps} snapBuilds={snapBuilds} />
         <CardHighlighted>
-          <HeadingThree>
+          <HeadingThree className={ styles.heading }>
             Choose repos to add
           </HeadingThree>
+          <PrivateReposInfo />
           <SelectRepositoryList/>
         </CardHighlighted>
       </div>
