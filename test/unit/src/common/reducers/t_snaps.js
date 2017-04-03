@@ -58,7 +58,13 @@ describe('snaps reducers', () => {
 
     const action = {
       type: ActionTypes.FETCH_SNAPS_SUCCESS,
-      payload: SNAPS
+      payload: {
+        response: {
+          payload: {
+            snaps: SNAPS
+          }
+        }
+      }
     };
 
     it('should stop fetching', () => {
@@ -90,7 +96,9 @@ describe('snaps reducers', () => {
 
     const action = {
       type: ActionTypes.FETCH_SNAPS_ERROR,
-      payload: 'Something went wrong!',
+      payload: {
+        error: 'Something went wrong!'
+      },
       error: true
     };
 
@@ -99,7 +107,7 @@ describe('snaps reducers', () => {
         ...state,
         isFetching: false,
         success: false,
-        error: action.payload
+        error: action.payload.error
       });
     });
   });
@@ -177,7 +185,6 @@ describe('snaps reducers', () => {
     const action = {
       type: ActionTypes.REMOVE_SNAP_ERROR,
       payload: {
-        repository_url: 'https://github.com/anowner/aname',
         error: 'Something went wrong!'
       },
       error: true

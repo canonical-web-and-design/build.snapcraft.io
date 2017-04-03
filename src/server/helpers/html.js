@@ -32,7 +32,7 @@ const googleTagManagerNoScript = GAID ?
 
 export default class Html extends Component {
   render() {
-    const { assets, store, component, config } = this.props;
+    const { assets, store, component, config, csrfToken } = this.props;
     const preloadedState = store.getState();
     const content = component ? this.renderComponent(component, store) : '';
 
@@ -65,6 +65,9 @@ export default class Html extends Component {
             dangerouslySetInnerHTML={{ __html: `window.__CONFIG__ = ${JSON.stringify(config)}` }}
           />
           <script
+            dangerouslySetInnerHTML={{ __html: `window.__CSRF_TOKEN__ = ${JSON.stringify(csrfToken)}` }}
+          />
+          <script
             dangerouslySetInnerHTML={{ __html: `window.__PRELOADED_STATE__ = ${JSON.stringify(preloadedState)}` }}
           />
           <script src={ assets.main.js } />
@@ -86,6 +89,7 @@ Html.propTypes = {
   config: PropTypes.object,
   component: PropTypes.node,
   store: PropTypes.object,
+  csrfToken: PropTypes.string,
   assets: PropTypes.shape({
     main: PropTypes.shape({
       js: PropTypes.string,

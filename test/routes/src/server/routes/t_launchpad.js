@@ -19,7 +19,7 @@ import { conf } from '../../../../../src/server/helpers/config.js';
 
 describe('The Launchpad API endpoint', () => {
   const app = Express();
-  const session = { token: 'secret', user: { id: 123, login: 'anowner' } };
+  const session = { token: 'secret', user: { id: 123, login: 'anowner' }, 'csrfTokens': ['blah'] };
   app.use((req, res, next) => {
     req.session = session;
     next();
@@ -1904,6 +1904,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns a 200 response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(200, done);
       });
@@ -1911,6 +1912,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns a "success" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(hasStatus('success'))
           .end(done);
@@ -1919,6 +1921,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns body with a "snap-deleted" message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(hasMessage('snap-deleted'))
           .end(done);
@@ -1927,6 +1930,7 @@ describe('The Launchpad API endpoint', () => {
       it('removes stale entries from memcached', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .end((err) => {
             if (err) {
@@ -1957,9 +1961,25 @@ describe('The Launchpad API endpoint', () => {
         await dbUser.save({ snaps_removed: 1 });
         await supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl });
         await dbUser.refresh();
         expect(dbUser.get('snaps_removed')).toEqual(2);
+      });
+
+      it('returns a 401 unauthorized response when X-CSRF-Token header not sent', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .send({ repository_url: repositoryUrl })
+          .expect(401, done);
+      });
+
+      it('returns a 401 unauthorized response when unrecognised X-CSRF-Token header sent', (done) => {
+        supertest(app)
+          .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'foo')
+          .send({ repository_url: repositoryUrl })
+          .expect(401, done);
       });
     });
 
@@ -1996,6 +2016,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns a 200 response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(200, done);
       });
@@ -2003,6 +2024,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns a "success" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(hasStatus('success'))
           .end(done);
@@ -2011,6 +2033,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns body with a "snap-deleted" message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(hasMessage('snap-deleted'))
           .end(done);
@@ -2019,6 +2042,7 @@ describe('The Launchpad API endpoint', () => {
       it('removes stale entries from memcached', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .end((err) => {
             if (err) {
@@ -2063,6 +2087,7 @@ describe('The Launchpad API endpoint', () => {
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(hasMessage('github-no-admin-permissions'))
           .end(done);
@@ -2083,6 +2108,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 404 Not Found response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(404, done);
       });
@@ -2099,6 +2125,7 @@ describe('The Launchpad API endpoint', () => {
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(hasMessage('github-snapcraft-yaml-not-found'))
           .end(done);
@@ -2131,6 +2158,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns a 404 response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(404, done);
       });
@@ -2138,6 +2166,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns an "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(hasStatus('error'))
           .end(done);
@@ -2146,6 +2175,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns body with a "snap-not-found" message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(hasMessage('snap-not-found'))
           .end(done);

@@ -15,6 +15,7 @@ import sessionConfig from './helpers/session';
 import logging from './logging';
 import setRevisionHeader from './middleware/set-revision-header';
 import trustedNetworks from './middleware/trusted-networks';
+import { generateToken } from './middleware/csrf-token';
 
 const appUrl = url.parse(conf.get('BASE_URL'));
 const app = Express();
@@ -56,13 +57,13 @@ app.use(metricsBundle);
 
 // routes
 app.use('/metrics', trustedNetworks, metricsBundle.metricsMiddleware);
+app.use(generateToken);
 app.use('/', routes.login);
 app.use('/api', routes.github);
 app.use('/api', routes.launchpad);
 app.use('/api', routes.store);
 app.use('/api', routes.subscribe);
 app.use('/', routes.webhook);
-app.use(routes.login);
 app.use(routes.githubAuth);
 app.use('/', routes.universal);
 
