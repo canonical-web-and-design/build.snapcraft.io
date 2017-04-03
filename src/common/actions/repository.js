@@ -21,14 +21,18 @@ export const REPOSITORY_SUCCESS = 'REPOSITORY_SUCCESS';
 export const REPOSITORY_FAILURE = 'REPOSITORY_FAILURE';
 export const REPOSITORY_RESET = 'REPOSITORY_RESET';
 
-export function buildRepositories(repositories) {
+export function buildRepositories(repositories, owner) {
   return (dispatch) => {
     const promises = repositories.map(
       (repository) => {
         return dispatch(buildRepository(repository));
       }
     );
-    return Promise.all(promises).then(() => dispatch(push('/dashboard')));
+    return Promise.all(promises).then(() => {
+      if (owner) {
+        dispatch(push(`/user/${owner}`));
+      }
+    });
   };
 }
 

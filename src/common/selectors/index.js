@@ -10,7 +10,6 @@ const getSnaps = state => state.snaps;
 const _getSnapsIndex = state => state.snaps.ids;
 const _getSnaps = state => state.entities.snaps;
 const getSnapBuilds = state => state.snapBuilds;
-const getRepositoriesStatus = state => state.repositoriesStatus;
 
 /**
  * @returns {Boolean} true if there are any snaps in state
@@ -160,9 +159,8 @@ export const snapsWithNoBuilds = createSelector(
  * @returns {Boolean} true if any snap create request is still fetching
  */
 export const isAddingSnaps = createSelector(
-  [getRepositoriesStatus],
-  (repositoriesStatus) => {
-    const ids = Object.keys(repositoriesStatus);
-    return !!(ids.length && ids.some((id) => repositoriesStatus[id].isFetching));
+  [getRepositoriesIndex, getRepositories],
+  (repositoriesIndex, repositories) => {
+    return !!(repositoriesIndex.length && repositoriesIndex.some((id) => repositories[id].__isFetching));
   }
 );

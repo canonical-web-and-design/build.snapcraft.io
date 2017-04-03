@@ -20,7 +20,8 @@ import {
   getEnabledRepositories,
   getSelectedRepositories,
   getRepositoriesToBuild,
-  hasFailedRepositories
+  hasFailedRepositories,
+  isAddingSnaps
 } from '../../selectors/index.js';
 import styles from './styles.css';
 
@@ -88,13 +89,12 @@ export class SelectRepositoryListComponent extends Component {
     this.props.dispatch(toggleRepositorySelection(id));
   }
 
-  // XXX it's not a submit, there's no form, rename to ~handleAddButtonClick
-  onSubmit() {
-    const { repositoriesToBuild } = this.props;
+  handleAddRepositories() {
+    const { repositoriesToBuild, user } = this.props;
 
     // TODO else "You have not selected any repositories"
     if (repositoriesToBuild.length) {
-      this.props.dispatch(buildRepositories(repositoriesToBuild));
+      this.props.dispatch(buildRepositories(repositoriesToBuild, user.login));
     }
   }
 
@@ -119,7 +119,8 @@ export class SelectRepositoryListComponent extends Component {
   }
 
   render() {
-    const { selectedRepositories } = this.props;
+    // isADdingSNaps means "is in the process of sending a repo to be built" ..
+    const { user, selectedRepositories, isAddingSnaps } = this.props;
     const { ids, error, isFetching, pageLinks } = this.props.repositories;
     const pagination = this.renderPageLinks(pageLinks);
 
@@ -136,7 +137,7 @@ export class SelectRepositoryListComponent extends Component {
       // TODO show error message and keep old repo list
     }
 
-    const buttonSpinner = isLoading || isAddingSnaps;
+    const buttonSpinner = isFetching || isAddingSnaps;
 
     return (
       <div>
@@ -152,7 +153,7 @@ export class SelectRepositoryListComponent extends Component {
           <div className={ styles['footer-right'] }>
             <div className={ styles['button-wrapper'] }>
               { ids && ids.length > 0 &&
-                <LinkButton appearance="neutral" to="/dashboard">
+                <LinkButton appearance="neutral" to={`/user/${user.login}`}>
                   Cancel
                 </LinkButton>
               }
@@ -160,8 +161,8 @@ export class SelectRepositoryListComponent extends Component {
             <div className={ styles['button-wrapper'] }>
               <Button
                 appearance={ 'positive' }
-                disabled={ !selectedRepos.length || buttonSpinner }
-                onClick={ this.onSubmit.bind(this) }
+                disabled={ !selectedRepositories.length || buttonSpinner }
+                onClick={ this.handleAddRepositories.bind(this) }
                 isSpinner={buttonSpinner}
               >
                 Add
@@ -189,13 +190,15 @@ SelectRepositoryListComponent.propTypes = {
   entities: PropTypes.object.isRequired,
   onSelectRepository: PropTypes.func,
   repositories: PropTypes.object,
+  user: PropTypes.object,
   repositoriesStatus: PropTypes.object,
   router: PropTypes.object.isRequired,
   snaps: PropTypes.object,
   selectedRepositories: PropTypes.array,
   repositoriesToBuild: PropTypes.array,
   enabledRepositories: PropTypes.object,
-  hasFailedRepositories: PropTypes.bool
+  hasFailedRepositories: PropTypes.bool,
+  isAddingSnaps: PropTypes.bool
 };
 
 function mapStateToProps(state) {
@@ -204,7 +207,6 @@ function mapStateToProps(state) {
     snaps,
     entities,
     repositories,
-    repositoriesStatus
   } = state;
 
   return {
@@ -212,7 +214,7 @@ function mapStateToProps(state) {
     snaps,
     entities,
     repositories, // ?repository-pagination
-    repositoriesStatus,
+    isAddingSnaps: isAddingSnaps(state),
     selectedRepositories: getSelectedRepositories(state),
     repositoriesToBuild: getRepositoriesToBuild(state),
     enabledRepositories: getEnabledRepositories(state),

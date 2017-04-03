@@ -10,15 +10,18 @@ class SelectRepositoryRow extends Component {
       errorMsg,
       repository,
       onChange,
-      isEnabled
+      isEnabled // is repository already enabled as a snap build
     } = this.props;
 
-    const isChecked = repository.__isSelected;
+    // TODO tidy up when we get rid of prefixes
+    const isChecked = repository.__isSelected || isEnabled;
+    const isFetching = repository.__isFetching;
+    const isDisabled = isEnabled || isFetching;
 
     const rowClass = classNames({
       [styles.repositoryRow]: true,
       [styles.error]: errorMsg,
-      [styles.disabled]: disabled
+      [styles.disabled]: isEnabled
     });
 
     return (
@@ -26,9 +29,9 @@ class SelectRepositoryRow extends Component {
         <input
           id={ repository.full_name }
           type="checkbox"
-          checked={ isChecked || isEnabled }
           onChange={ onChange }
-          disabled={ isEnabled }
+          checked={ isChecked }
+          disabled={ isDisabled }
         />
         <div>
           <label htmlFor={ repository.full_name }>{repository.full_name}</label>
