@@ -8,6 +8,7 @@ export default {
   UBUNTU_SSO_URL: 'https://login.ubuntu.com',
   OPENID_VERIFY_URL: 'http://localhost:8000/login/verify',
   LP_API_URL: 'https://api.launchpad.net',
+  LP_WEBHOOK_SECRET: 'dummy-lp-webhook-secret',
   STORE_API_URL: 'https://myapps.developer.ubuntu.com/dev/api',
   STORE_DEVPORTAL_URL: 'https://myapps.developer.ubuntu.com/dev',
   STORE_ALLOWED_CHANNELS: ['edge'],
@@ -18,6 +19,6 @@ export default {
   GITHUB_AUTH_REDIRECT_URL: 'http://localhost:8000/auth/verify',
   GITHUB_AUTH_CLIENT_ID: '389a7b4c2ade662c0bf4',
   GITHUB_AUTH_CLIENT_SECRET: 'ea482b47a4830d38a838f48be43ab28002c33187',
-  GITHUB_WEBHOOK_SECRET: 'dummy-webhook-secret',
+  GITHUB_WEBHOOK_SECRET: 'dummy-gh-webhook-secret',
   KNEX_CONFIG_PATH: 'knexfile.js'
 };

@@ -7,7 +7,7 @@ import requestGitHub from '../helpers/github';
 import { getMemcached } from '../helpers/memcached';
 import logging from '../logging';
 import { internalGetSnapcraftYaml } from './launchpad';
-import { makeWebhookSecret } from './webhook';
+import { getGitHubRootSecret, makeWebhookSecret } from './webhook';
 
 const logger = logging.getLogger('express');
 const REPOSITORY_ENDPOINT = '/user/repos';
@@ -168,7 +168,7 @@ export const createWebhook = async (req, res) => {
 
   let secret;
   try {
-    secret = makeWebhookSecret(owner, name);
+    secret = makeWebhookSecret(getGitHubRootSecret(), owner, name);
   } catch (e) {
     return res.status(500).send({
       status: 'error',

@@ -11,6 +11,7 @@ export default function register(db) {
    *   snaps_removed: number of snaps removed
    *   names_registered: number of snap names registered
    *   builds_requested: number of snap builds requested
+   *   builds_released: number of snap builds released to a store channel
    */
   db.model('GitHubUser', {
     tableName: 'github_user',

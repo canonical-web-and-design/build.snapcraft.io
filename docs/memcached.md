@@ -13,3 +13,8 @@ Caches snap data for given repository URL.
 Caches JSON subset of data from `snapcraft.yaml` found in given repository.
 Currently it contains only a snap `name` from `snapcraft.yaml` file and a `path`
 to snapcraft.yaml file in given repository.
+
+## `lp:has_webhook:https://api.launchpad.net/devel/:owner/+snap/:name`
+
+Caches whether a snap in Launchpad is known to have a webhook pointing back
+to us.

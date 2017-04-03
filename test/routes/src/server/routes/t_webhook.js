@@ -4,6 +4,7 @@ import Express from 'express';
 import nock from 'nock';
 import supertest from 'supertest';
 
+import db from '../../../../../src/server/db';
 import { getSnapcraftYamlCacheId } from '../../../../../src/server/handlers/github';
 import { conf } from '../../../../../src/server/helpers/config';
 import {
@@ -43,6 +44,16 @@ describe('The WebHook API endpoint', () => {
         .expect(400, done);
     });
 
+    it('rejects requests containing malformed JSON data', (done) => {
+      supertest(app)
+        .post('/anowner/aname/webhook/notify')
+        .type('application/json')
+        .set('X-GitHub-Event', 'push')
+        .set('X-Hub-Signature', 'dummy')
+        .send('{"bad"')
+        .expect(400, done);
+    });
+
     it('rejects requests with a bad signature', (done) => {
       const body = JSON.stringify({ ref: 'refs/heads/master' });
       let hmac = createHmac('sha1', conf.get('GITHUB_WEBHOOK_SECRET'));
@@ -59,7 +70,7 @@ describe('The WebHook API endpoint', () => {
         .expect(400, done);
     });
 
-    describe('with a good signature', () => {
+    describe('with a good signature from GitHub', () => {
       const lp_api_url = conf.get('LP_API_URL');
       const lp_api_base = `${lp_api_url}/devel`;
       const body = JSON.stringify({ ref: 'refs/heads/master' });
@@ -391,6 +402,149 @@ describe('The WebHook API endpoint', () => {
             expect(requestAutoBuilds.isDone()).toBe(false);
             done(err);
           });
+      });
+    });
+
+    describe('with a good signature from Launchpad', () => {
+      beforeEach(async () => {
+        await db.model('GitHubUser').query('truncate').fetch();
+        await db.model('GitHubUser')
+          .forge({
+            github_id: 1,
+            login: 'anowner',
+            last_login_at: new Date()
+          })
+          .save();
+      });
+
+      context('if store_upload_status is not Uploaded', () => {
+        const body = JSON.stringify({ store_upload_status: 'Pending' });
+        let signature;
+
+        before(() => {
+          let hmac = createHmac('sha1', conf.get('LP_WEBHOOK_SECRET'));
+          hmac.update('anowner');
+          hmac.update('aname');
+          hmac = createHmac('sha1', hmac.digest('hex'));
+          hmac.update(body);
+          signature = hmac.digest('hex');
+        });
+
+        it('returns 200 OK', (done) => {
+          supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-Launchpad-Event-Type', 'snap:build:0.1')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body)
+            .expect(200, done);
+        });
+
+        it('leaves builds_released unmodified', async () => {
+          const dbUser = await db.model('GitHubUser')
+            .where({ login: 'anowner' })
+            .fetch();
+          await dbUser.save({ builds_released: 1 });
+          await supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-Launchpad-Event-Type', 'snap:build:0.1')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body);
+          await dbUser.refresh();
+          expect(dbUser.get('builds_released')).toEqual(1);
+        });
+      });
+
+      context('if store_upload_status is Uploaded', () => {
+        const body = JSON.stringify({ store_upload_status: 'Uploaded' });
+        let signature;
+
+        before(() => {
+          let hmac = createHmac('sha1', conf.get('LP_WEBHOOK_SECRET'));
+          hmac.update('anowner');
+          hmac.update('aname');
+          hmac = createHmac('sha1', hmac.digest('hex'));
+          hmac.update(body);
+          signature = hmac.digest('hex');
+        });
+
+        it('returns 200 OK', (done) => {
+          supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-Launchpad-Event-Type', 'snap:build:0.1')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body)
+            .expect(200, done);
+        });
+
+        it('leaves builds_released unmodified if it is unset', async () => {
+          await supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-Launchpad-Event-Type', 'snap:build:0.1')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body);
+          const dbUser = await db.model('GitHubUser')
+            .where({ login: 'anowner' })
+            .fetch();
+          expect(dbUser.get('builds_released')).toBeFalsy();
+        });
+
+        it('increments builds_released if it is set', async () => {
+          const dbUser = await db.model('GitHubUser')
+            .where({ login: 'anowner' })
+            .fetch();
+          await dbUser.save({ builds_released: 1 });
+          await supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-Launchpad-Event-Type', 'snap:build:0.1')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body);
+          await dbUser.refresh();
+          expect(dbUser.get('builds_released')).toEqual(2);
+        });
+      });
+
+      context('for a ping event', () => {
+        const body = JSON.stringify({ ping: true });
+        let signature;
+
+        before(() => {
+          let hmac = createHmac('sha1', conf.get('LP_WEBHOOK_SECRET'));
+          hmac.update('anowner');
+          hmac.update('aname');
+          hmac = createHmac('sha1', hmac.digest('hex'));
+          hmac.update(body);
+          signature = hmac.digest('hex');
+        });
+
+        it('returns 200 OK', (done) => {
+          supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-Launchpad-Event-Type', 'ping')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body)
+            .expect(200, done);
+        });
+
+        it('leaves builds_released unmodified', async () => {
+          const dbUser = await db.model('GitHubUser')
+            .where({ login: 'anowner' })
+            .fetch();
+          await dbUser.save({ builds_released: 1 });
+          await supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-Launchpad-Event-Type', 'ping')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body);
+          await dbUser.refresh();
+          expect(dbUser.get('builds_released')).toEqual(1);
+        });
       });
     });
   });
