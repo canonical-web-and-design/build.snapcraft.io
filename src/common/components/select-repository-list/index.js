@@ -103,6 +103,10 @@ export class SelectRepositoryListComponent extends Component {
   }
 
   pageSlice(array, pageLinks) {
+    if (!pageLinks) {
+      return array;
+    }
+
     const PAGE_SIZE = 30; // XXX move to config or state
     const { next, prev } = pageLinks;
     let out = [];
