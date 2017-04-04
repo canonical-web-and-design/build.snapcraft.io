@@ -1,8 +1,8 @@
 import uuid from 'uuid';
 
 export const generateToken = (req, res, next) => {
-  // Don't generate new tokens for API calls
-  if (req.path.match(/^\/api/)) {
+  // Don't generate new tokens for API calls or if there is no session
+  if (req.path.match(/^\/api/) || !req.session) {
     return next();
   }
 
