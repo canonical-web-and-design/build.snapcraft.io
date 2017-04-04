@@ -1,4 +1,4 @@
-import uuid from 'node-uuid';
+import uuid from 'uuid';
 
 export const generateToken = (req, res, next) => {
   // Don't generate new tokens for API calls
