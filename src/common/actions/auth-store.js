@@ -7,6 +7,7 @@ import url from 'url';
 
 import { checkStatus, getError } from '../helpers/api';
 import { conf } from '../helpers/config';
+import { getCaveats } from '../helpers/macaroons';
 import { getPackageUploadRequestMacaroon } from './register-name';
 
 const BASE_URL = conf.get('BASE_URL');
@@ -25,38 +26,6 @@ export const GET_ACCOUNT_INFO_SUCCESS = 'GET_ACCOUNT_INFO_SUCCESS';
 export const GET_ACCOUNT_INFO_ERROR = 'GET_ACCOUNT_INFO_ERROR';
 export const SIGN_AGREEMENT_SUCCESS = 'SIGN_AGREEMENT_SUCCESS';
 export const SIGN_OUT_OF_STORE_ERROR = 'SIGN_OUT_OF_STORE_ERROR';
-
-// Hardcoded since macaroons.js doesn't export these.
-const CAVEAT_PACKET_TYPE_CID = 3;
-const CAVEAT_PACKET_TYPE_VID = 4;
-const CAVEAT_PACKET_TYPE_CL = 5;
-
-export function* getCaveats(macaroon) {
-  let currentCaveat = null;
-  for (const caveatPacket of macaroon.caveatPackets) {
-    switch (caveatPacket.type) {
-      case CAVEAT_PACKET_TYPE_CID:
-        if (currentCaveat !== null) {
-          yield currentCaveat;
-        }
-        currentCaveat = {
-          caveatId: caveatPacket.getValueAsText(),
-          verificationKeyId: '',
-          location: ''
-        };
-        break;
-      case CAVEAT_PACKET_TYPE_VID:
-        currentCaveat.verificationKeyId = caveatPacket.getValueAsText();
-        break;
-      case CAVEAT_PACKET_TYPE_CL:
-        currentCaveat.location = caveatPacket.getValueAsText();
-        break;
-    }
-  }
-  if (currentCaveat !== null) {
-    yield currentCaveat;
-  }
-}
 
 export function extractExpiresCaveat(macaroon) {
   const storeLocation = url.parse(conf.get('STORE_API_URL')).host;
