@@ -1,9 +1,19 @@
 import { schema } from 'normalizr';
 
 export const owner = new schema.Entity('owners');
-// XXX repository or repo?
+
 export const repo = new schema.Entity('repos', {
   owner: owner
+}, {
+  processStrategy: (entity) => {
+    return {
+      id: entity.id,
+      fullName: entity.full_name,
+      name: entity.name,
+      owner: entity.owner,
+      url: entity.html_url
+    };
+  }
 });
 export const repoList = new schema.Array(repo);
 

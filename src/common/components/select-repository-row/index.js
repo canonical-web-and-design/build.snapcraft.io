@@ -27,14 +27,14 @@ class SelectRepositoryRow extends Component {
     return (
       <div className={ rowClass }>
         <input
-          id={ repository.full_name }
+          id={ repository.fullName }
           type="checkbox"
           onChange={ onChange }
           checked={ isChecked }
           disabled={ isDisabled }
         />
         <div>
-          <label htmlFor={ repository.full_name }>{repository.full_name}</label>
+          <label htmlFor={ repository.fullName }>{repository.fullName}</label>
         </div>
         { errorMsg &&
           <div className={ styles.errorMessage }>
@@ -54,7 +54,7 @@ SelectRepositoryRow.defaultProps = {
 SelectRepositoryRow.propTypes = {
   errorMsg: PropTypes.node,
   repository: PropTypes.shape({
-    full_name: PropTypes.string.isRequired
+    fullName: PropTypes.string.isRequired
   }).isRequired,
   isEnabled: PropTypes.bool,
   onChange: PropTypes.func,

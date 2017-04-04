@@ -77,7 +77,7 @@ export const getRepositoriesToBuild = createSelector(
         id,
         name: repository.name,
         owner: owners[repository.owner].login,
-        url: repository.html_url
+        url: repository.url
       };
     });
   }
@@ -106,7 +106,7 @@ export const getEnabledRepositories = createSelector(
   (repositories, repositoriesIndex, snaps, snapIndex) => {
     return pick(repositories, repositoriesIndex.filter((repositoryId) => {
       return snapIndex.some((snapId) => {
-        return snaps[snapId].git_repository_url === repositories[repositoryId].html_url;
+        return snaps[snapId].git_repository_url === repositories[repositoryId].url;
       });
     }));
   }

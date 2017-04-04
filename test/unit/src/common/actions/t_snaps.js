@@ -35,7 +35,7 @@ describe('repositories actions', () => {
   });
 
   context('fetchSnapsSuccess', () => {
-    let payload = [ { full_name: 'test1' }, { full_name: 'test2' }];
+    let payload = [ { fullName: 'test1' }, { fullName: 'test2' }];
 
     beforeEach(() => {
       action = fetchSnapsSuccess(payload);

@@ -70,13 +70,13 @@ export class SelectRepositoryListComponent extends Component {
 
   renderRepository(id) {
     const repository = this.props.entities.repos[id];
-    const { full_name } = repository;
+    const { fullName } = repository;
 
     const isEnabled = !!this.props.enabledRepositories[id];
 
     return (
       <SelectRepositoryRow
-        key={ `repo_${full_name}` }
+        key={ `repo_${fullName}` }
         repository={ repository }
         onChange={ this.onSelectRepository.bind(this, id) }
         errorMsg={ repository.__error && this.getErrorMessage(repository.__error) }

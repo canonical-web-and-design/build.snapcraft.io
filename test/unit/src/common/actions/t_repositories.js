@@ -32,7 +32,7 @@ describe('repositories actions', () => {
   });
 
   context('setRepositories', () => {
-    let payload = [ { full_name: 'test1' }, { full_name: 'test2' }];
+    let payload = [ { fullName: 'test1' }, { fullName: 'test2' }];
 
     beforeEach(() => {
       action = setRepositories(payload);
