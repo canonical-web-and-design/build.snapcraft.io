@@ -52,7 +52,7 @@ export const hasNoConfiguredSnaps = createSelector(
 );
 
 /**
- * TODO merge with repositoriesToBuild?
+ * TODO merge with reposToAdd?
  * @returns {Array} get selected repositories
  */
 export const getSelectedRepositories = createSelector(
@@ -67,7 +67,7 @@ export const getSelectedRepositories = createSelector(
 /**
  * @returns {Array} get repositories selected to build
  */
-export const getRepositoriesToBuild = createSelector(
+export const getReposToAdd = createSelector(
   [getSelectedRepositories, getRepositories, getRepositoryOwners],
   (index, repositories, owners) => {
     return index.map((id) => {

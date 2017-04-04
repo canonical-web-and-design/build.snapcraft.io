@@ -12,7 +12,7 @@ import { makeWebhookSecret } from './webhook';
 import { parseGitHubRepoUrl } from '../../common/helpers/github-url';
 
 const logger = logging.getLogger('express');
-const REPOSITORY_ENDPOINT = '/user/repos';
+const REPO_ENDPOINT = '/user/repos';
 const SNAPCRAFT_INFO_WHITELIST = ['name'];
 
 const RESPONSE_NOT_FOUND = {
@@ -136,7 +136,7 @@ export const listRepositories = async (req, res) => {
     params.page = req.params.page;
   }
 
-  const uri = REPOSITORY_ENDPOINT + '?' + qs.stringify(params);
+  const uri = REPO_ENDPOINT + '?' + qs.stringify(params);
   const response = await requestGitHub.get(uri, {
     token: req.session.token, json: true
   });

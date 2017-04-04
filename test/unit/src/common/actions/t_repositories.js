@@ -132,7 +132,7 @@ describe('repositories actions', () => {
       it('should store no pageLinks', async () => {
         await store.dispatch(fetchUserRepositories());
         expect(store.getActions()).notToHaveActionOfType(
-          ActionTypes.SET_REPOSITORY_PAGE_LINKS
+          ActionTypes.SET_REPO_PAGE_LINKS
         );
       });
     });

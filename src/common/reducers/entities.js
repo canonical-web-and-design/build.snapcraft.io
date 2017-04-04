@@ -10,7 +10,7 @@ export function repository(state={
 }, action) {
 
   switch(action.type) {
-    case ActionTypes.REPOSITORY_TOGGLE_SELECT: {
+    case ActionTypes.REPO_TOGGLE_SELECT: {
       const wasSelected = state.__isSelected;
 
       return {
@@ -18,15 +18,15 @@ export function repository(state={
         __isSelected: !wasSelected
       };
     }
-    case ActionTypes.REPOSITORY_BUILD: {
+    case ActionTypes.REPO_ADD: {
       return {
         ...state,
         __isFetching: true,
         __isSelected: true
       };
     }
-    case ActionTypes.REPOSITORY_SUCCESS:
-    case ActionTypes.REPOSITORY_RESET: {
+    case ActionTypes.REPO_SUCCESS:
+    case ActionTypes.REPO_RESET: {
       return {
         ...state,
         __isSelected: false,
@@ -34,7 +34,7 @@ export function repository(state={
         __error: null
       };
     }
-    case ActionTypes.REPOSITORY_FAILURE: {
+    case ActionTypes.REPO_FAILURE: {
       return {
         ...state,
         __error: action.payload.error.json

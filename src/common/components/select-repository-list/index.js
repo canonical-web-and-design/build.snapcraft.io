@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
 import { conf } from '../../helpers/config';
-import { buildRepositories } from '../../actions/repository';
+import { addRepos } from '../../actions/repository';
 import SelectRepositoryRow from '../select-repository-row';
 import Spinner from '../spinner';
 import PageLinks from '../page-links';
@@ -19,7 +19,7 @@ import {
 import {
   getEnabledRepositories,
   getSelectedRepositories,
-  getRepositoriesToBuild,
+  getReposToAdd,
   hasFailedRepositories,
   isAddingSnaps
 } from '../../selectors/index.js';
@@ -90,11 +90,11 @@ export class SelectRepositoryListComponent extends Component {
   }
 
   handleAddRepositories() {
-    const { repositoriesToBuild, user } = this.props;
+    const { reposToAdd, user } = this.props;
 
     // TODO else "You have not selected any repositories"
-    if (repositoriesToBuild.length) {
-      this.props.dispatch(buildRepositories(repositoriesToBuild, user.login));
+    if (reposToAdd.length) {
+      this.props.dispatch(addRepos(reposToAdd, user.login));
     }
   }
 
@@ -199,7 +199,7 @@ SelectRepositoryListComponent.propTypes = {
   router: PropTypes.object.isRequired,
   snaps: PropTypes.object,
   selectedRepositories: PropTypes.array,
-  repositoriesToBuild: PropTypes.array,
+  reposToAdd: PropTypes.array,
   enabledRepositories: PropTypes.object,
   hasFailedRepositories: PropTypes.bool,
   isAddingSnaps: PropTypes.bool
@@ -220,7 +220,7 @@ function mapStateToProps(state) {
     repositories, // ?repository-pagination
     isAddingSnaps: isAddingSnaps(state),
     selectedRepositories: getSelectedRepositories(state),
-    repositoriesToBuild: getRepositoriesToBuild(state),
+    reposToAdd: getReposToAdd(state),
     enabledRepositories: getEnabledRepositories(state),
     hasFailedRepositories: hasFailedRepositories(state)
   };

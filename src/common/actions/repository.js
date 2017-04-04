@@ -5,27 +5,27 @@ import { conf } from '../helpers/config';
 
 const BASE_URL = conf.get('BASE_URL');
 
-export const REPOSITORY_TOGGLE_SELECT = 'REPOSITORY_TOGGLE_SELECT';
+export const REPO_TOGGLE_SELECT = 'REPO_TOGGLE_SELECT';
 
 export function toggleRepositorySelection(id) {
   return {
-    type: REPOSITORY_TOGGLE_SELECT,
+    type: REPO_TOGGLE_SELECT,
     payload: {
       id
     }
   };
 }
 
-export const REPOSITORY_BUILD = 'REPOSITORY_BUILD';
-export const REPOSITORY_SUCCESS = 'REPOSITORY_SUCCESS';
-export const REPOSITORY_FAILURE = 'REPOSITORY_FAILURE';
-export const REPOSITORY_RESET = 'REPOSITORY_RESET';
+export const REPO_ADD = 'REPO_ADD';
+export const REPO_SUCCESS = 'REPO_SUCCESS';
+export const REPO_FAILURE = 'REPO_FAILURE';
+export const REPO_RESET = 'REPO_RESET';
 
-export function buildRepositories(repositories, owner) {
+export function addRepos(repositories, owner) {
   return (dispatch) => {
     const promises = repositories.map(
       (repository) => {
-        return dispatch(buildRepository(repository));
+        return dispatch(addRepo(repository));
       }
     );
     return Promise.all(promises).then(() => {
@@ -36,12 +36,13 @@ export function buildRepositories(repositories, owner) {
   };
 }
 
-export function buildRepository(repository) {
+// add a repository to launchpad's build queue
+export function addRepo(repository) {
   const { id, url, owner, name } = repository;
 
   return async (dispatch) => {
     dispatch({
-      type: REPOSITORY_BUILD,
+      type: REPO_ADD,
       payload: {
         id
       }
@@ -49,6 +50,11 @@ export function buildRepository(repository) {
 
     try {
       await createWebhook(owner, name);
+
+      // XXX
+      // actual LP API call that we use on server side returns a snap representation
+      // that we could use to immediatelly update client side state with newly
+      // added snap
       const response = await fetch(`${BASE_URL}/api/launchpad/snaps`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -57,9 +63,9 @@ export function buildRepository(repository) {
       });
 
       await checkStatus(response);
-      dispatch(buildRepositorySuccess(id));
+      dispatch(addRepoSuccess(id));
     } catch (error) {
-      dispatch(buildRepositoryError(id, error));
+      dispatch(addRepoError(id, error));
       return Promise.reject(error);
     }
   };
@@ -67,7 +73,7 @@ export function buildRepository(repository) {
 
 export function resetRepository(id) {
   return {
-    type: REPOSITORY_RESET,
+    type: REPO_RESET,
     payload: {
       id
     }
@@ -92,18 +98,18 @@ export async function createWebhook(owner, name) {
   }
 }
 
-function buildRepositorySuccess(id) {
+function addRepoSuccess(id) {
   return {
-    type: REPOSITORY_SUCCESS,
+    type: REPO_SUCCESS,
     payload: {
       id
     }
   };
 }
 
-function buildRepositoryError(id, error) {
+function addRepoError(id, error) {
   return {
-    type: REPOSITORY_FAILURE,
+    type: REPO_FAILURE,
     payload: {
       id,
       error
