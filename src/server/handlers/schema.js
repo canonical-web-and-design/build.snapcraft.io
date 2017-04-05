@@ -18,6 +18,6 @@ export const repo = new schema.Entity('repos', {
 export const repoList = new schema.Array(repo);
 
 export const snap = new schema.Entity('snaps', {}, {
-  idAttribute: 'name'
+  idAttribute: 'git_repository_url'
 });
 export const snapList = new schema.Array(snap);

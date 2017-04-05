@@ -62,7 +62,8 @@ describe('snaps reducers', () => {
       payload: {
         response: {
           payload: {
-            snaps: SNAPS
+            snaps: SNAPS,
+            result: SNAPS.map((snap) => snap.git_repository_url)
           }
           // XXX
           // after partial refactoring of repositories it also now contains
@@ -90,6 +91,12 @@ describe('snaps reducers', () => {
     it('should store full snap info', () => {
       snaps(state, action).snaps.forEach((snap, i) => {
         expect(snap).toEqual(SNAPS[i]);
+      });
+    });
+
+    it('should store result snap ids', () => {
+      snaps(state, action).ids.forEach((id, i) => {
+        expect(id).toEqual(SNAPS[i]['git_repository_url']);
       });
     });
   });

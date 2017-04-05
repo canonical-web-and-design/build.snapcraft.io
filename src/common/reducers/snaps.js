@@ -1,6 +1,7 @@
 import * as ActionTypes from '../actions/snaps';
 import * as RegisterNameActionTypes from '../actions/register-name';
 import { getGitHubRepoUrl } from '../helpers/github-url';
+import union from 'lodash/union';
 
 // TODO move to selector
 function findSnapByFullName(snaps, fullName) {
@@ -51,7 +52,7 @@ export function snaps(state = {
         snaps: [
           ...action.payload.response.payload.snaps
         ],
-        ids: action.payload.response.result,
+        ids: union(state.ids, action.payload.response.result),
         error: null
       };
     case ActionTypes.FETCH_SNAPS_ERROR:
@@ -82,6 +83,9 @@ export function snaps(state = {
             return snap.git_repository_url !== action.payload.repository_url;
           }) : null
         ),
+        ids: state.ids.filter((id) => {
+          return id !== action.payload.repository_url;
+        }),
         error: null
       };
     case ActionTypes.REMOVE_SNAP_ERROR:
