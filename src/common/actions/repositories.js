@@ -41,7 +41,7 @@ export function fetchUserRepositories(pageNumber) {
         throw getError(response, result);
       }
 
-      dispatch(fetchRepositoriesSuccess(result));
+      dispatch(fetchRepositoriesSuccess(result.payload));
     } catch (error) {
       // TODO: Replace with logging helper
       console.warn(error); // eslint-disable-line no-console

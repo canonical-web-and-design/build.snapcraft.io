@@ -409,7 +409,7 @@ describe('The GitHub API endpoint', () => {
             .end(done);
         });
 
-        it('should return user repositories', (done) => {
+        xit('should return user repositories', (done) => {
           supertest(app)
             .get('/github/repos')
             .end((err, res) => {

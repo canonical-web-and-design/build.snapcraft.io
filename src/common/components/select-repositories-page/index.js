@@ -1,7 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { fetchUserSnaps } from '../../actions/snaps';
 import { fetchBuilds } from '../../actions/snap-builds';
 import { fetchUserRepositoriesAndSnaps } from '../../actions/repositories';
 import SelectRepositoryList from '../select-repository-list';

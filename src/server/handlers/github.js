@@ -152,9 +152,10 @@ export const listRepositories = async (req, res) => {
 
   const body = {
     status: 'success',
-    code: 'github-list-repositories',
-    // XXX drop response specific prop, make response a little more general purpose
-    ...normalize(response.body, repoList)
+    payload: {
+      code: 'github-list-repositories',
+      ...normalize(response.body, repoList)
+    }
   };
 
   if (response.headers.link) {
