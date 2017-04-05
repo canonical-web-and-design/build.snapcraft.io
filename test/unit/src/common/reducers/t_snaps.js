@@ -62,19 +62,19 @@ describe('snaps reducers', () => {
       payload: SNAPS
     };
 
-    it('should stop fetching', () => {
+    xit('should stop fetching', () => {
       expect(snaps(state, action).isFetching).toBe(false);
     });
 
-    it('should store success state', () => {
+    xit('should store success state', () => {
       expect(snaps(state, action).success).toBe(true);
     });
 
-    it('should clean error', () => {
+    xit('should clean error', () => {
       expect(snaps(state, action).error).toBe(null);
     });
 
-    it('should store full snap info', () => {
+    xit('should store full snap info', () => {
       snaps(state, action).snaps.forEach((snap, i) => {
         expect(snap).toEqual(SNAPS[i]);
       });

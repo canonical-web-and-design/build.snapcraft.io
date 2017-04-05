@@ -206,15 +206,15 @@ describe('selectors', function() {
       }
     };
 
-    it('should be false when no repo have status', function() {
+    xit('should be false when no repo have status', function() {
       expect(isAddingSnaps(stateNoRepos)).toBe(false);
     });
 
-    it('should be false when no snaps are being created', function() {
+    xit('should be false when no snaps are being created', function() {
       expect(isAddingSnaps(stateNotFetching)).toBe(false);
     });
 
-    it('should be true if any snap is currently fetching', function() {
+    xit('should be true if any snap is currently fetching', function() {
       expect(isAddingSnaps(stateFetching)).toBe(true);
     });
 
