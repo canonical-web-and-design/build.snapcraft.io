@@ -5,7 +5,7 @@ import localforage from 'localforage';
 import { BETA_NOTIFICATION_TOGGLE } from '../../reducers/beta-notification';
 import { BETA_NOTIFICATION_DISMISSED_KEY } from './index';
 
-const BETA_NOTIFICATION_DELAY = 2 * 60 * 1000; // 2 minutes
+const BETA_NOTIFICATION_DELAY = 30 * 1000; // 30 seconds
 
 export class BetaNotificationTriggerView extends Component {
   notificationTimeout = null;
