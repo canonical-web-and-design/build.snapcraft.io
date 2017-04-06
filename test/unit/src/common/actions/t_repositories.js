@@ -8,7 +8,7 @@ import { conf } from '../../../../../src/server/helpers/config';
 
 import {
   fetchUserRepositories,
-  setRepositories,
+  fetchRepositoriesSuccess,
   fetchRepositoriesError
 } from '../../../../../src/common/actions/repositories';
 import * as ActionTypes from '../../../../../src/common/actions/repositories';
@@ -31,16 +31,16 @@ describe('repositories actions', () => {
     store = mockStore(initialState);
   });
 
-  context('setRepositories', () => {
-    let payload = [ { full_name: 'test1' }, { full_name: 'test2' }];
+  context('fetchRepositoriesSuccess', () => {
+    let payload = [ { fullName: 'test1' }, { fullName: 'test2' }];
 
     beforeEach(() => {
-      action = setRepositories(payload);
+      action = fetchRepositoriesSuccess(payload);
     });
 
     it('should create an action to store snap builds', () => {
       const expectedAction = {
-        type: ActionTypes.SET_REPOSITORIES,
+        type: ActionTypes.REPOSITORIES_SUCCESS,
         payload
       };
 
@@ -62,7 +62,7 @@ describe('repositories actions', () => {
 
     it('should create an action to store request error on failure', () => {
       const expectedAction = {
-        type: ActionTypes.FETCH_REPOSITORIES_ERROR,
+        type: ActionTypes.REPOSITORIES_FAILURE,
         error: true,
         payload
       };
@@ -106,11 +106,14 @@ describe('repositories actions', () => {
           });
       });
 
-      it('should store repositories on fetch success', async () => {
-        await store.dispatch(fetchUserRepositories());
-        expect(store.getActions()).toHaveActionOfType(
-          ActionTypes.SET_REPOSITORIES
-        );
+      it('should store repositories on fetch success', () => {
+        return store.dispatch(fetchUserRepositories())
+          .then(() => {
+            api.done();
+            expect(store.getActions()).toHaveActionOfType(
+              ActionTypes.REPOSITORIES_REQUEST
+            );
+          });
       });
     });
 
@@ -129,7 +132,7 @@ describe('repositories actions', () => {
       it('should store no pageLinks', async () => {
         await store.dispatch(fetchUserRepositories());
         expect(store.getActions()).notToHaveActionOfType(
-          ActionTypes.SET_REPOSITORY_PAGE_LINKS
+          ActionTypes.SET_REPO_PAGE_LINKS
         );
       });
     });
@@ -144,10 +147,12 @@ describe('repositories actions', () => {
           }
         });
 
-      await store.dispatch(fetchUserRepositories());
-      expect(store.getActions()).toHaveActionOfType(
-        ActionTypes.FETCH_REPOSITORIES_ERROR
-      );
+      return store.dispatch(fetchUserRepositories())
+        .then(() => {
+          expect(store.getActions()).toHaveActionOfType(
+            ActionTypes.REPOSITORIES_FAILURE
+          );
+        });
     });
 
   });

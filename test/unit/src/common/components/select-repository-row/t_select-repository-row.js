@@ -47,17 +47,17 @@ describe('The SelectRepositoryRow component', () => {
 
         beforeEach(() => {
           component = shallow(<SelectRepositoryRow { ...props } />);
-          component.instance().onChange();
         });
 
-        it('shoud call the onChange callback', () => {
+        it('should call the onChange callback', () => {
+          component.find('input').simulate('change');
           expect(onChange).toHaveBeenCalled();
         });
       });
 
       context('and the checked prop is "true"', () => {
         beforeEach(() => {
-          props.checked = true;
+          props.repository.isSelected = true;
         });
 
         it('should contain a checked checkbox', () => {
@@ -68,7 +68,7 @@ describe('The SelectRepositoryRow component', () => {
 
       context('and the checked prop is "false"', () => {
         beforeEach(() => {
-          props.checked = false;
+          props.repository.isSelected = false;
         });
 
         it('should contain an unchecked checkbox', () => {
@@ -79,7 +79,18 @@ describe('The SelectRepositoryRow component', () => {
 
       context('and the disabled prop is "true"', () => {
         beforeEach(() => {
-          props.disabled = true;
+          props.isEnabled = true;
+        });
+
+        it('should contain a disabled checkbox', () => {
+          const component = shallow(<SelectRepositoryRow { ...props } />);
+          expect(component.find('input[disabled=true]').length).toBe(1);
+        });
+      });
+
+      context('and the reposistory is fetching', () => {
+        beforeEach(() => {
+          props.repository.isFetching = true;
         });
 
         it('should contain a disabled checkbox', () => {

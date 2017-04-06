@@ -183,26 +183,37 @@ describe('selectors', function() {
 
   context('isAddingSnaps', function() {
     const stateNoRepos = {
-      repositoriesStatus: {}
+      entities: {
+        repos: {}
+      },
+      repositories: {
+        ids: []
+      }
     };
 
     const stateNotFetching = {
-      repositoriesStatus: {
-        'foo/bar': {
-          isFetching: false,
-          error: null,
-          success: false
+      entities: {
+        repos: {
+          1001: {
+            isFetching: false
+          }
         }
+      },
+      repositories: {
+        ids: [1001]
       }
     };
 
     const stateFetching = {
-      repositoriesStatus: {
-        'foo/bar': {
-          isFetching: true,
-          error: null,
-          success: false
+      entities: {
+        repos: {
+          1001: {
+            isFetching: true
+          }
         }
+      },
+      repositories: {
+        ids: [1001]
       }
     };
 

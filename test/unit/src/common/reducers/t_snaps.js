@@ -10,6 +10,7 @@ describe('snaps reducers', () => {
     success: false,
     error: null,
     snaps: null,
+    ids: []
   };
 
   const SNAPS = [{
@@ -63,6 +64,13 @@ describe('snaps reducers', () => {
           payload: {
             snaps: SNAPS
           }
+          // XXX
+          // after partial refactoring of repositories it also now contains
+          // entities: {},
+          // result: []
+          //
+          // during final refactoring of snaps payload.snaps should be totally
+          // replaced by entities and result
         }
       }
     };

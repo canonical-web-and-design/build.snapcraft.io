@@ -1,42 +1,33 @@
+import union from 'lodash/union';
+
 import * as ActionTypes from '../actions/repositories';
-import { parseGitHubRepoUrl } from '../helpers/github-url';
 
 export function repositories(state = {
-  // has no server side content, so initial state is always 'fetching'
   isFetching: false,
-  success: false,
   error: null,
-  repos: [],
+  ids: [],
   pageLinks: {}
 }, action) {
+
   switch(action.type) {
-    case ActionTypes.FETCH_REPOSITORIES:
+    case ActionTypes.REPOSITORIES_REQUEST:
       return {
         ...state,
         isFetching: true
       };
-    case ActionTypes.SET_REPOSITORIES:
+    case ActionTypes.REPOSITORIES_SUCCESS:
       return {
         ...state,
         isFetching: false,
-        success: true,
         error: null,
-        repos: action.payload.repos.map((repo) => {
-          return {
-            // parse repository info to keep consistent data format
-            ...parseGitHubRepoUrl(repo.full_name),
-            // but keep full repo data from API in the store too
-            repo
-          };
-        }),
-        pageLinks: action.payload.links
+        ids: union(state.ids, action.payload.result),
+        pageLinks: action.payload.pageLinks
       };
-    case ActionTypes.FETCH_REPOSITORIES_ERROR:
+    case ActionTypes.REPOSITORIES_FAILURE:
       return {
         ...state,
         isFetching: false,
-        success: false,
-        error: action.payload
+        error: action.payload,
       };
     default:
       return state;

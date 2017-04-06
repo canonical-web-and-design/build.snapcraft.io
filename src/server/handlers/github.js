@@ -1,16 +1,18 @@
 import qs from 'qs';
 import url from 'url';
+import { normalize } from 'normalizr';
 
-import { parseGitHubRepoUrl } from '../../common/helpers/github-url';
-import { conf } from '../helpers/config';
-import requestGitHub from '../helpers/github';
-import { getMemcached } from '../helpers/memcached';
+import { repoList } from './schema';
 import logging from '../logging';
+import requestGitHub from '../helpers/github';
+import { conf } from '../helpers/config';
+import { getMemcached } from '../helpers/memcached';
 import { internalGetSnapcraftYaml } from './launchpad';
+import { parseGitHubRepoUrl } from '../../common/helpers/github-url';
 import { getGitHubRootSecret, makeWebhookSecret } from './webhook';
 
 const logger = logging.getLogger('express');
-const REPOSITORY_ENDPOINT = '/user/repos';
+const REPO_ENDPOINT = '/user/repos';
 const SNAPCRAFT_INFO_WHITELIST = ['name'];
 
 const RESPONSE_NOT_FOUND = {
@@ -134,7 +136,7 @@ export const listRepositories = async (req, res) => {
     params.page = req.params.page;
   }
 
-  const uri = REPOSITORY_ENDPOINT + '?' + qs.stringify(params);
+  const uri = REPO_ENDPOINT + '?' + qs.stringify(params);
   const response = await requestGitHub.get(uri, {
     token: req.session.token, json: true
   });
@@ -152,7 +154,7 @@ export const listRepositories = async (req, res) => {
     status: 'success',
     payload: {
       code: 'github-list-repositories',
-      repos: response.body
+      ...normalize(response.body, repoList)
     }
   };
 
@@ -165,8 +167,8 @@ export const listRepositories = async (req, res) => {
 
 export const createWebhook = async (req, res) => {
   const { owner, name } = req.body;
-
   let secret;
+
   try {
     secret = makeWebhookSecret(getGitHubRootSecret(), owner, name);
   } catch (e) {

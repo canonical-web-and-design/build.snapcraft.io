@@ -803,7 +803,13 @@
     "lodash.keys": {
       "version": "3.1.2"
     },
+    "lodash.merge": {
+      "version": "4.6.0"
+    },
     "lodash.reduce": {
+      "version": "4.6.0"
+    },
+    "lodash.union": {
       "version": "4.6.0"
     },
     "loose-envify": {
@@ -874,6 +880,9 @@
     },
     "normalize.css": {
       "version": "5.0.0"
+    },
+    "normalizr": {
+      "version": "3.2.2"
     },
     "number-is-nan": {
       "version": "1.0.1"

@@ -4,32 +4,35 @@ import classNames from 'classnames';
 import styles from './selectRepositoryRow.css';
 
 class SelectRepositoryRow extends Component {
+
   render() {
     const {
       errorMsg,
       repository,
       onChange,
-      checked,
-      disabled
+      isEnabled // is repository already enabled as a snap build
     } = this.props;
+
+    // TODO tidy up when we get rid of prefixes
+    const isChecked = repository.isSelected || isEnabled;
+    const isFetching = repository.isFetching;
+    const isDisabled = isEnabled || isFetching;
 
     const rowClass = classNames({
       [styles.repositoryRow]: true,
       [styles.error]: errorMsg,
-      [styles.disabled]: disabled
+      [styles.disabled]: isEnabled
     });
 
     return (
       <div className={ rowClass }>
-        { onChange &&
-          <input
-            id={ repository.fullName }
-            type="checkbox"
-            onChange={ this.onChange.bind(this) }
-            checked={ checked }
-            disabled={ disabled }
-          />
-        }
+        <input
+          id={ repository.fullName }
+          type="checkbox"
+          onChange={ onChange }
+          checked={ isChecked }
+          disabled={ isDisabled }
+        />
         <div>
           <label htmlFor={ repository.fullName }>{repository.fullName}</label>
         </div>
@@ -41,14 +44,11 @@ class SelectRepositoryRow extends Component {
       </div>
     );
   }
-
-  onChange(event) {
-    this.props.onChange(event);
-  }
 }
 
 SelectRepositoryRow.defaultProps = {
-  checked: false
+  isSelected: false,
+  isEnabled: false
 };
 
 SelectRepositoryRow.propTypes = {
@@ -56,9 +56,9 @@ SelectRepositoryRow.propTypes = {
   repository: PropTypes.shape({
     fullName: PropTypes.string.isRequired
   }).isRequired,
-  checked: PropTypes.bool,
-  disabled: PropTypes.bool,
-  onChange: PropTypes.func
+  isEnabled: PropTypes.bool,
+  onChange: PropTypes.func,
+  isSelected: PropTypes.bool
 };
 
 export default SelectRepositoryRow;

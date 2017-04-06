@@ -1,6 +1,7 @@
 import { createHash } from 'crypto';
 
 import yaml from 'js-yaml';
+import { normalize } from 'normalizr';
 
 import { parseGitHubRepoUrl } from '../../common/helpers/github-url';
 import db from '../db';
@@ -9,6 +10,7 @@ import { getMemcached } from '../helpers/memcached';
 import requestGitHub from '../helpers/github';
 import getLaunchpad from '../launchpad';
 import logging from '../logging';
+import { snapList } from './schema.js';
 import { getSnapcraftData } from './github';
 import { getLaunchpadRootSecret, makeWebhookSecret } from './webhook';
 
@@ -519,7 +521,11 @@ export const findSnaps = async (req, res) => {
       payload: {
         code: 'snaps-found',
         snaps: snaps
-      }
+      },
+      // TODO finish refactoring state: this has been added in a temporary way
+      // until snaps state is refactored, but it's needed for repository refactor
+      // to calculate enabled state in /select-repository
+      ...normalize(snaps, snapList)
     });
   } catch (error) {
     return sendError(res, error);
