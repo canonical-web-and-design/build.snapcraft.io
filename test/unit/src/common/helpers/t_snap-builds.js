@@ -33,7 +33,8 @@ describe('snapBuildFromAPI helper', () => {
     'datecreated': '2016-11-09T17:05:52.436792+00:00',
     'archive_link': 'https://api.launchpad.net/devel/ubuntu/+archive/primary',
     'arch_tag': 'amd64',
-    'upload_log_url': null
+    'upload_log_url': null,
+    'store_upload_revision': 15
   };
 
   let snapBuild;
@@ -58,6 +59,8 @@ describe('snapBuildFromAPI helper', () => {
         'dateStarted',
         'dateBuilt',
         'duration',
+
+        'storeRevision'
       ]);
     });
 
@@ -92,6 +95,11 @@ describe('snapBuildFromAPI helper', () => {
 
     it('should take duration from duration field', () => {
       expect(snapBuild.duration).toEqual(SNAP_BUILD_ENTRY.duration);
+    });
+
+    it('should take storeRevision from store_upload_revision field', () => {
+      expect(snapBuild.storeRevision).toEqual(
+        SNAP_BUILD_ENTRY.store_upload_revision);
     });
 
   });

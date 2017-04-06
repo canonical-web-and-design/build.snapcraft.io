@@ -19,6 +19,11 @@ export default class HelpInstallSnap extends Component {
             {command}
           </code>
         </pre>
+        { revision &&
+          <p className={ styles.p }>
+            The installed snap will not be auto-updated.
+          </p>
+        }
         <p className={ styles.p }>
           Don’t have snapd installed?  {' '}
           <a

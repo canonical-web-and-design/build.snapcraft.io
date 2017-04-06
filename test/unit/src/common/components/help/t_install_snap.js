@@ -28,6 +28,11 @@ describe('<HelpInstallSnap />', function() {
     it('should include help link', function() {
       expect(wrapper.text()).toInclude('Don’t have snapd installed?');
     });
+
+    it('should include no-auto-update warning', function() {
+      expect(wrapper.text()).toInclude(
+        'The installed snap will not be auto-updated.');
+    });
   });
 
   context('when rendered with children', () => {
@@ -45,6 +50,11 @@ describe('<HelpInstallSnap />', function() {
 
     it('should include help link', function() {
       expect(wrapper.text()).toInclude('Don’t have snapd installed?');
+    });
+
+    it('should not include no-auto-update warning', function() {
+      expect(wrapper.text()).toNotInclude(
+        'The installed snap will not be auto-updated.');
     });
   });
 });

@@ -66,6 +66,8 @@ export function snapBuildFromAPI(entry) {
     dateCreated: entry.datecreated,
     dateStarted: entry.date_started,
     dateBuilt: entry.datebuilt,
-    duration: entry.duration
+    duration: entry.duration,
+
+    storeRevision: entry.store_upload_revision
   } : null;
 }

@@ -38,12 +38,13 @@ class BuildDetails extends Component {
           snapcraft cleanbuild --debug
         </HelpInstallSnap>
       );
-    } else if (snap && snap.store_name) {
-      // otherwise if we have snap name show install instructions
+    } else if (snap && snap.store_name && build.storeRevision) {
+      // otherwise if we have snap name and revision show install instructions
       helpBox = (
         <HelpInstallSnap
-          headline='To test the latest successful build on your PC or cloud instance:'
+          headline='To test this build on your PC or cloud instance:'
           name={ snap.store_name }
+          revision={ build.storeRevision }
         />
       );
     }
