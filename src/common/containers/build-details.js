@@ -7,7 +7,11 @@ import BuildRow from '../components/build-row';
 import { Table, Head, Body, Row, Header } from '../components/vanilla/table-interactive';
 import BuildLog from '../components/build-log';
 import { Message } from '../components/forms';
-import HelpInstallSnap from '../components/help/install-snap';
+import {
+  HelpBox,
+  HelpInstallSnap,
+  HelpPromoteSnap
+} from '../components/help';
 import { HeadingOne, HeadingThree } from '../components/vanilla/heading';
 import Spinner from '../components/spinner';
 import Breadcrumbs from '../components/vanilla/breadcrumbs';
@@ -29,23 +33,34 @@ class BuildDetails extends Component {
     if (buildFailed) {
       // if build has failed show snapcraft debug instruction
       helpBox = (
-        <HelpInstallSnap headline='To debug this build:'>
-          sudo snap install lxd # if you don’t have LXD already<br/>
-          sudo snap install --classic --edge snapcraft # if you don’t have snapcraft already<br/>
-          <br/>
-          git clone {repository.url}<br/>
-          cd {repository.name}<br/>
-          snapcraft cleanbuild --debug
-        </HelpInstallSnap>
+        <HelpBox>
+          <HelpInstallSnap headline='To debug this build:'>
+            sudo snap install lxd # if you don’t have LXD already<br/>
+            sudo snap install --classic --edge snapcraft # if you don’t have snapcraft already<br/>
+            <br/>
+            git clone {repository.url}<br/>
+            cd {repository.name}<br/>
+            snapcraft cleanbuild --debug
+          </HelpInstallSnap>
+        </HelpBox>
       );
     } else if (snap && snap.store_name && build.storeRevision) {
       // otherwise if we have snap name and revision show install instructions
       helpBox = (
-        <HelpInstallSnap
-          headline='To test this build on your PC or cloud instance:'
-          name={ snap.store_name }
-          revision={ build.storeRevision }
-        />
+        <HelpBox>
+          <HelpInstallSnap
+            headline='To test this build on your PC or cloud instance:'
+            name={ snap.store_name }
+            revision={ build.storeRevision }
+          />
+          { snap.snapcraft_data &&
+            <HelpPromoteSnap
+              name={snap.store_name}
+              revision={build.storeRevision}
+              confinement={snap.snapcraft_data.confinement}
+            />
+          }
+        </HelpBox>
       );
     }
 

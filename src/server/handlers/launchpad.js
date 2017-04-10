@@ -535,11 +535,18 @@ export const findSnaps = async (req, res) => {
 export const findSnap = async (req, res) => {
   try {
     const snap = await internalFindSnap(req.query.repository_url);
+    const snapcraftData = await getSnapcraftData(
+      snap.git_repository_url, req.session.token
+    );
+
     return res.status(200).send({
       status: 'success',
       payload: {
         code: 'snap-found',
-        snap
+        snap: {
+          ...snap,
+          snapcraft_data: snapcraftData
+        }
       }
     });
   } catch (error) {

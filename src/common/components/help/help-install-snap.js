@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 
-import { HeadingThree } from '../../vanilla/heading/';
-import styles from './help-install-snap.css';
+import { HeadingThree } from '../vanilla/heading/';
+import styles from './help.css';
 
 const HELP_INSTALL_URL = 'https://snapcraft.io/docs/core/install';
 
@@ -12,7 +12,7 @@ export default class HelpInstallSnap extends Component {
     const command = children || `sudo snap install --edge ${name} ${revOption}`;
 
     return (
-      <div className={ styles.strip }>
+      <div className={styles.helpWrapper}>
         <HeadingThree>{ headline }</HeadingThree>
         <pre>
           <code className={ styles.cli }>

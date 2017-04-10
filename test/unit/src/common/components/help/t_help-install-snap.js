@@ -2,19 +2,19 @@ import React from 'react';
 import expect from 'expect';
 import { shallow } from 'enzyme';
 
-import HelpInstallSnap from '../../../../../../src/common/components/help/install-snap';
+import { HelpInstallSnap } from '../../../../../../src/common/components/help';
 
 describe('<HelpInstallSnap />', function() {
 
   let wrapper;
-  const heading='This is just a test';
+  const headline='This is just a test';
 
   context('when rendered with name and revision', () => {
     const name = 'needleinhaystack';
     const revision = 14159265358979;
 
     beforeEach(function() {
-      wrapper = shallow(<HelpInstallSnap heading={heading} name={ name } revision={ revision } />);
+      wrapper = shallow(<HelpInstallSnap headline={headline} name={ name } revision={ revision } />);
     });
 
     it('should include snap name', function() {
@@ -37,7 +37,7 @@ describe('<HelpInstallSnap />', function() {
 
   context('when rendered with children', () => {
     beforeEach(function() {
-      wrapper = shallow(<HelpInstallSnap heading={heading}>command test</HelpInstallSnap>);
+      wrapper = shallow(<HelpInstallSnap headline={headline}>command test</HelpInstallSnap>);
     });
 
     it('should include command passed as children', function() {

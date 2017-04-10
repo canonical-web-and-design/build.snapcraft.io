@@ -3,6 +3,14 @@
   padding: 2rem;
 }
 
+.helpWrapper {
+  margin-bottom: 1.3rem;
+}
+
+.helpWrapper:last-child {
+  margin-bottom: 0;
+}
+
 .cli {
   font-family: "Ubuntu Mono", monospace;
   line-height:1.5;
@@ -19,8 +27,4 @@
   background: url($icon-link-external) 100% 0 no-repeat;
   background-size: 0.7em;
   padding-right: 0.9em;
-}
-
-.p {
-  margin-bottom: 1rem;
 }

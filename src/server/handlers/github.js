@@ -13,7 +13,7 @@ import { getGitHubRootSecret, makeWebhookSecret } from './webhook';
 
 const logger = logging.getLogger('express');
 const REPO_ENDPOINT = '/user/repos';
-const SNAPCRAFT_INFO_WHITELIST = ['name'];
+const SNAPCRAFT_INFO_WHITELIST = ['name', 'confinement'];
 
 const RESPONSE_NOT_FOUND = {
   status: 'error',
