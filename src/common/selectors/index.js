@@ -106,7 +106,7 @@ export const getEnabledRepositories = createSelector(
   (repositories, repositoriesIndex, snaps, snapIndex) => {
     return pick(repositories, repositoriesIndex.filter((repositoryId) => {
       return snapIndex.some((snapId) => {
-        return snaps[snapId].git_repository_url === repositories[repositoryId].url;
+        return snapId === repositories[repositoryId].url;
       });
     }));
   }

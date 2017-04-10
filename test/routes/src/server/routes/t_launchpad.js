@@ -2016,6 +2016,7 @@ describe('The Launchpad API endpoint', () => {
       it('leaves snaps_removed unmodified if it is unset', async () => {
         await supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl });
         const dbUser = await db.model('GitHubUser')
           .where({ github_id: session.user.id })
@@ -2140,6 +2141,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns a 401 Unauthorized response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(401, done);
       });
@@ -2147,6 +2149,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(hasStatus('error'))
           .end(done);
@@ -2185,6 +2188,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
           .expect(hasStatus('error'))
           .end(done);
@@ -2257,6 +2261,7 @@ describe('The Launchpad API endpoint', () => {
         await dbUser.save({ snaps_removed: 1 });
         await supertest(app)
           .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl });
         await dbUser.refresh();
         expect(dbUser.get('snaps_removed')).toEqual(1);

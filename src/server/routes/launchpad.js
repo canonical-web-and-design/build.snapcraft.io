@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { json } from 'body-parser';
-import { verifyToken } from '../middleware/csrf-token';
 
+import { verifyToken } from '../middleware/csrf-token';
 import {
   authorizeSnap,
   deleteSnap,
