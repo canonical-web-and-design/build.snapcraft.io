@@ -61,7 +61,7 @@ describe('store authentication actions', () => {
       const macaroon = new MacaroonsBuilder('location', 'key', 'id')
         .add_first_party_caveat(`${storeLocation}|expires|${expires}`)
         .getMacaroon();
-      expect(extractExpiresCaveat(macaroon)).toEqual(moment(expires));
+      expect(extractExpiresCaveat(macaroon)).toEqual(moment.utc(expires));
     });
 
     it('skips expires caveats from wrong host', () => {
@@ -169,7 +169,7 @@ describe('store authentication actions', () => {
       let discharge;
 
       beforeEach(() => {
-        const expires = moment()
+        const expires = moment.utc()
           .subtract(1, 'seconds')
           .format('YYYY-MM-DD[T]HH:mm:ss.SSS');
         root = new MacaroonsBuilder(storeLocation, 'key', 'id')
@@ -319,8 +319,8 @@ describe('store authentication actions', () => {
           const expectedLifetime = conf.get(
             'STORE_PACKAGE_UPLOAD_REQUEST_LIFETIME'
           );
-          const now = moment();
-          const expires = moment(body.expires);
+          const now = moment.utc();
+          const expires = moment.utc(body.expires);
           return expires.isBetween(
             // Allow a bit of slack for slow tests.
             now.clone().add(expectedLifetime - 5, 'seconds'),

@@ -33,7 +33,7 @@ export function extractExpiresCaveat(macaroon) {
     if (caveat.verificationKeyId === '') {
       const parts = caveat.caveatId.split('|');
       if (parts[0] === storeLocation && parts[1] === 'expires') {
-        return moment(parts[2]);
+        return moment.utc(parts[2]);
       }
     }
   }
@@ -67,7 +67,7 @@ async function getPackageUploadRequestPermission() {
     body: JSON.stringify({
       permissions: ['package_upload_request', 'edit_account'],
       channels: conf.get('STORE_ALLOWED_CHANNELS'),
-      expires: moment()
+      expires: moment.utc()
         .add(lifetime, 'seconds')
         .format('YYYY-MM-DD[T]HH:mm:ss.SSS')
     })
@@ -114,7 +114,7 @@ export function checkPackageUploadRequest(rootRaw, dischargeRaw) {
   // caveat ID matches.
   const root = MacaroonsBuilder.deserialize(rootRaw);
   const expires = extractExpiresCaveat(root);
-  if (expires && expires <= moment()) {
+  if (expires && expires <= moment.utc()) {
     throw new Error('Store root macaroon has expired.');
   }
   const caveatId = extractSSOCaveat(root);

@@ -16,7 +16,7 @@ const BuildStatus = (props) => {
   let humanDateStarted;
 
   if (dateStarted) {
-    const momentStarted = moment(dateStarted);
+    const momentStarted = moment.utc(dateStarted);
     humanDateStarted = (
       <span className={ styles.buildDate } title={momentStarted.format('YYYY-MM-DD HH:mm:ss UTC')}>
         {momentStarted.fromNow()}

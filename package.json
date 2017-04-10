@@ -11,8 +11,8 @@
     "lint": "eslint -c .eslintrc.js '**/*.js'",
     "test": "npm run test:setup-db && nyc npm run test:unit && npm run test:routes && npm run lint",
     "test:setup-db": "rm -f test.sqlite3 && NODE_ENV=test npm run migrate:latest",
-    "test:unit": "BABEL_DISABLE_CACHE=1 HTTP_PROXY= HTTPS_PROXY= mocha --env=environments/test.env --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/setup.js ./test/unit/t_*.js ./test/unit/**/*",
-    "test:routes": "BABEL_DISABLE_CACHE=1 HTTP_PROXY= HTTPS_PROXY= mocha --env=environments/test.env --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/setup.js ./test/routes/**/*",
+    "test:unit": "BABEL_DISABLE_CACHE=1 HTTP_PROXY= HTTPS_PROXY= TZ=US/Pacific mocha --env=environments/test.env --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/setup.js ./test/unit/t_*.js ./test/unit/**/*",
+    "test:routes": "BABEL_DISABLE_CACHE=1 HTTP_PROXY= HTTPS_PROXY= TZ=US/Pacific mocha --env=environments/test.env --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/setup.js ./test/routes/**/*",
     "migrate:latest": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback"
   },
