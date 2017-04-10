@@ -11,10 +11,13 @@ export const REPOSITORIES_SUCCESS = 'REPOSITORIES_SUCCESS';
 export const REPOSITORIES_FAILURE = 'REPOSITORIES_FAILURE';
 
 
-export function fetchRepositoriesSuccess(repos) {
+export function fetchRepositoriesSuccess(result) {
   return {
     type: REPOSITORIES_SUCCESS,
-    payload: repos
+    payload: {
+      ...result.payload,
+      pageLinks: result.pageLinks
+    }
   };
 }
 
@@ -41,7 +44,7 @@ export function fetchUserRepositories(pageNumber) {
         throw getError(response, result);
       }
 
-      dispatch(fetchRepositoriesSuccess(result.payload));
+      dispatch(fetchRepositoriesSuccess(result));
     } catch (error) {
       // TODO: Replace with logging helper
       console.warn(error); // eslint-disable-line no-console

@@ -32,20 +32,42 @@ describe('repositories actions', () => {
   });
 
   context('fetchRepositoriesSuccess', () => {
-    let payload = [ { fullName: 'test1' }, { fullName: 'test2' }];
+    let result = {
+      payload: {
+        entities: {
+          repos: {
+            123: { fullName: 'test1' },
+            456: { fullName: 'test2' }
+          }
+        },
+        result: {
+          0: 123,
+          1: 456
+        }
+      },
+      pageLinks: {
+        next: 2,
+        last: 2
+      }
+    };
 
     beforeEach(() => {
-      action = fetchRepositoriesSuccess(payload);
+      action = fetchRepositoriesSuccess(result);
     });
 
-    it('should create an action to store snap builds', () => {
-      const expectedAction = {
-        type: ActionTypes.REPOSITORIES_SUCCESS,
-        payload
-      };
-
+    it('should create an action to store repositories', () => {
       store.dispatch(action);
-      expect(store.getActions()).toInclude(expectedAction);
+      expect(store.getActions()).toHaveActionsMatching((action) => {
+        return action.payload.entities == result.payload.entities
+          && action.payload.result == result.payload.result;
+      });
+    });
+
+    it('should supply pagelinks in action payload', () => {
+      store.dispatch(action);
+      expect(store.getActions()).toHaveActionsMatching((action) => {
+        return action.payload.pageLinks == result.pageLinks;
+      });
     });
 
     it('should create a valid flux standard action', () => {
