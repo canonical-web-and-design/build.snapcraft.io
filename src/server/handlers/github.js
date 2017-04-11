@@ -152,10 +152,8 @@ export const listRepositories = async (req, res) => {
 
   const body = {
     status: 'success',
-    payload: {
-      code: 'github-list-repositories',
-      ...normalize(response.body, repoList)
-    }
+    code: 'github-list-repositories',
+    ...normalize(response.body, repoList)
   };
 
   if (response.headers.link) {

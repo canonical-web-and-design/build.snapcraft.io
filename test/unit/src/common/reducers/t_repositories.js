@@ -42,7 +42,9 @@ describe('repositories reducers', () => {
     const action = {
       type: ActionTypes.REPOSITORIES_SUCCESS,
       payload: {
-        ids
+        response: {
+          ids
+        }
       }
     };
 
@@ -64,7 +66,9 @@ describe('repositories reducers', () => {
 
     const action = {
       type: ActionTypes.REPOSITORIES_FAILURE,
-      payload: 'Something went wrong!',
+      payload: {
+        error: 'Something went wrong!'
+      },
       error: true
     };
 
@@ -72,7 +76,7 @@ describe('repositories reducers', () => {
       expect(repositories(state, action)).toEqual({
         ...state,
         isFetching: false,
-        error: action.payload
+        error: action.payload.error
       });
     });
   });
