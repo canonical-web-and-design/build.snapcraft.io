@@ -1,6 +1,7 @@
 import { routerReducer } from 'react-router-redux';
 import { combineReducers } from 'redux';
 
+import * as betaNotification from './beta-notification';
 import * as repository from './repository';
 import * as repositories from './repositories';
 import * as authError from './auth-error';
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   ...auth,
   ...authError,
   ...authStore,
+  ...betaNotification,
   ...registerName,
   ...repositories,
   ...repository,
