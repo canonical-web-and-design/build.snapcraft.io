@@ -2,14 +2,12 @@ import expect from 'expect';
 
 import { snaps } from '../../../../../src/common/reducers/snaps';
 import * as ActionTypes from '../../../../../src/common/actions/snaps';
-import * as RegisterNameActionTypes from '../../../../../src/common/actions/register-name';
 
 describe('snaps reducers', () => {
   const initialState = {
     isFetching: false,
     success: false,
     error: null,
-    snaps: null,
     ids: []
   };
 
@@ -27,6 +25,8 @@ describe('snaps reducers', () => {
     self_link: 'https://api.launchpad.net/devel/~anowner/+snap/blahblahtest-xenial',
     store_name: 'test-snap-store-another-name'
   }];
+
+  const IDS = SNAPS.map((snap) => snap.git_repository_url);
 
   it('should return the initial state', () => {
     expect(snaps(undefined, {})).toEqual(initialState);
@@ -88,12 +88,6 @@ describe('snaps reducers', () => {
       expect(snaps(state, action).error).toBe(null);
     });
 
-    it('should store full snap info', () => {
-      snaps(state, action).snaps.forEach((snap, i) => {
-        expect(snap).toEqual(SNAPS[i]);
-      });
-    });
-
     it('should store result snap ids', () => {
       snaps(state, action).ids.forEach((id, i) => {
         expect(id).toEqual(SNAPS[i]['git_repository_url']);
@@ -105,7 +99,7 @@ describe('snaps reducers', () => {
     const state = {
       ...initialState,
       success: true,
-      snaps: SNAPS,
+      ids: IDS,
       isFetching: true
     };
 
@@ -127,28 +121,6 @@ describe('snaps reducers', () => {
     });
   });
 
-  context('REGISTER_NAME_SUCCESS', () => {
-    const state = {
-      ...initialState,
-      success: true,
-      snaps: SNAPS,
-      isFetching: true
-    };
-
-    const action = {
-      type: RegisterNameActionTypes.REGISTER_NAME_SUCCESS,
-      payload: {
-        id: 'anowner/anothername',
-        snapName: 'new-test-snap-name'
-      }
-    };
-
-    it('should update store_name of given snap', () => {
-      expect(snaps(state, action).snaps[0].store_name).toBe('test-snap-store-name');
-      expect(snaps(state, action).snaps[1].store_name).toBe('new-test-snap-name');
-    });
-  });
-
   context('REMOVE_SNAP', () => {
     const action = { type: ActionTypes.REMOVE_SNAP };
 
@@ -161,7 +133,7 @@ describe('snaps reducers', () => {
     const state = {
       ...initialState,
       isFetching: true,
-      snaps: SNAPS,
+      ids: IDS,
       error: 'Previous error'
     };
 
@@ -182,11 +154,11 @@ describe('snaps reducers', () => {
       expect(snaps(state, action).error).toBe(null);
     });
 
-    it('removes snap from state', () => {
-      expect(snaps(state, action).snaps.map((snap) => {
-        return snap.git_repository_url;
-      })).toEqual(['https://github.com/anowner/anothername']);
+    it('removes snap id from state', () => {
+      expect(snaps(state, action).ids).toExclude('https://github.com/anowner/aname');
     });
+
+
   });
 
   context('REMOVE_SNAP_ERROR', () => {

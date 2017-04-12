@@ -5,6 +5,7 @@ import { HeadingThree } from '../vanilla/heading';
 import TrafficLights, { SIGNALS } from '../traffic-lights';
 
 import {
+  hasLoadedSnaps,
   hasNoRegisteredNames,
   snapsWithRegisteredNameAndSnapcraftData,
   snapsWithRegisteredNameAndNoSnapcraftData,
@@ -91,7 +92,7 @@ FirstTimeHeading.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    snapsLoaded: !!state.snaps,
+    snapsLoaded: hasLoadedSnaps(state),
     hasNoRegisteredNames: hasNoRegisteredNames(state),
     hasNoSnapsWithRegisteredNameAndSnapcraftData: snapsWithRegisteredNameAndSnapcraftData(state).length === 0,
     hasSnapsWithRegisteredNameAndNoSnapcraftData: snapsWithRegisteredNameAndNoSnapcraftData(state).length > 0,

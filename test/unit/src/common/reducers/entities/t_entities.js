@@ -3,11 +3,17 @@ import proxyquire from 'proxyquire';
 
 import * as fixtures from './fixtures.js';
 import * as RepoActionTypes from '../../../../../../src/common/actions/repository';
+import * as RegisterNameActionTypes from '../../../../../../src/common/actions/register-name';
 
 const repoSpy = expect.createSpy();
+const snapSpy = expect.createSpy();
+
 const entities = proxyquire('../../../../../../src/common/reducers/entities', {
   './repository': {
     default: repoSpy
+  },
+  './snap': {
+    default: snapSpy
   }
 }).entities;
 
@@ -39,7 +45,7 @@ describe('entities', function() {
   context('repository helper', function() {
 
     for (let type in RepoActionTypes) {
-      it(`should call the repository spy for ${type}`, function() {
+      it(`should call the repository reducer for ${type}`, function() {
         entities(fixtures.initialState, {
           type: type,
           payload: {
@@ -49,5 +55,16 @@ describe('entities', function() {
         expect(repoSpy).toHaveBeenCalled();
       });
     }
+
+    it('should call the snap reducer for REGISTER_NAME_SUCCESS', function() {
+      entities(fixtures.initialState, {
+        type: RegisterNameActionTypes.REGISTER_NAME_SUCCESS,
+        payload: {
+          id: 'http://github.com/anowner/aname'
+        }
+      });
+      expect(repoSpy).toHaveBeenCalled();
+    });
+
   });
 });

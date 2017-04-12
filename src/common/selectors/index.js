@@ -6,36 +6,33 @@ import { parseGitHubRepoUrl } from '../helpers/github-url';
 const getRepositoriesIndex = state => state.repositories.ids;
 const getRepositories = state => state.entities.repos;
 const getRepositoryOwners = state => state.entities.owners;
-const getSnaps = state => state.snaps;
-const _getSnapsIndex = state => state.snaps.ids;
-const _getSnaps = state => state.entities.snaps;
+const getSnapsIndex = state => state.snaps.ids;
+const getSnaps = state => state.entities.snaps;
 const getSnapBuilds = state => state.snapBuilds;
 
 /**
  * @returns {Boolean} true if there are any snaps in state
  */
 export const hasSnaps = createSelector(
-  [getSnaps],
-  (snaps) => snaps.snaps ? snaps.snaps.length > 0 : false
+  [getSnapsIndex],
+  (ids) => ids.length > 0
 );
 
 /**
  * @returns {Boolean} true if there are no snaps in state
  */
 export const hasNoSnaps = createSelector(
-  [getSnaps],
-  (snaps) => snaps.snaps ? snaps.snaps.length === 0 : true
+  [getSnapsIndex],
+  (ids) => ids.length === 0
 );
 
 /**
  * @returns {Boolean} true if there are no snaps with registered names in state
  */
 export const hasNoRegisteredNames = createSelector(
-  [getSnaps],
-  (snaps) => {
-    return snaps.snaps ? !snaps.snaps.some((snap) => {
-      return snap.store_name;
-    }) : true;
+  [getSnapsIndex, getSnaps],
+  (ids, snaps) => {
+    return !ids.some((id) => snaps[id].store_name);
   }
 );
 
@@ -43,13 +40,18 @@ export const hasNoRegisteredNames = createSelector(
  * @returns {Boolean} true if there are no configured snaps
  */
 export const hasNoConfiguredSnaps = createSelector(
-  [getSnaps],
-  (snaps) => {
-    return snaps.snaps ? !snaps.snaps.some((snap) => {
-      return snap.snapcraft_data;
-    }) : true;
+  [getSnapsIndex, getSnaps],
+  (ids, snaps) => {
+    return !ids.some((id) => snaps[id].snapcraft_data);
   }
 );
+
+/**
+ * @returns {Boolean} true if snaps were successfully fetched
+ *
+ * TODO: don't rely on success? but if not on that then on what?
+ */
+export const hasLoadedSnaps = (state) => state.snaps.success;
 
 /**
  * TODO merge with reposToAdd?
@@ -102,7 +104,7 @@ export const hasFailedRepositories = createSelector(
  * @todo consider case for multiple snapcraft.yaml's per git_repository_url
  */
 export const getEnabledRepositories = createSelector(
-  [getRepositories, getRepositoriesIndex, _getSnaps, _getSnapsIndex],
+  [getRepositories, getRepositoriesIndex, getSnaps, getSnapsIndex],
   (repositories, repositoriesIndex, snaps, snapIndex) => {
     return pick(repositories, repositoriesIndex.filter((repositoryId) => {
       return snapIndex.some((snapId) => {
@@ -116,11 +118,11 @@ export const getEnabledRepositories = createSelector(
  * @returns {Array} snaps that have both registered name and snapcraft data
  */
 export const snapsWithRegisteredNameAndSnapcraftData = createSelector(
-  [getSnaps],
-  (snaps) => {
-    return snaps.snaps ? snaps.snaps.filter((snap) => {
+  [getSnapsIndex, getSnaps],
+  (ids, snaps) => {
+    return ids.map((id) => snaps[id]).filter((snap) => {
       return snap.store_name && snap.snapcraft_data;
-    }) : [];
+    });
   }
 );
 
@@ -128,11 +130,11 @@ export const snapsWithRegisteredNameAndSnapcraftData = createSelector(
  * @returns {Array} snaps that have registered name but no snapcraft data
  */
 export const snapsWithRegisteredNameAndNoSnapcraftData = createSelector(
-  [getSnaps],
-  (snaps) => {
-    return snaps.snaps ? snaps.snaps.filter((snap) => {
+  [getSnapsIndex, getSnaps],
+  (ids, snaps) => {
+    return ids.map((id) => snaps[id]).filter((snap) => {
       return snap.store_name && !snap.snapcraft_data;
-    }) : [];
+    });
   }
 );
 

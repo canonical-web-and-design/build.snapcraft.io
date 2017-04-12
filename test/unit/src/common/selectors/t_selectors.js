@@ -4,6 +4,8 @@ import {
   hasSnaps,
   hasNoSnaps,
   hasNoRegisteredNames,
+  hasNoConfiguredSnaps,
+  hasLoadedSnaps,
   snapsWithRegisteredNameAndSnapcraftData,
   snapsWithRegisteredNameAndNoSnapcraftData,
   snapsWithNoBuilds,
@@ -12,37 +14,61 @@ import {
 
 describe('selectors', function() {
 
-  const stateWithNullSnaps = {
-    snaps: {
-      snaps: null
-    }
-  };
-
   const stateWithNoSnaps = {
     snaps: {
-      snaps: []
+      ids: []
+    },
+    entities: {
+      snaps: {}
     }
   };
 
   const stateWithNoName = {
     snaps: {
-      snaps: [{}, {}]
+      ids: ['https:github.com/anowner/aname', 'https:github.com/anowner/aname-i']
+    },
+    entities: {
+      snaps: {
+        'https:github.com/anowner/aname': {
+          git_repository_url: 'https:github.com/anowner/aname'
+        },
+        'https:github.com/anowner/aname-i': {
+          git_repository_url: 'https:github.com/anowner/aname-i'
+        }
+      }
     }
   };
 
   const stateWithName = {
     snaps: {
-      snaps: [{
-        store_name: 'bsi-test-ii'
-      }, {}]
+      ids: ['https:github.com/anowner/aname']
+    },
+    entities: {
+      snaps: {
+        'https:github.com/anowner/aname': {
+          store_name: 'bsi-test-ii',
+          git_repository_url: 'https:github.com/anowner/aname'
+        }
+      }
+    }
+  };
+
+  const stateWithSnapcraftData = {
+    snaps: {
+      ids: ['https:github.com/anowner/aname']
+    },
+    entities: {
+      snaps: {
+        'https:github.com/anowner/aname': {
+          store_name: 'bsi-test-ii',
+          snapcraft_data: { name: 'bsi-test-ii' },
+          git_repository_url: 'https:github.com/anowner/aname'
+        }
+      }
     }
   };
 
   context('hasSnaps', function() {
-    it('should be false when snaps are null in state', function() {
-      expect(hasSnaps(stateWithNullSnaps)).toBe(false);
-    });
-
     it('should be false when no snaps in state', function() {
       expect(hasSnaps(stateWithNoSnaps)).toBe(false);
     });
@@ -53,10 +79,6 @@ describe('selectors', function() {
   });
 
   context('hasNoSnaps', function() {
-    it('should be true when snaps are null in state', function() {
-      expect(hasNoSnaps(stateWithNullSnaps)).toBe(true);
-    });
-
     it('should be true when no snaps in state', function() {
       expect(hasNoSnaps(stateWithNoSnaps)).toBe(true);
     });
@@ -67,8 +89,8 @@ describe('selectors', function() {
   });
 
   context('hasNoRegisteredNames', function() {
-    it('should be true when snaps are null in state', function() {
-      expect(hasNoRegisteredNames(stateWithNullSnaps)).toBe(true);
+    it('should be true when no snaps in state', function() {
+      expect(hasNoRegisteredNames(stateWithNoSnaps)).toBe(true);
     });
 
     it('should be true when no names in state', function() {
@@ -80,19 +102,63 @@ describe('selectors', function() {
     });
   });
 
-  context('snapsWithRegisteredNameAndSnapcraftData', function() {
-    const stateWithNameAndSnapcraftData = {
+  context('hasNoConfiguredSnaps', function() {
+    it('should be true when no snaps in state', function() {
+      expect(hasNoConfiguredSnaps(stateWithNoSnaps)).toBe(true);
+    });
+
+    it('should be true when no snapcraft data in state', function() {
+      expect(hasNoConfiguredSnaps(stateWithNoName)).toBe(true);
+    });
+
+    it('should be false when snapcraft data is in state', function() {
+      expect(hasNoConfiguredSnaps(stateWithSnapcraftData)).toBe(false);
+    });
+  });
+
+  context('hasLoadedSnaps', function() {
+    const stateWithSnapsNotLoaded = {
       snaps: {
-        snaps: [{
-          store_name: 'bsi-test-ii',
-          snapcraft_data: { name: 'bsi-test-ii' }
-        }, {}]
+        success: false,
+        ids: []
       }
     };
 
-    it('should be empty when snaps are null in state', function() {
-      expect(snapsWithRegisteredNameAndSnapcraftData(stateWithNullSnaps)).toEqual([]);
+    const stateWithSnapsLoaded = {
+      snaps: {
+        success: true,
+        ids: []
+      }
+    };
+
+    it('should be false when snaps not yet loaded', function() {
+      expect(hasLoadedSnaps(stateWithSnapsNotLoaded)).toBe(false);
     });
+
+    it('should be true when snaps were already loaded', function() {
+      expect(hasLoadedSnaps(stateWithSnapsLoaded)).toBe(true);
+    });
+
+  });
+
+  context('snapsWithRegisteredNameAndSnapcraftData', function() {
+    const stateWithNameAndSnapcraftData = {
+      snaps: {
+        ids: [
+          'https:github.com/anowner/aname',
+          'https:github.com/anowner/aname-i'
+        ]
+      },
+      entities: {
+        snaps: {
+          'https:github.com/anowner/aname': {
+            store_name: 'bsi-test-ii',
+            snapcraft_data: { name: 'bsi-test-ii' }
+          },
+          'https:github.com/anowner/aname-i': {}
+        }
+      }
+    };
 
     it('should be empty when no snaps in state', function() {
       expect(snapsWithRegisteredNameAndSnapcraftData(stateWithNoSnaps)).toEqual([]);
@@ -111,18 +177,23 @@ describe('selectors', function() {
   context('snapsWithRegisteredNameAndNoSnapcraftData', function() {
     const stateWithNameAndNoSnapcraftData = {
       snaps: {
-        snaps: [{
-          store_name: 'bsi-test-ii',
-          snapcraft_data: { name: 'bsi-test-ii' }
-        }, {
-          store_name: 'bsi-test-iii'
-        }]
+        ids: [
+          'https:github.com/anowner/aname',
+          'https:github.com/anowner/aname-i'
+        ]
+      },
+      entities: {
+        snaps: {
+          'https:github.com/anowner/aname': {
+            store_name: 'bsi-test-ii',
+            snapcraft_data: { name: 'bsi-test-ii' }
+          },
+          'https:github.com/anowner/aname-i': {
+            store_name: 'bsi-test-iii'
+          }
+        }
       }
     };
-
-    it('should be empty when snaps are null in state', function() {
-      expect(snapsWithRegisteredNameAndNoSnapcraftData(stateWithNullSnaps)).toEqual([]);
-    });
 
     it('should be empty when no snaps in state', function() {
       expect(snapsWithRegisteredNameAndNoSnapcraftData(stateWithNoSnaps)).toEqual([]);
@@ -140,15 +211,24 @@ describe('selectors', function() {
   context('snapsWithNoBuilds', function() {
     const stateWithBuilds = {
       snaps: {
-        snaps: [{
-          store_name: 'bsi-test-ii',
-          git_repository_url: 'https://github.com/test/bsi-test',
-          snapcraft_data: { name: 'bsi-test-ii' }
-        }, {
-          store_name: 'bsi-test-iii',
-          git_repository_url: 'https://github.com/test/bsi-test-iii',
-          snapcraft_data: { name: 'bsi-test-iii' }
-        }]
+        ids: [
+          'https://github.com/test/bsi-test',
+          'https://github.com/test/bsi-test-iii'
+        ]
+      },
+      entities: {
+        snaps: {
+          'https://github.com/test/bsi-test': {
+            store_name: 'bsi-test-ii',
+            git_repository_url: 'https://github.com/test/bsi-test',
+            snapcraft_data: { name: 'bsi-test-ii' }
+          },
+          'https://github.com/test/bsi-test-iii': {
+            store_name: 'bsi-test-iii',
+            git_repository_url: 'https://github.com/test/bsi-test-iii',
+            snapcraft_data: { name: 'bsi-test-iii' }
+          }
+        }
       },
       snapBuilds: {
         'test/bsi-test': {
@@ -161,10 +241,6 @@ describe('selectors', function() {
         },
       }
     };
-
-    it('should be empty when snaps are null in state', function() {
-      expect(snapsWithNoBuilds(stateWithNullSnaps)).toEqual([]);
-    });
 
     it('should be empty when no snaps in state', function() {
       expect(snapsWithNoBuilds(stateWithNoSnaps)).toEqual([]);

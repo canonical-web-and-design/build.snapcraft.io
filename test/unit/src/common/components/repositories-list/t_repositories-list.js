@@ -7,23 +7,39 @@ import { Table, Body } from '../../../../../../src/common/components/vanilla/tab
 
 // state fixtures
 const initialState = {
+  hasSnaps: true,
   hasNoRegisteredNames: true,
   hasNoConfiguredSnaps: true,
   snaps: {
     isFetching: false,
     success: false,
     error: {},
-    snaps: [{
-      git_repository_url: 'https://github.com/earnubs/bsi-test-v'
-    }, {
-      git_repository_url: 'https://github.com/earnubs/bsi-test-ii'
-    }, {
-      git_repository_url: 'https://github.com/earnubs/bsi-test-iii'
-    }, {
-      git_repository_url: 'https://github.com/earnubs/bsi-test-iv'
-    }, {
-      git_repository_url: 'https://github.com/earnubs/bsi-test-i'
-    }]
+    ids: [
+      'https://github.com/earnubs/bsi-test-v',
+      'https://github.com/earnubs/bsi-test-ii',
+      'https://github.com/earnubs/bsi-test-iii',
+      'https://github.com/earnubs/bsi-test-iv',
+      'https://github.com/earnubs/bsi-test-i'
+    ]
+  },
+  entities: {
+    snaps: {
+      'https://github.com/earnubs/bsi-test-v': {
+        git_repository_url: 'https://github.com/earnubs/bsi-test-v'
+      },
+      'https://github.com/earnubs/bsi-test-ii': {
+        git_repository_url: 'https://github.com/earnubs/bsi-test-ii'
+      },
+      'https://github.com/earnubs/bsi-test-iii': {
+        git_repository_url: 'https://github.com/earnubs/bsi-test-iii'
+      },
+      'https://github.com/earnubs/bsi-test-iv': {
+        git_repository_url: 'https://github.com/earnubs/bsi-test-iv'
+      },
+      'https://github.com/earnubs/bsi-test-i': {
+        git_repository_url: 'https://github.com/earnubs/bsi-test-i'
+      }
+    }
   }
 };
 
@@ -33,8 +49,15 @@ describe('<RepositoriesList />', function() {
     let wrapper;
 
     beforeEach(function() {
-      initialState.snaps.snaps = null;
-      wrapper = shallow(<RepositoriesListView { ...initialState } />);
+      const state = {
+        ...initialState,
+        snaps: {
+          ...initialState.snaps,
+          ids: []
+        }
+      };
+
+      wrapper = shallow(<RepositoriesListView { ...state } />);
     });
 
     xit('should display \'No repos\' message', function() {

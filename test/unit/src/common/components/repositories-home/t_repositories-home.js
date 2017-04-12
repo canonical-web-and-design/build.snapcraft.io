@@ -27,6 +27,9 @@ describe('The RepositoriesHome component', () => {
           authenticated: true
         },
         user: {},
+        entities: {
+          snaps: {}
+        },
         snaps: {},
         snapBuilds: {},
         fetchBuilds: () => {},
@@ -51,9 +54,13 @@ describe('The RepositoriesHome component', () => {
           authenticated: true
         },
         user: {},
+        entities: {
+          snaps: {}
+        },
         snaps: {
           success: true,
-          snaps: []
+          snaps: [],
+          ids: []
         },
         snapBuilds: {},
         fetchBuilds: () => {},
@@ -95,6 +102,9 @@ describe('The RepositoriesHome component', () => {
           authenticated: true
         },
         user: {},
+        entities: {
+          snaps: {}
+        },
         snaps: {},
         snapBuilds: {},
         updateSnaps: expect.createSpy(),

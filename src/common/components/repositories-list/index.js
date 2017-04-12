@@ -1,7 +1,11 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { hasNoRegisteredNames, hasNoConfiguredSnaps } from '../../selectors';
+import {
+  hasSnaps,
+  hasNoRegisteredNames,
+  hasNoConfiguredSnaps
+} from '../../selectors';
 import { conf } from '../../helpers/config';
 import {
   checkSignedIntoStore,
@@ -67,7 +71,8 @@ export class RepositoriesListView extends Component {
     }
   }
 
-  renderRow(snap, index) {
+  renderRow(id, index) {
+    const snap = this.props.entities.snaps[id];
     const { hasNoConfiguredSnaps, hasNoRegisteredNames, registerName, snapBuilds, authStore } = this.props;
     const { fullName } = parseGitHubRepoUrl(snap.git_repository_url);
     const isFirstInList = index === 0;
@@ -104,8 +109,7 @@ export class RepositoriesListView extends Component {
   }
 
   render() {
-    const { snaps } = this.props.snaps;
-    const hasSnaps = (snaps && Object.keys(snaps).length > 0);
+    const { ids } = this.props.snaps;
 
     return (
       <div className={styles.repositoriesList}>
@@ -119,8 +123,8 @@ export class RepositoriesListView extends Component {
             </Row>
           </Head>
           <Body>
-            { hasSnaps &&
-              snaps.map(this.renderRow.bind(this))
+            { this.props.hasSnaps &&
+              ids.map(this.renderRow.bind(this))
             }
           </Body>
         </Table>
@@ -132,6 +136,7 @@ export class RepositoriesListView extends Component {
 RepositoriesListView.defaultProps = {
   auth: {},
   authStore: {},
+  entities: {},
   hasNoConfiguredSnaps: true,
   hasNoRegisteredNames: true,
   registerName: {},
@@ -142,7 +147,11 @@ RepositoriesListView.defaultProps = {
 RepositoriesListView.propTypes = {
   auth: PropTypes.object.isRequired,
   authStore: PropTypes.object.isRequired,
+  entities: PropTypes.shape({
+    snaps: PropTypes.object
+  }),
   dispatch: PropTypes.func,
+  hasSnaps: PropTypes.bool,
   hasNoConfiguredSnaps: PropTypes.bool,
   hasNoRegisteredNames: PropTypes.bool,
   registerName: PropTypes.object,
@@ -154,6 +163,7 @@ function mapStateToProps(state) {
   const {
     auth,
     authStore,
+    entities,
     registerName,
     snaps,
     snapBuilds
@@ -162,9 +172,11 @@ function mapStateToProps(state) {
   return {
     auth,
     authStore,
+    entities,
     registerName,
     snaps,
     snapBuilds,
+    hasSnaps: hasSnaps(state),
     hasNoRegisteredNames: hasNoRegisteredNames(state),
     hasNoConfiguredSnaps: hasNoConfiguredSnaps(state)
   };

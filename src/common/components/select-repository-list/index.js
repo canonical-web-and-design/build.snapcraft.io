@@ -192,7 +192,6 @@ SelectRepositoryListComponent.propTypes = {
   user: PropTypes.object,
   repositoriesStatus: PropTypes.object,
   router: PropTypes.object.isRequired,
-  snaps: PropTypes.object,
   selectedRepositories: PropTypes.array,
   reposToAdd: PropTypes.array,
   enabledRepositories: PropTypes.object,
@@ -203,14 +202,12 @@ SelectRepositoryListComponent.propTypes = {
 function mapStateToProps(state) {
   const {
     user,
-    snaps,
     entities,
     repositories,
   } = state;
 
   return {
     user,
-    snaps,
     entities,
     repositories, // ?repository-pagination
     isAddingSnaps: isAddingSnaps(state),

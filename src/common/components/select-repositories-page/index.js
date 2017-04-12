@@ -30,11 +30,14 @@ class SelectRepositoriesPage extends Component {
   }
 
   render() {
+    // TODO: bartaz refactor
     // XXX this should fetch snaps and repos and pass to children ?
-    const { snaps, snapBuilds } = this.props;
+    // should it fetch data for first time heading (or others?)
+    // move it to HOC?
+
     return (
       <div>
-        <FirstTimeHeading snaps={snaps} snapBuilds={snapBuilds} />
+        <FirstTimeHeading />
         <CardHighlighted>
           <HeadingThree className={ styles.heading }>
             Choose repos to add
@@ -50,7 +53,8 @@ class SelectRepositoriesPage extends Component {
     const { snaps } = props;
 
     if (snaps.success) {
-      snaps.snaps.forEach((snap) => {
+      snaps.ids.forEach((id) => {
+        const snap = props.entities.snaps[id];
         this.props.dispatch(fetchBuilds(snap.git_repository_url, snap.self_link));
       });
     }
@@ -59,25 +63,25 @@ class SelectRepositoriesPage extends Component {
 
 SelectRepositoriesPage.propTypes = {
   auth: PropTypes.object.isRequired,
+  entities: PropTypes.object.isRequired,
   user: PropTypes.object,
   snaps: PropTypes.object.isRequired,
-  snapBuilds: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
   const {
     auth,
+    entities,
     user,
-    snaps,
-    snapBuilds
+    snaps
   } = state;
 
   return {
     auth,
+    entities,
     user,
-    snaps,
-    snapBuilds
+    snaps
   };
 }
 
