@@ -4,8 +4,10 @@ import { checkStatus, getError } from '../helpers/api';
 export const CALL_API = 'CALL_API';
 
 // A Redux middleware that interprets actions with CALL_API info specified.
-// Performs the call and promises when such actions are dispatched.
-export default defaults => () => next => async action => {
+// Performs the call and promises when such actions are dispatched. This
+// has been implemented using promises because of suspected problems with
+// sourcemapping async / await code.
+export default defaults => () => next => action => {
   // If action does not invoke CALL_API,
   // ignore it
   const settings = action[CALL_API];
@@ -17,39 +19,71 @@ export default defaults => () => next => async action => {
   validateDefaults(defaults);
   validateSettings(settings);
 
-  const [ requestType, successType, failureType ] = settings.types;
+  const requestType = settings.types ? settings.types[0] : null;
+  const successType = settings.types ? settings.types[1] : null;
+  const failureType = settings.types ? settings.types[2] : null;
   const resource = defaults.endpoint + settings.path;
   const optionsWithCsrfToken = withCsrfToken(defaults.csrfToken, settings.options);
   const createAction = createActionWith.bind({}, action);
 
   // Immediately dispatch request action
-  next(createAction({ type: requestType }));
+  if (requestType) {
+    next(createAction({ type: requestType }));
+  }
 
-  try {
-    const response = await fetch(resource, optionsWithCsrfToken);
-    await checkStatus(response);
-    const result = await response.json();
+  return fetch(resource, optionsWithCsrfToken)
+    .then((response) => {
+      return checkStatus(response)
+        .then(() => {
+          return response.json()
+            .then((result) => {
+              if (result.status !== 'success') {
+                throw getError(response, result);
+              }
 
-    if (result.status !== 'success') {
-      throw getError(response, result);
-    }
+              if (successType) {
+                next(createAction({
+                  type: successType,
+                  payload: {
+                    response: result
+                  }
+                }));
+              }
 
-    return next(createAction({
-      type: successType,
-      payload: {
-        response: result
+              return Promise.resolve(result);
+            });
+        })
+        .catch((error) => {
+          if (failureType) {
+            next(createAction({
+              type: failureType,
+              payload: {
+                error: error
+              },
+              error: true
+            }));
+          }
+
+          error.action = action;
+
+          return Promise.reject(error);
+        });
+    })
+    .catch((error) => {
+      if (failureType) {
+        next(createAction({
+          type: failureType,
+          payload: {
+            error: error
+          },
+          error: true
+        }));
       }
-    }));
-  }
-  catch(error) {
-    return next(createAction({
-      type: failureType,
-      payload: {
-        error: error
-      },
-      error: true
-    }));
-  }
+
+      error.action = action;
+
+      return Promise.reject(error);
+    });
 };
 
 // Creates new action with request, success or
@@ -82,10 +116,7 @@ function validateSettings(settings) {
   if (!options) {
     throw new Error('Specify settings for API request');
   }
-  if (!Array.isArray(types) || types.length !== 3) {
-    throw new Error('Expected an array of three action types.');
-  }
-  if (!types.every(type => typeof type === 'string')) {
+  if (Array.isArray(types) && !types.every(type => typeof type === 'string')) {
     throw new Error('Expected action types to be strings.');
   }
 }

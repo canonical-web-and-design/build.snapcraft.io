@@ -9,7 +9,7 @@ import { conf } from '../../../../../src/server/helpers/config.js';
 
 describe('The GitHub API endpoint', () => {
   const app = Express();
-  const session = { 'token': 'secret' };
+  const session = { 'token': 'secret', 'csrfTokens': ['blah']  };
 
   let scope;
 
@@ -458,6 +458,7 @@ describe('The GitHub API endpoint', () => {
       it('should call GitHub API endpoint to create new webhook', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
           .end((err) => {
             scope.done();
@@ -469,6 +470,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a 201 created response', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
           .expect(201, done);
       });
@@ -476,6 +478,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a "success" status', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
           .expect(hasStatus('success'))
           .end(done);
@@ -484,6 +487,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a "github-webhook-created" message', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
           .expect(hasMessage('github-webhook-created'))
           .end(done);
@@ -501,24 +505,27 @@ describe('The GitHub API endpoint', () => {
         nock.cleanAll();
       });
 
-      it('should return a 422 Unprocessable Entity response', (done) => {
+      it('should return a 200 OK', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
-          .expect(422, done);
+          .expect(200, done);
       });
 
-      it('should return a "error" status', (done) => {
+      it('should return a "success" status', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
-          .expect(hasStatus('error'))
+          .expect(hasStatus('success'))
           .end(done);
       });
 
       it('should return a body with a "github-already-created" message', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
           .expect(hasMessage('github-already-created'))
           .end(done);
@@ -539,6 +546,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a 404 Not Found response', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
           .expect(404, done);
       });
@@ -546,6 +554,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
           .expect(hasStatus('error'))
           .end(done);
@@ -554,6 +563,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a body with a "github-repository-not-found" message', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
           .expect(hasMessage('github-repository-not-found'))
           .end(done);
@@ -574,6 +584,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a 401 Unauthorized response', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
           .expect(401, done);
       });
@@ -581,6 +592,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
           .expect(hasStatus('error'))
           .end(done);
@@ -589,6 +601,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a body with a github-authentication-failed message', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
           .expect(hasMessage('github-authentication-failed'))
           .end(done);
@@ -609,6 +622,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a 500 Internal Server Error response', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
           .expect(500, done);
       });
@@ -616,6 +630,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
           .expect(hasStatus('error'))
           .end(done);
@@ -624,6 +639,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a body with a github-error-other message', (done) => {
         supertest(app)
           .post('/github/webhook')
+          .set('X-CSRF-Token', 'blah')
           .send({ owner: 'anowner', name: 'aname' })
           .expect(hasMessage('github-error-other'))
           .end(done);

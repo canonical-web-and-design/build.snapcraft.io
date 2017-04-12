@@ -1,9 +1,7 @@
 import { push } from 'react-router-redux';
-import { checkStatus, getError } from '../helpers/api';
 
-import { conf } from '../helpers/config';
-
-const BASE_URL = conf.get('BASE_URL');
+import { APICompatibleError } from '../helpers/api';
+import { CALL_API } from '../middleware/call-api';
 
 export const REPO_TOGGLE_SELECT = 'REPO_TOGGLE_SELECT';
 
@@ -16,58 +14,58 @@ export function toggleRepositorySelection(id) {
   };
 }
 
-export const REPO_ADD = 'REPO_ADD';
-export const REPO_SUCCESS = 'REPO_SUCCESS';
-export const REPO_FAILURE = 'REPO_FAILURE';
+export const REPO_ADD_REQUEST = 'REPO_ADD_REQUEST';
+export const REPO_ADD_SUCCESS = 'REPO_ADD_SUCCESS';
+export const REPO_ADD_FAILURE = 'REPO_ADD_FAILURE';
 export const REPO_RESET = 'REPO_RESET';
 
-export function addRepos(repositories, owner) {
-  return (dispatch) => {
-    const promises = repositories.map(
-      (repository) => {
-        return dispatch(addRepo(repository));
-      }
-    );
-    return Promise.all(promises).then(() => {
+export function addRepos(repos, owner) {
+  return async (dispatch) => {
+    try {
+      await Promise.all(repos.map(async (repo) => {
+        await dispatch(createWebhook(repo));
+        return dispatch(addRepo(repo));
+      }));
+
       if (owner) {
         dispatch(push(`/user/${owner}`));
       }
-    });
+    } catch(error) {
+      dispatch(addRepoError(error.action.id, error));
+    }
   };
 }
 
-// add a repository to launchpad's build queue
-export function addRepo(repository) {
-  const { id, url, owner, name } = repository;
+function addRepo(repository) {
+  const { id, url } = repository;
 
-  return async (dispatch) => {
-    dispatch({
-      type: REPO_ADD,
-      payload: {
-        id
-      }
-    });
-
-    try {
-      await createWebhook(owner, name);
-
-      // XXX
-      // actual LP API call that we use on server side returns a snap representation
-      // that we could use to immediatelly update client side state with newly
-      // added snap
-      const response = await fetch(`${BASE_URL}/api/launchpad/snaps`, {
+  return {
+    id,
+    [CALL_API]: {
+      path: '/api/launchpad/snaps',
+      types: [REPO_ADD_REQUEST, REPO_ADD_SUCCESS],
+      options: {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ repository_url: url }),
         credentials: 'same-origin'
-      });
-
-      await checkStatus(response);
-      dispatch(addRepoSuccess(id));
-    } catch (error) {
-      dispatch(addRepoError(id, error));
-      return Promise.reject(error);
+      }
     }
+  };
+}
+
+function addRepoError(id, error) {
+  return {
+    type: REPO_ADD_FAILURE,
+    payload: {
+      id,
+      error: new APICompatibleError({
+        code: error.json.body.code,
+        message: 'Repo cannot be added at this time',
+        detail: `Failed to add repo: ${error}`
+      })
+    },
+    error: true
   };
 }
 
@@ -80,40 +78,16 @@ export function resetRepository(id) {
   };
 }
 
-export async function createWebhook(owner, name) {
-  const response = await fetch(`${BASE_URL}/api/github/webhook`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ owner, name }),
-    credentials: 'same-origin'
-  });
-  if (response.status >= 200 && response.status < 300) {
-    return response;
-  } else {
-    const json = await response.json();
-    if (json.payload && json.payload.code === 'github-already-created') {
-      return response;
-    }
-    throw getError(response, json);
-  }
-}
-
-function addRepoSuccess(id) {
+function createWebhook({ owner, name }) {
   return {
-    type: REPO_SUCCESS,
-    payload: {
-      id
+    [CALL_API]: {
+      path: '/api/github/webhook',
+      options: {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ owner, name }),
+        credentials: 'same-origin'
+      }
     }
-  };
-}
-
-function addRepoError(id, error) {
-  return {
-    type: REPO_FAILURE,
-    payload: {
-      id,
-      error
-    },
-    error: true
   };
 }

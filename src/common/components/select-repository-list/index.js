@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
-import { conf } from '../../helpers/config';
 import SelectRepositoryRow from '../select-repository-row';
 import Spinner from '../spinner';
 import PageLinks from '../page-links';
@@ -28,44 +27,12 @@ import styles from './styles.css';
 // loading container styles not to duplicate .spinner class
 import { spinner as spinnerStyles } from '../../containers/container.css';
 
-const SNAP_NAME_NOT_REGISTERED_ERROR_CODE = 'snap-name-not-registered';
-
 export class SelectRepositoryListComponent extends Component {
 
   componentDidMount() {
     this.props.selectedRepositories && this.props.selectedRepositories.map(id => {
       this.props.dispatch(resetRepository(id));
     });
-  }
-
-  // TODO this can be moved too select-repository-row as the error prop is on
-  // the repository object passed to it
-  getSnapNotRegisteredMessage(snapName) {
-    const devportalUrl = conf.get('STORE_DEVPORTAL_URL');
-    const registerNameUrl = `${devportalUrl}/click-apps/register-name/` +
-                            `?name=${encodeURIComponent(snapName)}`;
-
-    return <span>
-      The name provided in the snapcraft.yaml file ({snapName}) is not
-      registered in the store.
-      Please <a href={registerNameUrl}>register it</a> before trying
-      again.
-    </span>;
-  }
-
-  // TODO this can be moved too select-repository-row as the error prop is on
-  // the repository object passed to it
-  getErrorMessage(error) {
-
-    const { payload = undefined } = error;
-
-    if (payload) {
-      if (payload.code === SNAP_NAME_NOT_REGISTERED_ERROR_CODE) {
-        return this.getSnapNotRegisteredMessage(payload.snap_name);
-      } else {
-        return payload.message;
-      }
-    }
   }
 
   renderRepository(id) {
@@ -79,7 +46,7 @@ export class SelectRepositoryListComponent extends Component {
         key={ `repo_${fullName}` }
         repository={ repository }
         onChange={ this.onSelectRepository.bind(this, id) }
-        errorMsg={ repository.error && this.getErrorMessage(repository.error) }
+        errorMsg={ repository.error && repository.error.message }
         isEnabled={ isEnabled }
       />
     );
