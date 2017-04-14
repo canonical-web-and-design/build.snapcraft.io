@@ -315,7 +315,12 @@ export class RepositoryRowView extends Component {
             onClick={ this.onToggleRemoveClick.bind(this) }
           />
         </Data>
-        { showNameMismatchDropdown && <NameMismatchDropdown snap={snap} /> }
+        { showNameMismatchDropdown &&
+          <NameMismatchDropdown
+            snap={snap}
+            onOpenRegisterNameClick={this.onUnregisteredClick.bind(this)}
+          />
+        }
         { showUnconfiguredDropdown && <UnconfiguredDropdown snap={snap} /> }
         { showEditConfigDropdown &&
           <EditConfigDropdown
