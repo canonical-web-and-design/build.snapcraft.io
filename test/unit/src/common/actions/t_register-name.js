@@ -596,6 +596,7 @@ describe('register name actions', () => {
 
   context('checkNameOwnership', () => {
     const snapName = 'test-snap';
+    const id = repository.url;
     let api;
 
 
@@ -606,10 +607,10 @@ describe('register name actions', () => {
     context('when snapName is not specified', () => {
       it('should throw an error', async () => {
         try {
-          await store.dispatch(checkNameOwnership(repository, ''));
+          await store.dispatch(checkNameOwnership(id, ''));
           throw new Error('Unexpected success');
         } catch (error) {
-          expect(error.message).toContain('`repository` and `snapName` are required params');
+          expect(error.message).toContain('`id` and `snapName` are required params');
         }
       });
     });
@@ -635,9 +636,9 @@ describe('register name actions', () => {
       it('should store CHECK_NAME_OWNERSHIP_REQUEST action', async() => {
         const expectedAction = {
           type: ActionTypes.CHECK_NAME_OWNERSHIP_REQUEST,
-          payload: { id: repository.url, snapName: 'test-snap' }
+          payload: { id, snapName }
         };
-        await store.dispatch(checkNameOwnership(repository, 'test-snap'));
+        await store.dispatch(checkNameOwnership(id, snapName));
         expect(store.getActions()).toInclude(expectedAction);
       });
 
@@ -646,12 +647,12 @@ describe('register name actions', () => {
         const expectedAction = {
           type: ActionTypes.CHECK_NAME_OWNERSHIP_SUCCESS,
           payload: {
-            id: repository.url,
-            snapName: 'test-snap',
+            id,
+            snapName,
             status: NAME_OWNERSHIP_NOT_REGISTERED
           }
         };
-        await store.dispatch(checkNameOwnership(repository, 'test-snap'));
+        await store.dispatch(checkNameOwnership(id, snapName));
         expect(store.getActions()).toInclude(expectedAction);
       });
 
@@ -675,17 +676,17 @@ describe('register name actions', () => {
       it('should store CHECK_NAME_OWNERSHIP_REQUEST action', async() => {
         const expectedAction = {
           type: ActionTypes.CHECK_NAME_OWNERSHIP_REQUEST,
-          payload: { id: repository.url, snapName: 'test-snap' }
+          payload: { id, snapName }
         };
-        await store.dispatch(checkNameOwnership(repository, 'test-snap'));
+        await store.dispatch(checkNameOwnership(id, snapName));
         expect(store.getActions()).toInclude(expectedAction);
       });
 
       it('should store CHECK_NAME_OWNERSHIP_ERROR action', async() => {
-        await store.dispatch(checkNameOwnership(repository, 'test-snap'));
+        await store.dispatch(checkNameOwnership(id, snapName));
         expect(store.getActions()).toHaveActionsMatching((action) => {
           return action.type === ActionTypes.CHECK_NAME_OWNERSHIP_ERROR &&
-            action.payload.id === repository.url;
+            action.payload.id === id;
         });
       });
 

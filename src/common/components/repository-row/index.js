@@ -197,6 +197,24 @@ export class RepositoryRowView extends Component {
         editConfigDropdownExpanded: false
       });
     }
+
+    const nextSnapcraftData = nextProps.snap.snapcraft_data;
+    const currentSnapcraftData = this.props.snap.snapcraft_data;
+
+    // if there is a name mismatch we want to check who owns the name in the store
+    if (snapNameIsMismatched(nextProps.snap)
+        // we can only do this if user is authenticated in the store
+        && nextProps.authStore.authenticated
+        && (
+          // and we need to do this only if we don't know the status yet
+          !nextSnapcraftData.nameOwnershipStatus
+          // or if the snapcraft data name changed
+          || nextSnapcraftData.name !== currentSnapcraftData.name
+        )
+        // and if we are not fetching this data already
+        && !nextSnapcraftData.isFetching) {
+      this.props.nameActions.checkNameOwnership(nextProps.snap.git_repository_url, nextSnapcraftData.name);
+    }
   }
 
   componentWillUnmount() {

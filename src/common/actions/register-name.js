@@ -254,14 +254,12 @@ export async function internalNameOwnership(root, discharge, snapName) {
   }
 }
 
-export function checkNameOwnership(repository, snapName) {
-  if (!repository || !snapName) {
-    throw new Error('`repository` and `snapName` are required params of `checkNameOwnership`');
+export function checkNameOwnership(id, snapName) {
+  if (!id || !snapName) {
+    throw new Error('Snap `id` and `snapName` are required params of `checkNameOwnership`');
   }
 
   return async (dispatch) => {
-    const id = repository.url;
-
     dispatch({
       type: CHECK_NAME_OWNERSHIP_REQUEST,
       payload: { id, snapName }
