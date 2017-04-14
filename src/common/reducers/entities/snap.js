@@ -19,6 +19,15 @@ export default function snap(state={}, action) {
           nameOwnershipStatus: action.payload.status
         }
       };
+    case RegisterNameActionTypes.CHECK_NAME_OWNERSHIP_ERROR:
+      return {
+        ...state,
+        snapcraft_data: {
+          ...state.snapcraft_data,
+          isFetching: false,
+          nameOwnershipStatus: null
+        }
+      };
     case RegisterNameActionTypes.REGISTER_NAME_SUCCESS:
       return {
         ...state,
