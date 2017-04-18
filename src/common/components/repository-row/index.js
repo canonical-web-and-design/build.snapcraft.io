@@ -254,10 +254,8 @@ export class RepositoryRowView extends Component {
     const showRegisterNameInput = (
       showUnregisteredDropdown && authStore.authenticated
     );
-    const registeredName = (
-      registerNameStatus.success ?
-      registerNameStatus.snapName : snap.store_name
-    );
+
+    const registeredName = snap.store_name;
 
     const hasBuilt = !!(latestBuild && snap.snapcraft_data);
 

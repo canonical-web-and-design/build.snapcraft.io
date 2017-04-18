@@ -73,7 +73,7 @@ export class RepositoriesListView extends Component {
 
   renderRow(id, index) {
     const snap = this.props.entities.snaps[id];
-    const { hasNoConfiguredSnaps, hasNoRegisteredNames, registerName, snapBuilds, authStore } = this.props;
+    const { hasNoConfiguredSnaps, hasNoRegisteredNames, snapBuilds, authStore } = this.props;
     const { fullName } = parseGitHubRepoUrl(snap.git_repository_url);
     const isFirstInList = index === 0;
 
@@ -92,7 +92,7 @@ export class RepositoriesListView extends Component {
       latestBuild = currentSnapBuilds.builds[0];
     }
 
-    const registerNameStatus = registerName[fullName] || {};
+    const registerNameStatus = snap.registerNameStatus || {};
 
     return (
       <RepositoryRow
@@ -139,7 +139,6 @@ RepositoriesListView.defaultProps = {
   entities: {},
   hasNoConfiguredSnaps: true,
   hasNoRegisteredNames: true,
-  registerName: {},
   snapBuilds: {},
   snaps: {}
 };
@@ -154,7 +153,6 @@ RepositoriesListView.propTypes = {
   hasSnaps: PropTypes.bool,
   hasNoConfiguredSnaps: PropTypes.bool,
   hasNoRegisteredNames: PropTypes.bool,
-  registerName: PropTypes.object,
   snapBuilds: PropTypes.object,
   snaps: PropTypes.object
 };
@@ -164,7 +162,6 @@ function mapStateToProps(state) {
     auth,
     authStore,
     entities,
-    registerName,
     snaps,
     snapBuilds
   } = state;
@@ -173,7 +170,6 @@ function mapStateToProps(state) {
     auth,
     authStore,
     entities,
-    registerName,
     snaps,
     snapBuilds,
     hasSnaps: hasSnaps(state),
