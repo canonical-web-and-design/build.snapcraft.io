@@ -10,7 +10,6 @@ import * as snaps from './snaps';
 import * as user from './user';
 import * as auth from './auth';
 import * as authStore from './auth-store';
-import * as registerName from './register-name';
 import { entities } from './entities';
 
 const rootReducer = combineReducers({
@@ -18,7 +17,6 @@ const rootReducer = combineReducers({
   ...authError,
   ...authStore,
   ...betaNotification,
-  ...registerName,
   ...repositories,
   ...repository,
   ...snapBuilds,
