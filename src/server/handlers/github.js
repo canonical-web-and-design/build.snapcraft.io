@@ -132,8 +132,8 @@ export const listRepositories = async (req, res) => {
     return res.status(401).send(RESPONSE_AUTHENTICATION_FAILED);
   }
 
-  if (req.params.page) {
-    params.page = req.params.page;
+  if (req.query.page) {
+    params.page = req.query.page;
   }
 
   const uri = REPO_ENDPOINT + '?' + qs.stringify(params);

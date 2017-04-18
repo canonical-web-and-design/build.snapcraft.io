@@ -51,7 +51,7 @@ describe('The GitHub API endpoint', () => {
       });
 
       it('should return a body with a "snapcraft-yaml-found" message', async () => {
-        await apiResponse.expect(hasPayloadMessage('snapcraft-yaml-found'));
+        await apiResponse.expect(hasPayloadCode('snapcraft-yaml-found'));
       });
 
       it('should return a path to snap/snapcraft.yaml', async () => {
@@ -85,7 +85,7 @@ describe('The GitHub API endpoint', () => {
       });
 
       it('should return a body with a "snapcraft-yaml-found" message', async () => {
-        await apiResponse.expect(hasPayloadMessage('snapcraft-yaml-found'));
+        await apiResponse.expect(hasPayloadCode('snapcraft-yaml-found'));
       });
 
       it('should return a path to snapcraft.yaml', async () => {
@@ -120,7 +120,7 @@ describe('The GitHub API endpoint', () => {
       });
 
       it('should return a body with a "snapcraft-yaml-found" message', async () => {
-        await apiResponse.expect(hasPayloadMessage('snapcraft-yaml-found'));
+        await apiResponse.expect(hasPayloadCode('snapcraft-yaml-found'));
       });
 
       it('should return a path to .snapcraft.yaml', async () => {
@@ -155,7 +155,7 @@ describe('The GitHub API endpoint', () => {
       });
 
       it('should return a body with a "snapcraft-yaml-not-found" message', async () => {
-        await apiResponse.expect(hasPayloadMessage('github-snapcraft-yaml-not-found'));
+        await apiResponse.expect(hasPayloadCode('github-snapcraft-yaml-not-found'));
       });
 
     });
@@ -191,7 +191,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a body with a "github-authentication-failed" message', (done) => {
         supertest(app)
           .get('/github/repos')
-          .expect(hasPayloadMessage('github-authentication-failed'))
+          .expect(hasPayloadCode('github-authentication-failed'))
           .end(done);
       });
     });
@@ -228,7 +228,7 @@ describe('The GitHub API endpoint', () => {
         it('should return a body with a error message from GitHub', (done) => {
           supertest(app)
             .get('/github/user')
-            .expect(hasPayloadMessage('github-user-error', errorMessage))
+            .expect(hasPayloadCode('github-user-error', errorMessage))
             .end(done);
         });
       });
@@ -266,7 +266,7 @@ describe('The GitHub API endpoint', () => {
         it('should return a body with a "github-user" code', (done) => {
           supertest(app)
             .get('/github/user')
-            .expect(hasPayloadMessage('github-user'))
+            .expect(hasPayloadCode('github-user'))
             .end(done);
         });
 
@@ -312,7 +312,7 @@ describe('The GitHub API endpoint', () => {
       it('should return a body with a "github-authentication-failed" message', (done) => {
         supertest(app)
           .get('/github/repos')
-          .expect(hasPayloadMessage('github-authentication-failed'))
+          .expect(hasPayloadCode('github-authentication-failed'))
           .end(done);
       });
     });
@@ -350,7 +350,7 @@ describe('The GitHub API endpoint', () => {
         it('should return a body with a error message from GitHub', (done) => {
           supertest(app)
             .get('/github/repos')
-            .expect(hasPayloadMessage('github-list-repositories-error', errorMessage))
+            .expect(hasPayloadCode('github-list-repositories-error', errorMessage))
             .end(done);
         });
       });
@@ -406,7 +406,7 @@ describe('The GitHub API endpoint', () => {
         it('should return a body with a "github-list-repositories" code', (done) => {
           supertest(app)
             .get('/github/repos')
-            .expect(hasBodyMessage('github-list-repositories'))
+            .expect(hasBodyCode('github-list-repositories'))
             .end(done);
         });
 
@@ -486,7 +486,7 @@ describe('The GitHub API endpoint', () => {
         supertest(app)
           .post('/github/webhook')
           .send({ owner: 'anowner', name: 'aname' })
-          .expect(hasPayloadMessage('github-webhook-created'))
+          .expect(hasPayloadCode('github-webhook-created'))
           .end(done);
       });
     });
@@ -521,7 +521,7 @@ describe('The GitHub API endpoint', () => {
         supertest(app)
           .post('/github/webhook')
           .send({ owner: 'anowner', name: 'aname' })
-          .expect(hasPayloadMessage('github-already-created'))
+          .expect(hasPayloadCode('github-already-created'))
           .end(done);
       });
     });
@@ -556,7 +556,7 @@ describe('The GitHub API endpoint', () => {
         supertest(app)
           .post('/github/webhook')
           .send({ owner: 'anowner', name: 'aname' })
-          .expect(hasPayloadMessage('github-repository-not-found'))
+          .expect(hasPayloadCode('github-repository-not-found'))
           .end(done);
       });
     });
@@ -591,7 +591,7 @@ describe('The GitHub API endpoint', () => {
         supertest(app)
           .post('/github/webhook')
           .send({ owner: 'anowner', name: 'aname' })
-          .expect(hasPayloadMessage('github-authentication-failed'))
+          .expect(hasPayloadCode('github-authentication-failed'))
           .end(done);
       });
     });
@@ -626,7 +626,7 @@ describe('The GitHub API endpoint', () => {
         supertest(app)
           .post('/github/webhook')
           .send({ owner: 'anowner', name: 'aname' })
-          .expect(hasPayloadMessage('github-error-other'))
+          .expect(hasPayloadCode('github-error-other'))
           .end(done);
       });
     });
@@ -641,7 +641,7 @@ const hasStatus = (expected) => {
   };
 };
 
-const hasPayloadMessage = (expected) => {
+const hasPayloadCode = (expected) => {
   return (actual) => {
     if (typeof actual.body.payload === 'undefined'
         || typeof actual.body.payload.code === 'undefined'
@@ -651,7 +651,7 @@ const hasPayloadMessage = (expected) => {
   };
 };
 
-const hasBodyMessage = (expected) => {
+const hasBodyCode = (expected) => {
   return (actual) => {
     if (typeof actual.body.code === 'undefined'
       || actual.body.code !== expected) {

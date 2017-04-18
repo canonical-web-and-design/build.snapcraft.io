@@ -6,16 +6,16 @@ export const REPOSITORIES_SUCCESS = 'REPOSITORIES_SUCCESS';
 export const REPOSITORIES_FAILURE = 'REPOSITORIES_FAILURE';
 
 export function fetchUserRepositories(pageNumber) {
-  let urlParts = ['/api/github/repos'];
+  let path = '/api/github/repos';
 
   if (pageNumber) {
-    urlParts.push('page/' + pageNumber);
+    path += ('?page=' + pageNumber);
   }
 
   return {
     [CALL_API]: {
       types: [REPOSITORIES_REQUEST, REPOSITORIES_SUCCESS, REPOSITORIES_FAILURE],
-      path: urlParts.join('/'),
+      path: path,
       options: {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin'
