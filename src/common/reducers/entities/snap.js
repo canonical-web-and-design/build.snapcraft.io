@@ -43,7 +43,7 @@ export default function snap(state={}, action) {
       return {
         ...state,
         registerNameStatus: {
-          ...state.registerNameInitialStatus
+          ...registerNameInitialStatus
         }
       };
     default:
