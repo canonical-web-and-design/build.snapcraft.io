@@ -1,182 +1,39 @@
 import expect from 'expect';
-import configureMockStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
-import nock from 'nock';
-import { isFSA } from 'flux-standard-action';
-
-import { conf } from '../../../../../src/server/helpers/config';
 
 import {
-  fetchUserRepositories,
-  fetchRepositoriesSuccess,
-  fetchRepositoriesError
+  fetchUserRepositories
 } from '../../../../../src/common/actions/repositories';
 import * as ActionTypes from '../../../../../src/common/actions/repositories';
-
-const middlewares = [ thunk ];
-const mockStore = configureMockStore(middlewares);
+import { CALL_API } from '../../../../../src/common/middleware/call-api';
 
 describe('repositories actions', () => {
-  const initialState = {
-    isFetching: false,
-    success: false,
-    error: null,
-    repos: null
-  };
+  describe('fetchUserRepositories', () => {
+    context('when not supplied with a page number', () => {
+      let pageNumber;
 
-  let store;
-  let action;
-
-  beforeEach(() => {
-    store = mockStore(initialState);
-  });
-
-  context('fetchRepositoriesSuccess', () => {
-    let result = {
-      payload: {
-        entities: {
-          repos: {
-            123: { fullName: 'test1' },
-            456: { fullName: 'test2' }
-          }
-        },
-        result: {
-          0: 123,
-          1: 456
-        }
-      },
-      pageLinks: {
-        next: 2,
-        last: 2
-      }
-    };
-
-    beforeEach(() => {
-      action = fetchRepositoriesSuccess(result);
-    });
-
-    it('should create an action to store repositories', () => {
-      store.dispatch(action);
-      expect(store.getActions()).toHaveActionsMatching((action) => {
-        return action.payload.entities == result.payload.entities
-          && action.payload.result == result.payload.result;
-      });
-    });
-
-    it('should supply pagelinks in action payload', () => {
-      store.dispatch(action);
-      expect(store.getActions()).toHaveActionsMatching((action) => {
-        return action.payload.pageLinks == result.pageLinks;
-      });
-    });
-
-    it('should create a valid flux standard action', () => {
-      expect(isFSA(action)).toBe(true);
-    });
-  });
-
-  context('fetchRepositoriesError', () => {
-    let payload = 'Something went wrong!';
-
-    beforeEach(() => {
-      action = fetchRepositoriesError(payload);
-    });
-
-    it('should create an action to store request error on failure', () => {
-      const expectedAction = {
-        type: ActionTypes.REPOSITORIES_FAILURE,
-        error: true,
-        payload
-      };
-
-      store.dispatch(action);
-      expect(store.getActions()).toInclude(expectedAction);
-    });
-
-    it('should create a valid flux standard action', () => {
-      expect(isFSA(action)).toBe(true);
-    });
-  });
-
-  context('fetchUserRepositories', () => {
-    let api;
-
-    beforeEach(() => {
-      api = nock(conf.get('BASE_URL'));
-    });
-
-    afterEach(() => {
-      api.done();
-      nock.cleanAll();
-    });
-
-    context('when repository data successfully retrieved', () => {
       beforeEach(() => {
-        api.get('/api/github/repos')
-          .reply(200, {
-            status: 'success',
-            payload: {
-              code: 'snap-builds-found',
-              repos: []
-            },
-            pageLinks: {
-              first: '1',
-              prev: '1',
-              next: '3',
-              last: '3'
-            }
-          });
+        pageNumber = null;
       });
 
-      it('should store repositories on fetch success', () => {
-        return store.dispatch(fetchUserRepositories())
-          .then(() => {
-            api.done();
-            expect(store.getActions()).toHaveActionOfType(
-              ActionTypes.REPOSITORIES_REQUEST
-            );
-          });
+      it('should supply request, success and failure actions when invoking CALL_API', () => {
+        expect(fetchUserRepositories(pageNumber)[CALL_API].types).toEqual([
+          ActionTypes.REPOSITORIES_REQUEST,
+          ActionTypes.REPOSITORIES_SUCCESS,
+          ActionTypes.REPOSITORIES_FAILURE
+        ]);
       });
     });
 
-    context('when one page of repo data successfully retrieved', () => {
+    context('when supplied with a page number', () => {
+      let pageNumber;
+
       beforeEach(() => {
-        api.get('/api/github/repos')
-          .reply(200, {
-            status: 'success',
-            payload: {
-              code: 'snap-builds-found',
-              repos: []
-            }
-          });
+        pageNumber = 123;
       });
 
-      it('should store no pageLinks', async () => {
-        await store.dispatch(fetchUserRepositories());
-        expect(store.getActions()).notToHaveActionOfType(
-          ActionTypes.SET_REPO_PAGE_LINKS
-        );
+      it('should supply a request path containing the page number', () => {
+        expect(fetchUserRepositories(pageNumber)[CALL_API].path).toInclude(123);
       });
     });
-
-    it('should store error on Launchpad request failure', async () => {
-      api.get('/api/github/repos')
-        .reply(404, {
-          status: 'error',
-          payload: {
-            code: 'gh-error',
-            message: 'Something went wrong'
-          }
-        });
-
-      return store.dispatch(fetchUserRepositories())
-        .then(() => {
-          expect(store.getActions()).toHaveActionOfType(
-            ActionTypes.REPOSITORIES_FAILURE
-          );
-        });
-    });
-
   });
-
 });

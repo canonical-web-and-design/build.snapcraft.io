@@ -20,14 +20,14 @@ export function repositories(state = {
         ...state,
         isFetching: false,
         error: null,
-        ids: union(state.ids, action.payload.result),
-        pageLinks: action.payload.pageLinks
+        ids: union(state.ids, action.payload.response.result),
+        pageLinks: action.payload.response.pageLinks
       };
     case ActionTypes.REPOSITORIES_FAILURE:
       return {
         ...state,
         isFetching: false,
-        error: action.payload,
+        error: action.payload.error,
       };
     default:
       return state;

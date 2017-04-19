@@ -18,7 +18,6 @@ router.get('/github/user', getUser);
 
 router.use('/github/repos', json());
 router.get('/github/repos', listRepositories);
-router.get('/github/repos/page/:page', listRepositories);
 
 router.use('/github/snapcraft-yaml/:owner/:name', json());
 router.get('/github/snapcraft-yaml/:owner/:name', getSnapcraftYaml);

@@ -1,63 +1,26 @@
-import 'isomorphic-fetch';
-
-import { checkStatus, getError } from '../helpers/api';
-import { conf } from '../helpers/config';
+import { CALL_API } from '../middleware/call-api';
 import { fetchUserSnaps } from './snaps.js';
-
-const BASE_URL = conf.get('BASE_URL');
 
 export const REPOSITORIES_REQUEST = 'REPOSITORIES_REQUEST';
 export const REPOSITORIES_SUCCESS = 'REPOSITORIES_SUCCESS';
 export const REPOSITORIES_FAILURE = 'REPOSITORIES_FAILURE';
 
-
-export function fetchRepositoriesSuccess(result) {
-  return {
-    type: REPOSITORIES_SUCCESS,
-    payload: {
-      ...result.payload,
-      pageLinks: result.pageLinks
-    }
-  };
-}
-
 export function fetchUserRepositories(pageNumber) {
-  return async (dispatch) => {
-    let urlParts = [BASE_URL, 'api/github/repos'];
+  let path = '/api/github/repos';
 
-    dispatch({
-      type: REPOSITORIES_REQUEST
-    });
+  if (pageNumber) {
+    path += ('?page=' + pageNumber);
+  }
 
-    if (pageNumber) {
-      urlParts.push('page/' + pageNumber);
-    }
-
-    try {
-      const response = await fetch(urlParts.join('/'), {
+  return {
+    [CALL_API]: {
+      types: [REPOSITORIES_REQUEST, REPOSITORIES_SUCCESS, REPOSITORIES_FAILURE],
+      path: path,
+      options: {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin'
-      });
-      await checkStatus(response);
-      const result = await response.json();
-      if (result.status !== 'success') {
-        throw getError(response, result);
       }
-
-      dispatch(fetchRepositoriesSuccess(result));
-    } catch (error) {
-      // TODO: Replace with logging helper
-      console.warn(error); // eslint-disable-line no-console
-      dispatch(fetchRepositoriesError(error));
     }
-  };
-}
-
-export function fetchRepositoriesError(error) {
-  return {
-    type: REPOSITORIES_FAILURE,
-    payload: error,
-    error: true
   };
 }
 
