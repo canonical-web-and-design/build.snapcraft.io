@@ -49,7 +49,7 @@ export class RepositoriesListView extends Component {
 
   getSnapNotRegisteredMessage(snapName) {
     const devportalUrl = conf.get('STORE_DEVPORTAL_URL');
-    const registerNameUrl = `${devportalUrl}/click-apps/register-name/` +
+    const registerNameUrl = `${devportalUrl}/snaps/register-name/` +
                             `?name=${encodeURIComponent(snapName)}`;
 
     return <span>

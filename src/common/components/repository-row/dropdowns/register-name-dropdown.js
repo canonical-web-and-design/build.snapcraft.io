@@ -8,7 +8,7 @@ import { TickIcon, ErrorIcon } from '../icons';
 
 import styles from './dropdowns.css';
 
-const FILE_NAME_CLAIM_URL = `${conf.get('STORE_DEVPORTAL_URL')}/click-apps/register-name/`;
+const FILE_NAME_CLAIM_URL = `${conf.get('STORE_DEVPORTAL_URL')}/snaps/register-name/`;
 const AGREEMENT_URL = `${conf.get('STORE_DEVPORTAL_URL')}/tos/`;
 
 const getErrorCode = (error) => {

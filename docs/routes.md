@@ -243,7 +243,7 @@ To register a name with the store:
     }
 
 The response is [defined by the
-store](https://myapps.developer.ubuntu.com/docs/api/snap.html#register-a-package-name).
+store](https://dashboard.snapcraft.io/docs/api/snap.html#register-a-package-name).
 
 This endpoint should be considered temporary; once it is possible to make a
 cross-origin request directly to the store, we will do that instead.
