@@ -39,19 +39,19 @@ const RESPONSE_OTHER = {
   }
 };
 
-const RESPONSE_ALREADY_CREATED = {
-  status: 'error',
-  payload: {
-    code: 'github-already-created',
-    message: 'A webhook already exists on the given repository'
-  }
-};
-
 const RESPONSE_CREATED = {
   status: 'success',
   payload: {
     code: 'github-webhook-created',
     message: 'GitHub webhook successfully created'
+  }
+};
+
+const RESPONSE_ALREADY_CREATED = {
+  status: 'success',
+  payload: {
+    code: 'github-already-created',
+    message: 'A webhook already exists on the given repository'
   }
 };
 
@@ -194,7 +194,7 @@ export const createWebhook = async (req, res) => {
           return res.status(401).send(RESPONSE_AUTHENTICATION_FAILED);
         case 'Validation Failed':
           // Webhook already created
-          return res.status(422).send(RESPONSE_ALREADY_CREATED);
+          return res.status(200).send(RESPONSE_ALREADY_CREATED);
         default:
           // Something else
           logger.error('GitHub API error', response.statusCode);

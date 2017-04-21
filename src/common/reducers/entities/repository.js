@@ -6,7 +6,6 @@ export default function repository(state={
   isFetching: false,
   error: null
 }, action) {
-
   switch(action.type) {
     case ActionTypes.REPO_TOGGLE_SELECT: {
       const wasSelected = state.isSelected;
@@ -16,14 +15,14 @@ export default function repository(state={
         isSelected: !wasSelected
       };
     }
-    case ActionTypes.REPO_ADD: {
+    case ActionTypes.REPO_ADD_REQUEST: {
       return {
         ...state,
         isFetching: true,
         isSelected: true
       };
     }
-    case ActionTypes.REPO_SUCCESS: {
+    case ActionTypes.REPO_ADD_SUCCESS: {
       return {
         ...state,
         isFetching: false,
@@ -38,11 +37,11 @@ export default function repository(state={
         error: null
       };
     }
-    case ActionTypes.REPO_FAILURE: {
+    case ActionTypes.REPO_ADD_FAILURE: {
       return {
         ...state,
         isFetching: false,
-        error: action.payload.error.json
+        error: action.payload.error
       };
     }
     default:

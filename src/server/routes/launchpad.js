@@ -15,6 +15,7 @@ import {
 const router = Router();
 
 router.use('/launchpad/snaps', json());
+router.post('/launchpad/snaps', verifyToken);
 router.post('/launchpad/snaps', newSnap);
 router.get('/launchpad/snaps', findSnap);
 

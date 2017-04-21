@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { json } from 'body-parser';
 
+import { verifyToken } from '../middleware/csrf-token';
 import {
   getUser,
   createWebhook,
@@ -11,6 +12,7 @@ import { getSnapcraftYaml } from '../handlers/launchpad';
 const router = Router();
 
 router.use('/github/webhook', json());
+router.post('/github/webhook', verifyToken);
 router.post('/github/webhook', createWebhook);
 
 router.use('/github/user', json());

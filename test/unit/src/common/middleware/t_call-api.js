@@ -149,20 +149,27 @@ describe('The callApi middleware', () => {
         };
       });
 
-      it('should dispatch EXAMPLE_ACTION', async () => {
-        await store.dispatch(action);
-        expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION');
+      it('should dispatch EXAMPLE_ACTION', (done) => {
+        store.dispatch(action).catch(() => {
+          expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION');
+          done();
+        });
       });
 
-      it('should dispatch EXAMPLE_ACTION_ERROR', async () => {
-        await store.dispatch(action);
-        expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION_ERROR');
+      it('should dispatch EXAMPLE_ACTION_ERROR', (done) => {
+        store.dispatch(action).catch(() => {
+          expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION_ERROR');
+          done();
+        });
+
       });
 
-      it('should dispatch EXAMPLE_ACTION_SUCCESS with a payload containing fetched response', async () => {
-        await store.dispatch(action);
-        expect(store.getActions()).toHaveActionsMatching((action) => {
-          return action.payload.error && action.payload.error.message === RESPONSE.payload.message;
+      it('should dispatch EXAMPLE_ACTION_SUCCESS with a payload containing fetched response', (done) => {
+        store.dispatch(action).catch(() => {
+          expect(store.getActions()).toHaveActionsMatching((action) => {
+            return action.payload.error && action.payload.error.message === RESPONSE.payload.message;
+          });
+          done();
         });
       });
     });

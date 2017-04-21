@@ -42,6 +42,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 401 Unauthorized response', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(401, done);
       });
@@ -49,6 +50,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
@@ -57,6 +59,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a body with a "not-logged-in" message', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('not-logged-in'))
           .end(done);
@@ -98,6 +101,7 @@ describe('The Launchpad API endpoint', () => {
         it('should return a 400 Bad Request response', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(400, done);
         });
@@ -105,6 +109,7 @@ describe('The Launchpad API endpoint', () => {
         it('should return a "error" status', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasStatus('error'))
             .end(done);
@@ -113,6 +118,7 @@ describe('The Launchpad API endpoint', () => {
         it('should return a body with an "lp-error" message', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasMessage(
                 'lp-error',
@@ -127,6 +133,7 @@ describe('The Launchpad API endpoint', () => {
           await dbUser.save({ snaps_added: 1 });
           await supertest(app)
             .post('/launchpad/snaps')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' });
           await dbUser.refresh();
           expect(dbUser.get('snaps_added')).toEqual(1);
@@ -185,6 +192,7 @@ describe('The Launchpad API endpoint', () => {
         it('should return a 201 Created response', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(201, done);
         });
@@ -192,6 +200,7 @@ describe('The Launchpad API endpoint', () => {
         it('should return a "success" status', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasStatus('success'))
             .end(done);
@@ -200,6 +209,7 @@ describe('The Launchpad API endpoint', () => {
         it('should return a body with the new snap URL', (done) => {
           supertest(app)
             .post('/launchpad/snaps')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasMessage('snap-created', snapUrl))
             .end(done);
@@ -208,6 +218,7 @@ describe('The Launchpad API endpoint', () => {
         it('should leave snaps_added unmodified if it is unset', async () => {
           await supertest(app)
             .post('/launchpad/snaps')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' });
           const dbUser = await db.model('GitHubUser')
             .where({ github_id: session.user.id })
@@ -222,6 +233,7 @@ describe('The Launchpad API endpoint', () => {
           await dbUser.save({ snaps_added: 1 });
           await supertest(app)
             .post('/launchpad/snaps')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' });
           await dbUser.refresh();
           expect(dbUser.get('snaps_added')).toEqual(2);
@@ -233,6 +245,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 400 Bad Request response', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'nonsense' })
           .expect(400, done);
       });
@@ -240,6 +253,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'nonsense' })
           .expect(hasStatus('error'))
           .end(done);
@@ -248,6 +262,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a body with a "github-bad-url" message', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'nonsense' })
           .expect(hasMessage('github-bad-url'))
           .end(done);
@@ -268,6 +283,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 401 Unauthorized response', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(401, done);
       });
@@ -275,6 +291,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
@@ -284,6 +301,7 @@ describe('The Launchpad API endpoint', () => {
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('github-no-admin-permissions'))
           .end(done);
@@ -304,6 +322,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 404 Not Found response', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(404, done);
       });
@@ -311,6 +330,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
@@ -320,6 +340,7 @@ describe('The Launchpad API endpoint', () => {
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('github-snapcraft-yaml-not-found'))
           .end(done);
@@ -340,6 +361,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 401 Unauthorized response', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(401, done);
       });
@@ -347,6 +369,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
@@ -356,6 +379,7 @@ describe('The Launchpad API endpoint', () => {
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('github-authentication-failed'))
           .end(done);
