@@ -44,20 +44,20 @@ class BuildDetails extends Component {
           </HelpInstallSnap>
         </HelpBox>
       );
-    } else if (snap && snap.store_name && build.storeRevision) {
+    } else if (snap && snap.storeName && build.storeRevision) {
       // otherwise if we have snap name and revision show install instructions
       helpBox = (
         <HelpBox>
           <HelpInstallSnap
             headline='To test this build on your PC or cloud instance:'
-            name={ snap.store_name }
+            name={ snap.storeName }
             revision={ build.storeRevision }
           />
-          { snap.snapcraft_data &&
+          { snap.snapcraftData &&
             <HelpPromoteSnap
-              name={snap.store_name}
+              name={snap.storeName}
               revision={build.storeRevision}
-              confinement={snap.snapcraft_data.confinement}
+              confinement={snap.snapcraftData.confinement}
             />
           }
         </HelpBox>
@@ -125,8 +125,8 @@ BuildDetails.propTypes = {
   snapBuilds: PropTypes.shape({
     isFetching: PropTypes.bool,
     snap: PropTypes.shape({
-      self_link: PropTypes.string.isRequired,
-      store_name: PropTypes.string.isRequired
+      selfLink: PropTypes.string.isRequired,
+      storeName: PropTypes.string.isRequired
     }),
     error: PropTypes.object,
   })

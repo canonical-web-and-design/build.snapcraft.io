@@ -11,8 +11,8 @@ function withSnapBuilds(WrappedComponent) {
     fetchInterval = null
 
     fetchData({ snap, repository }) {
-      if (snap && snap.self_link) {
-        this.props.dispatch(fetchBuilds(repository.url, snap.self_link));
+      if (snap && snap.selfLink) {
+        this.props.dispatch(fetchBuilds(repository.url, snap.selfLink));
       } else if (repository) {
         this.props.dispatch(fetchSnap(repository.url));
       }

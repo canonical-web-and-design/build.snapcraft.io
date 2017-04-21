@@ -33,8 +33,8 @@ export class RepositoryRowView extends Component {
     super(props);
 
     let snapName;
-    if (props.snap.snapcraft_data && props.snap.snapcraft_data.name) {
-      snapName = props.snap.snapcraft_data.name;
+    if (props.snap.snapcraftData && props.snap.snapcraftData.name) {
+      snapName = props.snap.snapcraftData.name;
     } else {
       snapName = '';
     }
@@ -50,11 +50,11 @@ export class RepositoryRowView extends Component {
   }
 
   saveState() {
-    localforage.setItem(`repository_row_${this.props.snap.git_repository_url}`, this.state);
+    localforage.setItem(`repository_row_${this.props.snap.gitRepoUrl}`, this.state);
   }
 
   async loadState() {
-    const item = `repository_row_${this.props.snap.git_repository_url}`;
+    const item = `repository_row_${this.props.snap.gitRepoUrl}`;
     const state = await localforage.getItem(item);
     if (state) {
       this.setState(state);
@@ -62,7 +62,7 @@ export class RepositoryRowView extends Component {
   }
 
   clearState() {
-    localforage.removeItem(`repository_row_${this.props.snap.git_repository_url}`);
+    localforage.removeItem(`repository_row_${this.props.snap.gitRepoUrl}`);
   }
 
   componentDidMount() {
@@ -149,7 +149,7 @@ export class RepositoryRowView extends Component {
     const { authStore, snap } = this.props;
     const repository = parseGitHubRepoUrl(repositoryUrl);
     const { snapName, signAgreement } = this.state;
-    const requestBuilds = (!!snap.snapcraft_data);
+    const requestBuilds = (!!snap.snapcraftData);
 
     this.props.nameActions.registerName(repository, snapName, {
       signAgreement: signAgreement ? authStore.userName : null,
@@ -198,8 +198,8 @@ export class RepositoryRowView extends Component {
       });
     }
 
-    const nextSnapcraftData = nextProps.snap.snapcraft_data;
-    const currentSnapcraftData = this.props.snap.snapcraft_data;
+    const nextSnapcraftData = nextProps.snap.snapcraftData;
+    const currentSnapcraftData = this.props.snap.snapcraftData;
 
     // if there is a name mismatch we want to check who owns the name in the store
     if (snapNameIsMismatched(nextProps.snap)
@@ -213,7 +213,7 @@ export class RepositoryRowView extends Component {
         )
         // and if we are not fetching this data already
         && !nextSnapcraftData.isFetching) {
-      this.props.nameActions.checkNameOwnership(nextProps.snap.git_repository_url, nextSnapcraftData.name);
+      this.props.nameActions.checkNameOwnership(nextProps.snap.gitRepoUrl, nextSnapcraftData.name);
     }
   }
 
@@ -255,9 +255,9 @@ export class RepositoryRowView extends Component {
       showUnregisteredDropdown && authStore.authenticated
     );
 
-    const registeredName = snap.store_name;
+    const registeredName = snap.storeName;
 
-    const hasBuilt = !!(latestBuild && snap.snapcraft_data);
+    const hasBuilt = !!(latestBuild && snap.snapcraftData);
 
     const isActive = (
       showNameMismatchDropdown ||
@@ -322,19 +322,19 @@ export class RepositoryRowView extends Component {
         { showUnconfiguredDropdown && <UnconfiguredDropdown snap={snap} /> }
         { showEditConfigDropdown &&
           <EditConfigDropdown
-            repositoryUrl={ snap.git_repository_url }
-            configFilePath={ snap.snapcraft_data.path }
+            repositoryUrl={ snap.gitRepoUrl }
+            configFilePath={ snap.snapcraftData.path }
           />
         }
         { showUnregisteredDropdown &&
           <RegisterNameDropdown
             registeredName={registeredName}
-            snapcraftData={snap.snapcraft_data}
+            snapcraftData={snap.snapcraftData}
             snapName={this.state.snapName}
             authStore={authStore}
             registerNameStatus={registerNameStatus}
             onSignAgreementChange={this.onSignAgreementChange.bind(this)}
-            onRegisterSubmit={this.onRegisterSubmit.bind(this, snap.git_repository_url)}
+            onRegisterSubmit={this.onRegisterSubmit.bind(this, snap.gitRepoUrl)}
             onSignInClick={this.onSignInClick.bind(this)}
             onCancelClick={this.onUnregisteredClick.bind(this)}
             onSnapNameChange={this.onSnapNameChange.bind(this)}
@@ -343,7 +343,7 @@ export class RepositoryRowView extends Component {
         { showRemoveDropdown &&
           <RemoveRepoDropdown
             message={this.getRemoveWarningMessage(latestBuild, registeredName)}
-            onRemoveClick={this.onRemoveClick.bind(this, snap.git_repository_url)}
+            onRemoveClick={this.onRemoveClick.bind(this, snap.gitRepoUrl)}
             onCancelClick={this.onToggleRemoveClick.bind(this)}
           />
         }
@@ -375,9 +375,9 @@ export class RepositoryRowView extends Component {
   }
 
   renderConfiguredStatus(snap) {
-    const { snapcraft_data } = snap;
+    const { snapcraftData } = snap;
 
-    if (!snapcraft_data) {
+    if (!snapcraftData) {
       return (
         <a onClick={this.onNotConfiguredClick.bind(this)}>Not configured</a>
       );
@@ -405,7 +405,7 @@ export class RepositoryRowView extends Component {
       );
     } else if (showRegisterNameInput) {
       return (
-        <form onSubmit={this.onRegisterSubmit.bind(this, snap.git_repository_url)}>
+        <form onSubmit={this.onRegisterSubmit.bind(this, snap.gitRepoUrl)}>
           <input
             type='text'
             className={ styles.snapNameInput }
@@ -425,18 +425,18 @@ export class RepositoryRowView extends Component {
 }
 
 const snapNameIsMismatched = (snap) => {
-  const { snapcraft_data, store_name } = snap;
+  const { snapcraftData, storeName } = snap;
 
-  return snapcraft_data && store_name && snapcraft_data.name !== store_name;
+  return snapcraftData && storeName && snapcraftData.name !== storeName;
 };
 
-const snapIsConfigured = (snap) => !!snap.snapcraft_data;
+const snapIsConfigured = (snap) => !!snap.snapcraftData;
 
 RepositoryRowView.propTypes = {
   snap: PropTypes.shape({
-    git_repository_url: PropTypes.string,
-    store_name: PropTypes.string,
-    snapcraft_data: PropTypes.object
+    gitRepoUrl: PropTypes.string,
+    storeName: PropTypes.string,
+    snapcraftData: PropTypes.object
   }),
   latestBuild: PropTypes.shape({
     buildId: PropTypes.string,

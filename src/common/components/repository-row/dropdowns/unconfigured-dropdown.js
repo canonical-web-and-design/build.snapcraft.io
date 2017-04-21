@@ -13,7 +13,7 @@ const LEARN_THE_BASICS_LINK = 'https://snapcraft.io/docs/build-snaps/your-first-
 const INSTALL_IT_LINK = 'https://snapcraft.io/create/';
 
 const getTemplateUrl = (snap) => {
-  const { fullName } = parseGitHubRepoUrl(snap.git_repository_url);
+  const { fullName } = parseGitHubRepoUrl(snap.gitRepoUrl);
   const templateUrl = url.format({
     protocol: 'https:',
     host: 'github.com',
@@ -75,7 +75,7 @@ const UnconfiguredDropdown = (props) => {
 
 UnconfiguredDropdown.propTypes = {
   snap: PropTypes.shape({
-    git_repository_url: PropTypes.string
+    gitRepoUrl: PropTypes.string
   })
 };
 

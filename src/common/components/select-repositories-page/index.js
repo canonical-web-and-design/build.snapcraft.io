@@ -55,7 +55,7 @@ class SelectRepositoriesPage extends Component {
     if (snaps.success) {
       snaps.ids.forEach((id) => {
         const snap = props.entities.snaps[id];
-        this.props.dispatch(fetchBuilds(snap.git_repository_url, snap.self_link));
+        this.props.dispatch(fetchBuilds(snap.gitRepoUrl, snap.selfLink));
       });
     }
   }

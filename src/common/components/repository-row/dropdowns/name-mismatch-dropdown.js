@@ -11,17 +11,17 @@ import {
 import styles from './dropdowns.css';
 
 const NameMismatchDropdown = (props) => {
-  const { snapcraft_data, store_name } = props.snap;
+  const { snapcraftData, storeName } = props.snap;
 
   let helpText;
 
-  if (snapcraft_data.nameOwnershipStatus === NAME_OWNERSHIP_REGISTERED_BY_OTHER_USER) {
+  if (snapcraftData.nameOwnershipStatus === NAME_OWNERSHIP_REGISTERED_BY_OTHER_USER) {
     helpText = getNameRegisteredByOtherUserHelpText(props.snap);
   // TODO cover name registered for another repo #299
-  // } else if (snapcraft_data.nameOwnershipStatus === NAME_OWNERSHIP_ALREADY_OWNED) {
+  // } else if (snapcraftData.nameOwnershipStatus === NAME_OWNERSHIP_ALREADY_OWNED) {
   //   ...
   // }
-  } else if (snapcraft_data.nameOwnershipStatus) {
+  } else if (snapcraftData.nameOwnershipStatus) {
     helpText = getNameMismatchHelpText(props.snap, props.onOpenRegisterNameClick);
   }
 
@@ -30,8 +30,8 @@ const NameMismatchDropdown = (props) => {
       <Row>
         <Data col="100">
           <p>
-            The snapcraft.yaml uses the snap name “{snapcraft_data.name}”,
-            but you’ve registered the name “{store_name}”.
+            The snapcraft.yaml uses the snap name “{snapcraftData.name}”,
+            but you’ve registered the name “{storeName}”.
           </p>
           { helpText }
         </Data>
@@ -41,25 +41,25 @@ const NameMismatchDropdown = (props) => {
 };
 
 function getNameRegisteredByOtherUserHelpText(snap) {
-  const { snapcraft_data, store_name, git_repository_url } = snap;
+  const { snapcraftData, storeName, gitRepoUrl } = snap;
 
   return (
     <p>
-      “{snapcraft_data.name}” is registered to someone else. {' '}
+      “{snapcraftData.name}” is registered to someone else. {' '}
       Probably best to {' '}
       <a
         target="_blank"
         rel="noopener noreferrer"
-        href={getTemplateUrl(git_repository_url, snapcraft_data.path)}
+        href={getTemplateUrl(gitRepoUrl, snapcraftData.path)}
       >
         change snapcraft.yaml
-      </a> to use “{store_name}” instead.
+      </a> to use “{storeName}” instead.
     </p>
   );
 }
 
 function getNameMismatchHelpText(snap, onOpenRegisterNameClick) {
-  const { snapcraft_data, store_name, git_repository_url } = snap;
+  const { snapcraftData, storeName, gitRepoUrl } = snap;
 
   return (
     <div className={styles.caption}>
@@ -69,13 +69,13 @@ function getNameMismatchHelpText(snap, onOpenRegisterNameClick) {
           <a
             target="_blank"
             rel="noopener noreferrer"
-            href={getTemplateUrl(git_repository_url, snapcraft_data.path)}
+            href={getTemplateUrl(gitRepoUrl, snapcraftData.path)}
           >
             Change snapcraft.yaml
-          </a> to use “{store_name}”
+          </a> to use “{storeName}”
         </li>
         <li>
-          <a onClick={onOpenRegisterNameClick}>Register the name</a> “{snapcraft_data.name}”
+          <a onClick={onOpenRegisterNameClick}>Register the name</a> “{snapcraftData.name}”
         </li>
       </ul>
     </div>
@@ -84,8 +84,8 @@ function getNameMismatchHelpText(snap, onOpenRegisterNameClick) {
 
 NameMismatchDropdown.propTypes = {
   snap: PropTypes.shape({
-    store_name: PropTypes.string,
-    snapcraft_data: PropTypes.shape({
+    storeName: PropTypes.string,
+    snapcraftData: PropTypes.shape({
       name: PropTypes.string
     })
   }),

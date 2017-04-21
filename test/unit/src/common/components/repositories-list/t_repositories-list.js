@@ -25,19 +25,19 @@ const initialState = {
   entities: {
     snaps: {
       'https://github.com/earnubs/bsi-test-v': {
-        git_repository_url: 'https://github.com/earnubs/bsi-test-v'
+        gitRepoUrl: 'https://github.com/earnubs/bsi-test-v'
       },
       'https://github.com/earnubs/bsi-test-ii': {
-        git_repository_url: 'https://github.com/earnubs/bsi-test-ii'
+        gitRepoUrl: 'https://github.com/earnubs/bsi-test-ii'
       },
       'https://github.com/earnubs/bsi-test-iii': {
-        git_repository_url: 'https://github.com/earnubs/bsi-test-iii'
+        gitRepoUrl: 'https://github.com/earnubs/bsi-test-iii'
       },
       'https://github.com/earnubs/bsi-test-iv': {
-        git_repository_url: 'https://github.com/earnubs/bsi-test-iv'
+        gitRepoUrl: 'https://github.com/earnubs/bsi-test-iv'
       },
       'https://github.com/earnubs/bsi-test-i': {
-        git_repository_url: 'https://github.com/earnubs/bsi-test-i'
+        gitRepoUrl: 'https://github.com/earnubs/bsi-test-i'
       }
     }
   }

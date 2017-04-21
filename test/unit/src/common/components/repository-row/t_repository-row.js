@@ -14,9 +14,9 @@ import {
 describe('<RepositoryRowView />', () => {
   const props = {
     snap: {
-      git_repository_url: 'https://github.com/anowner/aname',
-      store_name: 'test-snap',
-      snapcraft_data: { name: 'test-snap' }
+      gitRepoUrl: 'https://github.com/anowner/aname',
+      storeName: 'test-snap',
+      snapcraftData: { name: 'test-snap' }
     },
     latestBuild: {
       buildId:  '1234',
@@ -47,7 +47,7 @@ describe('<RepositoryRowView />', () => {
 
     context('configureIsOpen prop is true', function() {
       it('should render unconfigured dropdown', function() {
-        view.setProps({ configureIsOpen: true, snap: { snapcraft_data: null } });
+        view.setProps({ configureIsOpen: true, snap: { snapcraftData: null } });
         expect(view.find(UnconfiguredDropdown).length).toBe(1);
       });
     });
@@ -74,7 +74,7 @@ describe('<RepositoryRowView />', () => {
 
       it('should render UnconfiguredDropdown', function() {
         component.toggleDropdownState('unconfiguredDropdownExpanded');
-        view.setProps({ snap: { snapcraft_data: null } });
+        view.setProps({ snap: { snapcraftData: null } });
         expect(view.find(UnconfiguredDropdown).length).toBe(1);
       });
 

@@ -18,6 +18,15 @@ export const repo = new schema.Entity('repos', {
 export const repoList = new schema.Array(repo);
 
 export const snap = new schema.Entity('snaps', {}, {
-  idAttribute: 'git_repository_url'
+  idAttribute: 'git_repository_url',
+  processStrategy: (entity) => {
+    return {
+      id: entity.git_repository_url,
+      gitRepoUrl: entity.git_repository_url,
+      selfLink: entity.self_link,
+      snapcraftData: entity.snapcraft_data,
+      storeName: entity.store_name
+    };
+  }
 });
 export const snapList = new schema.Array(snap);

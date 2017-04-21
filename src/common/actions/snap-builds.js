@@ -41,7 +41,7 @@ export function fetchBuildsError(id, error) {
   };
 }
 
-// Fetch snap info (self_link) for given repository
+// Fetch snap info (selfLink) for given repository
 export function fetchSnap(repositoryUrl) {
   const { fullName } = parseGitHubRepoUrl(repositoryUrl);
 

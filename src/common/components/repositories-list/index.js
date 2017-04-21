@@ -74,7 +74,7 @@ export class RepositoriesListView extends Component {
   renderRow(id, index) {
     const snap = this.props.entities.snaps[id];
     const { hasNoConfiguredSnaps, hasNoRegisteredNames, snapBuilds, authStore } = this.props;
-    const { fullName } = parseGitHubRepoUrl(snap.git_repository_url);
+    const { fullName } = parseGitHubRepoUrl(snap.gitRepoUrl);
     const isFirstInList = index === 0;
 
     let registerNameIsOpen = false;

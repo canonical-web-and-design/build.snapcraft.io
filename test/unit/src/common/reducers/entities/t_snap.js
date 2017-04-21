@@ -7,12 +7,12 @@ import * as ActionTypes from '../../../../../../src/common/actions/register-name
 describe('snaps entities', function() {
 
   let state = {
-    store_name: 'test-name'
+    storeName: 'test-name'
   };
 
   context('name ownership actions', () => {
     let state = {
-      snapcraft_data: {
+      snapcraftData: {
         name: 'test-name'
       }
     };
@@ -44,23 +44,23 @@ describe('snaps entities', function() {
     };
 
     it('CHECK_NAME_OWNERSHIP_REQUEST should update isFetching state', function() {
-      expect(snap(state, requestAction).snapcraft_data.isFetching).toBe(true);
+      expect(snap(state, requestAction).snapcraftData.isFetching).toBe(true);
     });
 
     it('CHECK_NAME_OWNERSHIP_SUCCESS should update isFetching state', function() {
-      expect(snap(state, successAction).snapcraft_data.isFetching).toBe(false);
+      expect(snap(state, successAction).snapcraftData.isFetching).toBe(false);
     });
 
     it('CHECK_NAME_OWNERSHIP_SUCCESS should set name ownership status', function() {
-      expect(snap(state, successAction).snapcraft_data.nameOwnershipStatus).toBe('test-status');
+      expect(snap(state, successAction).snapcraftData.nameOwnershipStatus).toBe('test-status');
     });
 
     it('CHECK_NAME_OWNERSHIP_ERROR should update isFetching state', function() {
-      expect(snap(state, errorAction).snapcraft_data.isFetching).toBe(false);
+      expect(snap(state, errorAction).snapcraftData.isFetching).toBe(false);
     });
 
     it('CHECK_NAME_OWNERSHIP_ERROR should reset name ownership status', function() {
-      expect(snap(state, errorAction).snapcraft_data.nameOwnershipStatus).toBe(null);
+      expect(snap(state, errorAction).snapcraftData.nameOwnershipStatus).toBe(null);
     });
   
   });
@@ -107,7 +107,7 @@ describe('snaps entities', function() {
         payload: {
           snapName: 'test-name-changed'
         }
-      }).store_name).toEqual('test-name-changed');
+      }).storeName).toEqual('test-name-changed');
     });
 
     it('should store fetching status on REGISTER_NAME_ERROR', () => {

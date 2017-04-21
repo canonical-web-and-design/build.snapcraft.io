@@ -32,7 +32,7 @@ export const hasNoSnaps = createSelector(
 export const hasNoRegisteredNames = createSelector(
   [getSnapsIndex, getSnaps],
   (ids, snaps) => {
-    return !ids.some((id) => snaps[id].store_name);
+    return !ids.some((id) => snaps[id].storeName);
   }
 );
 
@@ -42,7 +42,7 @@ export const hasNoRegisteredNames = createSelector(
 export const hasNoConfiguredSnaps = createSelector(
   [getSnapsIndex, getSnaps],
   (ids, snaps) => {
-    return !ids.some((id) => snaps[id].snapcraft_data);
+    return !ids.some((id) => snaps[id].snapcraftData);
   }
 );
 
@@ -101,7 +101,7 @@ export const hasFailedRepositories = createSelector(
 
 /**
  * @returns {Array} get repositories already enabled as builds
- * @todo consider case for multiple snapcraft.yaml's per git_repository_url
+ * @todo consider case for multiple snapcraft.yaml's per gitRepoUrl
  */
 export const getEnabledRepositories = createSelector(
   [getRepositories, getRepositoriesIndex, getSnaps, getSnapsIndex],
@@ -121,7 +121,7 @@ export const snapsWithRegisteredNameAndSnapcraftData = createSelector(
   [getSnapsIndex, getSnaps],
   (ids, snaps) => {
     return ids.map((id) => snaps[id]).filter((snap) => {
-      return snap.store_name && snap.snapcraft_data;
+      return snap.storeName && snap.snapcraftData;
     });
   }
 );
@@ -133,7 +133,7 @@ export const snapsWithRegisteredNameAndNoSnapcraftData = createSelector(
   [getSnapsIndex, getSnaps],
   (ids, snaps) => {
     return ids.map((id) => snaps[id]).filter((snap) => {
-      return snap.store_name && !snap.snapcraft_data;
+      return snap.storeName && !snap.snapcraftData;
     });
   }
 );
@@ -145,7 +145,7 @@ export const snapsWithNoBuilds = createSelector(
   [snapsWithRegisteredNameAndSnapcraftData, getSnapBuilds],
   (snaps, snapBuilds) => {
     return snaps && snaps.filter((snap) => {
-      const { fullName } = parseGitHubRepoUrl(snap.git_repository_url);
+      const { fullName } = parseGitHubRepoUrl(snap.gitRepoUrl);
       const repoBuilds = snapBuilds[fullName];
 
       if (repoBuilds && repoBuilds.success) {

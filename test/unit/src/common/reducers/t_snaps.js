@@ -12,21 +12,17 @@ describe('snaps reducers', () => {
   };
 
   const SNAPS = [{
-    builds_collection_link: 'https://api.launchpad.net/devel/~anowner/+snap/blahblah-xenial/builds',
-    git_repository_url: 'https://github.com/anowner/aname',
-    resource_type_link: 'https://api.launchpad.net/devel/#snap',
-    self_link: 'https://api.launchpad.net/devel/~anowner/+snap/blahblah-xenial',
-    store_name: 'test-snap-store-name'
+    gitRepoUrl: 'https://github.com/anowner/aname',
+    selfLink: 'https://api.launchpad.net/devel/~anowner/+snap/blahblah-xenial',
+    storeName: 'test-snap-store-name'
   },
   {
-    builds_collection_link: 'https://api.launchpad.net/devel/~anowner/+snap/blahblahtest-xenial/builds',
-    git_repository_url: 'https://github.com/anowner/anothername',
-    resource_type_link: 'https://api.launchpad.net/devel/#snap',
-    self_link: 'https://api.launchpad.net/devel/~anowner/+snap/blahblahtest-xenial',
-    store_name: 'test-snap-store-another-name'
+    gitRepoUrl: 'https://github.com/anowner/anothername',
+    selfLink: 'https://api.launchpad.net/devel/~anowner/+snap/blahblahtest-xenial',
+    storeName: 'test-snap-store-another-name'
   }];
 
-  const IDS = SNAPS.map((snap) => snap.git_repository_url);
+  const IDS = SNAPS.map((snap) => snap.gitRepoUrl);
 
   it('should return the initial state', () => {
     expect(snaps(undefined, {})).toEqual(initialState);
@@ -63,7 +59,7 @@ describe('snaps reducers', () => {
         response: {
           payload: {
             snaps: SNAPS,
-            result: SNAPS.map((snap) => snap.git_repository_url)
+            result: SNAPS.map((snap) => snap.gitRepoUrl)
           }
           // XXX
           // after partial refactoring of repositories it also now contains
@@ -90,7 +86,7 @@ describe('snaps reducers', () => {
 
     it('should store result snap ids', () => {
       snaps(state, action).ids.forEach((id, i) => {
-        expect(id).toEqual(SNAPS[i]['git_repository_url']);
+        expect(id).toEqual(SNAPS[i]['gitRepoUrl']);
       });
     });
   });

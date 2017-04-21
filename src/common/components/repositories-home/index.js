@@ -33,7 +33,7 @@ class RepositoriesHome extends Component {
 
       snaps.ids.forEach((id) => {
         const snap = entities.snaps[id];
-        this.props.fetchBuilds(snap.git_repository_url, snap.self_link);
+        this.props.fetchBuilds(snap.gitRepoUrl, snap.selfLink);
       });
     }
   }

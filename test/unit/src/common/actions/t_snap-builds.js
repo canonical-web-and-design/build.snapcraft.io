@@ -159,7 +159,7 @@ describe('snap builds actions', () => {
           payload: {
             code: 'snap-found',
             snap: {
-              self_link: snapUrl
+              selfLink: snapUrl
             }
           }
         });
@@ -169,7 +169,7 @@ describe('snap builds actions', () => {
         type: ActionTypes.FETCH_SNAP_SUCCESS,
         payload: {
           id: repo,
-          snap: { self_link: snapUrl }
+          snap: { selfLink: snapUrl }
         }
       });
     });
