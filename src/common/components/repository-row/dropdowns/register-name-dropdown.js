@@ -112,6 +112,7 @@ const Caption = (props) => {
           <label>New name:
             {' ' /* force space between inline elements */}
             <input
+              autoFocus={true}
               className={ styles.snapNameInput }
               type='text'
               value={ snapName }

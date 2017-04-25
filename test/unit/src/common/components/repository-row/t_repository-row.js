@@ -132,4 +132,28 @@ describe('<RepositoryRowView />', () => {
     });
   });
 
+  context('when snapcraft data with name is available', () => {
+    it('should set default snap name based on name from snapcraft.yaml', () => {
+      expect(view.instance().state.snapName).toEqual(props.snap.snapcraftData.name);
+    });
+  });
+
+  context('when snapcraft data is not available', () => {
+    beforeEach(() => {
+      const noNameProps = {
+        ...props,
+        snap: {
+          gitRepoUrl: 'http://github.com/anowner/_some-Crazy_123Name_'
+        }
+      };
+
+      view = shallow(<RepositoryRowView { ...noNameProps }/>);
+    });
+
+    it('should set default snap name based on repo name', () => {
+      // valid name should be lowercased with unvalid chars replaced with dashes
+      expect(view.instance().state.snapName).toEqual('some-crazy-123name');
+    });
+  });
+
 });

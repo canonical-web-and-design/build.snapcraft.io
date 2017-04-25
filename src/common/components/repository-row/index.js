@@ -36,7 +36,10 @@ export class RepositoryRowView extends Component {
     if (props.snap.snapcraftData && props.snap.snapcraftData.name) {
       snapName = props.snap.snapcraftData.name;
     } else {
-      snapName = '';
+      // suggest name based on git repository name
+      snapName = parseGitHubRepoUrl(props.snap.gitRepoUrl).name.toLowerCase();
+      // replace invalid characters with dash are trim leading and trailing dashes
+      snapName = snapName.replace(/[^a-z0-9-]/g, '-').replace(/^-+|-+$/g, '');
     }
 
     this.state = {
@@ -407,6 +410,7 @@ export class RepositoryRowView extends Component {
       return (
         <form onSubmit={this.onRegisterSubmit.bind(this, snap.gitRepoUrl)}>
           <input
+            autoFocus={true}
             type='text'
             className={ styles.snapNameInput }
             value={ this.state.snapName }
