@@ -110,7 +110,7 @@ export default class PrivateReposInfo extends Component {
   render() {
     return (
       <div className={ styles.info }>
-        <p>Organization and private repos not shown yet. (<a onClick={this.onHelpClick.bind(this)}>Why?</a>)</p>
+        <p>Private repos not shown yet. (<a onClick={this.onHelpClick.bind(this)}>Why?</a>)</p>
         { this.state.showPopover &&
           <Popover
             left={this.state.popoverOffsetLeft}

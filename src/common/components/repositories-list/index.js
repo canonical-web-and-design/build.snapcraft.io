@@ -124,7 +124,7 @@ export class RepositoriesListView extends Component {
           </Head>
           <Body>
             { this.props.hasSnaps &&
-              ids.map(this.renderRow.bind(this))
+              Array.from(ids).sort().map(this.renderRow.bind(this))
             }
           </Body>
         </Table>

@@ -4,9 +4,17 @@ import nock from 'nock';
 import expect from 'expect';
 import url from 'url';
 
-import auth from '../../../../../src/server/routes/github-auth';
 import db from '../../../../../src/server/db';
+import {
+  listOrganizationsCacheId
+} from '../../../../../src/server/handlers/github';
 import { conf } from '../../../../../src/server/helpers/config';
+import {
+  getMemcached,
+  resetMemcached,
+  setupInMemoryMemcached
+} from '../../../../../src/server/helpers/memcached';
+import auth from '../../../../../src/server/routes/github-auth';
 
 const GITHUB_AUTH_LOGIN_URL = conf.get('GITHUB_AUTH_LOGIN_URL');
 const GITHUB_AUTH_CLIENT_ID = conf.get('GITHUB_AUTH_CLIENT_ID');
@@ -35,36 +43,66 @@ describe('The login route', () => {
     it('should redirect to configured auth login page', (done) => {
       supertest(app)
         .get('/auth/authenticate')
-        .expect('location', new RegExp(GITHUB_AUTH_LOGIN_URL))
         .expect(302)
+        .expect((res) => {
+          const loginUrl = url.parse(GITHUB_AUTH_LOGIN_URL);
+          expect(url.parse(res.headers.location)).toMatch({
+            protocol: loginUrl.protocol,
+            host: loginUrl.host,
+            pathname: loginUrl.pathname
+          });
+        })
         .end(done);
     });
 
     it('should supply configured GitHub client ID', (done) => {
       supertest(app)
         .get('/auth/authenticate')
-        .expect('location', new RegExp(GITHUB_AUTH_CLIENT_ID))
+        .expect((res) => {
+          expect(url.parse(res.headers.location, true).query.client_id)
+            .toBe(GITHUB_AUTH_CLIENT_ID);
+        })
         .end(done);
     });
 
     it('should supply configured redirect URL', (done) => {
       supertest(app)
         .get('/auth/authenticate')
-        .expect('location', new RegExp(GITHUB_AUTH_REDIRECT_URL))
-        .end(done);
-    });
-
-    it('should supply a shared secret', (done) => {
-      supertest(app)
-        .get('/auth/authenticate')
-        .expect('location', /state/)
+        .expect((res) => {
+          expect(url.parse(res.headers.location, true).query.redirect_uri)
+            .toBe(GITHUB_AUTH_REDIRECT_URL);
+        })
         .end(done);
     });
 
     it('should supply an authorization scope', (done) => {
       supertest(app)
         .get('/auth/authenticate')
-        .expect('location', /scope/)
+        .expect((res) => {
+          expect(url.parse(res.headers.location, true).query.scope)
+            .toBe('admin:repo_hook read:org');
+        })
+        .end(done);
+    });
+
+    it('should supply a shared secret', (done) => {
+      supertest(app)
+        .get('/auth/authenticate')
+        .expect((res) => {
+          expect(url.parse(res.headers.location, true).query.state).toExist();
+        })
+        .expect('location', /state/)
+        .end(done);
+    });
+
+    it('should indicate that signups are allowed', (done) => {
+      supertest(app)
+        .get('/auth/authenticate')
+        .expect((res) => {
+          expect(url.parse(res.headers.location, true).query.allow_signup)
+            .toBeTruthy();
+        })
+        .expect('location', /state/)
         .end(done);
     });
   });
@@ -84,7 +122,7 @@ describe('The login route', () => {
         nock.cleanAll();
       });
 
-      it('should redirect to /login/failed if received secret doesn\t match shared secret', (done) => {
+      it('should redirect to /login/failed if received secret doesn\'t match shared secret', (done) => {
         supertest(app)
           .get('/auth/verify')
           .query({ code: 'foo', state: 'foo' })
@@ -99,7 +137,12 @@ describe('The login route', () => {
           nock(conf.get('GITHUB_API_ENDPOINT'))
             .get('/user')
             .reply(200, { id: 123, login: 'anowner' });
+          setupInMemoryMemcached();
           await db.model('GitHubUser').query('truncate').fetch();
+        });
+
+        afterEach(() => {
+          resetMemcached();
         });
 
         it('should call GitHub API endpoint to get an auth token', (done) => {
@@ -112,6 +155,16 @@ describe('The login route', () => {
               done(err);
             }
           );
+        });
+
+        it('should clear cached organization information', async () => {
+          const orgsCacheID = listOrganizationsCacheId('anowner');
+          getMemcached().cache[orgsCacheID] = [{ login: 'org1' }];
+          await supertest(app)
+            .get('/auth/verify')
+            .query({ code: 'foo', state: 'bar' })
+            .send();
+          expect(getMemcached().cache).toExcludeKey(orgsCacheID);
         });
 
         it('should save user data in database', async () => {

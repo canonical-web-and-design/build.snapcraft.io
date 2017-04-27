@@ -1,11 +1,13 @@
+import qs from 'qs';
 import request from 'request';
 import logging from '../logging';
 
 import db from '../db';
 import { conf } from '../helpers/config';
-import { requestUser } from './github';
+import { getMemcached } from '../helpers/memcached';
+import { listOrganizationsCacheId, requestUser } from './github';
 
-const AUTH_SCOPE = 'admin:repo_hook'; // another scope (like 'public_repo') may be needed to list organisations' repositories
+const AUTH_SCOPE = 'admin:repo_hook read:org';
 const GITHUB_AUTH_LOGIN_URL = conf.get('GITHUB_AUTH_LOGIN_URL');
 const GITHUB_AUTH_VERIFY_URL = conf.get('GITHUB_AUTH_VERIFY_URL');
 const GITHUB_AUTH_CLIENT_ID = conf.get('GITHUB_AUTH_CLIENT_ID');
@@ -24,13 +26,13 @@ export const authenticate = (req, res, next) => {
     req.session.sharedSecret = buffer.toString('hex');
 
     // Redirect user to GitHub login
-    res.redirect(`${GITHUB_AUTH_LOGIN_URL}?` + [
-      `client_id=${GITHUB_AUTH_CLIENT_ID}`,
-      `redirect_uri=${GITHUB_AUTH_REDIRECT_URL}`,
-      `scope=${AUTH_SCOPE}`,
-      `state=${req.session.sharedSecret}`,
-      'allow_signup=true'
-    ].join('&'));
+    res.redirect(`${GITHUB_AUTH_LOGIN_URL}?` + qs.stringify({
+      client_id: GITHUB_AUTH_CLIENT_ID,
+      redirect_uri: GITHUB_AUTH_REDIRECT_URL,
+      scope: AUTH_SCOPE,
+      state: req.session.sharedSecret,
+      allow_signup: true
+    }));
   });
 };
 
@@ -76,6 +78,11 @@ export const verify = (req, res, next) => {
     req.session.githubAuthenticated = true;
     req.session.token = body.access_token;
     req.session.user = userResponse.body;
+
+    // Make sure organization information is fetched again, since
+    // permissions may have changed
+    const orgsCacheID = listOrganizationsCacheId(userResponse.body.login);
+    await getMemcached().del(orgsCacheID);
 
     // Save user info to DB
     await db.transaction(async (trx) => {

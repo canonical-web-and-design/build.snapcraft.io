@@ -1,4 +1,3 @@
-import qs from 'qs';
 import url from 'url';
 import { normalize } from 'normalizr';
 
@@ -7,12 +6,11 @@ import logging from '../logging';
 import requestGitHub from '../helpers/github';
 import { conf } from '../helpers/config';
 import { getMemcached } from '../helpers/memcached';
-import { internalGetSnapcraftYaml } from './launchpad';
+import { checkGitHubStatus, internalGetSnapcraftYaml } from './launchpad';
 import { parseGitHubRepoUrl } from '../../common/helpers/github-url';
 import { getGitHubRootSecret, makeWebhookSecret } from './webhook';
 
 const logger = logging.getLogger('express');
-const REPO_ENDPOINT = '/user/repos';
 const SNAPCRAFT_INFO_WHITELIST = ['name', 'confinement'];
 
 const RESPONSE_NOT_FOUND = {
@@ -85,6 +83,34 @@ export const getUser = async (req, res) => {
 };
 
 // memcached cache id helper
+export const listOrganizationsCacheId = (owner) => `organizations:${owner}`;
+
+export const internalListOrganizations = async (owner, token) => {
+  const cacheId = listOrganizationsCacheId(owner);
+
+  try {
+    const result = await getMemcached().get(cacheId);
+    if (result !== undefined) {
+      return result;
+    }
+  } catch (error) {
+    logger.error(`Error getting ${cacheId} from memcached: ${error}`);
+  }
+
+  try {
+    const response = await requestGitHub.get('/user/orgs', {
+      token, json: true
+    });
+    await checkGitHubStatus(response);
+    await getMemcached().set(cacheId, response.body, 3600);
+    return response.body;
+  } catch (error) {
+    logger.error(`Error getting list of organizations from GitHub: ${error}`);
+    return [];
+  }
+};
+
+// memcached cache id helper
 export const getSnapcraftYamlCacheId = (repositoryUrl) => `snapcraft_data:${repositoryUrl}`;
 
 export const getSnapcraftData = async (repositoryUrl, token) => {
@@ -125,7 +151,7 @@ export const getSnapcraftData = async (repositoryUrl, token) => {
 
 export const listRepositories = async (req, res) => {
   const params = {
-    affiliation: 'owner'
+    affiliation: 'owner,organization_member'
   };
 
   if (!req.session || !req.session.token) {
@@ -136,7 +162,7 @@ export const listRepositories = async (req, res) => {
     params.page = req.query.page;
   }
 
-  const uri = REPO_ENDPOINT + '?' + qs.stringify(params);
+  const uri = url.format({ pathname: '/user/repos', query: params });
   const response = await requestGitHub.get(uri, {
     token: req.session.token, json: true
   });
@@ -150,10 +176,13 @@ export const listRepositories = async (req, res) => {
     });
   }
 
+  const administeredRepos = response.body.filter(
+    (repo) => repo.permissions && repo.permissions.admin
+  );
   const body = {
     status: 'success',
     code: 'github-list-repositories',
-    ...normalize(response.body, repoList)
+    ...normalize(administeredRepos, repoList)
   };
 
   if (response.headers.link) {

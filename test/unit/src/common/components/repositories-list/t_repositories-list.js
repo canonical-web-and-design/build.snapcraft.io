@@ -77,7 +77,7 @@ describe('<RepositoriesList />', function() {
       expect(wrapper.children().length).toBe(5);
     });
 
-    xit('should display snap rows in alphabetical order', function() {
+    it('should display snap rows in alphabetical order', function() {
       expect(wrapper.childAt(0).props().fullName).toBe('earnubs/bsi-test-i');
     });
 

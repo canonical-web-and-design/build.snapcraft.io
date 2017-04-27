@@ -1,6 +1,7 @@
 import { createHash } from 'crypto';
 
 import yaml from 'js-yaml';
+import zip from 'lodash/zip';
 import { normalize } from 'normalizr';
 
 import { parseGitHubRepoUrl } from '../../common/helpers/github-url';
@@ -11,7 +12,7 @@ import requestGitHub from '../helpers/github';
 import getLaunchpad from '../launchpad';
 import logging from '../logging';
 import * as schema from './schema.js';
-import { getSnapcraftData } from './github';
+import { getSnapcraftData, internalListOrganizations } from './github';
 import { getLaunchpadRootSecret, makeWebhookSecret } from './webhook';
 
 const logger = logging.getLogger('express');
@@ -138,7 +139,7 @@ const sendError = async (res, error) => {
   res.status(preparedError.status).send(preparedError.body);
 };
 
-const checkGitHubStatus = (response) => {
+export const checkGitHubStatus = (response) => {
   if (response.statusCode !== 200) {
     let body = response.body;
     if (typeof body !== 'object') {
@@ -336,7 +337,7 @@ export const newSnap = async (req, res) => {
 
   // We need admin permissions in order to be able to install a webhook later.
   try {
-    const { owner } = await checkAdminPermissions(req.session, repositoryUrl);
+    await checkAdminPermissions(req.session, repositoryUrl);
     await db.transaction(async (trx) => {
       if (req.session.user) {
         await db.model('GitHubUser').incrementMetric(
@@ -347,10 +348,8 @@ export const newSnap = async (req, res) => {
 
       const result = await requestNewSnap(repositoryUrl);
       // as new snap is created we need to clear list of snaps from cache
-      const urlPrefix = getRepoUrlPrefix(owner);
-      const cacheId = getUrlPrefixCacheId(urlPrefix);
+      await clearSnapCache(repositoryUrl);
 
-      await getMemcached().del(cacheId);
       const snapUrl = result.self_link;
       logger.info(`Created ${snapUrl}`);
       await ensureWebhook(result);
@@ -411,34 +410,68 @@ export const internalFindSnap = async (repositoryUrl) => {
   throw new PreparedError(404, RESPONSE_SNAP_NOT_FOUND);
 };
 
-const internalFindSnapsByPrefix = async (urlPrefix) => {
+const internalFindSnaps = async (owner, token) => {
+  const orgs = await internalListOrganizations(owner, token);
+  const owners = [owner].concat(orgs.map((org) => org.login));
+  const urlPrefixes = owners.map(getRepoUrlPrefix);
   const username = conf.get('LP_API_USERNAME');
-  const cacheId = getUrlPrefixCacheId(urlPrefix);
+  const cacheIds = urlPrefixes.map(getUrlPrefixCacheId);
+  const memcached = getMemcached();
   const lpClient = getLaunchpad();
+  let snaps;
+  let remainingPrefixes;
 
   try {
-    const result = await getMemcached().get(cacheId);
-    if (result !== undefined) {
-      return result.map((entry) => {
+    // For each prefix, check for snaps in memcached.
+    const snapsByPrefix = await Promise.all(
+      cacheIds.map((cacheId) => memcached.get(cacheId))
+    );
+    // Flatten the results from memcached into a single list of all the
+    // snaps we know about so far.
+    snaps = [].concat(
+      ...(snapsByPrefix.filter((snaps) => snaps !== undefined))
+    );
+    // Work out which prefixes have no entries in memcached and thus need to
+    // be checked with Launchpad.
+    remainingPrefixes = zip(urlPrefixes, snapsByPrefix)
+      .filter(([, snaps]) => snaps === undefined)
+      .map(([urlPrefix, ]) => urlPrefix);
+
+    if (!remainingPrefixes.length) {
+      return snaps.map((entry) => {
         return lpClient.wrap_resource(entry.self_link, entry);
       });
     }
   } catch (error) {
-    logger.error(`Error getting ${cacheId} from memcached: ${error}`);
+    logger.error(`Error getting one of ${cacheIds} from memcached: ${error}`);
+    snaps = [];
+    remainingPrefixes = urlPrefixes;
   }
 
   try {
-    const result = await lpClient.named_get('/+snaps', 'findByURLPrefix', {
+    const result = await lpClient.named_get('/+snaps', 'findByURLPrefixes', {
       parameters: {
-        url_prefix: urlPrefix,
+        url_prefixes: remainingPrefixes,
         owner: `/~${username}`
       }
     });
-    await getMemcached().set(cacheId, result.entries, 3600);
-    for (const snap of result.entries) {
+    // Split up results into separate cache entries so that they can help
+    // speed things up for other users in the same organizations.
+    const newSnapsByPrefix = remainingPrefixes.map((urlPrefix) => {
+      return result.entries.filter(
+        (snap) => snap.git_repository_url.startsWith(urlPrefix)
+      );
+    });
+    await Promise.all(zip(remainingPrefixes, newSnapsByPrefix).map(
+      ([urlPrefix, newSnaps]) => memcached.set(
+        getUrlPrefixCacheId(urlPrefix), newSnaps, 3600
+      )
+    ));
+    snaps = snaps.concat(result.entries);
+    for (const snap of snaps) {
       await ensureWebhook(snap);
     }
-    return result.entries;
+    return snaps;
   } catch (error) {
     // At least for the moment, we just wrap the error we get from
     // Launchpad.
@@ -504,9 +537,8 @@ const initializeMetrics = async (gitHubId, snaps) => {
 
 export const findSnaps = async (req, res) => {
   const owner = req.query.owner || req.session.user.login;
-  const urlPrefix = getRepoUrlPrefix(owner);
   try {
-    const rawSnaps = await internalFindSnapsByPrefix(urlPrefix);
+    const rawSnaps = await internalFindSnaps(owner, req.session.token);
     const snaps = await Promise.all(rawSnaps.map(async (snap) => {
       const snapcraftData = await getSnapcraftData(
         snap.git_repository_url, req.session.token

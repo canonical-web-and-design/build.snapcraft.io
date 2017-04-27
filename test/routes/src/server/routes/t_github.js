@@ -298,7 +298,7 @@ describe('The GitHub API endpoint', () => {
 
       it('should return a 401 Unauthorized response', (done) => {
         supertest(app)
-          .get('/github/repos', { affiliation: 'owner' })
+          .get('/github/repos')
           .expect(401, done);
       });
 
@@ -326,7 +326,7 @@ describe('The GitHub API endpoint', () => {
         beforeEach(() => {
           scope = nock(conf.get('GITHUB_API_ENDPOINT'))
             .get('/user/repos')
-            .query({ affiliation: 'owner' })
+            .query({ affiliation: 'owner,organization_member' })
             .reply(errorCode, { message: errorMessage });
         });
 
@@ -358,16 +358,22 @@ describe('The GitHub API endpoint', () => {
       context('when GitHub returns repositories', () => {
         const repos = [
           {
+            id: 1,
             full_name: 'anowner/repo1',
-            url: 'https://github.com/anowner/repo1'
+            url: 'https://github.com/anowner/repo1',
+            permissions: { admin: true }
           },
           {
+            id: 2,
             full_name: 'anowner/repo2',
-            url: 'https://github.com/anowner/repo2'
+            url: 'https://github.com/anowner/repo2',
+            permissions: { admin: true }
           },
           {
+            id: 3,
             full_name: 'anowner/repo3',
-            url: 'https://github.com/anowner/repo3'
+            url: 'https://github.com/anowner/repo3',
+            permissions: { admin: false }
           }
         ];
         const pageLinks = { first: 1, prev: 1, next: 3, last: 3 };
@@ -375,7 +381,7 @@ describe('The GitHub API endpoint', () => {
         beforeEach(() => {
           const api = nock(conf.get('GITHUB_API_ENDPOINT'));
           api.get('/user/repos')
-            .query({ affiliation: 'owner' })
+            .query({ affiliation: 'owner,organization_member' })
             .reply(200, repos, {
               Link: [
                 '<https://api.github.com?&page=1&per_page=30>; rel="first"',
@@ -410,11 +416,15 @@ describe('The GitHub API endpoint', () => {
             .end(done);
         });
 
-        xit('should return user repositories', (done) => {
+        it('should return repositories with admin permissions', (done) => {
           supertest(app)
             .get('/github/repos')
             .end((err, res) => {
-              expect(res.body.payload.repos).toEqual(repos);
+              expect(res.body.result).toEqual([1, 2]);
+              expect(res.body.entities.repos).toMatch({
+                1: { fullName: 'anowner/repo1' },
+                2: { fullName: 'anowner/repo2' }
+              });
               done(err);
             });
         });

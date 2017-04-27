@@ -11,7 +11,10 @@ import {
 } from '../../../../../src/server/helpers/memcached';
 import launchpad from '../../../../../src/server/routes/launchpad';
 import db from '../../../../../src/server/db';
-import { getSnapcraftYamlCacheId } from '../../../../../src/server/handlers/github';
+import {
+  getSnapcraftYamlCacheId,
+  listOrganizationsCacheId
+} from '../../../../../src/server/handlers/github';
 import {
   getUrlPrefixCacheId,
   getRepositoryUrlCacheId
@@ -183,10 +186,12 @@ describe('The Launchpad API endpoint', () => {
               resource_type_link: `${lp_api_url}/devel/#webhook`,
               self_link: `${snapUrl}/+webhook/1`
             });
+          setupInMemoryMemcached();
         });
 
         afterEach(() => {
           lpApi.done();
+          resetMemcached();
         });
 
         it('should return a 201 Created response', (done) => {
@@ -237,6 +242,17 @@ describe('The Launchpad API endpoint', () => {
             .send({ repository_url: 'https://github.com/anowner/aname' });
           await dbUser.refresh();
           expect(dbUser.get('snaps_added')).toEqual(2);
+        });
+
+        it('should clear appropriate url_prefix entry from ' +
+           'memcached', async () => {
+          const cacheId = getUrlPrefixCacheId('https://github.com/anowner/');
+          getMemcached().cache[cacheId] = [];
+          await supertest(app)
+            .post('/launchpad/snaps')
+            .set('X-CSRF-Token', 'blah')
+            .send({ repository_url: 'https://github.com/anowner/aname' });
+          expect(getMemcached().cache).toExcludeKey(cacheId);
         });
       });
     });
@@ -406,8 +422,8 @@ describe('The Launchpad API endpoint', () => {
 
     context('when snaps exist', () => {
       const contents = {
-        'https://github.com/another-user/test-snap': { name: 'snap1' },
-        'https://github.com/test-user/test-snap': { name: 'snap2' }
+        'https://github.com/anowner/test-snap': { name: 'snap1' },
+        'https://github.com/org1/test-snap': { name: 'snap2' }
       };
 
       let testSnaps;
@@ -425,7 +441,7 @@ describe('The Launchpad API endpoint', () => {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~another-user`,
-            git_repository_url: 'https://github.com/another-user/test-snap',
+            git_repository_url: 'https://github.com/anowner/test-snap',
             builds_collection_link: `${lp_api_base}/~another-user/+snap/` +
                                     'test-snap/builds',
             webhooks_collection_link: `${lp_api_base}/~another-user/+snap/` +
@@ -436,7 +452,7 @@ describe('The Launchpad API endpoint', () => {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~test-user`,
-            git_repository_url: 'https://github.com/test-user/test-snap',
+            git_repository_url: 'https://github.com/org1/test-snap',
             builds_collection_link: `${lp_api_base}/~test-user/+snap/` +
                                     'test-snap/builds',
             webhooks_collection_link: `${lp_api_base}/~test-user/+snap/` +
@@ -444,11 +460,19 @@ describe('The Launchpad API endpoint', () => {
           }
         ];
 
+        ghApi = nock(gh_api_url);
+        ghApi.get('/user/orgs')
+          .reply(200, [{ login: 'org1' }, { login: 'org2' }]);
+
         lpApi = nock(lp_api_url);
         lpApi.get('/devel/+snaps')
           .query({
-            'ws.op': 'findByURLPrefix',
-            url_prefix: 'https://github.com/anowner/',
+            'ws.op': 'findByURLPrefixes',
+            url_prefixes: [
+              'https://github.com/anowner/',
+              'https://github.com/org1/',
+              'https://github.com/org2/'
+            ],
             owner: `/~${conf.get('LP_API_USERNAME')}`
           })
           .reply(200, {
@@ -461,8 +485,7 @@ describe('The Launchpad API endpoint', () => {
           const fullName = snap.git_repository_url.replace('https://github.com/', '');
           const repoContents = contents[snap.git_repository_url];
 
-          ghApi = nock(gh_api_url)
-            .get(`/repos/${fullName}/contents/snap/snapcraft.yaml`)
+          ghApi.get(`/repos/${fullName}/contents/snap/snapcraft.yaml`)
             .reply(200, repoContents);
           const builds_link = snap.builds_collection_link;
           lpApi.get(builds_link.replace(lp_api_url, ''))
@@ -485,12 +508,12 @@ describe('The Launchpad API endpoint', () => {
         lpApi.get('/devel/~another-user/+snap/test-snap/webhooks')
           .reply(200, { total_size: 0, entries: [] });
         const hmac = createHmac('sha1', conf.get('LP_WEBHOOK_SECRET'));
-        hmac.update('another-user');
+        hmac.update('anowner');
         hmac.update('test-snap');
         lpApi
           .post('/devel/~another-user/+snap/test-snap', {
             'ws.op': 'newWebhook',
-            delivery_url: `${conf.get('BASE_URL')}/another-user/test-snap/` +
+            delivery_url: `${conf.get('BASE_URL')}/anowner/test-snap/` +
                           'webhook/notify',
             event_types: 'snap:build:0.1',
             active: 'true',
@@ -514,8 +537,8 @@ describe('The Launchpad API endpoint', () => {
                 resource_type_link: `${lp_api_url}/devel/#webhook`,
                 self_link: `${lp_api_url}/~test-user/+snap/test-snap/` +
                            '+webhook/1',
-                delivery_url: `${conf.get('BASE_URL')}/` +
-                              'test-user/test-snap/webhook/notify',
+                delivery_url: `${conf.get('BASE_URL')}/org1/test-snap/` +
+                              'webhook/notify',
               }
             ]
           });
@@ -602,15 +625,34 @@ describe('The Launchpad API endpoint', () => {
           resetMemcached();
         });
 
+        it('should store organizations in memcached', async () => {
+          await apiResponse;
+          const cacheId = listOrganizationsCacheId('anowner');
+          const memcachedOrgs = getMemcached().cache[cacheId];
+          expect(memcachedOrgs).toMatch([
+            { login: 'org1' }, { login: 'org2' }
+          ]);
+        });
+
         it('should store snaps in memcached', async () => {
-          const urlPrefix = 'https://github.com/anowner/';
-          const cacheId = getUrlPrefixCacheId(urlPrefix);
+          const urlPrefixes = [
+            'https://github.com/anowner/',
+            'https://github.com/org1/',
+            'https://github.com/org2/'
+          ];
+          const cacheIds = urlPrefixes.map(
+            (urlPrefix) => getUrlPrefixCacheId(urlPrefix)
+          );
 
           await apiResponse;
-          const memcachedSnaps = getMemcached().cache[cacheId];
-          expect(memcachedSnaps.length).toEqual(testSnaps.length);
-          expect(memcachedSnaps[0]).toContain(testSnaps[0]);
-          expect(memcachedSnaps[1]).toContain(testSnaps[1]);
+          const memcachedSnaps = cacheIds.map(
+            (cacheId) => getMemcached().cache[cacheId]
+          );
+          expect(memcachedSnaps[0].length).toBe(1);
+          expect(memcachedSnaps[0][0]).toContain(testSnaps[0]);
+          expect(memcachedSnaps[1].length).toBe(1);
+          expect(memcachedSnaps[1][0]).toContain(testSnaps[1]);
+          expect(memcachedSnaps[2].length).toBe(0);
         });
 
       });
@@ -619,15 +661,24 @@ describe('The Launchpad API endpoint', () => {
 
     context('when snaps don\'t exist', () => {
       let lpApi;
+      let ghApi;
 
       beforeEach(() => {
         const lp_api_url = conf.get('LP_API_URL');
+        const gh_api_url = conf.get('GITHUB_API_ENDPOINT');
 
+        ghApi = nock(gh_api_url)
+          .get('/user/orgs')
+          .reply(200, [{ login: 'org1' }, { login: 'org2' }]);
         lpApi = nock(lp_api_url)
           .get('/devel/+snaps')
           .query({
-            'ws.op': 'findByURLPrefix',
-            url_prefix: 'https://github.com/anowner/',
+            'ws.op': 'findByURLPrefixes',
+            url_prefixes: [
+              'https://github.com/anowner/',
+              'https://github.com/org1/',
+              'https://github.com/org2/'
+            ],
             owner: `/~${conf.get('LP_API_USERNAME')}`
           })
           .reply(200, {
@@ -639,6 +690,7 @@ describe('The Launchpad API endpoint', () => {
 
       afterEach(() => {
         lpApi.done();
+        ghApi.done();
         nock.cleanAll();
       });
 
@@ -660,15 +712,20 @@ describe('The Launchpad API endpoint', () => {
 
     context('when LP returns error', () => {
       let lpApi;
+      let ghApi;
 
       beforeEach(() => {
         const lp_api_url = conf.get('LP_API_URL');
+        const gh_api_url = conf.get('GITHUB_API_ENDPOINT');
 
+        ghApi = nock(gh_api_url)
+          .get('/user/orgs')
+          .reply(200, []);
         lpApi = nock(lp_api_url)
           .get('/devel/+snaps')
           .query({
-            'ws.op': 'findByURLPrefix',
-            url_prefix: 'https://github.com/anowner/',
+            'ws.op': 'findByURLPrefixes',
+            url_prefixes: 'https://github.com/anowner/',
             owner: `/~${conf.get('LP_API_USERNAME')}`
           })
           .reply(501, 'Something went quite wrong.');
@@ -676,6 +733,7 @@ describe('The Launchpad API endpoint', () => {
 
       afterEach(() => {
         lpApi.done();
+        ghApi.done();
         nock.cleanAll();
       });
 
@@ -694,7 +752,6 @@ describe('The Launchpad API endpoint', () => {
 
 
     context('when snaps are memcached', () => {
-      const urlPrefix = 'https://github.com/anowner/';
       let testSnaps;
       let lpApi;
 
@@ -707,7 +764,7 @@ describe('The Launchpad API endpoint', () => {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~another-user`,
-            git_repository_url: 'https://github.com/another-user/test-snap',
+            git_repository_url: 'https://github.com/anowner/test-snap',
             builds_collection_link: `${lp_api_base}/~another-user/+snap/` +
                                     'test-snap/builds',
             store_name: 'snap1'
@@ -716,19 +773,24 @@ describe('The Launchpad API endpoint', () => {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~test-user`,
-            git_repository_url: 'https://github.com/test-user/test-snap',
+            git_repository_url: 'https://github.com/org1/test-snap',
             builds_collection_link: `${lp_api_base}/~test-user/+snap/` +
                                     'test-snap/builds'
           }
         ];
 
         const contents = {
-          'https://github.com/another-user/test-snap': { name: 'snap1' },
-          'https://github.com/test-user/test-snap': { name: 'snap2' }
+          'https://github.com/anowner/test-snap': { name: 'snap1' },
+          'https://github.com/org1/test-snap': { name: 'snap2' }
         };
 
         setupInMemoryMemcached({
-          [getUrlPrefixCacheId(urlPrefix)]: testSnaps
+          [listOrganizationsCacheId('anowner')]: [
+            { login: 'org1' }, { login: 'org2' }
+          ],
+          [getUrlPrefixCacheId('https://github.com/anowner/')]: [testSnaps[0]],
+          [getUrlPrefixCacheId('https://github.com/org1/')]: [testSnaps[1]],
+          [getUrlPrefixCacheId('https://github.com/org2/')]: []
         });
 
         lpApi = nock(lp_api_url);
