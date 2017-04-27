@@ -101,7 +101,11 @@ describe('snapBuilds reducers', () => {
       type: ActionTypes.FETCH_SNAP_SUCCESS,
       payload: {
         id,
-        snap: SNAP
+        response: {
+          payload: {
+            snap: SNAP
+          }
+        }
       }
     };
 
@@ -128,7 +132,11 @@ describe('snapBuilds reducers', () => {
       type: ActionTypes.FETCH_BUILDS_SUCCESS,
       payload: {
         id,
-        builds: SNAP_BUILDS
+        response: {
+          payload: {
+            builds: SNAP_BUILDS
+          }
+        }
       }
     };
 
@@ -164,7 +172,11 @@ describe('snapBuilds reducers', () => {
       type: ActionTypes.FETCH_BUILDS_ERROR,
       payload: {
         id,
-        error: 'Something went wrong!',
+        response: {
+          payload: {
+            error: 'Something went wrong!'
+          }
+        }
       },
       error: true
     };
@@ -174,7 +186,7 @@ describe('snapBuilds reducers', () => {
         ...state[id],
         isFetching: false,
         success: false,
-        error: action.payload.error
+        error: action.payload.response.payload.error
       });
     });
   });

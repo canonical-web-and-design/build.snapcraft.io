@@ -16,6 +16,7 @@ import {
 } from '../../../../../src/common/actions/snap-builds';
 import { conf } from '../../../../../src/common/helpers/config';
 import { makeLocalForageStub } from '../../../../helpers';
+import callApi from '../../../../../src/common/middleware/call-api';
 
 const localForageStub = makeLocalForageStub();
 const getAccountInfo = proxyquire.noCallThru().load(
@@ -44,7 +45,7 @@ const {
 } = registerNameModule;
 const ActionTypes = registerNameModule;
 
-const middlewares = [ thunk ];
+const middlewares = [ thunk, callApi({ endpoint: conf.get('BASE_URL') }) ];
 const mockStore = configureMockStore(middlewares);
 
 describe('register name actions', () => {
