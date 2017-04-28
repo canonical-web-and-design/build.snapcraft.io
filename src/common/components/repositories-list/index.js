@@ -86,10 +86,12 @@ export class RepositoriesListView extends Component {
     }
 
     let latestBuild = null;
+    let isPublished = false;
     const currentSnapBuilds = snapBuilds[fullName];
 
     if (currentSnapBuilds && currentSnapBuilds.success && currentSnapBuilds.builds.length) {
       latestBuild = currentSnapBuilds.builds[0];
+      isPublished = currentSnapBuilds.builds.some((build) => build.isPublished);
     }
 
     const registerNameStatus = snap.registerNameStatus || {};
@@ -99,6 +101,7 @@ export class RepositoriesListView extends Component {
         key={ `repo_${fullName}` }
         snap={ snap }
         latestBuild={ latestBuild }
+        isPublished={ isPublished }
         fullName={ fullName }
         authStore={ authStore }
         registerNameStatus={ registerNameStatus }

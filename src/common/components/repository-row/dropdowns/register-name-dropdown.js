@@ -49,6 +49,7 @@ const Caption = (props) => {
     onSignAgreementChange,
     snapName,
     snapcraftData,
+    isPublished,
     onRegisterSubmit,
     onSnapNameChange
   } = props;
@@ -103,6 +104,9 @@ const Caption = (props) => {
       <div>
         If you change the registered name:
         <ul>
+          { isPublished &&
+            <li>Devices with the snap already installed will no longer receive updates.</li>
+          }
           { snapcraftData.name === registeredName &&
             <li>Builds will stop until you update the snapcraft.yaml to match.</li>
           }
@@ -112,6 +116,7 @@ const Caption = (props) => {
           <label>New name:
             {' ' /* force space between inline elements */}
             <input
+              spellCheck={false}
               autoFocus={true}
               className={ styles.snapNameInput }
               type='text'
@@ -181,6 +186,7 @@ Caption.propTypes = {
   registeredName: PropTypes.string,
   snapName: PropTypes.string,
   snapcraftData: PropTypes.object,
+  isPublished: PropTypes.bool,
   authStore: PropTypes.shape({
     authenticated: PropTypes.bool,
     hasDischarge: PropTypes.bool,
@@ -268,6 +274,7 @@ const RegisterNameDropdown = (props) => {
             registeredName={props.registeredName}
             snapName={props.snapName}
             snapcraftData={props.snapcraftData}
+            isPublished={props.isPublished}
             authStore={props.authStore}
             registerNameStatus={props.registerNameStatus}
             onRegisterSubmit={props.onRegisterSubmit}
@@ -297,6 +304,7 @@ RegisterNameDropdown.propTypes = {
   registeredName: PropTypes.string,
   registerNameStatus: PropTypes.object,
   snapcraftData: PropTypes.object,
+  isPublished: PropTypes.bool,
   onSnapNameChange: PropTypes.func.isRequired,
   onSignAgreementChange: PropTypes.func.isRequired,
   onRegisterSubmit: PropTypes.func.isRequired,

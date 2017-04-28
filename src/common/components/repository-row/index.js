@@ -243,6 +243,7 @@ export class RepositoryRowView extends Component {
     const {
       snap,
       latestBuild,
+      isPublished,
       fullName,
       authStore,
       registerNameStatus
@@ -301,6 +302,7 @@ export class RepositoryRowView extends Component {
           <RegisterNameDropdown
             registeredName={registeredName}
             snapcraftData={snap.snapcraftData}
+            isPublished={isPublished}
             snapName={this.state.snapName}
             authStore={authStore}
             registerNameStatus={registerNameStatus}
@@ -391,6 +393,7 @@ export class RepositoryRowView extends Component {
       content = (
         <form onSubmit={this.onRegisterSubmit.bind(this, snap.gitRepoUrl)}>
           <input
+            spellCheck={false}
             autoFocus={true}
             type='text'
             className={ styles.snapNameInput }
@@ -470,6 +473,7 @@ RepositoryRowView.propTypes = {
     dateStarted: PropTypes.string,
     statusMessage: PropTypes.string
   }),
+  isPublished: PropTypes.bool,
   fullName: PropTypes.string,
   authStore: PropTypes.shape({
     authenticated: PropTypes.bool,

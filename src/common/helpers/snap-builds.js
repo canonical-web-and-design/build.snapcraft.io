@@ -62,7 +62,7 @@ export function snapBuildFromAPI(entry) {
 
     colour: BuildStatusMapping[entry.buildstate],
     statusMessage: entry.buildstate,
-
+    isPublished: entry.store_upload_status === 'Uploaded',
     dateCreated: entry.datecreated,
     dateStarted: entry.date_started,
     dateBuilt: entry.datebuilt,

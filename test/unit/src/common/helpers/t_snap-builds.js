@@ -34,7 +34,8 @@ describe('snapBuildFromAPI helper', () => {
     'archive_link': 'https://api.launchpad.net/devel/ubuntu/+archive/primary',
     'arch_tag': 'amd64',
     'upload_log_url': null,
-    'store_upload_revision': 15
+    'store_upload_revision': 15,
+    'store_upload_status': 'Uploaded'
   };
 
   let snapBuild;
@@ -54,6 +55,7 @@ describe('snapBuildFromAPI helper', () => {
 
         'colour',
         'statusMessage',
+        'isPublished',
 
         'dateCreated',
         'dateStarted',
@@ -79,6 +81,10 @@ describe('snapBuildFromAPI helper', () => {
 
     it('should take statusMessage from buildstate field', () => {
       expect(snapBuild.statusMessage).toEqual(SNAP_BUILD_ENTRY.buildstate);
+    });
+
+    it('should set isPublished to true for Uploaded build', () => {
+      expect(snapBuild.isPublished).toBe(true);
     });
 
     it('should take dateCreated from datecreated field', () => {
