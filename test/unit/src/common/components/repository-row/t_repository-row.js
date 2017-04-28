@@ -100,11 +100,12 @@ describe('<RepositoryRowView />', () => {
       expect(view.type()).toEqual(Row);
     });
 
-    it('should contain BuildStatus linked to repo page', () => {
+    it('should contain build status column linked to repo page', () => {
       const expectedUrl = `/user/${props.fullName}`;
 
-      expect(view.find('BuildStatus').length).toBe(1);
-      expect(view.find('BuildStatus').prop('link')).toBe(expectedUrl);
+      // find a BuildStatus component and check `to` prop on parent (DataLink)
+      expect(view.find('BuildStatus').parent().length).toBe(1);
+      expect(view.find('BuildStatus').parent().prop('to')).toBe(expectedUrl);
     });
   });
 
@@ -127,8 +128,9 @@ describe('<RepositoryRowView />', () => {
     it('should contain BuildStatus linked to repo page', () => {
       const expectedUrl = `/user/${props.fullName}`;
 
-      expect(view.find('BuildStatus').length).toBe(1);
-      expect(view.find('BuildStatus').prop('link')).toBe(expectedUrl);
+      // find a BuildStatus component and check `to` prop on parent (DataLink)
+      expect(view.find('BuildStatus').parent().length).toBe(1);
+      expect(view.find('BuildStatus').parent().prop('to')).toBe(expectedUrl);
     });
   });
 

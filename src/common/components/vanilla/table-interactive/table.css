@@ -1,6 +1,7 @@
 $table-border-color: $dark-grey;
 $table-header-color: $dark-grey;
-$table-row-border-color: $dark-grey;
+$table-row-border-color: $mid-grey;
+$table-dropdown-background: $light-grey;
 
 .table {
   display: table;
@@ -13,7 +14,8 @@ $table-row-border-color: $dark-grey;
 }
 
 .cell {
-  padding: 10px;
+  box-sizing: border-box;
+  padding: 20px 10px;
   box-sizing: border-box;
   min-height: 21px;
   background: none;
@@ -23,6 +25,18 @@ $table-row-border-color: $dark-grey;
   vertical-align: top;
   backface-visibility: hidden;
   position: relative;
+  border: 1px solid transparent;
+  border-width: 0 1px 0 1px;
+}
+
+.cell.centered {
+  text-align: center;
+}
+
+.data {
+  font-weight: 300;
+  text-align: left;
+  vertical-align: middle;
 }
 
 .header, .data {
@@ -31,10 +45,19 @@ $table-row-border-color: $dark-grey;
   float: left;
 }
 
-.data {
-  font-weight: 300;
-  text-align: left;
-  vertical-align: middle;
+.dataLink {
+  composes: data;
+  color: $cool-grey;
+}
+
+a.dataLink:hover,
+a.dataLink:focus,
+a.dataLink.active {
+  color: $link-blue;
+}
+
+.header {
+  padding: 10px;
 }
 
 .head {
@@ -49,12 +72,45 @@ $table-row-border-color: $dark-grey;
   display: table-cell;
 }
 
+.expandable {
+  background-image: url(https://assets.ubuntu.com/v1/04d2075a-chevron-down.svg);
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+}
+
+.expandable:hover,
+.expandable.active {
+  background-color: $table-dropdown-background;
+  border-color: $table-row-border-color;
+  text-decoration: none;
+}
+
+.expandable.active {
+  background-image: url(https://assets.ubuntu.com/v1/f3f43376-chevron-up.svg);
+}
+
+/* assuming centered cell contains icon only, so shouldn't have the arrow */
+.expandable.centered {
+  background-image: none;
+}
+
+/* hide border between dropdown and cell that opened it */
+.expandable.active::after {
+  content: ' ';
+  position: absolute;
+  width: 100%;
+  border: 1px solid $table-dropdown-background;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+}
+
 .row {
   display: table-row;
   float: left;
   width: 100%;
-  border-color: rgb(178, 178, 178);
-  border-bottom-style: dotted;
+  border-color: $table-row-border-color;
+  border-bottom-style: solid;
   border-bottom-width: 1px;
 }
 
@@ -63,7 +119,7 @@ $table-row-border-color: $dark-grey;
 }
 
 .head .row {
-  border-bottom: 1px solid;
+  border-bottom: 1px solid $table-header-color;
 }
 
 .body {
@@ -74,21 +130,14 @@ $table-row-border-color: $dark-grey;
 
 .dropdown {
   width: 100%;
+
+  display: table;
+  background: $table-dropdown-background;
+  border: 1px solid $table-row-border-color;
+  border-width: 1px 1px 0 1px;
 }
 
 .dropdown .row {
   position: relative;
   border: 0;
-}
-
-.dropdown .row:before {
-  display: block;
-  margin: 0 auto;
-  width: calc(100% - 20px);
-  border-top: 1px dotted #d2d2d2;
-  position: absolute;
-  height: 1px;
-  content: "";
-  top: 0;
-  left: 10px;
 }

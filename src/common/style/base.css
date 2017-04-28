@@ -49,7 +49,7 @@ q:before, q:after {
 }
 
 a {
-  color: #007aa6;
+  color: $link-blue;
   text-decoration: none;
 }
 

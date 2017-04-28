@@ -116,9 +116,9 @@ export class RepositoriesListView extends Component {
         <Table>
           <Head>
             <Row>
-              <Header col="27">Name</Header>
-              <Header col="15">Configured</Header>
-              <Header col="25">Registered for publishing</Header>
+              <Header col="28">Name</Header>
+              <Header col="21">Configured</Header>
+              <Header col="21">Registered for publishing</Header>
               <Header col="30">Latest build</Header>
             </Row>
           </Head>
