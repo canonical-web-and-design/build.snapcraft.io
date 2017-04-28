@@ -2,13 +2,12 @@ import 'isomorphic-fetch';
 import localforage from 'localforage';
 import { MacaroonsBuilder } from 'macaroons.js';
 
-import { APICompatibleError, checkStatus, getError, getMacaroonAuthHeader } from '../helpers/api';
+import { APICompatibleError, checkStatus, getError } from '../helpers/api';
 import { conf } from '../helpers/config';
 import { checkPackageUploadRequest, getAccountInfo } from './auth-store';
 import { requestBuilds } from './snap-builds';
 
 const BASE_URL = conf.get('BASE_URL');
-const STORE_API_URL = conf.get('STORE_API_URL');
 
 // action types
 export const REGISTER_NAME = 'REGISTER_NAME';
@@ -65,16 +64,16 @@ export async function getPackageUploadRequestMacaroon() {
 }
 
 async function signAgreement(root, discharge) {
-  const authHeader = getMacaroonAuthHeader(root, discharge);
-  const response = await fetch(`${STORE_API_URL}/agreement`, {
+  const response = await fetch(`${BASE_URL}/api/store/agreement`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': authHeader,
+      'Accept': 'application/json'
     },
     body: JSON.stringify({
       latest_tos_accepted: true,
+      root,
+      discharge
     })
   });
   if (response.status >= 200 && response.status < 300) {
@@ -87,16 +86,16 @@ async function signAgreement(root, discharge) {
 }
 
 async function requestRegisterName(root, discharge, snapName) {
-  const authHeader = getMacaroonAuthHeader(root, discharge);
-  return await fetch(`${STORE_API_URL}/register-name`, {
+  return await fetch(`${BASE_URL}/api/store/register-name`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': authHeader,
+      'Accept': 'application/json'
     },
     body: JSON.stringify({
       snap_name: snapName,
+      root,
+      discharge
     })
   });
 }
@@ -117,13 +116,12 @@ export async function internalRegisterName(root, discharge, snapName) {
 }
 
 async function getPackageUploadMacaroon(root, discharge, snapName) {
-  const authHeader = getMacaroonAuthHeader(root, discharge);
-  const response = await fetch(`${STORE_API_URL}/acl/`, {
+  const response = await fetch(`${conf.get('STORE_API_URL')}/acl/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Authorization': authHeader,
+      'Authorization': `Macaroon root="${root}", discharge="${discharge}"`
     },
     body: JSON.stringify({
       packages: [{ name: snapName, series: STORE_SERIES }],
@@ -217,7 +215,7 @@ export function registerNameClear(id) {
 export async function internalNameOwnership(root, discharge, snapName) {
   // first request package_upload macaroon to see if name is registered
   // in the store
-  const url = `${STORE_API_URL}/acl/`;
+  const url = `${conf.get('STORE_API_URL')}/acl/`;
   const aclResponse = await fetch(url, {
     method: 'POST',
     headers: {

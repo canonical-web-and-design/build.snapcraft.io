@@ -5,13 +5,12 @@ import moment from 'moment';
 import qs from 'qs';
 import url from 'url';
 
-import { checkStatus, getError, getMacaroonAuthHeader } from '../helpers/api';
+import { checkStatus, getError } from '../helpers/api';
 import { conf } from '../helpers/config';
 import { getCaveats } from '../helpers/macaroons';
 import { getPackageUploadRequestMacaroon } from './register-name';
 
 const BASE_URL = conf.get('BASE_URL');
-const STORE_API_URL = conf.get('STORE_API_URL');
 
 export const SIGN_INTO_STORE = 'SIGN_INTO_STORE';
 export const SIGN_INTO_STORE_SUCCESS = 'SIGN_INTO_STORE_SUCCESS';
@@ -29,7 +28,7 @@ export const SIGN_AGREEMENT_SUCCESS = 'SIGN_AGREEMENT_SUCCESS';
 export const SIGN_OUT_OF_STORE_ERROR = 'SIGN_OUT_OF_STORE_ERROR';
 
 export function extractExpiresCaveat(macaroon) {
-  const storeLocation = url.parse(STORE_API_URL).host;
+  const storeLocation = url.parse(conf.get('STORE_API_URL')).host;
   for (const caveat of getCaveats(macaroon)) {
     if (caveat.verificationKeyId === '') {
       const parts = caveat.caveatId.split('|');
@@ -59,7 +58,7 @@ export function extractSSOCaveat(macaroon) {
 async function getPackageUploadRequestPermission() {
   const lifetime = conf.get('STORE_PACKAGE_UPLOAD_REQUEST_LIFETIME');
 
-  const response = await fetch(`${STORE_API_URL}/acl/`, {
+  const response = await fetch(`${conf.get('STORE_API_URL')}/acl/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -73,7 +72,6 @@ async function getPackageUploadRequestPermission() {
         .format('YYYY-MM-DD[T]HH:mm:ss.SSS')
     })
   });
-  // TODO: This needs better error handling see #691
   const json = await response.json();
   if (response.status !== 200 || !json.macaroon) {
     throw new Error('The store did not return a valid macaroon.');
@@ -225,17 +223,14 @@ function checkSignedIntoStoreError(error) {
 }
 
 async function fetchAccountInfo(root, discharge) {
-  const authHeader = getMacaroonAuthHeader(root, discharge);
-  const response = await fetch(`${STORE_API_URL}/account`, {
-    headers: {
-      'Authorization': authHeader,
-      'Accept': 'application/json'
-    }
+  const query = { root, discharge };
+  const accountUrl = `${BASE_URL}/api/store/account?${qs.stringify(query)}`;
+  const response = await fetch(accountUrl, {
+    headers: { 'Accept': 'application/json' }
   });
   if (response.status >= 200 && response.status < 300) {
     return { signedAgreement: true, hasShortNamespace: true };
   } else {
-    // TODO: This needs better error handling see #691
     const json = await response.json();
     const payload = json.error_list ? json.error_list[0] : json;
     if (response.status === 403 && payload.code === 'user-not-ready') {
@@ -254,18 +249,17 @@ async function fetchAccountInfo(root, discharge) {
 }
 
 async function setShortNamespace(root, discharge, userName) {
-  const authHeader = getMacaroonAuthHeader(root, discharge);
   // Try setting the short namespace to the SSO username.  This may not
   // work, but it's the best we can do automatically.
-  const response = await fetch(`${STORE_API_URL}/account`, {
+  const response = await fetch(`${BASE_URL}/api/store/account`, {
     method: 'PATCH',
-    headers: {
-      'Authorization': authHeader,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ short_namespace: userName })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      short_namespace: userName,
+      root,
+      discharge
+    })
   });
-
   if (response.status >= 200 && response.status < 300) {
     const data = await fetchAccountInfo(root, discharge);
     // fetchAccountInfo might not be able to work out whether a short
@@ -276,7 +270,6 @@ async function setShortNamespace(root, discharge, userName) {
     }
     return data;
   } else {
-    // TODO: This needs better error handling see #691
     const json = await response.json();
     const payload = json.error_list ? json.error_list[0] : json;
     if (response.status === 403 && payload.code === 'user-not-ready' &&

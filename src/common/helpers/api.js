@@ -27,8 +27,3 @@ export class APICompatibleError extends Error {
     this.json = { status: 'error', payload };
   }
 }
-
-// Format for Authorization header using macaroons
-export function getMacaroonAuthHeader(root, discharge) {
-  return `Macaroon root="${root}", discharge="${discharge}"`;
-}
