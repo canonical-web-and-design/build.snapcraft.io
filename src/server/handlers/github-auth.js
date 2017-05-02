@@ -5,7 +5,7 @@ import logging from '../logging';
 import db from '../db';
 import { conf } from '../helpers/config';
 import { getMemcached } from '../helpers/memcached';
-import { listOrganizationsCacheId, requestUser } from './github';
+import { internalListOrganizations, listOrganizationsCacheId, requestUser } from './github';
 
 const AUTH_SCOPE = 'admin:repo_hook read:org';
 const GITHUB_AUTH_LOGIN_URL = conf.get('GITHUB_AUTH_LOGIN_URL');
@@ -74,15 +74,21 @@ export const verify = (req, res, next) => {
 
     logger.info('User info successfully fetched');
 
-    // Save auth token and user info to session
-    req.session.githubAuthenticated = true;
-    req.session.token = body.access_token;
-    req.session.user = userResponse.body;
-
     // Make sure organization information is fetched again, since
     // permissions may have changed
     const orgsCacheID = listOrganizationsCacheId(userResponse.body.login);
     await getMemcached().del(orgsCacheID);
+
+    const orgs = await internalListOrganizations(userResponse.body.login, body.access_token);
+
+    // Save auth token and user info to session
+    req.session.githubAuthenticated = true;
+    req.session.token = body.access_token;
+    req.session.user = {
+      ...userResponse.body,
+      orgs
+    };
+
 
     // Save user info to DB
     await db.transaction(async (trx) => {
