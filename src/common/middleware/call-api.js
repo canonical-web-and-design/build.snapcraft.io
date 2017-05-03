@@ -120,7 +120,7 @@ function validateSettings(settings) {
 
 function withCsrfToken(csrfToken, options) {
   if (csrfToken) {
-    if(typeof options === 'undefined'){
+    if(typeof options === 'undefined') {
       options = {};
     }
 
