@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import moment from 'moment';
 
+import { BuildStatusColours } from '../../helpers/snap-builds.js';
 import styles from './buildStatus.css';
 
 const BuildStatus = (props) => {
@@ -39,7 +40,7 @@ const BuildStatus = (props) => {
 
 BuildStatus.propTypes = {
   link: PropTypes.string,
-  colour: PropTypes.oneOf(['green', 'yellow', 'red', 'grey']),
+  colour: PropTypes.oneOf(Object.values(BuildStatusColours)),
   statusMessage: PropTypes.string,
   dateStarted: PropTypes.string
 };

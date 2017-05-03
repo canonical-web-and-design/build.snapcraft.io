@@ -2,7 +2,8 @@ import expect from 'expect';
 
 import {
   snapBuildFromAPI,
-  BuildStatusColours
+  BuildStatusColours,
+  UserFacingState
 } from '../../../../../src/common/helpers/snap-builds';
 
 
@@ -53,8 +54,10 @@ describe('snapBuildFromAPI helper', () => {
 
         'architecture',
 
-        'colour',
         'statusMessage',
+        'colour',
+        'icon',
+        'priority',
         'isPublished',
 
         'dateCreated',
@@ -80,7 +83,7 @@ describe('snapBuildFromAPI helper', () => {
     });
 
     it('should take statusMessage from buildstate field', () => {
-      expect(snapBuild.statusMessage).toEqual(SNAP_BUILD_ENTRY.buildstate);
+      expect(snapBuild.statusMessage).toEqual(UserFacingState.IN_PROGRESS.statusMessage);
     });
 
     it('should set isPublished to true for Uploaded build', () => {
@@ -120,22 +123,67 @@ describe('snapBuildFromAPI helper', () => {
 
   context('when mapping build states', () => {
 
-    it('should map `Needs building` into "yellow"', () => {
+    it('should map `Needs building` into "grey"', () => {
       const entry = {
         ...SNAP_BUILD_ENTRY,
         buildstate: 'Needs building'
       };
 
-      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.YELLOW);
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.GREY);
     });
 
-    it('should map `Successfully built` into "green"', () => {
-      const entry = {
+    describe('when buildState is `Successfully built`', () => {
+
+      const success =  {
         ...SNAP_BUILD_ENTRY,
-        buildstate: 'Successfully built'
+        buildstate: 'Successfully built',
       };
 
-      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.GREEN);
+      it('should map \'uploaded\' uploadState into "green"', () => {
+        const entry = {
+          ...success,
+          store_upload_status: 'Uploaded'
+        };
+
+        expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.GREEN);
+      });
+
+      it('should map \'failed to release\' uploadState into "red"', () => {
+        const entry = {
+          ...success,
+          store_upload_status: 'Failed to release to channels'
+        };
+
+        expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.RED);
+      });
+
+      it('should map \'failed to upload\' uploadState into "red"', () => {
+        const entry = {
+          ...success,
+          store_upload_status: 'Failed to upload'
+        };
+
+        expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.RED);
+      });
+
+      it('should map \'pending\' uploadState into "grey"', () => {
+        const entry = {
+          ...success,
+          store_upload_status: 'Pending'
+        };
+
+        expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.GREY);
+      });
+
+      it('should map \'unsheduled\' uploadState into "green"', () => {
+        const entry = {
+          ...success,
+          store_upload_status: 'Unscheduled'
+        };
+
+        expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.GREEN);
+      });
+
     });
 
     it('should map `Failed to build` into "red"', () => {
@@ -174,13 +222,13 @@ describe('snapBuildFromAPI helper', () => {
       expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.RED);
     });
 
-    it('should map `Currently building` into "yellow"', () => {
+    it('should map `Currently building` into "blue"', () => {
       const entry = {
         ...SNAP_BUILD_ENTRY,
         buildstate: 'Currently building'
       };
 
-      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.YELLOW);
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.BLUE);
     });
 
     it('should map `Failed to upload` into "red"', () => {
@@ -192,13 +240,13 @@ describe('snapBuildFromAPI helper', () => {
       expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.RED);
     });
 
-    it('should map `Uploading build` into "yellow"', () => {
+    it('should map `Uploading build` into "blue"', () => {
       const entry = {
         ...SNAP_BUILD_ENTRY,
         buildstate: 'Uploading build'
       };
 
-      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.YELLOW);
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.BLUE);
     });
 
     it('should map `Cancelling build` into "red"', () => {

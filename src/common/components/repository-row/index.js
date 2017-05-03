@@ -377,7 +377,7 @@ export class RepositoryRowView extends Component {
     );
 
     return (
-      <DataLink col="21" expandable={true} onClick={onClick} active={active}>
+      <DataLink col="15" expandable={true} onClick={onClick} active={active}>
         { content }
       </DataLink>
     );
@@ -418,7 +418,7 @@ export class RepositoryRowView extends Component {
 
   renderBuildStatus(fullName, hasBuilt, latestBuild) {
     return (
-      <DataLink col="24" to={ hasBuilt ? `/user/${fullName}` : null }>
+      <DataLink col="30" to={ hasBuilt ? `/user/${fullName}` : null }>
         { hasBuilt
           ? (
             <BuildStatus
