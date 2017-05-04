@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import { fetchBuilds } from '../../actions/snap-builds';
 import { fetchUserRepositoriesAndSnaps } from '../../actions/repositories';
+import { fetchUserOrganizations } from '../../actions/organizations';
 import SelectRepositoryList from '../select-repository-list';
 import { HeadingThree } from '../vanilla/heading';
 import FirstTimeHeading from '../first-time-heading';
@@ -17,6 +18,7 @@ class SelectRepositoriesPage extends Component {
     const owner = this.props.user.login;
 
     if (authenticated) {
+      this.props.dispatch(fetchUserOrganizations(owner));
       this.props.dispatch(fetchUserRepositoriesAndSnaps(owner));
     }
 

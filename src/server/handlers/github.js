@@ -110,6 +110,31 @@ export const internalListOrganizations = async (owner, token) => {
   }
 };
 
+export const refreshOrganizations = async (req, res) => {
+  if (!req.session || !req.session.token) {
+    return res.status(401).send(RESPONSE_AUTHENTICATION_FAILED);
+  }
+
+  const owner = req.query.owner;
+
+  // Make sure organization information is fetched again, since
+  // permissions may have changed
+  const orgsCacheID = listOrganizationsCacheId(owner);
+  await getMemcached().del(orgsCacheID);
+
+  const orgs = await internalListOrganizations(owner, req.session.token);
+
+  // update orgs in session
+  if (req.session.user) {
+    req.session.user.orgs = orgs;
+  }
+
+  return res.status(200).send({
+    status: 'success',
+    orgs
+  });
+};
+
 // memcached cache id helper
 export const getSnapcraftYamlCacheId = (repositoryUrl) => `snapcraft_data:${repositoryUrl}`;
 

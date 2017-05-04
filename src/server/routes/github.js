@@ -5,7 +5,8 @@ import { verifyToken } from '../middleware/csrf-token';
 import {
   getUser,
   createWebhook,
-  listRepositories
+  listRepositories,
+  refreshOrganizations
 } from '../handlers/github';
 import { getSnapcraftYaml } from '../handlers/launchpad';
 
@@ -17,6 +18,10 @@ router.post('/github/webhook', createWebhook);
 
 router.use('/github/user', json());
 router.get('/github/user', getUser);
+
+router.use('/github/orgs', json());
+router.get('/github/orgs', verifyToken);
+router.get('/github/orgs', refreshOrganizations);
 
 router.use('/github/repos', json());
 router.get('/github/repos', listRepositories);
