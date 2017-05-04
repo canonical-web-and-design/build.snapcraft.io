@@ -10,51 +10,49 @@ export const snapBuildsInitialStatus = {
 };
 
 export function snapBuilds(state = {}, action) {
-  const { payload } = action;
-
   const initialStatus = snapBuildsInitialStatus;
 
   switch(action.type) {
     case ActionTypes.FETCH_BUILDS:
       return {
         ...state,
-        [payload.id]: {
+        [action.payload.id]: {
           ...initialStatus,
-          ...state[payload.id],
+          ...state[action.payload.id],
           isFetching: true
         }
       };
     case ActionTypes.FETCH_SNAP_SUCCESS:
       return {
         ...state,
-        [payload.id]: {
-          ...state[payload.id],
+        [action.payload.id]: {
+          ...state[action.payload.id],
           isFetching: false,
           // TODO
           // in refactoring this should go to entities,
           // or maybe shouldn't be needed at all
-          snap: payload.snap
+          snap: action.payload.response.payload.snap
         }
       };
     case ActionTypes.FETCH_BUILDS_SUCCESS:
       return {
         ...state,
-        [payload.id]: {
-          ...state[payload.id],
+        [action.payload.id]: {
+          ...state[action.payload.id],
           isFetching: false,
           success: true,
-          builds: payload.builds.map(snapBuildFromAPI),
+          builds: action.payload.response.payload.builds.map(snapBuildFromAPI),
           error: null
         }
       };
     case ActionTypes.FETCH_BUILDS_ERROR:
       return {
         ...state,
-        [payload.id]: {
-          ...state[payload.id],
+        [action.payload.id]: {
+          ...state[action.payload.id],
           isFetching: false,
           success: false,
-          error: payload.error
+          error: action.payload.response.payload.error
         }
       };
     default:

@@ -109,12 +109,9 @@ function validateDefaults({ endpoint, csrfToken }) {
 }
 
 function validateSettings(settings) {
-  const { path, options, types } = settings;
+  const { path, types } = settings;
   if (typeof path !== 'string') {
     throw new Error('Specify a string path.');
-  }
-  if (!options) {
-    throw new Error('Specify settings for API request');
   }
   if (Array.isArray(types) && !types.every(type => typeof type === 'string')) {
     throw new Error('Expected action types to be strings.');
@@ -123,6 +120,10 @@ function validateSettings(settings) {
 
 function withCsrfToken(csrfToken, options) {
   if (csrfToken) {
+    if(typeof options === 'undefined') {
+      options = {};
+    }
+
     if (!options.headers) {
       options.headers = {};
     }

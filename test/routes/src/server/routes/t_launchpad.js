@@ -409,6 +409,7 @@ describe('The Launchpad API endpoint', () => {
     beforeEach(async () => {
       apiResponse = supertest(app)
         .get('/launchpad/snaps/list')
+        .set('X-CSRF-Token', 'blah')
         .query({ owner: 'anowner' });
       await db.model('GitHubUser').query('truncate').fetch();
       await db.model('GitHubUser')
@@ -1459,6 +1460,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 200 OK response', (done) => {
         supertest(app)
           .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
           .query({ snap: lp_snap_url })
           .expect(200, done);
       });
@@ -1466,6 +1468,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a "success" status', (done) => {
         supertest(app)
           .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
           .query({ snap: lp_snap_url })
           .expect(hasStatus('success'))
           .end(done);
@@ -1474,6 +1477,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return body with "snap-builds-found" message', (done) => {
         supertest(app)
           .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
           .query({ snap: lp_snap_url })
           .expect(hasMessage('snap-builds-found'))
           .end(done);
@@ -1482,6 +1486,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return builds list in payload', (done) => {
         supertest(app)
           .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
           .query({ snap: lp_snap_url })
           .end((err, res) => {
             const build = res.body.payload.builds[0];
@@ -1527,6 +1532,7 @@ describe('The Launchpad API endpoint', () => {
 
         supertest(app)
           .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
           .query({ snap: lp_snap_url })
           .expect(200, (err) => {
             lp.done();
@@ -1546,6 +1552,7 @@ describe('The Launchpad API endpoint', () => {
 
         supertest(app)
           .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
           .query({ snap: lp_snap_url, size: 42, start: 7 })
           .expect(200, (err) => {
             lp.done();
@@ -1583,6 +1590,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 404 response', (done) => {
         supertest(app)
           .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
           .query({ snap: lp_snap_url })
           .expect(404, done);
       });
@@ -1590,6 +1598,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a "error" status', (done) => {
         supertest(app)
           .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
           .query({ snap: lp_snap_url })
           .expect(hasStatus('error'))
           .end(done);
@@ -1598,6 +1607,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return body with error message', (done) => {
         supertest(app)
           .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
           .query({ snap: lp_snap_url })
           .expect(hasMessage('lp-error', 'Not found'))
           .end(done);
@@ -1621,6 +1631,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 404 response', (done) => {
         supertest(app)
           .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
           .query({ snap: lp_snap_url })
           .expect(404, done);
       });
@@ -1628,6 +1639,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a "error" status', (done) => {
         supertest(app)
           .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
           .query({ snap: lp_snap_url })
           .expect(hasStatus('error'))
           .end(done);
@@ -1636,6 +1648,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return body with error message', (done) => {
         supertest(app)
           .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
           .query({ snap: lp_snap_url })
           .expect(hasMessage('lp-error', 'Not found'))
           .end(done);
@@ -1648,12 +1661,14 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 404 response', (done) => {
         supertest(app)
           .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
           .expect(404, done);
       });
 
       it('should return a "error" status', (done) => {
         supertest(app)
         .get('/launchpad/builds')
+        .set('X-CSRF-Token', 'blah')
         .expect(hasStatus('error'))
         .end(done);
       });
@@ -1661,6 +1676,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return body with error message', (done) => {
         supertest(app)
         .get('/launchpad/builds')
+        .set('X-CSRF-Token', 'blah')
         .expect(hasMessage('missing-snap-link'))
         .end(done);
       });
@@ -1739,6 +1755,7 @@ describe('The Launchpad API endpoint', () => {
         it('returns a 201 Created response', (done) => {
           supertest(app)
             .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(201)
             .end((err) => {
@@ -1750,6 +1767,7 @@ describe('The Launchpad API endpoint', () => {
         it('returns a "success" status', (done) => {
           supertest(app)
             .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasStatus('success'))
             .end((err) => {
@@ -1761,6 +1779,7 @@ describe('The Launchpad API endpoint', () => {
         it('returns body with a "snap-builds-requested" message', (done) => {
           supertest(app)
             .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasMessage('snap-builds-requested'))
             .end((err) => {
@@ -1772,6 +1791,7 @@ describe('The Launchpad API endpoint', () => {
         it('returns requested builds list in payload', (done) => {
           supertest(app)
             .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect((res) => {
               const buildUrls = res.body.payload.builds.map((entry) => {
@@ -1791,6 +1811,7 @@ describe('The Launchpad API endpoint', () => {
         it('leaves builds_requested unmodified if it is unset', async () => {
           await supertest(app)
             .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' });
           const dbUser = await db.model('GitHubUser')
             .where({ login: 'anowner' })
@@ -1805,6 +1826,7 @@ describe('The Launchpad API endpoint', () => {
           await dbUser.save({ builds_requested: 2 });
           await supertest(app)
             .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' });
           await dbUser.refresh();
           expect(dbUser.get('builds_requested')).toEqual(4);
@@ -1835,6 +1857,7 @@ describe('The Launchpad API endpoint', () => {
         it('returns a 201 Created response', (done) => {
           supertest(app)
             .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(201)
             .end((err) => {
@@ -1846,6 +1869,7 @@ describe('The Launchpad API endpoint', () => {
         it('returns a "success" status', (done) => {
           supertest(app)
             .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasStatus('success'))
             .end((err) => {
@@ -1857,6 +1881,7 @@ describe('The Launchpad API endpoint', () => {
         it('returns body with a "snap-builds-requested" message', (done) => {
           supertest(app)
             .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasMessage('snap-builds-requested'))
             .end((err) => {
@@ -1868,6 +1893,7 @@ describe('The Launchpad API endpoint', () => {
         it('returns requested builds list in payload', (done) => {
           supertest(app)
             .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect((res) => {
               const buildUrls = res.body.payload.builds.map((entry) => {
@@ -1887,6 +1913,7 @@ describe('The Launchpad API endpoint', () => {
         it('leaves builds_requested unmodified if it is unset', async () => {
           await supertest(app)
             .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' });
           const dbUser = await db.model('GitHubUser')
             .where({ login: 'anowner' })
@@ -1901,6 +1928,7 @@ describe('The Launchpad API endpoint', () => {
           await dbUser.save({ builds_requested: 2 });
           await supertest(app)
             .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' });
           await dbUser.refresh();
           expect(dbUser.get('builds_requested')).toEqual(4);
@@ -1922,6 +1950,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 401 Unauthorized response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(401, done);
       });
@@ -1929,6 +1958,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
@@ -1938,6 +1968,7 @@ describe('The Launchpad API endpoint', () => {
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('github-no-admin-permissions'))
           .end(done);
@@ -1958,6 +1989,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a 404 Not Found response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(404, done);
       });
@@ -1965,6 +1997,7 @@ describe('The Launchpad API endpoint', () => {
       it('should return a "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
@@ -1974,6 +2007,7 @@ describe('The Launchpad API endpoint', () => {
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('github-snapcraft-yaml-not-found'))
           .end(done);
@@ -2006,6 +2040,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns a 404 response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(404, done);
       });
@@ -2013,6 +2048,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns an "error" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasStatus('error'))
           .end(done);
@@ -2021,6 +2057,7 @@ describe('The Launchpad API endpoint', () => {
       it('returns body with a "snap-not-found" message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
+          .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
           .expect(hasMessage('snap-not-found'))
           .end(done);
