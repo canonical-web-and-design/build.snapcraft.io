@@ -14,20 +14,12 @@ import styles from './select-repositories-page.css';
 
 class SelectRepositoriesPage extends Component {
   componentDidMount() {
-    const { authenticated } = this.props.auth;
-    const owner = this.props.user.login;
-
-    if (authenticated) {
-      this.props.dispatch(fetchUserOrganizations(owner));
-      this.props.dispatch(fetchUserRepositoriesAndSnaps(owner));
-    }
-
-    this.fetchData(this.props);
+    this.fetchUserData();
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.snaps.success !== nextProps.snaps.success) {
-      this.fetchData(nextProps);
+      this.fetchBuilds(nextProps);
     }
   }
 
@@ -44,14 +36,30 @@ class SelectRepositoriesPage extends Component {
           <HeadingThree className={ styles.heading }>
             Choose repos to add
           </HeadingThree>
-          <PrivateReposInfo />
+          <PrivateReposInfo user={ this.props.user } onRefreshClick={this.onRefresh.bind(this)}/>
           <SelectRepositoryList/>
         </CardHighlighted>
       </div>
     );
   }
 
-  fetchData(props) {
+  onRefresh() {
+    this.fetchUserData();
+  }
+
+  fetchUserData() {
+    const { authenticated } = this.props.auth;
+    const owner = this.props.user.login;
+
+    if (authenticated) {
+      this.props.dispatch(fetchUserOrganizations(owner));
+      this.props.dispatch(fetchUserRepositoriesAndSnaps(owner));
+    }
+
+    this.fetchBuilds(this.props);
+  }
+
+  fetchBuilds(props) {
     const { snaps } = props;
 
     if (snaps.success) {

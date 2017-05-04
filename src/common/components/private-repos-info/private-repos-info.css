@@ -7,6 +7,19 @@ $background-color: #FFF;
   margin-bottom: 24px;
 }
 
+.info ul {
+  list-style: disc;
+  padding-left: 20px;
+}
+
+.info ul li {
+  margin-bottom: 12px;
+}
+
+.info ul li:last-child {
+  margin-bottom: 0;
+}
+
 .infoMsg {
   margin-bottom: 12px;
 }
@@ -32,7 +45,7 @@ $background-color: #FFF;
   box-sizing: border-box;
 
   margin-right: 12px;
-  width: 240px;
+  width: 220px;
   margin-bottom: 6px;
 }
 
