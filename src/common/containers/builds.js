@@ -16,13 +16,15 @@ import withSnapBuilds from './with-snap-builds';
 
 import styles from './container.css';
 
-class Builds extends Component {
+export class Builds extends Component {
   render() {
     const { user, repository } = this.props;
-    const { isFetching, success, error, snap } = this.props.snapBuilds;
+    const { isFetching, success, error, snap, builds } = this.props.snapBuilds;
 
     // only show spinner when data is loading for the first time
     const isLoading = isFetching && !success;
+
+    const isPublished = builds.some((build) => build.isPublished);
 
     return (
       <div className={ styles.container }>
@@ -45,7 +47,7 @@ class Builds extends Component {
         { error &&
           <Message status='error'>{ error.message || error }</Message>
         }
-        { snap && snap.storeName &&
+        { snap && snap.storeName && isPublished &&
           <HelpBox>
             <HelpInstallSnap
               headline='To test this snap on your PC or cloud instance:'
@@ -75,6 +77,11 @@ Builds.propTypes = {
       selfLink: PropTypes.string.isRequired,
       storeName: PropTypes.string.isRequired
     }),
+    builds: PropTypes.arrayOf(
+      PropTypes.shape({
+        isPublished: PropTypes.bool
+      })
+    ),
     success: PropTypes.bool,
     error: PropTypes.object
   })
