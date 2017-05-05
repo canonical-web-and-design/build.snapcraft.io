@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import moment from 'moment';
 
 import { Row, Data } from '../vanilla/table-interactive';
+import { BuildStatusColours } from '../../helpers/snap-builds.js';
 import BuildStatus from '../build-status';
 
 const BuildRow = (props) => {
@@ -66,7 +67,7 @@ BuildRow.propTypes = {
   buildId:  PropTypes.string,
   buildLogUrl: PropTypes.string,
   architecture: PropTypes.string,
-  colour:  PropTypes.oneOf(['green', 'yellow', 'blue', 'red', 'grey']),
+  colour: PropTypes.oneOf(Object.values(BuildStatusColours)),
   statusMessage: PropTypes.string,
   dateStarted: PropTypes.string,
   duration: PropTypes.string
