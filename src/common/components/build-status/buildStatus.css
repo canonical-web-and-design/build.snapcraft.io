@@ -3,6 +3,11 @@
   color: $success;
 }
 
+.buildStatus.blue,
+.buildStatus.blue a {
+  color: $information;
+}
+
 .buildStatus.red,
 .buildStatus.red a {
   color: $error;

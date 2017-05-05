@@ -58,9 +58,7 @@ describe('The RepositoriesHome component', () => {
           snaps: {}
         },
         snaps: {
-          success: true,
-          snaps: [],
-          ids: []
+          isFetching: true
         },
         snapBuilds: {},
         fetchBuilds: () => {},
@@ -80,6 +78,17 @@ describe('The RepositoriesHome component', () => {
     context('and component recieves props', () => {
       beforeEach(() => {
         wrapper.instance().componentDidMount();
+
+        props = {
+          ...props,
+          snaps: {
+            ...props.snaps,
+            isFetching: false,
+            success: true,
+            snaps: [],
+            ids: []
+          }
+        };
         wrapper.instance().componentWillReceiveProps(props);
       });
 

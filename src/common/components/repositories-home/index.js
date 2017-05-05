@@ -19,23 +19,13 @@ let interval;
 const SNAP_POLL_PERIOD = (15 * 1000);
 
 class RepositoriesHome extends Component {
-  fetchData(props) {
-    const { hasSnaps, snaps, entities } = props;
 
-    // check both success and fetching to avoid redirecting
-    // based on previous success
-    if (snaps.success && !snaps.isFetching) {
-      // if user doesn't have enabled repos open add repositories view
-      if (!hasSnaps) {
-        this.props.router.replace('/select-repositories');
-        return;
-      }
-
-      snaps.ids.forEach((id) => {
-        const snap = entities.snaps[id];
-        this.props.fetchBuilds(snap.gitRepoUrl, snap.selfLink);
-      });
-    }
+  updateBuilds(props) {
+    const { snaps, entities } = props;
+    snaps.ids.forEach((id) => {
+      const snap = entities.snaps[id];
+      this.props.fetchBuilds(snap.gitRepoUrl, snap.selfLink);
+    });
   }
 
   componentDidMount() {
@@ -59,11 +49,16 @@ class RepositoriesHome extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const snapsLength = nextProps.snaps.ids.length;
-
-    if ((this.props.snaps.success !== nextProps.snaps.success)
-        || (snapsLength === 0)) {
-      this.fetchData(nextProps);
+    const { hasSnaps, snaps } = nextProps;
+    // if snaps stopped fetching
+    if ((this.props.snaps.isFetching !== snaps.isFetching) && !snaps.isFetching) {
+      // if user doesn't have enabled repos open add repositories view
+      if (!hasSnaps) {
+        this.props.router.replace('/select-repositories');
+      } else {
+      // or update builds for their snaps
+        this.updateBuilds(nextProps);
+      }
     }
   }
 
