@@ -42,6 +42,8 @@ export const BuildStatusIcons = {
 };
 
 export const UserFacingState = {
+  // Used only when there is no build returned from LP.
+  // When build is returned from LP (scheduled) it's 'Building soon' for BSI.
   'NEVER_BUILT': createState(
     'Never built',
     BuildStatusColours.GREY,
@@ -136,7 +138,7 @@ const LaunchpadStoreUploadStates = {
 function mapBuildAndUploadStates(buildState, uploadState) {
   switch (buildState) {
     case LaunchpadBuildStates.NEEDSBUILT:
-      return UserFacingState.NEVER_BUILT;
+      return UserFacingState.BUILDING_SOON;
     case LaunchpadBuildStates.FULLYBUILT:
       return internalMapSnapBuildStoreUploadState(uploadState);
     case LaunchpadBuildStates.BUILDING:

@@ -66,7 +66,7 @@ BuildRow.propTypes = {
   buildId:  PropTypes.string,
   buildLogUrl: PropTypes.string,
   architecture: PropTypes.string,
-  colour:  PropTypes.oneOf(['green', 'yellow', 'red', 'grey']),
+  colour:  PropTypes.oneOf(['green', 'yellow', 'blue', 'red', 'grey']),
   statusMessage: PropTypes.string,
   dateStarted: PropTypes.string,
   duration: PropTypes.string
