@@ -57,3 +57,6 @@ environments/development.env
 # Development and test SQLite databases
 /dev.sqlite3
 /test.sqlite3
+
+# Development font file (for badges)
+scripts/Verdana.ttf

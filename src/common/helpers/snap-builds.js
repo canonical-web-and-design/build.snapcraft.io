@@ -57,7 +57,7 @@ export const UserFacingState = {
     7
   ),
   'WONT_PUBLISH': createState(
-    'Built, won\'t be published',
+    'Built, won’t be published',
     BuildStatusColours.GREEN,
     BuildStatusIcons.TICK_OUTLINED,
     6

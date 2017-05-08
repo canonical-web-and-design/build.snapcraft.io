@@ -12,11 +12,12 @@
     "test": "npm run test:setup-db && nyc npm run test:unit && npm run test:routes && npm run lint",
     "test:setup-db": "rm -f test.sqlite3 && NODE_ENV=test npm run migrate:latest",
     "test:unit": "BABEL_DISABLE_CACHE=1 HTTP_PROXY= HTTPS_PROXY= TZ=US/Pacific mocha --env=environments/test.env --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/setup.js ./test/unit/t_*.js ./test/unit/**/*",
-    "test:unit:watch": "BABEL_DISABLE_CACHE=1 HTTP_PROXY= HTTPS_PROXY= TZ=US/Pacific mocha --watch --env=environments/test.env --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/setup.js ./test/unit/t_*.js ./test/unit/**/*", 
+    "test:unit:watch": "BABEL_DISABLE_CACHE=1 HTTP_PROXY= HTTPS_PROXY= TZ=US/Pacific mocha --watch --env=environments/test.env --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/setup.js ./test/unit/t_*.js ./test/unit/**/*",
     "test:unit:inspect": "BABEL_DISABLE_CACHE=1 HTTP_PROXY= HTTPS_PROXY= TZ=US/Pacific mocha --inspect --debug-brk --env=environments/test.env --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/setup.js ./test/unit/t_*.js ./test/unit/**/*",
     "test:routes": "BABEL_DISABLE_CACHE=1 HTTP_PROXY= HTTPS_PROXY= TZ=US/Pacific mocha --env=environments/test.env --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/setup.js ./test/routes/**/*",
     "migrate:latest": "knex migrate:latest",
-    "migrate:rollback": "knex migrate:rollback"
+    "migrate:rollback": "knex migrate:rollback",
+    "generate-badges": "node scripts/badges.js"
   },
   "repository": {
     "type": "git",
@@ -110,6 +111,7 @@
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.9.0",
     "flux-standard-action": "^1.0.0",
+    "gh-badges": "^1.3.0",
     "mocha": "^3.1.2",
     "nock": "^9.0.2",
     "nyc": "^9.0.1",
