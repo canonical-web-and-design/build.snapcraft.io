@@ -28,11 +28,10 @@ export const SIGN_AGREEMENT_SUCCESS = 'SIGN_AGREEMENT_SUCCESS';
 export const SIGN_OUT_OF_STORE_ERROR = 'SIGN_OUT_OF_STORE_ERROR';
 
 export function extractExpiresCaveat(macaroon) {
-  const storeLocation = url.parse(conf.get('STORE_API_URL')).host;
   for (const caveat of getCaveats(macaroon)) {
     if (caveat.verificationKeyId === '') {
       const parts = caveat.caveatId.split('|');
-      if (parts[0] === storeLocation && parts[1] === 'expires') {
+      if (parts[0] === macaroon.location && parts[1] === 'expires') {
         return moment.utc(parts[2]);
       }
     }

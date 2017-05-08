@@ -45,6 +45,11 @@ describe('store authentication actions', () => {
     authenticated: false,
     error: null
   };
+  // Deliberately different from the host part of STORE_API_URL so that we
+  // can ensure that things work even when the macaroon is issued with a
+  // different location from the host we think we're contacting (e.g.
+  // myapps.developer.ubuntu.com vs. dashboard.snapcraft.io).
+  const storeLocation = 'myapps.developer.example.com';
   const ssoLocation = url.parse(conf.get('UBUNTU_SSO_URL')).host;
 
   let store;
@@ -54,11 +59,9 @@ describe('store authentication actions', () => {
   });
 
   context('extractExpiresCaveat', () => {
-    const storeLocation = url.parse(conf.get('STORE_API_URL')).host;
-
     it('parses an expires caveat', () => {
       const expires = '2017-01-01T00:00:00.000';
-      const macaroon = new MacaroonsBuilder('location', 'key', 'id')
+      const macaroon = new MacaroonsBuilder(storeLocation, 'key', 'id')
         .add_first_party_caveat(`${storeLocation}|expires|${expires}`)
         .getMacaroon();
       expect(extractExpiresCaveat(macaroon)).toEqual(moment.utc(expires));
@@ -66,14 +69,14 @@ describe('store authentication actions', () => {
 
     it('skips expires caveats from wrong host', () => {
       const expires = '2017-01-01T00:00:00.000';
-      const macaroon = new MacaroonsBuilder('location', 'key', 'id')
+      const macaroon = new MacaroonsBuilder(storeLocation, 'key', 'id')
         .add_first_party_caveat(`wrong|expires|${expires}`)
         .getMacaroon();
       expect(extractExpiresCaveat(macaroon)).toBe(undefined);
     });
 
     it('skips non-expires caveats', () => {
-      const macaroon = new MacaroonsBuilder('location', 'key', 'id')
+      const macaroon = new MacaroonsBuilder(storeLocation, 'key', 'id')
         .add_first_party_caveat(`${storeLocation}|channel|["edge"]`)
         .getMacaroon();
       expect(extractExpiresCaveat(macaroon)).toBe(undefined);
@@ -82,7 +85,7 @@ describe('store authentication actions', () => {
 
   context('extractSSOCaveat', () => {
     it('returns the ID of a single SSO caveat', () => {
-      const macaroon = new MacaroonsBuilder('location', 'key', 'id')
+      const macaroon = new MacaroonsBuilder(storeLocation, 'key', 'id')
         .add_first_party_caveat('dummy')
         .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
         .getMacaroon();
@@ -90,13 +93,13 @@ describe('store authentication actions', () => {
     });
 
     it('fails if macaroon has no SSO caveats', () => {
-      const macaroon = MacaroonsBuilder.create('location', 'key', 'id');
+      const macaroon = MacaroonsBuilder.create(storeLocation, 'key', 'id');
       expect(() => extractSSOCaveat(macaroon))
         .toThrow('Macaroon has no SSO caveats.');
     });
 
     it('fails if macaroon has multiple SSO caveats', () => {
-      const macaroon = new MacaroonsBuilder('location', 'key', 'id')
+      const macaroon = new MacaroonsBuilder(storeLocation, 'key', 'id')
         .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
         .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat 2')
         .getMacaroon();
@@ -164,7 +167,6 @@ describe('store authentication actions', () => {
     });
 
     context('when local storage contains expired root macaroon', () => {
-      const storeLocation = url.parse(conf.get('STORE_API_URL')).host;
       let root;
       let discharge;
 
@@ -205,7 +207,7 @@ describe('store authentication actions', () => {
       let discharge;
 
       beforeEach(() => {
-        root = new MacaroonsBuilder('location', 'key', 'id')
+        root = new MacaroonsBuilder(storeLocation, 'key', 'id')
           .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
           .getMacaroon();
         discharge = MacaroonsBuilder.create(ssoLocation, 'wrong', 'wrong');
@@ -238,7 +240,7 @@ describe('store authentication actions', () => {
       let discharge;
 
       beforeEach(() => {
-        root = new MacaroonsBuilder('location', 'key', 'id')
+        root = new MacaroonsBuilder(storeLocation, 'key', 'id')
           .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
           .getMacaroon();
         discharge = MacaroonsBuilder.create(
@@ -306,7 +308,7 @@ describe('store authentication actions', () => {
       let root;
 
       beforeEach(() => {
-        root = new MacaroonsBuilder('location', 'key', 'id')
+        root = new MacaroonsBuilder(storeLocation, 'key', 'id')
           .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
           .getMacaroon();
         storeApi.post('/acl/', (body) => {
@@ -390,7 +392,7 @@ describe('store authentication actions', () => {
 
     context('when local storage contains mismatching macaroons', () => {
       beforeEach(() => {
-        const root = new MacaroonsBuilder('location', 'key', 'id')
+        const root = new MacaroonsBuilder(storeLocation, 'key', 'id')
           .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
           .getMacaroon();
         const discharge = MacaroonsBuilder.create(
@@ -415,7 +417,7 @@ describe('store authentication actions', () => {
 
     context('when local storage contains matching macaroons', () => {
       beforeEach(() => {
-        const root = new MacaroonsBuilder('location', 'key', 'id')
+        const root = new MacaroonsBuilder(storeLocation, 'key', 'id')
           .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
           .getMacaroon();
         const discharge = MacaroonsBuilder.create(
@@ -447,7 +449,7 @@ describe('store authentication actions', () => {
     beforeEach(() => {
       api = nock(`${conf.get('BASE_URL')}/api`);
       const ssoLocation = url.parse(conf.get('UBUNTU_SSO_URL')).host;
-      const rootMacaroon = new MacaroonsBuilder('location', 'key', 'id')
+      const rootMacaroon = new MacaroonsBuilder(storeLocation, 'key', 'id')
         .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
         .getMacaroon();
       const dischargeMacaroon = MacaroonsBuilder.create(
