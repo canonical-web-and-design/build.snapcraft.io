@@ -14,16 +14,14 @@ describe('name ownership reducers', () => {
   const requestAction = {
     type: ActionTypes.CHECK_NAME_OWNERSHIP_REQUEST,
     payload: {
-      id: 'snapId',
-      snapName: 'test-name',
+      name: 'test-name',
     }
   };
 
   const successAction = {
     type: ActionTypes.CHECK_NAME_OWNERSHIP_SUCCESS,
     payload: {
-      id: 'snapId',
-      snapName: 'test-name',
+      name: 'test-name',
       status: 'test-status'
     }
   };
@@ -31,8 +29,7 @@ describe('name ownership reducers', () => {
   const errorAction = {
     type: ActionTypes.CHECK_NAME_OWNERSHIP_ERROR,
     payload: {
-      id: 'snapId',
-      snapName: 'test-name',
+      name: 'test-name',
       status: 'test-status'
     }
   };

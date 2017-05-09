@@ -7,16 +7,16 @@ export function nameOwnership(state = {}, action) {
     case RegisterNameActionTypes.CHECK_NAME_OWNERSHIP_REQUEST:
       return {
         ...state,
-        [payload.snapName]: {
-          ...state[payload.snapName],
+        [payload.name]: {
+          ...state[payload.name],
           isFetching: true
         }
       };
     case RegisterNameActionTypes.CHECK_NAME_OWNERSHIP_SUCCESS:
       return {
         ...state,
-        [payload.snapName]: {
-          ...state[payload.snapName],
+        [payload.name]: {
+          ...state[payload.name],
           isFetching: false,
           nameOwnershipStatus: payload.status
         }
@@ -24,8 +24,8 @@ export function nameOwnership(state = {}, action) {
     case RegisterNameActionTypes.CHECK_NAME_OWNERSHIP_ERROR:
       return {
         ...state,
-        [payload.snapName]: {
-          ...state[payload.snapName],
+        [payload.name]: {
+          ...state[payload.name],
           isFetching: false,
           nameOwnershipStatus: null
         }

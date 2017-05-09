@@ -254,30 +254,30 @@ export async function internalNameOwnership(root, discharge, snapName) {
   }
 }
 
-export function checkNameOwnership(id, snapName) {
-  if (!id || !snapName) {
-    throw new Error('Snap `id` and `snapName` are required params of `checkNameOwnership`');
+export function checkNameOwnership(name) {
+  if (!name) {
+    throw new Error('Snap `name` is required param of `checkNameOwnership`');
   }
 
   return async (dispatch) => {
     dispatch({
       type: CHECK_NAME_OWNERSHIP_REQUEST,
-      payload: { id, snapName }
+      payload: { name }
     });
 
     try {
       const { root, discharge } = await getPackageUploadRequestMacaroon();
-      const status = await internalNameOwnership(root, discharge, snapName);
+      const status = await internalNameOwnership(root, discharge, name);
 
       dispatch({
         type: CHECK_NAME_OWNERSHIP_SUCCESS,
-        payload: { id, snapName, status }
+        payload: { name, status }
       });
     } catch (error) {
       dispatch({
         type: CHECK_NAME_OWNERSHIP_ERROR,
         error: true,
-        payload: { id, snapName, error: error }
+        payload: { name, error }
       });
     }
   };

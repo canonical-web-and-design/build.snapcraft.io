@@ -227,7 +227,7 @@ export class RepositoryRowView extends Component {
     );
 
     if (this.props.authStore.authenticated && (!isNameOwnershipAvailable || forceCheck)) {
-      this.props.nameActions.checkNameOwnership(snap.gitRepoUrl, name);
+      this.props.nameActions.checkNameOwnership(name);
     }
   }
 

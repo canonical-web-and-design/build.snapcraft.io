@@ -596,8 +596,7 @@ describe('register name actions', () => {
   });
 
   context('checkNameOwnership', () => {
-    const snapName = 'test-snap';
-    const id = repository.url;
+    const name = 'test-snap';
     let api;
 
 
@@ -608,10 +607,10 @@ describe('register name actions', () => {
     context('when snapName is not specified', () => {
       it('should throw an error', async () => {
         try {
-          await store.dispatch(checkNameOwnership(id, ''));
+          await store.dispatch(checkNameOwnership(''));
           throw new Error('Unexpected success');
         } catch (error) {
-          expect(error.message).toContain('`id` and `snapName` are required params');
+          expect(error.message).toContain('`name` is required param');
         }
       });
     });
@@ -620,7 +619,7 @@ describe('register name actions', () => {
       beforeEach(() => {
         api = nock(conf.get('STORE_API_URL'))
           .post('/acl/', {
-            packages: [{ name: snapName }],
+            packages: [{ name }],
             permissions: ['package_upload']
           })
           .reply(404, {
@@ -637,9 +636,9 @@ describe('register name actions', () => {
       it('should store CHECK_NAME_OWNERSHIP_REQUEST action', async() => {
         const expectedAction = {
           type: ActionTypes.CHECK_NAME_OWNERSHIP_REQUEST,
-          payload: { id, snapName }
+          payload: { name }
         };
-        await store.dispatch(checkNameOwnership(id, snapName));
+        await store.dispatch(checkNameOwnership(name));
         expect(store.getActions()).toInclude(expectedAction);
       });
 
@@ -648,12 +647,11 @@ describe('register name actions', () => {
         const expectedAction = {
           type: ActionTypes.CHECK_NAME_OWNERSHIP_SUCCESS,
           payload: {
-            id,
-            snapName,
+            name,
             status: NAME_OWNERSHIP_NOT_REGISTERED
           }
         };
-        await store.dispatch(checkNameOwnership(id, snapName));
+        await store.dispatch(checkNameOwnership(name));
         expect(store.getActions()).toInclude(expectedAction);
       });
 
@@ -663,7 +661,7 @@ describe('register name actions', () => {
       beforeEach(() => {
         api = nock(conf.get('STORE_API_URL'))
           .post('/acl/', {
-            packages: [{ name: snapName }],
+            packages: [{ name }],
             permissions: ['package_upload']
           })
           .reply(500, '<html>ERROR!</html>');
@@ -677,17 +675,17 @@ describe('register name actions', () => {
       it('should store CHECK_NAME_OWNERSHIP_REQUEST action', async() => {
         const expectedAction = {
           type: ActionTypes.CHECK_NAME_OWNERSHIP_REQUEST,
-          payload: { id, snapName }
+          payload: { name }
         };
-        await store.dispatch(checkNameOwnership(id, snapName));
+        await store.dispatch(checkNameOwnership(name));
         expect(store.getActions()).toInclude(expectedAction);
       });
 
       it('should store CHECK_NAME_OWNERSHIP_ERROR action', async() => {
-        await store.dispatch(checkNameOwnership(id, snapName));
+        await store.dispatch(checkNameOwnership(name));
         expect(store.getActions()).toHaveActionsMatching((action) => {
           return action.type === ActionTypes.CHECK_NAME_OWNERSHIP_ERROR &&
-            action.payload.id === id;
+            action.payload.name === name;
         });
       });
 
