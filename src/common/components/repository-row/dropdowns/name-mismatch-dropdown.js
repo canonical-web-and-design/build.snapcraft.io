@@ -6,7 +6,7 @@ import getTemplateUrl from './template-url.js';
 import {
   // NAME_OWNERSHIP_ALREADY_OWNED, // TODO: #299
   NAME_OWNERSHIP_REGISTERED_BY_OTHER_USER
-} from '../../../actions/register-name';
+} from '../../../actions/name-ownership';
 
 import styles from './dropdowns.css';
 
@@ -17,7 +17,7 @@ const NameMismatchDropdown = (props) => {
   let nameOwnershipStatus;
 
   if (props.nameOwnership[snapcraftData.name]) {
-    nameOwnershipStatus = props.nameOwnership[snapcraftData.name].nameOwnershipStatus;
+    nameOwnershipStatus = props.nameOwnership[snapcraftData.name].status;
   }
 
   if (nameOwnershipStatus === NAME_OWNERSHIP_REGISTERED_BY_OTHER_USER) {

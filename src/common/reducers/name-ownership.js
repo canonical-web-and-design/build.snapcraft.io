@@ -18,7 +18,7 @@ export function nameOwnership(state = {}, action) {
         [payload.name]: {
           ...state[payload.name],
           isFetching: false,
-          nameOwnershipStatus: payload.status
+          status: payload.status
         }
       };
     case ActionTypes.CHECK_NAME_OWNERSHIP_ERROR:
@@ -27,7 +27,7 @@ export function nameOwnership(state = {}, action) {
         [payload.name]: {
           ...state[payload.name],
           isFetching: false,
-          nameOwnershipStatus: null
+          status: null
         }
       };
     default:

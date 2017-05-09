@@ -217,7 +217,7 @@ export class RepositoryRowView extends Component {
 
     // don't fetch if we have the data or it's already fetching
     const isNameOwnershipAvailable = (nameOwnership &&
-      (nameOwnership.nameOwnershipStatus || nameOwnership.isFetching)
+      (nameOwnership.status || nameOwnership.isFetching)
     );
 
     if (this.props.authStore.authenticated && !isNameOwnershipAvailable) {

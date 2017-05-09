@@ -43,7 +43,7 @@ describe('name ownership reducers', () => {
   });
 
   it('CHECK_NAME_OWNERSHIP_SUCCESS should set name ownership status', function() {
-    expect(nameOwnership(state, successAction)['test-name'].nameOwnershipStatus).toBe('test-status');
+    expect(nameOwnership(state, successAction)['test-name'].status).toBe('test-status');
   });
 
   it('CHECK_NAME_OWNERSHIP_ERROR should update isFetching state', function() {
@@ -51,7 +51,7 @@ describe('name ownership reducers', () => {
   });
 
   it('CHECK_NAME_OWNERSHIP_ERROR should reset name ownership status', function() {
-    expect(nameOwnership(state, errorAction)['test-name'].nameOwnershipStatus).toBe(null);
+    expect(nameOwnership(state, errorAction)['test-name'].status).toBe(null);
   });
 
 });
