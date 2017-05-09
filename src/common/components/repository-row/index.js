@@ -202,7 +202,7 @@ export class RepositoryRowView extends Component {
 
     const nextSnapcraftData = nextProps.snap.snapcraftData;
     const currentSnapcraftData = this.props.snap.snapcraftData;
-    const snapcraftNameOwnership = nextProps.nameOwnership[nextSnapcraftData.name];
+    const snapcraftNameOwnership = nextSnapcraftData && nextProps.nameOwnership[nextSnapcraftData.name];
 
     // name ownership status is available when we have it or is already fetching
     const isNameOwnershipAvailable = (snapcraftNameOwnership &&
@@ -490,7 +490,7 @@ RepositoryRowView.propTypes = {
     success: PropTypes.bool,
     error: PropTypes.object
   }),
-  nameOwnership: PropTypes.object,
+  nameOwnership: PropTypes.object.isRequired,
   registerNameIsOpen: PropTypes.bool,
   configureIsOpen: PropTypes.bool,
   authActions: PropTypes.object,
