@@ -202,19 +202,24 @@ export class RepositoryRowView extends Component {
 
     const nextSnapcraftData = nextProps.snap.snapcraftData;
     const currentSnapcraftData = this.props.snap.snapcraftData;
+    const snapcraftNameOwnership = nextProps.nameOwnership[nextSnapcraftData.name];
+
+    // name ownership status is available when we have it or is already fetching
+    const isNameOwnershipAvailable = (snapcraftNameOwnership &&
+      (snapcraftNameOwnership.nameOwnershipStatus || snapcraftNameOwnership.isFetching)
+    );
 
     // if there is a name mismatch we want to check who owns the name in the store
     if (snapNameIsMismatched(nextProps.snap)
         // we can only do this if user is authenticated in the store
         && nextProps.authStore.authenticated
         && (
-          // and we need to do this only if we don't know the status yet
-          !nextSnapcraftData.nameOwnershipStatus
-          // or if the snapcraft data name changed
-          || nextSnapcraftData.name !== currentSnapcraftData.name
+          // and if the snapcraft data name changed
+          nextSnapcraftData.name !== currentSnapcraftData.name
+          // or we don't know the status yet
+          || !isNameOwnershipAvailable
         )
-        // and if we are not fetching this data already
-        && !nextSnapcraftData.isFetching) {
+      ) {
       this.props.nameActions.checkNameOwnership(nextProps.snap.gitRepoUrl, nextSnapcraftData.name);
     }
   }
@@ -246,7 +251,8 @@ export class RepositoryRowView extends Component {
       isPublished,
       fullName,
       authStore,
-      registerNameStatus
+      registerNameStatus,
+      nameOwnership
     } = this.props;
 
     const showUnconfiguredDropdown = !snapIsConfigured(snap) && this.state.unconfiguredDropdownExpanded;
@@ -288,6 +294,7 @@ export class RepositoryRowView extends Component {
         { showNameMismatchDropdown &&
           <NameMismatchDropdown
             snap={snap}
+            nameOwnership={nameOwnership}
             onOpenRegisterNameClick={this.onUnregisteredClick.bind(this)}
           />
         }
@@ -483,6 +490,7 @@ RepositoryRowView.propTypes = {
     success: PropTypes.bool,
     error: PropTypes.object
   }),
+  nameOwnership: PropTypes.object,
   registerNameIsOpen: PropTypes.bool,
   configureIsOpen: PropTypes.bool,
   authActions: PropTypes.object,

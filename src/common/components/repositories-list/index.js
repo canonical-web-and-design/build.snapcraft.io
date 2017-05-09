@@ -77,7 +77,7 @@ export class RepositoriesListView extends Component {
 
   renderRow(id, index) {
     const snap = this.props.entities.snaps[id];
-    const { hasNoConfiguredSnaps, hasNoRegisteredNames, snapBuilds, authStore } = this.props;
+    const { hasNoConfiguredSnaps, hasNoRegisteredNames, snapBuilds, authStore, nameOwnership } = this.props;
     const { fullName } = parseGitHubRepoUrl(snap.gitRepoUrl);
     const isFirstInList = index === 0;
 
@@ -108,6 +108,7 @@ export class RepositoriesListView extends Component {
         isPublished={ isPublished }
         fullName={ fullName }
         authStore={ authStore }
+        nameOwnership={ nameOwnership }
         registerNameStatus={ registerNameStatus }
         registerNameIsOpen={ registerNameIsOpen }
         configureIsOpen={ configureIsOpen }
@@ -156,6 +157,7 @@ RepositoriesListView.propTypes = {
   entities: PropTypes.shape({
     snaps: PropTypes.object
   }),
+  nameOwnership: PropTypes.object,
   dispatch: PropTypes.func,
   hasSnaps: PropTypes.bool,
   hasNoConfiguredSnaps: PropTypes.bool,
@@ -170,7 +172,8 @@ function mapStateToProps(state) {
     authStore,
     entities,
     snaps,
-    snapBuilds
+    snapBuilds,
+    nameOwnership
   } = state;
 
   return {
@@ -179,6 +182,7 @@ function mapStateToProps(state) {
     entities,
     snaps,
     snapBuilds,
+    nameOwnership,
     hasSnaps: hasSnaps(state),
     hasNoRegisteredNames: hasNoRegisteredNames(state),
     hasNoConfiguredSnaps: hasNoConfiguredSnaps(state)
