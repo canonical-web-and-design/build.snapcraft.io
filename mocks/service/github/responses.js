@@ -1,8 +1,9 @@
+import { createHmac } from 'crypto';
 import request from 'request';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 
-import { makeWebhookHmac } from '../../../src/server/handlers/webhook';
+import { makeWebhookSecret, getGitHubRootSecret } from '../../../src/server/handlers/webhook';
 
 import LoginForm from './login-form';
 
@@ -16,7 +17,10 @@ export function okayNewHookCreated(req, res) {
     'hook_id': 'anid',
     'hook': req.body.config
   });
-  const hmac = makeWebhookHmac(req.params.owner, req.params.name);
+  const rootSecret = getGitHubRootSecret();
+  const secret = makeWebhookSecret(
+    rootSecret, req.params.owner, req.params.name);
+  const hmac = createHmac('sha1', secret);
   hmac.update(body);
   request.post({
     url: req.body.config.url,
@@ -80,6 +84,18 @@ export function okayBadSharedSecret(req, res) {
   res.redirect(302, url);
 }
 
+export function okayRepoAdmin(req, res) {
+  const headers = {
+    Link: ''
+  };
+  res.set(headers).status(200).send(
+    {
+      permissions: {
+        admin: true
+      }
+    });
+}
+
 export function okaySnapcraftYamlFound(req, res) {
   res.status(200).send(`name: ${req.params.name}\n`);
 }
@@ -98,16 +114,52 @@ export function okayReposFound(req, res) {
 
   res.set(headers).status(200).send([
     {
+      id: 1,
       full_name: 'anowner/aname',
       name: 'aname',
-      owner: { login: 'anowner' },
-      url: 'http://github.com/anowner/aname'
+      owner: {
+        id: 256,
+        login: 'anowner'
+      },
+      html_url: 'https://github.com/anowner/aname',
+      permissions: {
+        admin: true
+      }
     },
     {
+      id: 2,
       full_name: 'test/test',
       name: 'test',
-      owner: { login: 'test' },
-      url: 'http://github.com/test/test'
+      owner: {
+        id: 99,
+        login: 'test'
+      },
+      html_url: 'https://github.com/test/test',
+      permissions: {
+        admin: false
+      }
+    }
+  ]);
+}
+
+export function okayOrgsFound(req, res) {
+  const headers = {
+    Link: ''
+  };
+
+  res.set(headers).status(200).send([
+    {
+      login: 'github',
+      id: 1,
+      url: 'https://api.github.com/orgs/github',
+      repos_url: 'https://api.github.com/orgs/github/repos',
+      events_url: 'https://api.github.com/orgs/github/events',
+      hooks_url: 'https://api.github.com/orgs/github/hooks',
+      issues_url: 'https://api.github.com/orgs/github/issues',
+      members_url: 'https://api.github.com/orgs/github/members{/member}',
+      public_members_url: 'https://api.github.com/orgs/github/public_members{/member}',
+      avatar_url: 'https://github.com/images/error/octocat_happy.gif',
+      description: 'A great organization'
     }
   ]);
 }
@@ -122,6 +174,7 @@ export function okayNoReposFound(req, res) {
 
 export function okayUserFoundWithDisplayName(req, res) {
   res.status(200).send({
+    id: 256,
     login: 'anowner',
     name: 'Ann Owner',
     html_url: 'http://github.com/anowner'
@@ -130,6 +183,7 @@ export function okayUserFoundWithDisplayName(req, res) {
 
 export function okayUserFoundWithoutDisplayName(req, res) {
   res.status(200).send({
+    id: 256,
     login: 'anowner',
     html_url: 'http://github.com/anowner'
   });

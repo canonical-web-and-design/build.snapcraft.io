@@ -19,12 +19,14 @@ router.post('/repos/:owner/:name/hooks', webhookResponse);
 router.get('/login/oauth/authorize', authoriseLoginResponse);
 router.post('/login/oauth/access_token', responses.okayAuthenticated);
 
+router.get('/repos/:owner/:name', responses.okayRepoAdmin);
 router.get(
   '/repos/:owner/:name/contents/snapcraft.yaml',
   responses.okaySnapcraftYamlFound
 );
 
 router.get('/user/repos', responses.okayReposFound);
+router.get('/user/orgs', responses.okayOrgsFound);
 
 router.get('/user', responses.okayUserFoundWithDisplayName);
 
