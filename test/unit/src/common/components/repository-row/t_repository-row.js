@@ -29,6 +29,9 @@ describe('<RepositoryRowView />', () => {
     },
     fullName: 'anowner/aname',
     nameOwnership: {},
+    nameActions: {
+      checkNameOwnership: () => {}
+    },
     authStore: {
       authenticated: true,
       userName: 'store-user'

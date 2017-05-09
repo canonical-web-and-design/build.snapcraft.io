@@ -202,25 +202,32 @@ export class RepositoryRowView extends Component {
 
     const nextSnapcraftData = nextProps.snap.snapcraftData;
     const currentSnapcraftData = this.props.snap.snapcraftData;
-    const snapcraftNameOwnership = nextSnapcraftData && nextProps.nameOwnership[nextSnapcraftData.name];
 
-    // name ownership status is available when we have it or is already fetching
-    const isNameOwnershipAvailable = (snapcraftNameOwnership &&
-      (snapcraftNameOwnership.nameOwnershipStatus || snapcraftNameOwnership.isFetching)
+    if (snapNameIsMismatched(nextProps.snap)) {
+      this.checkNameOwnership(
+        nextProps.nameOwnership,
+        nextProps.snap,
+        nextSnapcraftData.name,
+        nextSnapcraftData.name !== currentSnapcraftData.name
+      );
+    }
+
+    this.checkNameOwnership(
+      nextProps.nameOwnership,
+      nextProps.snap,
+      nextProps.snap.storeName,
+      nextProps.snap.storeName !== this.props.snap.storeName
+    );
+  }
+
+  checkNameOwnership(nameOwnershipStore, snap, name, forceCheck) {
+    const nameOwnership = nameOwnershipStore[name];
+    const isNameOwnershipAvailable = (nameOwnership &&
+      (nameOwnership.nameOwnershipStatus || nameOwnership.isFetching)
     );
 
-    // if there is a name mismatch we want to check who owns the name in the store
-    if (snapNameIsMismatched(nextProps.snap)
-        // we can only do this if user is authenticated in the store
-        && nextProps.authStore.authenticated
-        && (
-          // and if the snapcraft data name changed
-          nextSnapcraftData.name !== currentSnapcraftData.name
-          // or we don't know the status yet
-          || !isNameOwnershipAvailable
-        )
-      ) {
-      this.props.nameActions.checkNameOwnership(nextProps.snap.gitRepoUrl, nextSnapcraftData.name);
+    if (this.props.authStore.authenticated && (!isNameOwnershipAvailable || forceCheck)) {
+      this.props.nameActions.checkNameOwnership(snap.gitRepoUrl, name);
     }
   }
 
