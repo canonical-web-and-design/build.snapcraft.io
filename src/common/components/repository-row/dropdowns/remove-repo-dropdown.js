@@ -38,9 +38,6 @@ const RemoveRepoDropdown = (props) => {
 };
 
 RemoveRepoDropdown.propTypes = {
-  authStore: PropTypes.shape({
-    authenticated: PropTypes.bool
-  }).isRequired,
   message: PropTypes.string.isRequired,
   onRemoveClick: PropTypes.func.isRequired,
   onCancelClick: PropTypes.func.isRequired
