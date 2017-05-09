@@ -204,23 +204,15 @@ export class RepositoryRowView extends Component {
     const nextSnapcraftData = nextProps.snap.snapcraftData;
 
     if (snapNameIsMismatched(nextProps.snap)) {
-      this.checkNameOwnership(
-        nextProps.nameOwnership,
-        nextProps.snap,
-        nextSnapcraftData.name
-      );
+      this.checkNameOwnership(nextProps.nameOwnership, nextSnapcraftData.name);
     }
 
     if (nextProps.snap.storeName) {
-      this.checkNameOwnership(
-        nextProps.nameOwnership,
-        nextProps.snap,
-        nextProps.snap.storeName
-      );
+      this.checkNameOwnership(nextProps.nameOwnership, nextProps.snap.storeName);
     }
   }
 
-  checkNameOwnership(nameOwnershipStore, snap, name) {
+  checkNameOwnership(nameOwnershipStore, name) {
     const nameOwnership = nameOwnershipStore[name];
 
     // don't fetch if we have the data or it's already fetching
