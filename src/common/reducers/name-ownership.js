@@ -1,10 +1,10 @@
-import * as RegisterNameActionTypes from '../actions/register-name';
+import * as ActionTypes from '../actions/name-ownership';
 
 export function nameOwnership(state = {}, action) {
   const { payload } = action;
 
   switch(action.type) {
-    case RegisterNameActionTypes.CHECK_NAME_OWNERSHIP_REQUEST:
+    case ActionTypes.CHECK_NAME_OWNERSHIP_REQUEST:
       return {
         ...state,
         [payload.name]: {
@@ -12,7 +12,7 @@ export function nameOwnership(state = {}, action) {
           isFetching: true
         }
       };
-    case RegisterNameActionTypes.CHECK_NAME_OWNERSHIP_SUCCESS:
+    case ActionTypes.CHECK_NAME_OWNERSHIP_SUCCESS:
       return {
         ...state,
         [payload.name]: {
@@ -21,7 +21,7 @@ export function nameOwnership(state = {}, action) {
           nameOwnershipStatus: payload.status
         }
       };
-    case RegisterNameActionTypes.CHECK_NAME_OWNERSHIP_ERROR:
+    case ActionTypes.CHECK_NAME_OWNERSHIP_ERROR:
       return {
         ...state,
         [payload.name]: {

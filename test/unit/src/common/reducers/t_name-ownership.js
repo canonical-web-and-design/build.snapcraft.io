@@ -1,7 +1,7 @@
 import expect from 'expect';
 
 import { nameOwnership } from '../../../../../src/common/reducers/name-ownership';
-import * as ActionTypes from '../../../../../src/common/actions/register-name';
+import * as ActionTypes from '../../../../../src/common/actions/name-ownership';
 
 describe('name ownership reducers', () => {
   const initialState = {};

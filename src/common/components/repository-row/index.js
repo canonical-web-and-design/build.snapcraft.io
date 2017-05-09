@@ -20,6 +20,7 @@ import {
 } from './icons';
 import * as authStoreActionCreators from '../../actions/auth-store';
 import * as registerNameActionCreators from '../../actions/register-name';
+import { checkNameOwnership } from '../../actions/name-ownership';
 import * as snapActionCreators from '../../actions/snaps';
 
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
@@ -201,33 +202,34 @@ export class RepositoryRowView extends Component {
     }
 
     const nextSnapcraftData = nextProps.snap.snapcraftData;
-    const currentSnapcraftData = this.props.snap.snapcraftData;
 
     if (snapNameIsMismatched(nextProps.snap)) {
       this.checkNameOwnership(
         nextProps.nameOwnership,
         nextProps.snap,
-        nextSnapcraftData.name,
-        nextSnapcraftData.name !== currentSnapcraftData.name
+        nextSnapcraftData.name
       );
     }
 
-    this.checkNameOwnership(
-      nextProps.nameOwnership,
-      nextProps.snap,
-      nextProps.snap.storeName,
-      nextProps.snap.storeName !== this.props.snap.storeName
-    );
+    if (nextProps.snap.storeName) {
+      this.checkNameOwnership(
+        nextProps.nameOwnership,
+        nextProps.snap,
+        nextProps.snap.storeName
+      );
+    }
   }
 
-  checkNameOwnership(nameOwnershipStore, snap, name, forceCheck) {
+  checkNameOwnership(nameOwnershipStore, snap, name) {
     const nameOwnership = nameOwnershipStore[name];
+
+    // don't fetch if we have the data or it's already fetching
     const isNameOwnershipAvailable = (nameOwnership &&
       (nameOwnership.nameOwnershipStatus || nameOwnership.isFetching)
     );
 
-    if (this.props.authStore.authenticated && (!isNameOwnershipAvailable || forceCheck)) {
-      this.props.nameActions.checkNameOwnership(name);
+    if (this.props.authStore.authenticated && !isNameOwnershipAvailable) {
+      this.props.checkNameOwnership(name);
     }
   }
 
@@ -500,6 +502,7 @@ RepositoryRowView.propTypes = {
   nameOwnership: PropTypes.object.isRequired,
   registerNameIsOpen: PropTypes.bool,
   configureIsOpen: PropTypes.bool,
+  checkNameOwnership: PropTypes.func,
   authActions: PropTypes.object,
   nameActions: PropTypes.object,
   snapActions: PropTypes.object
@@ -509,7 +512,8 @@ function mapDispatchToProps(dispatch) {
   return {
     authActions: bindActionCreators(authStoreActionCreators, dispatch),
     nameActions: bindActionCreators(registerNameActionCreators, dispatch),
-    snapActions: bindActionCreators(snapActionCreators, dispatch)
+    snapActions: bindActionCreators(snapActionCreators, dispatch),
+    checkNameOwnership: bindActionCreators(checkNameOwnership, dispatch)
   };
 }
 
