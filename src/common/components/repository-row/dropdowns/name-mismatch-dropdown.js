@@ -14,14 +14,19 @@ const NameMismatchDropdown = (props) => {
   const { snapcraftData, storeName } = props.snap;
 
   let helpText;
+  let nameOwnershipStatus;
 
-  if (snapcraftData.nameOwnershipStatus === NAME_OWNERSHIP_REGISTERED_BY_OTHER_USER) {
+  if (props.nameOwnership[snapcraftData.name]) {
+    nameOwnershipStatus = props.nameOwnership[snapcraftData.name].nameOwnershipStatus;
+  }
+
+  if (nameOwnershipStatus === NAME_OWNERSHIP_REGISTERED_BY_OTHER_USER) {
     helpText = getNameRegisteredByOtherUserHelpText(props.snap);
   // TODO cover name registered for another repo #299
-  // } else if (snapcraftData.nameOwnershipStatus === NAME_OWNERSHIP_ALREADY_OWNED) {
+  // } else if (nameOwnershipStatus === NAME_OWNERSHIP_ALREADY_OWNED) {
   //   ...
   // }
-  } else if (snapcraftData.nameOwnershipStatus) {
+  } else if (nameOwnershipStatus) {
     helpText = getNameMismatchHelpText(props.snap, props.onOpenRegisterNameClick);
   }
 
@@ -89,6 +94,7 @@ NameMismatchDropdown.propTypes = {
       name: PropTypes.string
     })
   }),
+  nameOwnership: PropTypes.object,
   onOpenRegisterNameClick: PropTypes.func,
 };
 

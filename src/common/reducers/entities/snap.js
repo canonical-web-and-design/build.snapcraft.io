@@ -10,32 +10,6 @@ export default function snap(state={}, action) {
   };
 
   switch(action.type) {
-    case RegisterNameActionTypes.CHECK_NAME_OWNERSHIP_REQUEST:
-      return {
-        ...state,
-        snapcraftData: {
-          ...state.snapcraftData,
-          isFetching: true
-        }
-      };
-    case RegisterNameActionTypes.CHECK_NAME_OWNERSHIP_SUCCESS:
-      return {
-        ...state,
-        snapcraftData: {
-          ...state.snapcraftData,
-          isFetching: false,
-          nameOwnershipStatus: action.payload.status
-        }
-      };
-    case RegisterNameActionTypes.CHECK_NAME_OWNERSHIP_ERROR:
-      return {
-        ...state,
-        snapcraftData: {
-          ...state.snapcraftData,
-          isFetching: false,
-          nameOwnershipStatus: null
-        }
-      };
     case RegisterNameActionTypes.REGISTER_NAME:
       return {
         ...state,

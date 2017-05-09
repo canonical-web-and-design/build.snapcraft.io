@@ -10,6 +10,7 @@ import * as snaps from './snaps';
 import * as user from './user';
 import * as auth from './auth';
 import * as authStore from './auth-store';
+import * as nameOwnership from './name-ownership';
 import { entities } from './entities';
 
 const rootReducer = combineReducers({
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   ...snapBuilds,
   ...snaps,
   ...user,
+  ...nameOwnership,
   entities,
   routing: routerReducer
 });

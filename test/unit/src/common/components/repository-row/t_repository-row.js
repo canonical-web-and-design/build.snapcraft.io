@@ -28,6 +28,7 @@ describe('<RepositoryRowView />', () => {
       duration: '0:01:24.425045'
     },
     fullName: 'anowner/aname',
+    nameOwnership: {},
     authStore: {
       authenticated: true,
       userName: 'store-user'
