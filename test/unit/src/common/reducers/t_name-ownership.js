@@ -1,7 +1,7 @@
 import expect from 'expect';
 
 import { nameOwnership } from '../../../../../src/common/reducers/name-ownership';
-import * as ActionTypes from '../../../../../src/common/actions/register-name';
+import * as ActionTypes from '../../../../../src/common/actions/name-ownership';
 
 describe('name ownership reducers', () => {
   const initialState = {};
@@ -14,16 +14,14 @@ describe('name ownership reducers', () => {
   const requestAction = {
     type: ActionTypes.CHECK_NAME_OWNERSHIP_REQUEST,
     payload: {
-      id: 'snapId',
-      snapName: 'test-name',
+      name: 'test-name',
     }
   };
 
   const successAction = {
     type: ActionTypes.CHECK_NAME_OWNERSHIP_SUCCESS,
     payload: {
-      id: 'snapId',
-      snapName: 'test-name',
+      name: 'test-name',
       status: 'test-status'
     }
   };
@@ -31,8 +29,7 @@ describe('name ownership reducers', () => {
   const errorAction = {
     type: ActionTypes.CHECK_NAME_OWNERSHIP_ERROR,
     payload: {
-      id: 'snapId',
-      snapName: 'test-name',
+      name: 'test-name',
       status: 'test-status'
     }
   };
@@ -46,7 +43,7 @@ describe('name ownership reducers', () => {
   });
 
   it('CHECK_NAME_OWNERSHIP_SUCCESS should set name ownership status', function() {
-    expect(nameOwnership(state, successAction)['test-name'].nameOwnershipStatus).toBe('test-status');
+    expect(nameOwnership(state, successAction)['test-name'].status).toBe('test-status');
   });
 
   it('CHECK_NAME_OWNERSHIP_ERROR should update isFetching state', function() {
@@ -54,7 +51,7 @@ describe('name ownership reducers', () => {
   });
 
   it('CHECK_NAME_OWNERSHIP_ERROR should reset name ownership status', function() {
-    expect(nameOwnership(state, errorAction)['test-name'].nameOwnershipStatus).toBe(null);
+    expect(nameOwnership(state, errorAction)['test-name'].status).toBe(null);
   });
 
 });

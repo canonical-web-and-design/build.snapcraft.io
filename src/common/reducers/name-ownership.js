@@ -1,33 +1,33 @@
-import * as RegisterNameActionTypes from '../actions/register-name';
+import * as ActionTypes from '../actions/name-ownership';
 
 export function nameOwnership(state = {}, action) {
   const { payload } = action;
 
   switch(action.type) {
-    case RegisterNameActionTypes.CHECK_NAME_OWNERSHIP_REQUEST:
+    case ActionTypes.CHECK_NAME_OWNERSHIP_REQUEST:
       return {
         ...state,
-        [payload.snapName]: {
-          ...state[payload.snapName],
+        [payload.name]: {
+          ...state[payload.name],
           isFetching: true
         }
       };
-    case RegisterNameActionTypes.CHECK_NAME_OWNERSHIP_SUCCESS:
+    case ActionTypes.CHECK_NAME_OWNERSHIP_SUCCESS:
       return {
         ...state,
-        [payload.snapName]: {
-          ...state[payload.snapName],
+        [payload.name]: {
+          ...state[payload.name],
           isFetching: false,
-          nameOwnershipStatus: payload.status
+          status: payload.status
         }
       };
-    case RegisterNameActionTypes.CHECK_NAME_OWNERSHIP_ERROR:
+    case ActionTypes.CHECK_NAME_OWNERSHIP_ERROR:
       return {
         ...state,
-        [payload.snapName]: {
-          ...state[payload.snapName],
+        [payload.name]: {
+          ...state[payload.name],
           isFetching: false,
-          nameOwnershipStatus: null
+          status: null
         }
       };
     default:

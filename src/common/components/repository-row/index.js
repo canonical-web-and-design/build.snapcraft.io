@@ -20,6 +20,7 @@ import {
 } from './icons';
 import * as authStoreActionCreators from '../../actions/auth-store';
 import * as registerNameActionCreators from '../../actions/register-name';
+import { checkNameOwnership } from '../../actions/name-ownership';
 import * as snapActionCreators from '../../actions/snaps';
 
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
@@ -201,26 +202,26 @@ export class RepositoryRowView extends Component {
     }
 
     const nextSnapcraftData = nextProps.snap.snapcraftData;
-    const currentSnapcraftData = this.props.snap.snapcraftData;
-    const snapcraftNameOwnership = nextSnapcraftData && nextProps.nameOwnership[nextSnapcraftData.name];
 
-    // name ownership status is available when we have it or is already fetching
-    const isNameOwnershipAvailable = (snapcraftNameOwnership &&
-      (snapcraftNameOwnership.nameOwnershipStatus || snapcraftNameOwnership.isFetching)
+    if (snapNameIsMismatched(nextProps.snap)) {
+      this.checkNameOwnership(nextProps.nameOwnership, nextSnapcraftData.name);
+    }
+
+    if (nextProps.snap.storeName) {
+      this.checkNameOwnership(nextProps.nameOwnership, nextProps.snap.storeName);
+    }
+  }
+
+  checkNameOwnership(nameOwnershipStore, name) {
+    const nameOwnership = nameOwnershipStore[name];
+
+    // don't fetch if we have the data or it's already fetching
+    const isNameOwnershipAvailable = (nameOwnership &&
+      (nameOwnership.status || nameOwnership.isFetching)
     );
 
-    // if there is a name mismatch we want to check who owns the name in the store
-    if (snapNameIsMismatched(nextProps.snap)
-        // we can only do this if user is authenticated in the store
-        && nextProps.authStore.authenticated
-        && (
-          // and if the snapcraft data name changed
-          nextSnapcraftData.name !== currentSnapcraftData.name
-          // or we don't know the status yet
-          || !isNameOwnershipAvailable
-        )
-      ) {
-      this.props.nameActions.checkNameOwnership(nextProps.snap.gitRepoUrl, nextSnapcraftData.name);
+    if (this.props.authStore.authenticated && !isNameOwnershipAvailable) {
+      this.props.checkNameOwnership(name);
     }
   }
 
@@ -493,6 +494,7 @@ RepositoryRowView.propTypes = {
   nameOwnership: PropTypes.object.isRequired,
   registerNameIsOpen: PropTypes.bool,
   configureIsOpen: PropTypes.bool,
+  checkNameOwnership: PropTypes.func,
   authActions: PropTypes.object,
   nameActions: PropTypes.object,
   snapActions: PropTypes.object
@@ -502,7 +504,8 @@ function mapDispatchToProps(dispatch) {
   return {
     authActions: bindActionCreators(authStoreActionCreators, dispatch),
     nameActions: bindActionCreators(registerNameActionCreators, dispatch),
-    snapActions: bindActionCreators(snapActionCreators, dispatch)
+    snapActions: bindActionCreators(snapActionCreators, dispatch),
+    checkNameOwnership: bindActionCreators(checkNameOwnership, dispatch)
   };
 }
 
