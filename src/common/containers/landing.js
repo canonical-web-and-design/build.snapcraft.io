@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { Anchor } from '../components/vanilla/button';
 import { HeadingTwo } from '../components/vanilla/heading';
 import { HeadingThree } from '../components/vanilla/heading';
-import { HeadingSix } from '../components/vanilla/heading';
 import { ListDividedState } from '../components/vanilla/list';
 
 import Testimonial from '../components/testimonial';
@@ -114,20 +113,20 @@ class Landing extends Component {
         <section className={ styles.section }>
           <div className={ `${containerStyles.wrapper}` }>
             <HeadingTwo>
-            Fast to install, easy to create, safe to run
-          </HeadingTwo>
-          <div className={ `${styles.row}` }>
+              Fast to install, easy to create, safe to run
+            </HeadingTwo>
+            <div className={ `${styles.row}` }>
 
-            <div className={styles.rowItemTwoThirds}>
-              <p className={styles.snaps}>With Snapcraft, it&rsquo;s easy to get your software published in the snap store. This store lets people safely install apps from any vendor on mission-critical devices and PCs. Snaps are secure, sandboxed, containerised applications, packaged with their dependencies for predictable behaviour.</p>
-              <a href="https://snapcraft.io" className={ styles.external } >More about snaps</a>
+              <div className={styles.rowItemTwoThirds}>
+                <p className={styles.snaps}>With Snapcraft, it&rsquo;s easy to get your software published in the snap store. This store lets people safely install apps from any vendor on mission-critical devices and PCs. Snaps are secure, sandboxed, containerised applications, packaged with their dependencies for predictable behaviour.</p>
+                <a href="https://snapcraft.io" className={ styles.external } >More about snaps</a>
+              </div>
+
+              <div className={styles.rowItemOneThird}>
+                <img src='https://assets.ubuntu.com/v1/7af63a6d-workflow-icon04.svg' width='150' height='150'/>
+              </div>
+
             </div>
-
-            <div className={styles.rowItemOneThird}>
-              <img src='https://assets.ubuntu.com/v1/7af63a6d-workflow-icon04.svg' width='150' height='150'/>
-            </div>
-
-           </div>
           </div>
         </section>
 
