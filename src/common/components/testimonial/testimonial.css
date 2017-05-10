@@ -22,28 +22,22 @@
   }
 }
 
+.pullQuote>p>span {
+  color: #dd4814;
+  font-size: 2rem;
+  line-height: 0;
+  position: relative;
+  top: 0.7rem;
+  left: -0.1rem;
+}
+.pullQuote>p>span + span{
+  left: 5px;
+}
 .pullQuote>p {
   font-size:1em;
   font-style:normal;
-  margin:0
-}
-
-.pullQuote>p:first-of-type:before {
-  content:'\201C\2002';
-  margin-left:-1.25rem;
-  margin-right:.25rem;
-  color: #e95420;
-  font-size: 1.5em;
-}
-
-.pullQuote>p:last-of-type {
-  margin-bottom:0;
-}
-
-.pullQuote > p:last-of-type:after {
-  content:'\2002\201E';
-  margin-left:.25rem;
-  color: #e95420;
+  margin:0;
+  text-indent: -0.8rem;
 }
 
 .pullQuoteCitation {

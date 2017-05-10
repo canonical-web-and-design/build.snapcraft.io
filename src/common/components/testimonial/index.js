@@ -6,7 +6,9 @@ export default function Testimonial(props) {
   return (
     <div>
       <blockquote className={ style.pullQuote }>
-        <p>{ props.children }</p>
+        <p>
+          <span>&ldquo;</span>{ props.children }<span>&rdquo;</span>
+        </p>
       </blockquote>
       <cite className={ style.pullQuoteCitation }>
         <span className={ style.pullQuoteLogo }><img src={ props.logo } alt='logo'/></span> { props.citation }
