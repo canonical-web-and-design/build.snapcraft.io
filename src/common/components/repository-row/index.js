@@ -229,8 +229,9 @@ export class RepositoryRowView extends Component {
     const nameOwnership = nameOwnershipStore[name];
 
     // don't fetch if we have the data or it's already fetching
+    // also in case of error don't fetch again (to avoid fetching loop...)
     const isNameOwnershipAvailable = (nameOwnership &&
-      (nameOwnership.status || nameOwnership.isFetching)
+      (nameOwnership.status || nameOwnership.isFetching || nameOwnership.error)
     );
 
     if (!isNameOwnershipAvailable) {

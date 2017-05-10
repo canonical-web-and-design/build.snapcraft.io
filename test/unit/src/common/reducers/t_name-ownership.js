@@ -30,7 +30,8 @@ describe('name ownership reducers', () => {
     type: ActionTypes.CHECK_NAME_OWNERSHIP_ERROR,
     payload: {
       name: 'test-name',
-      status: 'test-status'
+      status: 'test-status',
+      error: 'Something is wrong'
     }
   };
 
@@ -54,4 +55,7 @@ describe('name ownership reducers', () => {
     expect(nameOwnership(state, errorAction)['test-name'].status).toBe(null);
   });
 
+  it('CHECK_NAME_OWNERSHIP_ERROR should store error object', function() {
+    expect(nameOwnership(state, errorAction)['test-name'].error).toEqual('Something is wrong');
+  });
 });
