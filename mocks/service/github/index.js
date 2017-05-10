@@ -24,6 +24,10 @@ router.get(
   '/repos/:owner/:name/contents/snapcraft.yaml',
   responses.okaySnapcraftYamlFound
 );
+router.get(
+  '/repos/:owner/:name/contents/snap/snapcraft.yaml',
+  responses.errorSnapcraftYamlNotFound
+);
 
 router.get('/user/repos', responses.okayReposFound);
 router.get('/user/orgs', responses.okayOrgsFound);
