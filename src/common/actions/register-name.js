@@ -17,8 +17,8 @@ export const REGISTER_NAME_CLEAR = 'REGISTER_NAME_CLEAR';
 
 // XXX cjwatson 2017-02-08: Hardcoded for now, but should eventually be
 // configurable.
-const STORE_SERIES = '16';
-const STORE_CHANNELS = ['edge'];
+export const STORE_SERIES = '16';
+export const STORE_CHANNELS = ['edge'];
 
 export async function getPackageUploadRequestMacaroon() {
   let packageUploadRequest;

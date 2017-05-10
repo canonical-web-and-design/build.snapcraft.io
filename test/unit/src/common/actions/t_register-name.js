@@ -360,7 +360,11 @@ describe('register name actions', () => {
 
                 const expectedAccountAction = {
                   type: GET_ACCOUNT_INFO_SUCCESS,
-                  payload: { signedAgreement: true, hasShortNamespace: true }
+                  payload: {
+                    signedAgreement: true,
+                    hasShortNamespace: true,
+                    registeredNames: null
+                  }
                 };
                 await store.dispatch(registerName(repository, 'test-snap', {
                   signAgreement: 'test-user'
@@ -378,7 +382,11 @@ describe('register name actions', () => {
 
                 const expectedAccountAction = {
                   type: GET_ACCOUNT_INFO_SUCCESS,
-                  payload: { signedAgreement: true, hasShortNamespace: true }
+                  payload: {
+                    signedAgreement: true,
+                    hasShortNamespace: true,
+                    registeredNames: null
+                  }
                 };
                 await store.dispatch(registerName(repository, 'test-snap', {
                   signAgreement: 'test-user'

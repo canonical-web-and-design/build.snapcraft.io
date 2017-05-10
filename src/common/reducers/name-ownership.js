@@ -1,4 +1,6 @@
 import * as ActionTypes from '../actions/name-ownership';
+import { NAME_OWNERSHIP_ALREADY_OWNED } from '../actions/name-ownership';
+import { GET_ACCOUNT_INFO_SUCCESS } from '../actions/auth-store';
 
 export function nameOwnership(state = {}, action) {
   const { payload } = action;
@@ -30,6 +32,20 @@ export function nameOwnership(state = {}, action) {
           status: null
         }
       };
+    case GET_ACCOUNT_INFO_SUCCESS:
+      if (payload.registeredNames) {
+        return {
+          ...state,
+          ...payload.registeredNames.reduce((ownership, name) => {
+            ownership[name] = {
+              isFetching: false,
+              status: NAME_OWNERSHIP_ALREADY_OWNED
+            };
+            return ownership;
+          }, {})
+        };
+      }
+      return state;
     default:
       return state;
   }
