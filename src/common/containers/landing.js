@@ -18,6 +18,7 @@ class Landing extends Component {
   render() {
     const { user } = this.props;
     return (
+
       <div>
         <div className={ containerStyles.strip }>
           <div>
@@ -60,33 +61,40 @@ class Landing extends Component {
           </div>
         </div>
 
-        <section className={ `${styles.section} ${styles.sectionNoBorder} ${containerStyles.lightStrip}` }>
-          <div className={ `${styles.row} ${containerStyles.wrapper}` }>
-            <ListDividedState className={ styles.rowItemGrow }>
-              <li>Scale to millions of installs</li>
-              <li>Available on all clouds and Linux OSes</li>
-              <li>No need for build infrastructure</li>
-            </ListDividedState>
-
-            <ListDividedState className={ styles.rowItemGrow }>
-              <li>Automatic updates for everyone</li>
-              <li>Roll back versions effortlessly</li>
-              <li>FREE for open source projects</li>
-            </ListDividedState>
+        <section className={ styles.section }>
+          <div className={ `${containerStyles.wrapper}` }>
+            <HeadingTwo>
+              Publish your software for
+            </HeadingTwo>
+            <div className={ `${styles.row}` }>
+              <img className={ styles.brandLogo } src={images.archlinux} />
+              <img className={ styles.brandLogo } src={images.debian} />
+              <img className={ styles.brandLogo } src={images.gentoo} />
+              <img className={ styles.brandLogo } src={images.fedora} />
+              <img className={ styles.brandLogo } src={images.opensuse} />
+              <img className={ styles.brandLogo } src={images.ubuntu} />
+            </div>
           </div>
         </section>
 
-        <section className={ styles.section }>
-          <HeadingSix align='center'>
-            Publish your software for
-          </HeadingSix>
-          <div className={ `${styles.row} ${containerStyles.wrapper}` }>
-            <img className={ styles.brandLogo } src={images.archlinux} />
-            <img className={ styles.brandLogo } src={images.debian} />
-            <img className={ styles.brandLogo } src={images.gentoo} />
-            <img className={ styles.brandLogo } src={images.fedora} />
-            <img className={ styles.brandLogo } src={images.opensuse} />
-            <img className={ styles.brandLogo } src={images.ubuntu} />
+        <section className={ `${styles.section} ${styles.sectionNoBorder} ${containerStyles.lightStrip}` }>
+          <div className={ `${containerStyles.wrapper}` }>
+            <HeadingTwo>
+              Why use Snapcraft?
+            </HeadingTwo>
+            <div className={ `${styles.row}` }>
+              <ListDividedState className={ styles.rowItemGrow }>
+                <li>Scale to millions of installs</li>
+                <li>Available on all clouds and Linux OSes</li>
+                <li>No need for build infrastructure</li>
+              </ListDividedState>
+
+              <ListDividedState className={ styles.rowItemGrow }>
+                <li>Automatic updates for everyone</li>
+                <li>Roll back versions effortlessly</li>
+                <li>FREE for open source projects</li>
+              </ListDividedState>
+            </div>
           </div>
         </section>
 
@@ -104,7 +112,11 @@ class Landing extends Component {
         </section>
 
         <section className={ styles.section }>
-          <div className={ `${styles.row} ${containerStyles.wrapper}` }>
+          <div className={ `${containerStyles.wrapper}` }>
+            <HeadingTwo>
+            Fast to install, easy to create, safe to run
+          </HeadingTwo>
+          <div className={ `${styles.row}` }>
 
             <div className={styles.rowItemTwoThirds}>
               <p className={styles.snaps}>With Snapcraft, it&rsquo;s easy to get your software published in the snap store. This store lets people safely install apps from any vendor on mission-critical devices and PCs. Snaps are secure, sandboxed, containerised applications, packaged with their dependencies for predictable behaviour.</p>
@@ -112,13 +124,16 @@ class Landing extends Component {
             </div>
 
             <div className={styles.rowItemOneThird}>
-              <img src='https://assets.ubuntu.com/v1/7af63a6d-workflow-icon04.svg' width='150' height='150'/></div>
+              <img src='https://assets.ubuntu.com/v1/7af63a6d-workflow-icon04.svg' width='150' height='150'/>
+            </div>
+
+           </div>
           </div>
         </section>
 
         <section className={ styles.section }>
           <div className={ `${containerStyles.wrapper}` }>
-            <HeadingThree align='center'>
+            <HeadingThree>
               What people are saying about snaps
             </HeadingThree>
 

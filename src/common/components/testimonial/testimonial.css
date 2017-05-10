@@ -31,16 +31,19 @@
 .pullQuote>p:first-of-type:before {
   content:'\201C\2002';
   margin-left:-1.25rem;
-  margin-right:.25rem
+  margin-right:.25rem;
+  color: #e95420;
+  font-size: 1.5em;
 }
 
 .pullQuote>p:last-of-type {
-  margin-bottom:0
+  margin-bottom:0;
 }
 
 .pullQuote > p:last-of-type:after {
   content:'\2002\201E';
-  margin-left:.25rem
+  margin-left:.25rem;
+  color: #e95420;
 }
 
 .pullQuoteCitation {
