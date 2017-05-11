@@ -102,7 +102,7 @@ class Landing extends Component {
               How Snapcraft fits into your workflow
             </HeadingTwo>
             <div className={ `${styles.row} `}>
-              <img src='https://assets.ubuntu.com/v1/9ec98fa2-workflow_text-to-path.svg' width='100%' />
+              <img src='https://assets.ubuntu.com/v1/88506392-workflow-illustration.svg' width='100%' />
             </div>
           </div>
 
@@ -114,21 +114,18 @@ class Landing extends Component {
         </section>
 
         <section className={ `${styles.section} ${styles.sectionNoBorder} ${containerStyles.lightStrip}` }>
-          <div className={ `${containerStyles.wrapper}` }>
-            <HeadingTwo className={ styles.heading}>
-              Fast to install, easy to create, safe to run
-            </HeadingTwo>
-            <div className={ `${styles.row}` }>
-
-              <div className={styles.rowItemTwoThirds}>
+          <div className={ `${containerStyles.wrapper} ${styles.row}` }>
+            <div className={ `${styles.twoThirds}` }>
+              <HeadingTwo className={ styles.heading}>
+                Fast to install, easy to create, safe to run
+              </HeadingTwo>
+              <div>
                 <p className={styles.snaps}>With Snapcraft, it&rsquo;s easy to get your software published in the snap store. This store lets people safely install apps from any vendor on mission-critical devices and PCs. Snaps are secure, sandboxed, containerised applications, packaged with their dependencies for predictable behaviour.</p>
                 <a href="https://snapcraft.io" className={ styles.external } >More about snaps</a>
               </div>
-
-              <div className={styles.rowItemOneThird}>
-                <img src='https://assets.ubuntu.com/v1/7af63a6d-workflow-icon04.svg' width='150' height='150'/>
-              </div>
-
+            </div>
+            <div className={styles.oneThird}>
+              <img src='https://assets.ubuntu.com/v1/2c5e93c5-fast-easy-safe-illustration.svg'/>
             </div>
           </div>
         </section>
@@ -139,21 +136,21 @@ class Landing extends Component {
               What people are saying about snaps
             </HeadingThree>
 
-            <div className={ `${styles.row} ${styles.sectionNoBorder}` }>
+            <div className={ `${styles.row}` }>
 
-              <div className={ styles.rowItemOneThird }>
+              <div className={ styles.oneThird }>
                 <Testimonial citation='Frank Karlitschek, NextCloud' logo='https://assets.ubuntu.com/v1/99a0b969-Nextcloud_Logo.svg'>
                   Snaps provide an excellent way to distribute updates in a way that is both secure and does not risk breaking end user devices.
                 </Testimonial>
               </div>
 
-              <div className={ styles.rowItemOneThird }>
+              <div className={ styles.oneThird }>
                 <Testimonial citation='Mac Devine, IBM' logo='https://assets.ubuntu.com/v1/683950fd-logo-ibm.svg'>
                   Snaps allow developers to build and deploy applications in a format that’s easily portable and upgradeable across a number of IoT devices so that a cognitive relationship between the cloud and the edges of the network can be established.
                 </Testimonial>
               </div>
 
-              <div className={ styles.rowItemOneThird }>
+              <div className={ styles.oneThird }>
                 <Testimonial citation='Aaron Ogle, Rocket.Chat' logo='https://assets.ubuntu.com/v1/1ad274f9-rocket-chat.svg'>
                   Getting Rocket.Chat snapped was as easy as defining a simple yaml file and adding into our CI. This is definitely one of the easiest distribution methods we have ever used.
                 </Testimonial>
