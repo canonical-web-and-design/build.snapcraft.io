@@ -17,7 +17,6 @@ class Landing extends Component {
   render() {
     const { user } = this.props;
     return (
-
       <div>
         <div className={ containerStyles.strip }>
           <div>
