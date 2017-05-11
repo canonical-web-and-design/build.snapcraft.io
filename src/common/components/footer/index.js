@@ -19,6 +19,9 @@ export default class Footer extends Component {
               <li className={ styles.socialListItem }>
                 <a href="https://www.facebook.com/snapcraftio" className={ styles.socialListItemFacebook }>Share on Facebook</a>
               </li>
+              <li className={ styles.socialListItem }>
+                <a href="https://www.youtube.com/snapcraftio" className={ styles.socialListItemYoutube }>Share on YouTube</a>
+              </li>
             </ul>
           </div>
           <p className={ styles.copyright }>© 2017 Canonical Ltd. Ubuntu and Canonical are registered trademarks of Canonical Ltd.</p>

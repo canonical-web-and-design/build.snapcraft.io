@@ -64,12 +64,13 @@ body {
 
 .socialListItemTwitter,
 .socialListItemGoogle,
-.socialListItemFacebook {
+.socialListItemFacebook,
+.socialListItemYoutube {
   text-indent: -99999px;
-  background-image: url(./icon-social.svg);
+  background-image: url(https://assets.ubuntu.com/v1/6bfc3d6a-build.snapcraft.social.optimize.svg);
   background-repeat: no-repeat;
-  height: 44px;
-  width: 44px;
+  height: 45px;
+  width: 45px;
   overflow: hidden;
   display: inline-block;
 }
@@ -82,9 +83,14 @@ body {
   background-position: -90px 0;
 }
 
+.socialListItemYoutube {
+  background-position: -136px 0;
+}
+
 .socialListItemTwitter:hover,
 .socialListItemGoogle:hover,
-.socialListItemFacebook:hover {
+.socialListItemFacebook:hover,
+.socialListItemYoutube:hover {
   background-position-y: -45px;
 }
 
