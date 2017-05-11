@@ -60,7 +60,7 @@ class Landing extends Component {
         </div>
         <section className={ `${styles.section} ${styles.sectionTopBorderOnly}` }>
           <div className={ `${containerStyles.wrapper}` }>
-            <HeadingTwo className={ styles.heading}>
+            <HeadingTwo className={ styles.landingHeading }>
               Publish your software for
             </HeadingTwo>
             <div className={ `${styles.row}` }>
