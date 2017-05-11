@@ -60,17 +60,17 @@ class Landing extends Component {
           </div>
         </div>
 
-        <section className={ styles.section }>
+        <section className={ `${styles.section} ${styles.sectionNoBorder}` }>
           <div className={ `${containerStyles.wrapper}` }>
-            <HeadingTwo>
+            <HeadingTwo className={ styles.heading}>
               Publish your software for
             </HeadingTwo>
             <div className={ `${styles.row}` }>
-              <img className={ styles.brandLogo } src={images.archlinux} />
               <img className={ styles.brandLogo } src={images.debian} />
+              <img className={ styles.brandLogo } src={images.opensuse} />
+              <img className={ styles.brandLogo } src={images.archlinux} />
               <img className={ styles.brandLogo } src={images.gentoo} />
               <img className={ styles.brandLogo } src={images.fedora} />
-              <img className={ styles.brandLogo } src={images.opensuse} />
               <img className={ styles.brandLogo } src={images.ubuntu} />
             </div>
           </div>
@@ -78,7 +78,7 @@ class Landing extends Component {
 
         <section className={ `${styles.section} ${styles.sectionNoBorder} ${containerStyles.lightStrip}` }>
           <div className={ `${containerStyles.wrapper}` }>
-            <HeadingTwo>
+            <HeadingTwo className={ styles.heading}>
               Why use Snapcraft?
             </HeadingTwo>
             <div className={ `${styles.row}` }>
@@ -97,10 +97,14 @@ class Landing extends Component {
           </div>
         </section>
 
-        <section className={styles.section}>
-
-          <div className={ `${styles.row} ${containerStyles.wrapper}`  }>
-            <img src='https://assets.ubuntu.com/v1/9ec98fa2-workflow_text-to-path.svg' width='100%' />
+        <section className={ `${styles.section} ${styles.sectionNoBorder}` }>
+          <div className={ `${containerStyles.wrapper}`  }>
+            <HeadingTwo className={ styles.heading}>
+              How Snapcraft fits into your workflow
+            </HeadingTwo>
+            <div className={ `${styles.row} `}>
+              <img src='https://assets.ubuntu.com/v1/9ec98fa2-workflow_text-to-path.svg' width='100%' />
+            </div>
           </div>
 
           <div className={ styles.centeredButton }>
@@ -110,9 +114,9 @@ class Landing extends Component {
           </div>
         </section>
 
-        <section className={ styles.section }>
+        <section className={ `${styles.section} ${styles.sectionNoBorder} ${containerStyles.lightStrip}` }>
           <div className={ `${containerStyles.wrapper}` }>
-            <HeadingTwo>
+            <HeadingTwo className={ styles.heading}>
               Fast to install, easy to create, safe to run
             </HeadingTwo>
             <div className={ `${styles.row}` }>
@@ -139,19 +143,19 @@ class Landing extends Component {
             <div className={ `${styles.row} ${styles.sectionNoBorder}` }>
 
               <div className={ styles.rowItemOneThird }>
-                <Testimonial citation='Frank Karlitschek, Founder' logo='https://assets.ubuntu.com/v1/99a0b969-Nextcloud_Logo.svg'>
+                <Testimonial citation='Frank Karlitschek, NextCloud' logo='https://assets.ubuntu.com/v1/99a0b969-Nextcloud_Logo.svg'>
                   Snaps provide an excellent way to distribute updates in a way that is both secure and does not risk breaking end user devices.
                 </Testimonial>
               </div>
 
               <div className={ styles.rowItemOneThird }>
-                <Testimonial citation='Mac Devine, VP &amp; CTO' logo='https://assets.ubuntu.com/v1/683950fd-logo-ibm.svg'>
+                <Testimonial citation='Mac Devine, IBM' logo='https://assets.ubuntu.com/v1/683950fd-logo-ibm.svg'>
                   Snaps allow developers to build and deploy applications in a format that’s easily portable and upgradeable across a number of IoT devices so that a cognitive relationship between the cloud and the edges of the network can be established.
                 </Testimonial>
               </div>
 
               <div className={ styles.rowItemOneThird }>
-                <Testimonial citation='Aaron Ogle, Developer' logo='https://assets.ubuntu.com/v1/1ad274f9-rocket-chat.svg'>
+                <Testimonial citation='Aaron Ogle, Rocket.Chat' logo='https://assets.ubuntu.com/v1/1ad274f9-rocket-chat.svg'>
                   Getting Rocket.Chat snapped was as easy as defining a simple yaml file and adding into our CI. This is definitely one of the easiest distribution methods we have ever used.
                 </Testimonial>
               </div>
