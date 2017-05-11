@@ -28,7 +28,7 @@ class Landing extends Component {
 
               <ul className={ styles.banner }>
                 <li className={ styles.bannerImage }>
-                  <img src='https://assets.ubuntu.com/v1/4feda3a7-header_strokes-to-path.svg' />
+                  <img src='https://assets.ubuntu.com/v1/ed6d1c5b-build.snapcraft.hero.svg' />
                 </li>
 
                 <li className={ styles.bannerLabel }>
