@@ -58,8 +58,7 @@ class Landing extends Component {
             </div>
           </div>
         </div>
-
-        <section className={ `${styles.section} ${styles.sectionNoBorder}` }>
+        <section className={ `${styles.section} ${styles.sectionTopBorderOnly}` }>
           <div className={ `${containerStyles.wrapper}` }>
             <HeadingTwo className={ styles.heading}>
               Publish your software for

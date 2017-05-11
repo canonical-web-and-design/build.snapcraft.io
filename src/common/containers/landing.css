@@ -80,6 +80,11 @@
   border-bottom: none;
 }
 
+.sectionTopBorderOnly {
+  composes: sectionNoBorder;
+  border-top: 1px dotted $mid-grey;
+}
+
 .snaps {
   margin-bottom: 2em;
 }
