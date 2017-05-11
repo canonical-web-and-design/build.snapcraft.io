@@ -1,5 +1,6 @@
 import { createHmac } from 'crypto';
 import Express from 'express';
+import sortBy from 'lodash/sortBy';
 import nock from 'nock';
 import supertest from 'supertest';
 import expect from 'expect';
@@ -84,6 +85,7 @@ describe('The Launchpad API endpoint', () => {
             last_login_at: new Date()
           })
           .save();
+        await db.model('Repository').query('truncate').fetch();
       });
 
       afterEach(() => {
@@ -242,6 +244,18 @@ describe('The Launchpad API endpoint', () => {
             .send({ repository_url: 'https://github.com/anowner/aname' });
           await dbUser.refresh();
           expect(dbUser.get('snaps_added')).toEqual(2);
+        });
+
+        it('should add row to Repository', async () => {
+          await supertest(app)
+            .post('/launchpad/snaps')
+            .set('X-CSRF-Token', 'blah')
+            .send({ repository_url: 'https://github.com/anowner/aname' });
+          const dbRepository = await db.model('Repository')
+            .where({ owner: 'anowner', name: 'aname' })
+            .fetch({ withRelated: ['registrant'] });
+          expect(dbRepository.related('registrant').get('github_id'))
+            .toEqual(session.user.id);
         });
 
         it('should clear appropriate url_prefix entry from ' +
@@ -419,6 +433,7 @@ describe('The Launchpad API endpoint', () => {
           last_login_at: new Date()
         })
         .save();
+      await db.model('Repository').query('truncate').fetch();
     });
 
     context('when snaps exist', () => {
@@ -432,7 +447,7 @@ describe('The Launchpad API endpoint', () => {
       let lpApi;
       let ghApi;
 
-      beforeEach(() => {
+      beforeEach(async () => {
         const lp_api_url = conf.get('LP_API_URL');
         const gh_api_url = conf.get('GITHUB_API_ENDPOINT');
         const lp_api_base = `${lp_api_url}/devel`;
@@ -543,6 +558,10 @@ describe('The Launchpad API endpoint', () => {
               }
             ]
           });
+
+        await db.model('Repository')
+          .forge({ owner: 'anowner', name: 'test-snap' })
+          .save();
       });
 
       afterEach(() => {
@@ -610,11 +629,32 @@ describe('The Launchpad API endpoint', () => {
           .where({ github_id: session.user.id })
           .fetch();
         expect(dbUser.serialize()).toMatch({
-          snaps_added: 2,
+          snaps_added: 1,
           snaps_removed: 0,
           names_registered: 1,
-          builds_requested: 4
+          builds_requested: 2
         });
+      });
+
+      it('should update rows in Repository', async () => {
+        await apiResponse;
+        const dbRepositories = await db.model('Repository')
+          .where('owner', 'in', ['anowner', 'org1'])
+          .fetchAll();
+        expect(sortBy(dbRepositories.serialize(), ['owner', 'name'])).toMatch([
+          {
+            owner: 'anowner',
+            name: 'test-snap',
+            snapcraft_name: 'snap1',
+            store_name: 'snap1'
+          },
+          {
+            owner: 'org1',
+            name: 'test-snap',
+            snapcraft_name: 'snap2',
+            store_name: null
+          }
+        ]);
       });
 
       context('using memcached', () => {
@@ -870,10 +910,10 @@ describe('The Launchpad API endpoint', () => {
           .where({ github_id: session.user.id })
           .fetch();
         expect(dbUser.serialize()).toMatch({
-          snaps_added: 2,
+          snaps_added: 1,
           snaps_removed: 0,
           names_registered: 1,
-          builds_requested: 4
+          builds_requested: 2
         });
       });
 
@@ -1206,6 +1246,7 @@ describe('The Launchpad API endpoint', () => {
               last_login_at: new Date()
             })
             .save();
+          await db.model('Repository').query('truncate').fetch();
         });
 
         context('when setting snap attributes fails', () => {
@@ -1345,6 +1386,23 @@ describe('The Launchpad API endpoint', () => {
               });
             await dbUser.refresh();
             expect(dbUser.get('names_registered')).toEqual(2);
+          });
+
+          it('updates rows in Repository', async () => {
+            const dbRepository = await db.model('Repository')
+              .forge({ owner: 'anowner', name: 'aname' })
+              .save();
+            await supertest(app)
+              .post('/launchpad/snaps/authorize')
+              .send({
+                repository_url: 'https://github.com/anowner/aname',
+                snap_name: snapName,
+                series: '16',
+                channels: ['edge'],
+                macaroon: 'dummy-macaroon'
+              });
+            await dbRepository.refresh();
+            expect(dbRepository.get('store_name')).toEqual(snapName);
           });
 
           context('when snaps are memcached', () => {
@@ -1719,6 +1777,7 @@ describe('The Launchpad API endpoint', () => {
             last_login_at: new Date()
           })
           .save();
+        await db.model('Repository').query('truncate').fetch();
       });
 
       afterEach(() => {
@@ -1831,6 +1890,30 @@ describe('The Launchpad API endpoint', () => {
           await dbUser.refresh();
           expect(dbUser.get('builds_requested')).toEqual(4);
         });
+
+        it('attributes builds_requested to the registrant', async () => {
+          const dbUser = await db.model('GitHubUser')
+            .forge({
+              github_id: session.user.id + 1,
+              login: 'another',
+              last_login_at: new Date(),
+              builds_requested: 2
+            })
+            .save();
+          await db.model('Repository')
+            .forge({
+              owner: 'anowner',
+              name: 'aname',
+              registrant_id: dbUser.get('id')
+            })
+            .save();
+          await supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
+            .send({ repository_url: 'https://github.com/anowner/aname' });
+          await dbUser.refresh();
+          expect(dbUser.get('builds_requested')).toEqual(4);
+        });
       });
 
       context('when auto_build is true', () => {
@@ -1926,6 +2009,30 @@ describe('The Launchpad API endpoint', () => {
             .where({ login: 'anowner' })
             .fetch();
           await dbUser.save({ builds_requested: 2 });
+          await supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
+            .send({ repository_url: 'https://github.com/anowner/aname' });
+          await dbUser.refresh();
+          expect(dbUser.get('builds_requested')).toEqual(4);
+        });
+
+        it('attributes builds_requested to the registrant', async () => {
+          const dbUser = await db.model('GitHubUser')
+            .forge({
+              github_id: session.user.id + 1,
+              login: 'another',
+              last_login_at: new Date(),
+              builds_requested: 2
+            })
+            .save();
+          await db.model('Repository')
+            .forge({
+              owner: 'anowner',
+              name: 'aname',
+              registrant_id: dbUser.get('id')
+            })
+            .save();
           await supertest(app)
             .post('/launchpad/snaps/request-builds')
             .set('X-CSRF-Token', 'blah')
@@ -2080,6 +2187,7 @@ describe('The Launchpad API endpoint', () => {
           last_login_at: new Date()
         })
         .save();
+      await db.model('Repository').query('truncate').fetch();
     });
 
     afterEach(() => {
@@ -2189,6 +2297,20 @@ describe('The Launchpad API endpoint', () => {
           .send({ repository_url: repositoryUrl });
         await dbUser.refresh();
         expect(dbUser.get('snaps_removed')).toEqual(2);
+      });
+
+      it('deletes rows from Repository', async () => {
+        await db.model('Repository')
+          .forge({ owner: 'anowner', name: 'aname' })
+          .save();
+        await supertest(app)
+          .post('/launchpad/snaps/delete')
+          .set('X-CSRF-Token', 'blah')
+          .send({ repository_url: repositoryUrl });
+        const dbRepository = await db.model('Repository')
+          .where({ owner: 'anowner', name: 'aname' })
+          .fetch();
+        expect(dbRepository).toBe(null);
       });
 
       it('returns a 401 unauthorized response when X-CSRF-Token header not sent', (done) => {

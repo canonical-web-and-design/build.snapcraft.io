@@ -415,6 +415,7 @@ describe('The WebHook API endpoint', () => {
             last_login_at: new Date()
           })
           .save();
+        await db.model('Repository').query('truncate').fetch();
       });
 
       context('if store_upload_status is not Uploaded', () => {
@@ -497,6 +498,32 @@ describe('The WebHook API endpoint', () => {
             .where({ login: 'anowner' })
             .fetch();
           await dbUser.save({ builds_released: 1 });
+          await supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-Launchpad-Event-Type', 'snap:build:0.1')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body);
+          await dbUser.refresh();
+          expect(dbUser.get('builds_released')).toEqual(2);
+        });
+
+        it('attributes builds_released to the registrant', async () => {
+          const dbUser = await db.model('GitHubUser')
+            .forge({
+              github_id: 2,
+              login: 'another',
+              last_login_at: new Date(),
+              builds_released: 1
+            })
+            .save();
+          await db.model('Repository')
+            .forge({
+              owner: 'anowner',
+              name: 'aname',
+              registrant_id: dbUser.get('id')
+            })
+            .save();
           await supertest(app)
             .post('/anowner/aname/webhook/notify')
             .type('application/json')

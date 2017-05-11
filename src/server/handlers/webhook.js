@@ -67,7 +67,7 @@ const handleGitHubPush = async (req, res, owner, name) => {
       // XXX cjwatson 2017-02-16: Cache returned snap name, if any.
       await internalGetSnapcraftYaml(owner, name);
     }
-    await internalRequestSnapBuilds(snap, owner);
+    await internalRequestSnapBuilds(snap, owner, name);
     logger.info(`Requested builds of ${repositoryUrl}.`);
     return res.status(200).send();
   } catch (error) {
@@ -80,12 +80,15 @@ const handleLaunchpadSnapBuild = async (req, res, owner, name, parsedBody) => {
   if (parsedBody.store_upload_status === 'Uploaded') {
     try {
       await db.transaction(async (trx) => {
-        // XXX cjwatson 2017-03-17: This will go wrong once we support
-        // organizations, since we have no way to know which developer to
-        // credit for the builds.  At the moment, the best we can do is to
-        // credit the owner of the repository.
+        const dbRepository = await db.model('Repository')
+          .where({ owner, name })
+          .fetch({ withRelated: ['registrant'], transacting: trx });
+        const userQuery = (
+          (dbRepository && dbRepository.related('registrant')) ||
+          { login: owner }
+        );
         await db.model('GitHubUser').incrementMetric(
-          { login: owner }, 'builds_released', 1, { transacting: trx }
+          userQuery, 'builds_released', 1, { transacting: trx }
         );
       });
     } catch (error) {

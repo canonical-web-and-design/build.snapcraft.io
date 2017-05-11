@@ -12,9 +12,13 @@ export default function register(db) {
    *   names_registered: number of snap names registered
    *   builds_requested: number of snap builds requested
    *   builds_released: number of snap builds released to a store channel
+   *   repositories: all repositories created by this user
    */
   db.model('GitHubUser', {
     tableName: 'github_user',
+    repositories: function() {
+      return this.hasMany('Repository', 'registrant_id');
+    },
     hasTimestamps: true
   }, {
     // Increment a metric for a user.  Where possible, this should be called
@@ -23,7 +27,12 @@ export default function register(db) {
     // failure to increment the metric or a failure in the external API call
     // will cause both to be rolled back.
     incrementMetric: async (query, metricName, delta, options) => {
-      const row = await db.model('GitHubUser').where(query).fetch(options);
+      let row;
+      if (query instanceof db.Model) {
+        row = query;
+      } else {
+        row = await db.model('GitHubUser').where(query).fetch(options);
+      }
       if (row) {
         const value = row.get(metricName);
         // Metrics may often require non-trivial initialization, for example
@@ -34,6 +43,7 @@ export default function register(db) {
           await row.save({ [metricName]: value + delta }, options);
         }
       }
+      return row;
     }
   });
 }

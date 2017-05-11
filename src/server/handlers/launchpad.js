@@ -1,6 +1,8 @@
 import { createHash } from 'crypto';
 
 import yaml from 'js-yaml';
+import keyBy from 'lodash/keyBy';
+import uniq from 'lodash/uniq';
 import zip from 'lodash/zip';
 import { normalize } from 'normalizr';
 
@@ -337,14 +339,20 @@ export const newSnap = async (req, res) => {
 
   // We need admin permissions in order to be able to install a webhook later.
   try {
-    await checkAdminPermissions(req.session, repositoryUrl);
+    const { owner, name } = await checkAdminPermissions(
+      req.session, repositoryUrl
+    );
     await db.transaction(async (trx) => {
+      let dbUser = null;
       if (req.session.user) {
-        await db.model('GitHubUser').incrementMetric(
+        dbUser = await db.model('GitHubUser').incrementMetric(
           { github_id: req.session.user.id }, 'snaps_added', 1,
           { transacting: trx }
         );
       }
+      await db.model('Repository').addOrUpdate(
+        { owner, name }, { registrant: dbUser }, { transacting: trx }
+      );
 
       const result = await requestNewSnap(repositoryUrl);
       // as new snap is created we need to clear list of snaps from cache
@@ -491,48 +499,73 @@ const internalFindSnaps = async (owner, token) => {
 // historical data.  This may under-report if somebody manages to accumulate
 // more snaps than the Launchpad batch size (75) before triggering this, but
 // that shouldn't happen in practice.
-const initializeMetrics = async (gitHubId, snaps) => {
-  await db.transaction(async (trx) => {
-    const row = await db.model('GitHubUser')
-      .where({ github_id: gitHubId })
-      .fetch({ transacting: trx });
-    if (row) {
-      const rowData = row.serialize();
-      if (rowData.snaps_added === undefined ||
-          rowData.snaps_added === null) {
-        row.set({ snaps_added: snaps.length });
-      }
-      if (rowData.snaps_removed === undefined ||
-          rowData.snaps_removed === null) {
-        row.set({ snaps_removed: 0 });
-      }
-      if (rowData.names_registered === undefined ||
-          rowData.names_registered === null) {
-        const namesRegistered = snaps.filter((snap) => snap.store_name).length;
-        row.set({ names_registered: namesRegistered });
-      }
-      if (rowData.builds_requested === undefined ||
-          rowData.builds_requested === null) {
-        // This is potentially quite an expensive piece of initialization,
-        // but only the first time that a user who's been using the site
-        // since before this code landed comes back, so some one-time
-        // expense is tolerable.
-        try {
-          let buildsRequested = 0;
-          for (const snap of snaps) {
-            const builds = await getLaunchpad().get(
-              snap.builds_collection_link
-            );
-            buildsRequested += builds.total_size;
-          }
-          row.set({ builds_requested: buildsRequested });
-        } catch (error) {
-          logger.error(`Failed to fetch builds from Launchpad: ${error}`);
-        }
-      }
-      await row.save({}, { transacting: trx });
+const initializeMetrics = async (trx, gitHubId, snaps) => {
+  const row = await db.model('GitHubUser')
+    .where({ github_id: gitHubId })
+    .fetch({ transacting: trx });
+  if (row) {
+    const rowData = row.serialize();
+    if (rowData.snaps_added === undefined ||
+        rowData.snaps_added === null) {
+      row.set({ snaps_added: snaps.length });
     }
+    if (rowData.snaps_removed === undefined ||
+        rowData.snaps_removed === null) {
+      row.set({ snaps_removed: 0 });
+    }
+    if (rowData.names_registered === undefined ||
+        rowData.names_registered === null) {
+      const namesRegistered = snaps.filter((snap) => snap.store_name).length;
+      row.set({ names_registered: namesRegistered });
+    }
+    if (rowData.builds_requested === undefined ||
+        rowData.builds_requested === null) {
+      // This is potentially quite an expensive piece of initialization, but
+      // only the first time that a user who's been using the site since
+      // before this code landed comes back, so some one-time expense is
+      // tolerable.
+      try {
+        let buildsRequested = 0;
+        for (const snap of snaps) {
+          const builds = await getLaunchpad().get(
+            snap.builds_collection_link
+          );
+          buildsRequested += builds.total_size;
+        }
+        row.set({ builds_requested: buildsRequested });
+      } catch (error) {
+        logger.error(`Failed to fetch builds from Launchpad: ${error}`);
+      }
+    }
+    await row.save({}, { transacting: trx });
+  }
+};
+
+// Keep the database up to date with a `findSnaps` response, for the sake of
+// metrics.
+const updateDatabaseSnaps = async (trx, snaps) => {
+  const owners = uniq(snaps.map((snap) => {
+    return parseGitHubRepoUrl(snap.git_repository_url).owner;
+  }));
+  const dbRepositories = await db.model('Repository')
+    .where('owner', 'in', owners)
+    .fetchAll({ transacting: trx });
+  const dbRepositoriesByFullName = keyBy(dbRepositories.models, (repo) => {
+    return `${repo.get('owner')}/${repo.get('name')}`;
   });
+  for (const snap of snaps) {
+    const { owner, name, fullName } = parseGitHubRepoUrl(
+      snap.git_repository_url
+    );
+    await db.model('Repository').addOrUpdate(
+      dbRepositoriesByFullName[fullName] || { owner, name }, {
+        snapcraft_name: (
+          (snap.snapcraft_data && snap.snapcraft_data.name) || null
+        ),
+        store_name: snap.store_name || null
+      }, { transacting: trx }
+    );
+  }
 };
 
 export const findSnaps = async (req, res) => {
@@ -545,9 +578,16 @@ export const findSnaps = async (req, res) => {
       );
       return { ...snap, snapcraft_data: snapcraftData };
     }));
-    if (req.session.user) {
-      await initializeMetrics(req.session.user.id, snaps);
-    }
+    await db.transaction(async (trx) => {
+      if (req.session.user) {
+        const ownedSnaps = snaps.filter((snap) => {
+          const snapOwner = parseGitHubRepoUrl(snap.git_repository_url).owner;
+          return snapOwner === owner;
+        });
+        await initializeMetrics(trx, req.session.user.id, ownedSnaps);
+      }
+      await updateDatabaseSnaps(trx, snaps);
+    });
     return res.status(200).send({
       status: 'success',
       code: 'snaps-found',
@@ -612,19 +652,26 @@ export const authorizeSnap = async (req, res) => {
   const macaroon = req.body.macaroon;
 
   try {
-    await checkAdminPermissions(req.session, repositoryUrl);
+    const { owner, name } = await checkAdminPermissions(
+      req.session, repositoryUrl
+    );
     const result = await internalFindSnap(repositoryUrl);
     // Registration happened a short while ago; we increment the metric here
     // in order to support having the client call `register-name` on the
     // store directly rather than going via our backend.  As such, we don't
     // need to roll this back if authorization fails.
     await db.transaction(async (trx) => {
+      let dbUser = null;
       if (req.session && req.session.user) {
-        await db.model('GitHubUser').incrementMetric(
+        dbUser = await db.model('GitHubUser').incrementMetric(
           { github_id: req.session.user.id }, 'names_registered', 1,
           { transacting: trx }
         );
       }
+      await db.model('Repository').addOrUpdate(
+        { owner, name }, { registrant: dbUser , store_name: snapName },
+        { transacting: trx }
+      );
     });
     const snapUrl = result.self_link;
     await getLaunchpad().patch(snapUrl, {
@@ -686,7 +733,7 @@ export const getSnapBuilds = async (req, res) => {
   }
 };
 
-export const internalRequestSnapBuilds = async (snap, owner) => {
+export const internalRequestSnapBuilds = async (snap, owner, name) => {
   // Request builds, then make sure that auto_build is enabled so that
   // future push events will cause the webhook to dispatch builds.  Doing
   // things in this order ensures that Launchpad's internal
@@ -706,13 +753,15 @@ export const internalRequestSnapBuilds = async (snap, owner) => {
   // requesting builds fails.
   try {
     await db.transaction(async (trx) => {
-      // XXX cjwatson 2017-03-17: This will go wrong once we support
-      // organizations, since we have no way to know which developer to
-      // credit for the builds.  At the moment, the best we can do is to
-      // credit the owner of the repository.
+      const dbRepository = await db.model('Repository')
+        .where({ owner, name })
+        .fetch({ withRelated: ['registrant'], transacting: trx });
+      const userQuery = (
+        (dbRepository && dbRepository.related('registrant')) ||
+        { login: owner }
+      );
       await db.model('GitHubUser').incrementMetric(
-        { login: owner }, 'builds_requested', builds.length,
-        { transacting: trx }
+        userQuery, 'builds_requested', builds.length, { transacting: trx }
       );
     });
   } catch (error) {
@@ -723,11 +772,11 @@ export const internalRequestSnapBuilds = async (snap, owner) => {
 
 export const requestSnapBuilds = async (req, res) => {
   try {
-    const { owner } = await checkAdminPermissions(
+    const { owner, name } = await checkAdminPermissions(
       req.session, req.body.repository_url
     );
     const snap = await internalFindSnap(req.body.repository_url);
-    const builds = await internalRequestSnapBuilds(snap, owner);
+    const builds = await internalRequestSnapBuilds(snap, owner, name);
     return res.status(201).send({
       status: 'success',
       payload: {
@@ -742,7 +791,7 @@ export const requestSnapBuilds = async (req, res) => {
 
 export const deleteSnap = async (req, res) => {
   try {
-    const { owner } = await checkAdminPermissions(
+    const { owner, name } = await checkAdminPermissions(
       req.session, req.body.repository_url
     );
     const snap = await internalFindSnap(req.body.repository_url);
@@ -753,6 +802,12 @@ export const deleteSnap = async (req, res) => {
           { transacting: trx }
         );
       }
+      // Model.destroy doesn't support DELETE FROM ... WHERE ..., so we have
+      // to drop down to the Knex level.
+      await db.knex('Repository')
+        .transacting(trx)
+        .where({ owner, name })
+        .del();
       await snap.lp_delete();
 
       const urlPrefix = getRepoUrlPrefix(owner);
