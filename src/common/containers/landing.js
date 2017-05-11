@@ -76,7 +76,7 @@ class Landing extends Component {
 
         <section className={ `${styles.section} ${styles.sectionNoBorder} ${containerStyles.lightStrip}` }>
           <div className={ `${containerStyles.wrapper}` }>
-            <HeadingTwo className={ styles.heading}>
+            <HeadingTwo className={ styles.landingHeading }>
               Why use Snapcraft?
             </HeadingTwo>
             <div className={ `${styles.row}` }>
@@ -97,7 +97,7 @@ class Landing extends Component {
 
         <section className={ `${styles.section} ${styles.sectionNoBorder}` }>
           <div className={ `${containerStyles.wrapper}`  }>
-            <HeadingTwo className={ styles.heading}>
+            <HeadingTwo className={ styles.landingHeading }>
               How Snapcraft fits into your workflow
             </HeadingTwo>
             <div className={ `${styles.row} `}>
@@ -115,7 +115,7 @@ class Landing extends Component {
         <section className={ `${styles.section} ${styles.sectionNoBorder} ${containerStyles.lightStrip}` }>
           <div className={ `${containerStyles.wrapper} ${styles.row}` }>
             <div className={ `${styles.twoThirds}` }>
-              <HeadingTwo className={ styles.heading}>
+              <HeadingTwo className={ styles.landingHeading }>
                 Fast to install, easy to create, safe to run
               </HeadingTwo>
               <div>
