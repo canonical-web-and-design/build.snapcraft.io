@@ -67,7 +67,7 @@ body {
 .socialListItemFacebook,
 .socialListItemYoutube {
   text-indent: -99999px;
-  background-image: url(./icon-social.svg);
+  background-image: url(https://assets.ubuntu.com/v1/6bfc3d6a-build.snapcraft.social.optimize.svg);
   background-repeat: no-repeat;
   height: 45px;
   width: 45px;
