@@ -48,49 +48,57 @@ export const UserFacingState = {
     'Never built',
     BuildStatusColours.GREY,
     false,
-    8
+    8,
+    'never_built'
   ),
   'BUILDING_SOON': createState(
     'Building soon',
     BuildStatusColours.GREY,
     BuildStatusIcons.ELLIPSES,
-    7
+    7,
+    'building_soon'
   ),
   'WONT_PUBLISH': createState(
     'Built, won’t be published',
     BuildStatusColours.GREEN,
     BuildStatusIcons.TICK_OUTLINED,
-    6
+    6,
+    'wont_publish'
   ),
   'PUBLISHED': createState(
     'Built and published',
     BuildStatusColours.GREEN,
     BuildStatusIcons.TICK_SOLID,
-    5
+    5,
+    'published'
   ),
   'PUBLISHING_FAILED': createState(
     'Built, failed to publish',
     BuildStatusColours.RED,
     BuildStatusIcons.TICK,
-    4
+    4,
+    'publishing_failed'
   ),
   'PUBLISHING_SOON': createState(
     'Built, publishing soon',
     BuildStatusColours.GREY,
     BuildStatusIcons.TICK,
-    3
+    3,
+    'publishing_soon'
   ),
   'IN_PROGRESS': createState(
     'In progress',
     BuildStatusColours.BLUE,
     BuildStatusIcons.SPINNER,
-    2
+    2,
+    'in_progress'
   ),
   'FAILED_TO_BUILD': createState(
     'Failed to build',
     BuildStatusColours.RED,
     BuildStatusIcons.CROSS,
-    1
+    1,
+    'failed_to_build'
   )
 };
 
@@ -101,12 +109,13 @@ export const UserFacingState = {
  * @param priority {Number} value to determine which message should be shown in
  * the case of multiple archs with differing states; lowest wins.
  * **/
-function createState(statusMessage, colour, icon, priority) {
+function createState(statusMessage, colour, icon, priority, badge) {
   return {
     statusMessage,
     colour,
     icon,
-    priority
+    priority,
+    badge
   };
 }
 
@@ -191,7 +200,8 @@ export function snapBuildFromAPI(entry) {
     colour,
     statusMessage,
     icon, // TODO we don't use this yet
-    priority // TODO we don't use this yet
+    priority, // TODO we don't use this yet
+    badge
   } = mapBuildAndUploadStates(entry.buildstate, entry.store_upload_status);
 
   return {
@@ -204,6 +214,7 @@ export function snapBuildFromAPI(entry) {
     colour,
     icon,
     priority,
+    badge,
 
     isPublished: entry.store_upload_status === 'Uploaded',
     dateCreated: entry.datecreated,

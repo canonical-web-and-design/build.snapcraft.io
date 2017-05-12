@@ -700,11 +700,14 @@ export const authorizeSnap = async (req, res) => {
   }
 };
 
+export async function internalGetSnapBuilds(snap, start = 0, size = 10) {
+  return await getLaunchpad().get(snap.builds_collection_link, {
+    start: start, size: size
+  });
+}
+
 export const getSnapBuilds = async (req, res) => {
   const snapUrl = req.query.snap;
-
-  const start = typeof req.query.start !== 'undefined' ? req.query.start : 0;
-  const size = typeof req.query.size !== 'undefined' ? req.query.size : 10;
 
   if (!snapUrl) {
     return res.status(404).send({
@@ -718,9 +721,8 @@ export const getSnapBuilds = async (req, res) => {
 
   try {
     const snap = await getLaunchpad().get(snapUrl);
-    const builds = await getLaunchpad().get(snap.builds_collection_link, {
-      start: start, size: size
-    });
+    const builds = await internalGetSnapBuilds(snap, req.query.start, req.query.size);
+
     return res.status(200).send({
       status: 'success',
       payload: {

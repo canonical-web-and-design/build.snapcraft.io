@@ -48,6 +48,10 @@ app.use(expressWinston.logger({
   }
 }));
 app.use(helmet());
+
+// keep it before setting up session, as it doesn't need that
+app.use('/', routes.badge);
+
 app.use(session(sessionConfig(conf)));
 app.use(Express.static(__dirname + '/../public', { maxAge: '365d' }));
 

@@ -1,3 +1,4 @@
+import badge from './badge';
 import github from './github';
 import githubAuth from './github-auth';
 import launchpad from './launchpad';
@@ -8,6 +9,7 @@ import webhook from './webhook';
 import subscribe from './subscribe';
 
 export {
+  badge,
   githubAuth,
   github,
   launchpad,
