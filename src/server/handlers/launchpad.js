@@ -802,12 +802,12 @@ export const deleteSnap = async (req, res) => {
           { transacting: trx }
         );
       }
-      // Model.destroy doesn't support DELETE FROM ... WHERE ..., so we have
-      // to drop down to the Knex level.
-      await db.knex('Repository')
-        .transacting(trx)
+      const dbRepository = await db.model('Repository')
         .where({ owner, name })
-        .del();
+        .fetch({ transacting: trx });
+      if (dbRepository) {
+        await dbRepository.destroy({ transacting: trx });
+      }
       await snap.lp_delete();
 
       const urlPrefix = getRepoUrlPrefix(owner);
