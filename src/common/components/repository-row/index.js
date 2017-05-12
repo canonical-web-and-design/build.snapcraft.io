@@ -20,7 +20,7 @@ import {
 } from './icons';
 import * as authStoreActionCreators from '../../actions/auth-store';
 import * as registerNameActionCreators from '../../actions/register-name';
-import { checkNameOwnership } from '../../actions/name-ownership';
+import { NAME_OWNERSHIP_ALREADY_OWNED, checkNameOwnership } from '../../actions/name-ownership';
 import * as snapActionCreators from '../../actions/snaps';
 
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
@@ -281,7 +281,7 @@ export class RepositoryRowView extends Component {
 
     const registeredName = snap.storeName;
 
-    const hasBuilt = !!(latestBuild && snap.snapcraftData);
+    const isBuilt = !!(latestBuild && snap.snapcraftData);
 
     const isActive = (
       showNameMismatchDropdown ||
@@ -290,19 +290,18 @@ export class RepositoryRowView extends Component {
       showUnregisteredDropdown ||
       showRemoveDropdown
     );
-    // XXX cjwatson 2017-02-28: The specification calls for the remove icon
-    // to be shown only when hovering over or tapping in an empty part of
-    // the row.  My attempts to do this so far have resulted in the remove
-    // icon playing hide-and-seek.
+
+    let isOwnerOfRegisteredName = (registeredName && nameOwnership[registeredName] &&
+      nameOwnership[registeredName].status === NAME_OWNERSHIP_ALREADY_OWNED);
 
     return (
       <Row isActive={isActive}>
 
         {/* cells */}
-        { this.renderRepoName(fullName, hasBuilt) }
+        { this.renderRepoName(fullName, isBuilt) }
         { this.renderConfiguredStatus(snap) }
         { this.renderSnapName(registeredName, showRegisterNameInput, snap) }
-        { this.renderBuildStatus(fullName, hasBuilt, latestBuild) }
+        { this.renderBuildStatus(fullName, isBuilt, latestBuild) }
         { this.renderDelete() }
 
         {/* dropdowns */}
@@ -337,36 +336,17 @@ export class RepositoryRowView extends Component {
         }
         { showRemoveDropdown &&
           <RemoveRepoDropdown
-            message={this.getRemoveWarningMessage(latestBuild, registeredName)}
+            isBuilt={isBuilt}
+            registeredName={registeredName}
+            isOwnerOfRegisteredName={isOwnerOfRegisteredName}
+            isAuthenticated={authStore.authenticated}
             onRemoveClick={this.onRemoveClick.bind(this, snap.gitRepoUrl)}
+            onSignInClick={this.onSignInClick.bind(this)}
             onCancelClick={this.onToggleRemoveClick.bind(this)}
           />
         }
       </Row>
     );
-  }
-
-  getRemoveWarningMessage(latestBuild, registeredName) {
-    let warningText;
-    if (latestBuild) {
-      warningText = (
-        'Removing this repo will delete all its builds and build logs.'
-      );
-    } else {
-      warningText = (
-        'Are you sure you want to remove this repo from the list?'
-      );
-    }
-    if (registeredName !== null) {
-      warningText += ' The name will remain registered.';
-    }
-    // XXX cjwatson 2017-02-28: Once we can get hold of published states for
-    // builds, we should also implement this design requirement:
-    //   Separately, if any build has been published, the text should end
-    //   with:
-    //     Published builds will remain published.
-
-    return warningText;
   }
 
   renderRepoName(fullName, isLinked) {
@@ -438,10 +418,10 @@ export class RepositoryRowView extends Component {
     );
   }
 
-  renderBuildStatus(fullName, hasBuilt, latestBuild) {
+  renderBuildStatus(fullName, isBuilt, latestBuild) {
     return (
-      <DataLink col="30" to={ hasBuilt ? `/user/${fullName}` : null }>
-        { hasBuilt
+      <DataLink col="30" to={ isBuilt ? `/user/${fullName}` : null }>
+        { isBuilt
           ? (
             <BuildStatus
               colour={ latestBuild.colour }
