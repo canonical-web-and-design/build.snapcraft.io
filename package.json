@@ -6,7 +6,6 @@
   "scripts": {
     "start": "npm run migrate:latest && node ./webpack/webpack-dev-server",
     "start-build": "node dist/server/",
-    "start-mock-service": "DEBUG=express:* node mocks/service/index.js",
     "build": "./scripts/build.sh",
     "lint": "eslint -c .eslintrc.js '**/*.js'",
     "test": "npm run test:setup-db && nyc npm run test:unit && npm run test:routes && npm run lint",
