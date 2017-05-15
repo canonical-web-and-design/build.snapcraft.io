@@ -55,6 +55,7 @@ describe('register name actions', () => {
   const BASE_URL = conf.get('BASE_URL');
 
   let store;
+  let storeApi;
   let action;
   let scope;
   let root;
@@ -62,6 +63,7 @@ describe('register name actions', () => {
 
   beforeEach(() => {
     store = mockStore(initialState);
+    storeApi = nock(conf.get('STORE_API_URL'));
     scope = nock(BASE_URL);
     const ssoLocation = url.parse(conf.get('UBUNTU_SSO_URL')).host;
     const rootMacaroon = new MacaroonsBuilder('location', 'key', 'id')
@@ -75,6 +77,7 @@ describe('register name actions', () => {
   });
 
   afterEach(() => {
+    storeApi.done();
     scope.done();
     nock.cleanAll();
     localForageStub.clear();
@@ -82,8 +85,8 @@ describe('register name actions', () => {
 
   context('internalRegisterName', () => {
     it('throws an error on failure to register snap name', async () => {
-      scope
-        .post('/api/store/register-name', { snap_name: 'test-snap' })
+      storeApi
+        .post('/register-name/', { snap_name: 'test-snap' })
         .reply(409, {
           status: 409,
           code: 'already_registered',
@@ -102,8 +105,8 @@ describe('register name actions', () => {
     });
 
     it('succeeds if registering snap name says already owned', async () => {
-      scope
-        .post('/api/store/register-name', { snap_name: 'test-snap' })
+      storeApi
+        .post('/register-name/', { snap_name: 'test-snap' })
         .reply(409, {
           status: 409,
           code: 'already_owned',
@@ -114,8 +117,8 @@ describe('register name actions', () => {
 
     it('succeeds if registering snap name succeeds', async () => {
       // XXX check Authorization header
-      scope
-        .post('/api/store/register-name', { snap_name: 'test-snap' })
+      storeApi
+        .post('/register-name/', { snap_name: 'test-snap' })
         .reply(201, { snap_id: 'test-snap-id' });
       await internalRegisterName(root, discharge, 'test-snap');
     });
@@ -155,8 +158,8 @@ describe('register name actions', () => {
           code: 'internal-server-error',
           message: 'Internal server error'
         };
-        scope
-          .post('/api/store/agreement', { latest_tos_accepted: true })
+        storeApi
+          .post('/agreement/', { latest_tos_accepted: true })
           .reply(500, { error_list: [error] });
         await store.dispatch(registerName(repository, 'test-snap', {
           signAgreement: 'test-user'
@@ -169,8 +172,8 @@ describe('register name actions', () => {
       });
 
       it('stores an error on failure to register snap name', async () => {
-        scope
-          .post('/api/store/register-name', { snap_name: 'test-snap' })
+        storeApi
+          .post('/register-name/', { snap_name: 'test-snap' })
           .reply(409, {
             status: 409,
             code: 'already_registered',
@@ -189,23 +192,20 @@ describe('register name actions', () => {
       });
 
       context('if registering snap name succeeds', () => {
-        let storeScope;
-
         beforeEach(() => {
           // XXX check Authorization header
-          scope
-            .post('/api/store/register-name', { snap_name: 'test-snap' })
+          storeApi
+            .post('/register-name/', { snap_name: 'test-snap' })
             .reply(201, { snap_id: 'test-snap-id' });
-          storeScope = nock(conf.get('STORE_API_URL'));
         });
 
         afterEach(() => {
-          storeScope.done();
+          storeApi.done();
         });
 
         it('stores an error on failure to get package upload ' +
            'macaroon', async () => {
-          storeScope
+          storeApi
             .post('/acl/', {
               packages: [{ name: 'test-snap', series: '16' }],
               permissions: ['package_upload'],
@@ -231,7 +231,7 @@ describe('register name actions', () => {
         context('if getting package upload macaroon succeeds', () => {
           beforeEach(() => {
             // XXX check headers and body
-            storeScope.post('/acl/')
+            storeApi.post('/acl/')
               .reply(200, { macaroon: 'dummy-package-upload-macaroon' });
           });
 
@@ -334,8 +334,8 @@ describe('register name actions', () => {
 
             context('if signing agreement and that succeeds', () => {
               beforeEach(() => {
-                scope
-                  .post('/api/store/agreement', { latest_tos_accepted: true })
+                storeApi
+                  .post('/agreement/', { latest_tos_accepted: true })
                   .reply(200, { latest_tos_accepted: true });
               });
 
@@ -344,17 +344,16 @@ describe('register name actions', () => {
                   code: 'user-not-ready',
                   message: 'Developer profile is missing short namespace.'
                 };
-                scope
-                  .get('/api/store/account')
+                storeApi
+                  .get('/account')
                   .query(true)
-                  .reply(403, { error_list: [error] });
-                scope
-                  .patch('/api/store/account', {
+                  .reply(403, { error_list: [error] })
+                  .patch('/account', {
                     short_namespace: 'test-user'
                   })
                   .reply(204);
-                scope
-                  .get('/api/store/account')
+                storeApi
+                  .get('/account')
                   .query(true)
                   .reply(200, {});
 
@@ -375,8 +374,8 @@ describe('register name actions', () => {
               });
 
               it('leaves short namespace alone if already set', async () => {
-                scope
-                  .get('/api/store/account')
+                storeApi
+                  .get('/account')
                   .query(true)
                   .reply(200, {});
 

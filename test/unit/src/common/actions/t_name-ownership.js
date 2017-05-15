@@ -44,16 +44,15 @@ describe('name ownership actions', () => {
     success: false,
     error: null
   };
-  const BASE_URL = conf.get('BASE_URL');
 
   let store;
-  let scope;
+  let storeApi;
   let root;
   let discharge;
 
   beforeEach(() => {
     store = mockStore(initialState);
-    scope = nock(BASE_URL);
+    storeApi = nock(conf.get('STORE_API_URL'));
     const ssoLocation = url.parse(conf.get('UBUNTU_SSO_URL')).host;
     const rootMacaroon = new MacaroonsBuilder('location', 'key', 'id')
       .add_third_party_caveat(ssoLocation, 'sso key', 'sso caveat')
@@ -66,7 +65,7 @@ describe('name ownership actions', () => {
   });
 
   afterEach(() => {
-    scope.done();
+    storeApi.done();
     nock.cleanAll();
     localForageStub.clear();
   });
@@ -78,7 +77,7 @@ describe('name ownership actions', () => {
       const snapName = 'test-snap';
 
       beforeEach(() => {
-        api = nock(conf.get('STORE_API_URL'))
+        api = storeApi
           .post('/acl/', {
             packages: [{ name: snapName }],
             permissions: ['package_upload']
@@ -99,26 +98,23 @@ describe('name ownership actions', () => {
     });
 
     context('when given snap name is registered by current user', () => {
-      let storeApi;
-      let bsiApi;
 
       const snapName = 'test-snap';
 
       beforeEach(() => {
-        storeApi = nock(conf.get('STORE_API_URL'))
+        storeApi
           .post('/acl/', {
             packages: [{ name: snapName }],
             permissions: ['package_upload']
           })
           .reply(200, { macaroon: 'test-macaroon' });
-        bsiApi = nock(BASE_URL)
-          .post('/api/store/register-name', { snap_name: snapName })
+        storeApi
+          .post('/register-name/', { snap_name: snapName })
           .reply(409, { code: 'already_owned' });
       });
 
       afterEach(() => {
         storeApi.done();
-        bsiApi.done();
         nock.cleanAll();
       });
 
@@ -130,26 +126,23 @@ describe('name ownership actions', () => {
     });
 
     context('when given snap name is registered by another user', () => {
-      let storeApi;
-      let bsiApi;
 
       const snapName = 'test-snap';
 
       beforeEach(() => {
-        storeApi = nock(conf.get('STORE_API_URL'))
+        storeApi
           .post('/acl/', {
             packages: [{ name: snapName }],
             permissions: ['package_upload']
           })
           .reply(200, { macaroon: 'test-macaroon' });
-        bsiApi = nock(BASE_URL)
-          .post('/api/store/register-name', { snap_name: snapName })
+        storeApi
+          .post('/register-name/', { snap_name: snapName })
           .reply(409, { code: 'already_registered' });
       });
 
       afterEach(() => {
         storeApi.done();
-        bsiApi.done();
         nock.cleanAll();
       });
 
@@ -161,26 +154,23 @@ describe('name ownership actions', () => {
     });
 
     context('when given snap name is registered by another user', () => {
-      let storeApi;
-      let bsiApi;
 
       const snapName = 'test-snap';
 
       beforeEach(() => {
-        storeApi = nock(conf.get('STORE_API_URL'))
+        storeApi
           .post('/acl/', {
             packages: [{ name: snapName }],
             permissions: ['package_upload']
           })
           .reply(200, { macaroon: 'test-macaroon' });
-        bsiApi = nock(BASE_URL)
-          .post('/api/store/register-name', { snap_name: snapName })
+        storeApi
+          .post('/register-name/', { snap_name: snapName })
           .reply(200, { status: 'success' });
       });
 
       afterEach(() => {
         storeApi.done();
-        bsiApi.done();
         nock.cleanAll();
       });
 
@@ -199,8 +189,6 @@ describe('name ownership actions', () => {
 
   context('checkNameOwnership', () => {
     const name = 'test-snap';
-    let api;
-
 
     beforeEach(() => {
       localForageStub.store['package_upload_request'] = { root, discharge };
@@ -219,7 +207,7 @@ describe('name ownership actions', () => {
 
     context('when name ownership successfully verified', () => {
       beforeEach(() => {
-        api = nock(conf.get('STORE_API_URL'))
+        storeApi
           .post('/acl/', {
             packages: [{ name }],
             permissions: ['package_upload']
@@ -231,7 +219,7 @@ describe('name ownership actions', () => {
       });
 
       afterEach(() => {
-        api.done();
+        storeApi.done();
         nock.cleanAll();
       });
 
@@ -261,7 +249,7 @@ describe('name ownership actions', () => {
 
     context('when name ownership thrown an error', () => {
       beforeEach(() => {
-        api = nock(conf.get('STORE_API_URL'))
+        storeApi
           .post('/acl/', {
             packages: [{ name }],
             permissions: ['package_upload']
@@ -270,7 +258,7 @@ describe('name ownership actions', () => {
       });
 
       afterEach(() => {
-        api.done();
+        storeApi.done();
         nock.cleanAll();
       });
 
