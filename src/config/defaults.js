@@ -13,12 +13,10 @@ export default {
   STORE_DEVPORTAL_URL: 'https://dashboard.snapcraft.io/dev',
   STORE_ALLOWED_CHANNELS: ['edge'],
   STORE_PACKAGE_UPLOAD_REQUEST_LIFETIME: '7200',
-  GITHUB_API_ENDPOINT: 'http://localhost:4000/github',
-  GITHUB_AUTH_LOGIN_URL: 'http://localhost:4000/github/login/oauth/authorize',
-  GITHUB_AUTH_VERIFY_URL: 'http://localhost:4000/github/login/oauth/access_token',
+  GITHUB_API_ENDPOINT: 'https://api.github.com',
+  GITHUB_AUTH_LOGIN_URL: 'https://github.com/login/oauth/authorize',
+  GITHUB_AUTH_VERIFY_URL: 'https://github.com/login/oauth/access_token',
   GITHUB_AUTH_REDIRECT_URL: 'http://localhost:8000/auth/verify',
-  GITHUB_AUTH_CLIENT_ID: '389a7b4c2ade662c0bf4',
-  GITHUB_AUTH_CLIENT_SECRET: 'ea482b47a4830d38a838f48be43ab28002c33187',
   GITHUB_WEBHOOK_SECRET: 'dummy-gh-webhook-secret',
   KNEX_CONFIG_PATH: 'knexfile.js'
 };
