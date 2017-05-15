@@ -65,7 +65,7 @@ class Landing extends Component {
             </HeadingTwo>
             <div className={ `${styles.row}` }>
               <img className={ styles.brandLogo } src={images.debian} />
-              <img className={ styles.brandLogo } src={images.opensuse} />
+              <img className={ styles.brandLogo } src="https://assets.ubuntu.com/v1/59190d38-suse_logo.svg" />
               <img className={ styles.brandLogo } src={images.archlinux} />
               <img className={ styles.brandLogo } src={images.gentoo} />
               <img className={ styles.brandLogo } src={images.fedora} />
