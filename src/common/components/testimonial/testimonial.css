@@ -1,6 +1,6 @@
 .pullQuote > p:first-of-type::before,
 .pullQuote > p:last-of-type::after {
-  color:#dd4814;
+  color: $ubuntu-orange;
   font-size:2rem;
   line-height:0;
   max-width:1rem
@@ -29,7 +29,7 @@
 .pullQuote > p:first-of-type::before {
   content:'\201C\2002';
   margin-left:-1rem;
-  margin-right:-.75rem;
+  margin-right:-0.75rem;
   position: relative;
   top: 0.75rem;
 }
@@ -40,7 +40,7 @@
 
 .pullQuote > p:last-of-type::after {
   content:'\2002\201E';
-  margin-left:-.75rem;
+  margin-left:-0.75rem;
   position: relative;
   top: -0.75rem;
 }
