@@ -1,11 +1,9 @@
-.pullQuote > p:first-of-type:before,
-.pullQuote>p:last-of-type:after {
-  color:#cdcdcd;
-  display:inline-block;
-  font-size:1em;
-  font-weight:700;
-  line-height:1rem;
-  max-width:1.25rem
+.pullQuote > p:first-of-type::before,
+.pullQuote > p:last-of-type::after {
+  color: $ubuntu-orange;
+  font-size:2rem;
+  line-height:0;
+  max-width:1rem
 }
 
 .pullQuote {
@@ -28,19 +26,23 @@
   margin:0
 }
 
-.pullQuote>p:first-of-type:before {
+.pullQuote > p:first-of-type::before {
   content:'\201C\2002';
-  margin-left:-1.25rem;
-  margin-right:.25rem
+  margin-left:-1rem;
+  margin-right:-0.75rem;
+  position: relative;
+  top: 0.75rem;
 }
 
-.pullQuote>p:last-of-type {
+.pullQuote > p:last-of-type {
   margin-bottom:0
 }
 
-.pullQuote > p:last-of-type:after {
+.pullQuote > p:last-of-type::after {
   content:'\2002\201E';
-  margin-left:.25rem
+  margin-left:-0.75rem;
+  position: relative;
+  top: -0.75rem;
 }
 
 .pullQuoteCitation {

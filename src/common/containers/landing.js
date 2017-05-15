@@ -4,8 +4,7 @@ import { connect } from 'react-redux';
 import { Anchor } from '../components/vanilla/button';
 import { HeadingTwo } from '../components/vanilla/heading';
 import { HeadingThree } from '../components/vanilla/heading';
-import { HeadingSix } from '../components/vanilla/heading';
-import { ListDividedState } from '../components/vanilla/list';
+import { ListWithIcon } from '../components/vanilla/list';
 
 import Testimonial from '../components/testimonial';
 import containerStyles from './container.css';
@@ -28,7 +27,7 @@ class Landing extends Component {
 
               <ul className={ styles.banner }>
                 <li className={ styles.bannerImage }>
-                  <img src='https://assets.ubuntu.com/v1/4feda3a7-header_strokes-to-path.svg' />
+                  <img src='https://assets.ubuntu.com/v1/ed6d1c5b-build.snapcraft.hero.svg' />
                 </li>
 
                 <li className={ styles.bannerLabel }>
@@ -59,41 +58,52 @@ class Landing extends Component {
             </div>
           </div>
         </div>
+        <section className={ `${styles.section} ${styles.sectionTopBorderOnly}` }>
+          <div className={ `${containerStyles.wrapper}` }>
+            <HeadingTwo className={ styles.landingHeading }>
+              Publish your software for
+            </HeadingTwo>
+            <div className={ `${styles.row}` }>
+              <img className={ styles.brandLogo } src={images.debian} />
+              <img className={ styles.brandLogo } src={images.opensuse} />
+              <img className={ styles.brandLogo } src={images.archlinux} />
+              <img className={ styles.brandLogo } src={images.gentoo} />
+              <img className={ styles.brandLogo } src={images.fedora} />
+              <img className={ styles.brandLogo } src={images.ubuntu} />
+            </div>
+          </div>
+        </section>
 
         <section className={ `${styles.section} ${styles.sectionNoBorder} ${containerStyles.lightStrip}` }>
-          <div className={ `${styles.row} ${containerStyles.wrapper}` }>
-            <ListDividedState className={ styles.rowItemGrow }>
-              <li>Scale to millions of installs</li>
-              <li>Available on all clouds and Linux OSes</li>
-              <li>No need for build infrastructure</li>
-            </ListDividedState>
-
-            <ListDividedState className={ styles.rowItemGrow }>
-              <li>Automatic updates for everyone</li>
-              <li>Roll back versions effortlessly</li>
-              <li>FREE for open source projects</li>
-            </ListDividedState>
+          <div className={ `${containerStyles.wrapper}` }>
+            <HeadingTwo className={ styles.landingHeading }>
+              Why use Snapcraft?
+            </HeadingTwo>
+            <div className={ `${styles.row}` }>
+              <ListWithIcon className={ styles.rowItemGrow }>
+                <li>Scale to millions of installs</li>
+                <li>Automatic updates for everyone</li>
+              </ListWithIcon>
+              <ListWithIcon className={ styles.rowItemGrow }>
+                <li>Available on all clouds and Linux OSes</li>
+                <li>Roll back versions effortlessly</li>
+              </ListWithIcon>
+              <ListWithIcon className={ styles.rowItemGrow }>
+                <li>No need for build infrastructure</li>
+                <li>FREE for open source projects</li>
+              </ListWithIcon>
+            </div>
           </div>
         </section>
 
-        <section className={ styles.section }>
-          <HeadingSix align='center'>
-            Publish your software for
-          </HeadingSix>
-          <div className={ `${styles.row} ${containerStyles.wrapper}` }>
-            <img className={ styles.brandLogo } src={images.archlinux} />
-            <img className={ styles.brandLogo } src={images.debian} />
-            <img className={ styles.brandLogo } src={images.gentoo} />
-            <img className={ styles.brandLogo } src={images.fedora} />
-            <img className={ styles.brandLogo } src={images.opensuse} />
-            <img className={ styles.brandLogo } src={images.ubuntu} />
-          </div>
-        </section>
-
-        <section className={styles.section}>
-
-          <div className={ `${styles.row} ${containerStyles.wrapper}`  }>
-            <img src='https://assets.ubuntu.com/v1/9ec98fa2-workflow_text-to-path.svg' width='100%' />
+        <section className={ `${styles.section} ${styles.sectionNoBorder}` }>
+          <div className={ `${containerStyles.wrapper}`  }>
+            <HeadingTwo className={ styles.landingHeading }>
+              How Snapcraft fits into your workflow
+            </HeadingTwo>
+            <div className={ `${styles.row} `}>
+              <img src='https://assets.ubuntu.com/v1/88506392-workflow-illustration.svg' width='100%' />
+            </div>
           </div>
 
           <div className={ styles.centeredButton }>
@@ -103,41 +113,45 @@ class Landing extends Component {
           </div>
         </section>
 
-        <section className={ styles.section }>
-          <div className={ `${styles.row} ${containerStyles.wrapper}` }>
-
-            <div className={styles.rowItemTwoThirds}>
-              <p className={styles.snaps}>With Snapcraft, it&rsquo;s easy to get your software published in the snap store. This store lets people safely install apps from any vendor on mission-critical devices and PCs. Snaps are secure, sandboxed, containerised applications, packaged with their dependencies for predictable behaviour.</p>
-              <a href="https://snapcraft.io" className={ styles.external } >More about snaps</a>
+        <section className={ `${styles.section} ${styles.sectionNoBorder} ${containerStyles.lightStrip}` }>
+          <div className={ `${containerStyles.wrapper} ${styles.row}` }>
+            <div className={ `${styles.twoThirds}` }>
+              <HeadingTwo className={ styles.landingHeading }>
+                Fast to install, easy to create, safe to run
+              </HeadingTwo>
+              <div>
+                <p className={styles.snaps}>With Snapcraft, it&rsquo;s easy to get your software published in the snap store. This store lets people safely install apps from any vendor on mission-critical devices and PCs. Snaps are secure, sandboxed, containerised applications, packaged with their dependencies for predictable behaviour.</p>
+                <a href="https://snapcraft.io" className={ styles.external } >More about snaps</a>
+              </div>
             </div>
-
-            <div className={styles.rowItemOneThird}>
-              <img src='https://assets.ubuntu.com/v1/7af63a6d-workflow-icon04.svg' width='150' height='150'/></div>
+            <div className={styles.oneThird}>
+              <img src='https://assets.ubuntu.com/v1/2c5e93c5-fast-easy-safe-illustration.svg'/>
+            </div>
           </div>
         </section>
 
         <section className={ styles.section }>
           <div className={ `${containerStyles.wrapper}` }>
-            <HeadingThree align='center'>
+            <HeadingThree>
               What people are saying about snaps
             </HeadingThree>
 
-            <div className={ `${styles.row} ${styles.sectionNoBorder}` }>
+            <div className={ `${styles.row}` }>
 
-              <div className={ styles.rowItemOneThird }>
-                <Testimonial citation='Frank Karlitschek, Founder' logo='https://assets.ubuntu.com/v1/99a0b969-Nextcloud_Logo.svg'>
+              <div className={ styles.oneThird }>
+                <Testimonial citation='Frank Karlitschek, NextCloud' logo='https://assets.ubuntu.com/v1/99a0b969-Nextcloud_Logo.svg'>
                   Snaps provide an excellent way to distribute updates in a way that is both secure and does not risk breaking end user devices.
                 </Testimonial>
               </div>
 
-              <div className={ styles.rowItemOneThird }>
-                <Testimonial citation='Mac Devine, VP &amp; CTO' logo='https://assets.ubuntu.com/v1/683950fd-logo-ibm.svg'>
+              <div className={ styles.oneThird }>
+                <Testimonial citation='Mac Devine, IBM' logo='https://assets.ubuntu.com/v1/683950fd-logo-ibm.svg'>
                   Snaps allow developers to build and deploy applications in a format that’s easily portable and upgradeable across a number of IoT devices so that a cognitive relationship between the cloud and the edges of the network can be established.
                 </Testimonial>
               </div>
 
-              <div className={ styles.rowItemOneThird }>
-                <Testimonial citation='Aaron Ogle, Developer' logo='https://assets.ubuntu.com/v1/1ad274f9-rocket-chat.svg'>
+              <div className={ styles.oneThird }>
+                <Testimonial citation='Aaron Ogle, Rocket.Chat' logo='https://assets.ubuntu.com/v1/1ad274f9-rocket-chat.svg'>
                   Getting Rocket.Chat snapped was as easy as defining a simple yaml file and adding into our CI. This is definitely one of the easiest distribution methods we have ever used.
                 </Testimonial>
               </div>
