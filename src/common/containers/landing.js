@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Anchor } from '../components/vanilla/button';
 import { HeadingTwo } from '../components/vanilla/heading';
 import { HeadingThree } from '../components/vanilla/heading';
-import { ListDividedState } from '../components/vanilla/list';
+import { ListWithIcon } from '../components/vanilla/list';
 
 import Testimonial from '../components/testimonial';
 import containerStyles from './container.css';
@@ -80,17 +80,18 @@ class Landing extends Component {
               Why use Snapcraft?
             </HeadingTwo>
             <div className={ `${styles.row}` }>
-              <ListDividedState className={ styles.rowItemGrow }>
+              <ListWithIcon className={ styles.rowItemGrow }>
                 <li>Scale to millions of installs</li>
-                <li>Available on all clouds and Linux OSes</li>
-                <li>No need for build infrastructure</li>
-              </ListDividedState>
-
-              <ListDividedState className={ styles.rowItemGrow }>
                 <li>Automatic updates for everyone</li>
+              </ListWithIcon>
+              <ListWithIcon className={ styles.rowItemGrow }>
+                <li>Available on all clouds and Linux OSes</li>
                 <li>Roll back versions effortlessly</li>
+              </ListWithIcon>
+              <ListWithIcon className={ styles.rowItemGrow }>
+                <li>No need for build infrastructure</li>
                 <li>FREE for open source projects</li>
-              </ListDividedState>
+              </ListWithIcon>
             </div>
           </div>
         </section>
