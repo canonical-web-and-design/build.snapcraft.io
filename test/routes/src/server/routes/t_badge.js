@@ -44,7 +44,7 @@ describe('The badge endpoint', () => {
     });
 
     it('shoud return an error', async () => {
-      await supertest(app).get('/badge/anowner/aname').expect(404);
+      await supertest(app).get('/badge/anowner/aname.svg').expect(404);
     });
   });
 
@@ -68,11 +68,11 @@ describe('The badge endpoint', () => {
       });
 
       it('shoud return a 200 OK', async () => {
-        await supertest(app).get('/badge/anowner/aname').expect(200);
+        await supertest(app).get('/badge/anowner/aname.svg').expect(200);
       });
 
       it('shoud return a SVG image with correct status', async () => {
-        const response = await supertest(app).get('/badge/anowner/aname')
+        const response = await supertest(app).get('/badge/anowner/aname.svg')
           .expect('Content-Type', 'image/svg+xml').buffer();
 
         const responseString = response.body.toString();
@@ -91,11 +91,11 @@ describe('The badge endpoint', () => {
       });
 
       it('shoud return a 200 OK', async () => {
-        await supertest(app).get('/badge/anowner/aname').expect(200);
+        await supertest(app).get('/badge/anowner/aname.svg').expect(200);
       });
 
       it('shoud return a SVG image with `never built` status', async () => {
-        const response = await supertest(app).get('/badge/anowner/aname')
+        const response = await supertest(app).get('/badge/anowner/aname.svg')
           .expect('Content-Type', 'image/svg+xml').buffer();
 
         const responseString = response.body.toString();

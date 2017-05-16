@@ -27,3 +27,9 @@
   composes: strip;
   background-color: $light-grey;
 }
+
+.repoHeading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}

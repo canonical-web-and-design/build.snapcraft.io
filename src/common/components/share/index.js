@@ -27,7 +27,7 @@ export class CopyToClipboard extends Component {
   }
 
   render() {
-    const { copyme } = this.props;
+    const { copyme, tooltip } = this.props;
 
     if (!this.state.isSupported) {
       return null;
@@ -36,7 +36,7 @@ export class CopyToClipboard extends Component {
     return (
       <span
         ref={(span) => { this.copyBtn = span; }}
-        title="Copy to clipboard"
+        title={ tooltip || 'Copy to clipboard' }
         className={`${styles.share} ${styles.clipboard}`}
         data-clipboard-action="copy"
         data-clipboard-text={ copyme }
@@ -46,5 +46,6 @@ export class CopyToClipboard extends Component {
 }
 
 CopyToClipboard.propTypes = {
+  tooltip: PropTypes.string,
   copyme: PropTypes.string.isRequired
 };

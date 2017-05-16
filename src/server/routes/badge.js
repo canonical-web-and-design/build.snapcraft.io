@@ -6,6 +6,6 @@ import {
 
 const router = Router();
 
-router.get('/badge/:owner/:name', badge);
+router.get('/badge/:owner/:name.svg', badge);
 
 export default router;

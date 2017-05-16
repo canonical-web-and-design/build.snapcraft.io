@@ -8,6 +8,7 @@ import { Message } from '../components/forms';
 import Spinner from '../components/spinner';
 import { HelpBox, HelpInstallSnap } from '../components/help';
 import { HeadingOne } from '../components/vanilla/heading';
+import Badge from '../components/badge';
 import Breadcrumbs from '../components/vanilla/breadcrumbs';
 import BetaNotification from '../components/beta-notification';
 
@@ -37,9 +38,12 @@ export class Builds extends Component {
             <Link to={`/user/${user.login}`}>My repos</Link>
           </Breadcrumbs>
         }
-        <HeadingOne>
-          {repository.fullName}
-        </HeadingOne>
+        <div className={styles.repoHeading}>
+          <HeadingOne>
+            {repository.fullName}
+          </HeadingOne>
+          <Badge fullName={repository.fullName} />
+        </div>
         <BuildHistory repository={repository} />
         { isLoading &&
           <div className={styles.spinner}><Spinner /></div>
