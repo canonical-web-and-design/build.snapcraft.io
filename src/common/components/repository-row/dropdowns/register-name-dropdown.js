@@ -231,9 +231,13 @@ const ActionButtons = (props) => {
 
   return (
     <div className={ styles.buttonRow }>
-      <a onClick={onCancelClick} className={ styles.cancel }>
+      <Button
+        appearance="base"
+        onClick={onCancelClick}
+      >
         Cancel
-      </a>
+      </Button>
+      {' '}
       <Button
         appearance="positive"
         disabled={actionDisabled}

@@ -31,7 +31,7 @@ describe('<RemoveRepoDropdown />', () => {
     });
 
     it('should render Remove button', () => {
-      expect(view.find('Button').prop('children')).toEqual('Remove');
+      expect(view.find('Button').last().prop('children')).toEqual('Remove');
     });
 
     context('when repo was ever built', () => {
@@ -60,7 +60,7 @@ describe('<RemoveRepoDropdown />', () => {
       });
 
       it('should render Sign in button', () => {
-        expect(view.find('Button').prop('children')).toEqual('Sign in');
+        expect(view.find('Button').last().prop('children')).toEqual('Sign in');
       });
     });
 
@@ -79,7 +79,7 @@ describe('<RemoveRepoDropdown />', () => {
         });
 
         it('should render Remove button', () => {
-          expect(view.find('Button').prop('children')).toEqual('Remove');
+          expect(view.find('Button').last().prop('children')).toEqual('Remove');
         });
       });
 

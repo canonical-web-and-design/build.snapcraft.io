@@ -1,11 +1,4 @@
-$primary-button-color: $ubuntu-orange;
-$primary-button-color-hover: #d44615;
-$primary-button-text-color: #FFF;
-
-$secondary-button-color: #FFF;
-$secondary-button-color-hover: #EFEFEF;
-$secondary-button-text-color: $ubuntu-orange;
-$secondary-border-color: $mid-grey;
+$base-button-color-hover: $mid-grey;
 
 $positive-button-color: $success;
 $positive-button-color-hover: #0a5615;
@@ -31,11 +24,12 @@ $neutral-border-color: $dark-grey;
   padding: 6px 19px;
   text-align: center;
   text-decoration: none;
-  border: 0;
+  border: 1px solid transparent;
   border-radius: 2px;
   outline: none;
   font-weight: 300;
   cursor: pointer;
+  background-color: transparent;
 }
 
 .button:active,
@@ -44,31 +38,15 @@ $neutral-border-color: $dark-grey;
   text-decoration: none;
 }
 
-.primary {
+.base {
   composes: button;
-
-  color: $primary-button-text-color;
-  background-color: $primary-button-color;
 }
 
-.primary:active,
-.primary:focus,
-.primary:hover {
-  background-color: $primary-button-color-hover;
-}
-
-.secondary {
-  composes: button;
-
-  color: $secondary-button-text-color;
-  background-color: $secondary-button-color;
-  border: 1px solid $secondary-border-color;
-}
-
-.secondary:active,
-.secondary:focus,
-.secondary:hover {
-  background-color: $secondary-button-color-hover;
+.base:active,
+.base:focus,
+.base:hover {
+  background-color: $base-button-color-hover;
+  border-color: $base-button-color-hover;
 }
 
 .positive {
@@ -76,13 +54,14 @@ $neutral-border-color: $dark-grey;
 
   color: $positive-button-text-color;
   background-color: $positive-button-color;
-  border: 1px solid $positive-border-color;
+  border-color: $positive-border-color;
 }
 
 .positive:active,
 .positive:focus,
 .positive:hover {
   background-color: $positive-button-color-hover;
+  border-color: $positive-button-color-hover;
 }
 
 .negative {
@@ -90,7 +69,7 @@ $neutral-border-color: $dark-grey;
 
   color: $negative-button-text-color;
   background-color: $negative-button-color;
-  border: 1px solid $negative-border-color;
+  border-color: $negative-border-color;
 }
 
 .negative:active,
@@ -104,7 +83,7 @@ $neutral-border-color: $dark-grey;
 
   color: $neutral-button-text-color;
   background-color: $neutral-button-color;
-  border: 1px solid $neutral-border-color;
+  border-color: $neutral-border-color;
 }
 
 .neutral:active,
@@ -116,14 +95,6 @@ $neutral-border-color: $dark-grey;
 .button:disabled {
   cursor: not-allowed;
   opacity: .5;
-}
-
-.primary:disabled:hover {
-  background-color: $primary-button-color;
-}
-
-.secondary:disabled:hover {
-  background-color: $secondary-button-color;
 }
 
 .icon {

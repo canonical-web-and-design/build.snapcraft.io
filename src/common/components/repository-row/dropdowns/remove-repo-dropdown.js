@@ -85,7 +85,8 @@ const RemoveRepoDropdown = (props) => {
       { actionButton &&
         <Row>
           <div className={ styles.buttonRow }>
-            <a onClick={ onCancelClick } className={ styles.cancel }>Cancel</a>
+            <Button appearance="base" onClick={ onCancelClick }>Cancel</Button>
+            {' '}
             { actionButton }
           </div>
         </Row>
