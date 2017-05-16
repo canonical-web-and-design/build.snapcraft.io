@@ -1,0 +1,19 @@
+.share {
+  display: inline-block;
+  border-radius: 100%;
+  height: 26px;
+  width: 26px;
+  cursor: pointer;
+  background-color: #666;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+}
+
+.share:hover {
+  background-color: #333;
+}
+
+.clipboard {
+  background-image: url(https://assets.ubuntu.com/v1/9cbcbbc7-copy-clipboard.svg);
+  background-size: 12px;
+}

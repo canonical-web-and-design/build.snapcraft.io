@@ -158,6 +158,9 @@
     "classnames": {
       "version": "2.2.5"
     },
+    "clipboard": {
+      "version": "1.6.1"
+    },
     "cliui": {
       "version": "3.2.0"
     },
@@ -254,6 +257,9 @@
     },
     "delayed-stream": {
       "version": "1.0.0"
+    },
+    "delegate": {
+      "version": "3.1.2"
     },
     "depd": {
       "version": "1.1.0"
@@ -496,6 +502,9 @@
     },
     "globals": {
       "version": "9.14.0"
+    },
+    "good-listener": {
+      "version": "1.2.2"
     },
     "graceful-fs": {
       "version": "4.1.11"
@@ -1202,6 +1211,9 @@
     "seekout": {
       "version": "1.0.2"
     },
+    "select": {
+      "version": "1.1.2"
+    },
     "semver": {
       "version": "5.3.0"
     },
@@ -1307,6 +1319,9 @@
     },
     "tildify": {
       "version": "1.0.0"
+    },
+    "tiny-emitter": {
+      "version": "1.2.0"
     },
     "to-fast-properties": {
       "version": "1.0.2"

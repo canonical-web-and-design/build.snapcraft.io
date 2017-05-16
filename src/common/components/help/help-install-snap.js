@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 
+import { CopyToClipboard } from '../share';
 import { HeadingThree } from '../vanilla/heading/';
 import styles from './help.css';
 
@@ -24,7 +25,7 @@ export default class HelpInstallSnap extends Component {
             The installed snap will not be auto-updated.
           </p>
         }
-        <p className={ styles.p }>
+        <p className={ styles.snapdLink }>
           (
           <a
             className={ styles.external }
@@ -36,6 +37,11 @@ export default class HelpInstallSnap extends Component {
           </a>
           )
         </p>
+        <div>
+          <CopyToClipboard
+            copyme={ command }
+          />
+        </div>
       </div>
     );
   }
