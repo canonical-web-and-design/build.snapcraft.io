@@ -102,7 +102,7 @@ class Landing extends Component {
               How Snapcraft fits into your workflow
             </HeadingTwo>
             <div className={ `${styles.row} `}>
-              <img src='https://assets.ubuntu.com/v1/88506392-workflow-illustration.svg' width='100%' />
+              <img src='https://assets.ubuntu.com/v1/f82bf626-workflow-illustration-optimized.svg' width='100%' />
             </div>
           </div>
 
