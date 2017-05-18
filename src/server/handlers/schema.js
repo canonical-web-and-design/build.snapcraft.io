@@ -11,7 +11,8 @@ export const repo = new schema.Entity('repos', {
       fullName: entity.full_name,
       name: entity.name,
       owner: entity.owner,
-      url: entity.html_url
+      url: entity.html_url,
+      isAdmin: entity.permissions && entity.permissions.admin
     };
   }
 });

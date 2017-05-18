@@ -201,13 +201,10 @@ export const listRepositories = async (req, res) => {
     });
   }
 
-  const administeredRepos = response.body.filter(
-    (repo) => repo.permissions && repo.permissions.admin
-  );
   const body = {
     status: 'success',
     code: 'github-list-repositories',
-    ...normalize(administeredRepos, repoList)
+    ...normalize(response.body, repoList)
   };
 
   if (response.headers.link) {

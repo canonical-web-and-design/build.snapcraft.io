@@ -104,7 +104,7 @@ describe('<SelectRepositoryListComponent /> instance', function() {
     });
 
     it('should contain same number of enabled rows as enabledRepositores selector', function() {
-      expect(wrapper.find({ isEnabled: true }).length)
+      expect(wrapper.find({ isRepoEnabled: true }).length)
         .toBe(Object.keys(props.enabledRepositories).length);
     });
 

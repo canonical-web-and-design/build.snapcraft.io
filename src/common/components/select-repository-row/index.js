@@ -10,45 +10,45 @@ class SelectRepositoryRow extends Component {
       errorMsg,
       repository,
       onChange,
-      isEnabled // is repository already enabled as a snap build
+      isRepoEnabled // is repository already enabled as a snap build
     } = this.props;
 
     // TODO tidy up when we get rid of prefixes
-    const isChecked = repository.isSelected || isEnabled;
+    const isChecked = repository.isSelected || isRepoEnabled;
     const isFetching = repository.isFetching;
-    const isDisabled = isEnabled || isFetching;
+    const isInputDisabled = isRepoEnabled || isFetching || !repository.isAdmin;
 
     const rowClass = classNames({
       [styles.repositoryRow]: true,
       [styles.error]: errorMsg,
-      [styles.disabled]: isEnabled
+      [styles.disabled]: isRepoEnabled || !repository.isAdmin
     });
 
+    const tooltip = !repository.isAdmin ? 'You don’t have admin permission for this repo' : '';
+
     return (
-      <div className={ rowClass }>
+      <label htmlFor={ repository.fullName } className={ rowClass } title={tooltip}>
         <input
           id={ repository.fullName }
           type="checkbox"
           onChange={ onChange }
           checked={ isChecked }
-          disabled={ isDisabled }
+          disabled={ isInputDisabled }
         />
-        <div>
-          <label htmlFor={ repository.fullName }>{repository.fullName}</label>
-        </div>
+        { repository.fullName }
         { errorMsg &&
           <div className={ styles.errorMessage }>
             { errorMsg }
           </div>
         }
-      </div>
+      </label>
     );
   }
 }
 
 SelectRepositoryRow.defaultProps = {
   isSelected: false,
-  isEnabled: false
+  isRepoEnabled: false
 };
 
 SelectRepositoryRow.propTypes = {
@@ -56,7 +56,7 @@ SelectRepositoryRow.propTypes = {
   repository: PropTypes.shape({
     fullName: PropTypes.string.isRequired
   }).isRequired,
-  isEnabled: PropTypes.bool,
+  isRepoEnabled: PropTypes.bool,
   onChange: PropTypes.func,
   isSelected: PropTypes.bool
 };

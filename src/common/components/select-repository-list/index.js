@@ -39,7 +39,7 @@ export class SelectRepositoryListComponent extends Component {
     const repository = this.props.entities.repos[id];
     const { fullName } = repository;
 
-    const isEnabled = !!this.props.enabledRepositories[id];
+    const isRepoEnabled = !!this.props.enabledRepositories[id];
 
     return (
       <SelectRepositoryRow
@@ -47,7 +47,7 @@ export class SelectRepositoryListComponent extends Component {
         repository={ repository }
         onChange={ this.onSelectRepository.bind(this, id) }
         errorMsg={ repository.error && repository.error.message }
-        isEnabled={ isEnabled }
+        isRepoEnabled={ isRepoEnabled }
       />
     );
   }

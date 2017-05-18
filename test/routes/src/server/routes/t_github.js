@@ -546,14 +546,15 @@ describe('The GitHub API endpoint', () => {
             .end(done);
         });
 
-        it('should return repositories with admin permissions', (done) => {
+        it('should return repositories with admin permissions flag', (done) => {
           supertest(app)
             .get('/github/repos')
             .end((err, res) => {
-              expect(res.body.result).toEqual([1, 2]);
+              expect(res.body.result).toEqual([1, 2, 3]);
               expect(res.body.entities.repos).toMatch({
-                1: { fullName: 'anowner/repo1' },
-                2: { fullName: 'anowner/repo2' }
+                1: { fullName: 'anowner/repo1', isAdmin: true },
+                2: { fullName: 'anowner/repo2', isAdmin: true },
+                3: { fullName: 'anowner/repo3', isAdmin: false }
               });
               done(err);
             });

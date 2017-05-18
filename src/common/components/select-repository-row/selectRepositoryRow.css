@@ -8,6 +8,7 @@ $error-color: $error;
   border-bottom: 1px solid $border-color;
   padding: 10px;
   position: relative;
+  cursor: pointer;
 }
 
 .repositoryRow input {
@@ -33,6 +34,7 @@ $error-color: $error;
 }
 
 .disabled {
+  cursor: default;
   opacity: 0.5;
 }
 
