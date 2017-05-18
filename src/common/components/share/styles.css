@@ -9,11 +9,20 @@
   background-repeat: no-repeat;
 }
 
+.share + .share {
+  margin-left:6px;
+}
+
 .share:hover {
   background-color: #333;
 }
 
 .clipboard {
   background-image: url(https://assets.ubuntu.com/v1/9cbcbbc7-copy-clipboard.svg);
+  background-size: 12px;
+}
+
+.tweet {
+  background-image: url(https://assets.ubuntu.com/v1/ff8d113b-icon-twitter-white.svg);
   background-size: 12px;
 }
