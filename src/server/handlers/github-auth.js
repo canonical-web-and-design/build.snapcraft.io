@@ -89,6 +89,7 @@ export const verify = (req, res, next) => {
       orgs
     };
 
+    let hasAddedSnaps = false;
 
     // Save user info to DB
     await db.transaction(async (trx) => {
@@ -108,13 +109,20 @@ export const verify = (req, res, next) => {
         if (dbUser.hasChanged()) {
           await dbUser.save({}, { transacting: trx });
         }
+
+        hasAddedSnaps = dbUser.get('snaps_added') > 0;
       } catch (error) {
         return next(error);
       }
     });
 
-    // Redirect to logged in URL
-    res.redirect(`/user/${req.session.user.login}`);
+    // if user has added any snaps before go to "My repos"
+    if (hasAddedSnaps) {
+      res.redirect(`/user/${req.session.user.login}`);
+    }
+
+    // otherwise go to "Add repos"
+    res.redirect('/select-repositories');
   });
 };
 

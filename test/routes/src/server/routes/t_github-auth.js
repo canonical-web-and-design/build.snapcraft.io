@@ -185,16 +185,39 @@ describe('The login route', () => {
           });
         });
 
-        it('should redirect request to the my repos view', (done) => {
-          supertest(app)
-            .get('/auth/verify')
-            .query({ code: 'foo', state: 'bar' })
-            .send()
-            .end((err, res) => {
-              expect(res.statusCode).toEqual(302);
-              expect(res.headers.location).toEqual('/user/anowner');
-              done(err);
+        context('if user has no repos added', () => {
+          it('should redirect request to the "Add repos" view', async () => {
+            const res = await supertest(app)
+              .get('/auth/verify')
+              .query({ code: 'foo', state: 'bar' })
+              .send();
+
+            expect(res.statusCode).toEqual(302);
+            expect(res.headers.location).toEqual('/select-repositories');
+          });
+        });
+
+        context('if user has added some repos', () => {
+          beforeEach(async () => {
+            const dbUser = await db.model('GitHubUser').forge({ github_id: 123 });
+            await dbUser.set({
+              name: 'anowner',
+              login: 'anowner',
+              snaps_added: 42,
+              last_login_at: new Date()
             });
+            await dbUser.save();
+          });
+
+          it('should redirect request to the "My repos" view', async () => {
+            const res = await supertest(app)
+              .get('/auth/verify')
+              .query({ code: 'foo', state: 'bar' })
+              .send();
+
+            expect(res.statusCode).toEqual(302);
+            expect(res.headers.location).toEqual('/user/anowner');
+          });
         });
       });
     });
