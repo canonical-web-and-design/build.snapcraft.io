@@ -172,11 +172,7 @@ describe('snapBuilds reducers', () => {
       type: ActionTypes.FETCH_BUILDS_ERROR,
       payload: {
         id,
-        response: {
-          payload: {
-            error: 'Something went wrong!'
-          }
-        }
+        error: 'Something went wrong!'
       },
       error: true
     };
@@ -186,7 +182,7 @@ describe('snapBuilds reducers', () => {
         ...state[id],
         isFetching: false,
         success: false,
-        error: action.payload.response.payload.error
+        error: action.payload.error
       });
     });
   });

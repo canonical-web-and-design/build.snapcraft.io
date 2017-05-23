@@ -130,7 +130,7 @@ describe('The callApi middleware', () => {
       nock.cleanAll();
     });
 
-    context('and action invoking [CALL_API] is dispatched', () => {
+    context('and action invoking [CALL_API] is dispatched with action types', () => {
       let action;
       const PAYLOAD = {
         id: 3
@@ -149,29 +149,55 @@ describe('The callApi middleware', () => {
         };
       });
 
-      it('should dispatch EXAMPLE_ACTION', (done) => {
-        store.dispatch(action).catch(() => {
+      it('should dispatch EXAMPLE_ACTION', async() => {
+        await store.dispatch(action);
+        expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION');
+      });
+
+      it('should dispatch EXAMPLE_ACTION_ERROR', async () => {
+        await store.dispatch(action);
+        expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION_ERROR');
+      });
+
+      it('should dispatch EXAMPLE_ACTION_SUCCESS with a payload containing fetched response', async () => {
+        await store.dispatch(action);
+        expect(store.getActions()).toHaveActionsMatching((action) => {
+          return action.payload.error && action.payload.error.message === RESPONSE.payload.message;
+        });
+      });
+    });
+
+    context('and action invoking [CALL_API] is dispatched without error action type', () => {
+      let action;
+      const PAYLOAD = {
+        id: 3
+      };
+
+      beforeEach(() => {
+        action = {
+          payload: PAYLOAD,
+          [CALL_API]: {
+            path: '/path',
+            types: [ 'EXAMPLE_ACTION', 'EXAMPLE_ACTION_SUCCESS' ],
+            options: {
+              headers: { 'Content-Type': 'application/json' }
+            }
+          }
+        };
+      });
+
+      it('should dispatch EXAMPLE_ACTION', async() => {
+        await store.dispatch(action).catch(() => {
           expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION');
-          done();
         });
       });
 
-      it('should dispatch EXAMPLE_ACTION_ERROR', (done) => {
-        store.dispatch(action).catch(() => {
-          expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION_ERROR');
-          done();
-        });
-
-      });
-
-      it('should dispatch EXAMPLE_ACTION_SUCCESS with a payload containing fetched response', (done) => {
-        store.dispatch(action).catch(() => {
-          expect(store.getActions()).toHaveActionsMatching((action) => {
-            return action.payload.error && action.payload.error.message === RESPONSE.payload.message;
-          });
-          done();
+      it('should return rejected promise with error message', async () => {
+        await store.dispatch(action).catch((error) => {
+          expect(error.message).toBe(RESPONSE.payload.message);
         });
       });
+
     });
   });
 });

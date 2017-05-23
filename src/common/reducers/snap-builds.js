@@ -52,7 +52,7 @@ export function snapBuilds(state = {}, action) {
           ...state[action.payload.id],
           isFetching: false,
           success: false,
-          error: action.payload.response.payload.error
+          error: action.payload.error
         }
       };
     default:
