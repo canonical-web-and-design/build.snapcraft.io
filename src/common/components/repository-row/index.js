@@ -366,7 +366,7 @@ export class RepositoryRowView extends Component {
       content = <span>Not configured</span>;
     } else if (snapNameIsMismatched(snap)){
       onClick = this.onNameMismatchClick.bind(this);
-      content = <span><ErrorIcon /> Doesn’t match</span>;
+      content = <span><ErrorIcon /> Name mismatch</span>;
     } else {
       onClick = this.onConfiguredClick.bind(this);
       content = <TickIcon />;
