@@ -88,7 +88,7 @@ export class SelectRepositoryListComponent extends Component {
   }
 
   render() {
-    const { user, selectedRepositories, isAddingSnaps } = this.props;
+    const { user, selectedRepositories, isAddingSnaps, isUpdatingSnaps } = this.props;
     const { ids, error, isFetching, pageLinks } = this.props.repositories;
     const pagination = this.renderPageLinks(pageLinks);
 
@@ -103,7 +103,7 @@ export class SelectRepositoryListComponent extends Component {
       // TODO show error message and keep old repo list
     }
 
-    const buttonSpinner = isFetching || isAddingSnaps;
+    const buttonSpinner = isFetching || isAddingSnaps || isUpdatingSnaps;
 
     return (
       <div>
@@ -163,6 +163,7 @@ SelectRepositoryListComponent.propTypes = {
   reposToAdd: PropTypes.array,
   enabledRepositories: PropTypes.object,
   hasFailedRepositories: PropTypes.bool,
+  isUpdatingSnaps: PropTypes.bool,
   isAddingSnaps: PropTypes.bool
 };
 
@@ -177,6 +178,7 @@ function mapStateToProps(state) {
     user,
     entities,
     repositories, // ?repository-pagination
+    isUpdatingSnaps: state.snaps.isFetching,
     isAddingSnaps: isAddingSnaps(state),
     selectedRepositories: getSelectedRepositories(state),
     reposToAdd: getReposToAdd(state),

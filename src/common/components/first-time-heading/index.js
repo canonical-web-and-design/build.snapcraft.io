@@ -20,6 +20,7 @@ class FirstTimeHeading extends Component {
   getCurrentState() {
     const {
       snapsLoaded,
+      hasAddedSnaps,
       hasNoSnaps,
       hasNoRegisteredNames,
       hasSnapsWithRegisteredNameAndNoSnapcraftData,
@@ -33,8 +34,10 @@ class FirstTimeHeading extends Component {
     if (snapsLoaded) {
       // no repos added yet
       if (hasNoSnaps) {
-        message = 'Let’s get started! First, choose one or more GitHub repos for building.';
-        progress = [SIGNALS.DONE, SIGNALS.ACTIVE, SIGNALS.DEFAULT];
+        if (!hasAddedSnaps) {
+          message = 'Let’s get started! First, choose one or more GitHub repos for building.';
+          progress = [SIGNALS.DONE, SIGNALS.ACTIVE, SIGNALS.DEFAULT];
+        }
       } else if (this.props.isOnMyRepos) { // further steps are only visible on 'My Repos' page
         // at least one repo, but none have a name yet
         if (hasNoRegisteredNames) {
@@ -86,7 +89,7 @@ FirstTimeHeading.propTypes = {
   hasSnapsWithRegisteredNameAndNoSnapcraftData: PropTypes.bool,
   hasOneSnapWithNoBuilds: PropTypes.bool,
   hasNoSnaps: PropTypes.bool,
-
+  hasAddedSnaps: PropTypes.bool,
   isOnMyRepos: PropTypes.bool
 };
 
@@ -98,6 +101,7 @@ function mapStateToProps(state) {
     hasSnapsWithRegisteredNameAndNoSnapcraftData: snapsWithRegisteredNameAndNoSnapcraftData(state).length > 0,
     hasOneSnapWithNoBuilds: snapsWithNoBuilds(state).length === 1,
     hasNoSnaps: hasNoSnaps(state),
+    hasAddedSnaps: state.user.hasAddedSnaps
   };
 }
 

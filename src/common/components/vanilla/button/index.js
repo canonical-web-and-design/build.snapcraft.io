@@ -5,6 +5,7 @@ import Spinner from '../../spinner';
 import style from './button.css';
 
 const defaultProps = {
+  isSpinner: PropTypes.bool,
   disabled: PropTypes.bool,
   children: PropTypes.string,
   onClick: PropTypes.func,

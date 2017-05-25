@@ -81,14 +81,6 @@ export const verify = (req, res, next) => {
 
     const orgs = await internalListOrganizations(userResponse.body.login, body.access_token);
 
-    // Save auth token and user info to session
-    req.session.githubAuthenticated = true;
-    req.session.token = body.access_token;
-    req.session.user = {
-      ...userResponse.body,
-      orgs
-    };
-
     let hasAddedSnaps = false;
 
     // Save user info to DB
@@ -115,6 +107,15 @@ export const verify = (req, res, next) => {
         return next(error);
       }
     });
+
+    // Save auth token and user info to session
+    req.session.githubAuthenticated = true;
+    req.session.token = body.access_token;
+    req.session.user = {
+      ...userResponse.body,
+      orgs,
+      hasAddedSnaps
+    };
 
     // if user has added any snaps before go to "My repos"
     if (hasAddedSnaps) {

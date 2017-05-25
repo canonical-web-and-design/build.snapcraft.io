@@ -12,6 +12,7 @@ import {
   getAccountInfo,
   getSSODischarge
 } from '../../actions/auth-store';
+import Spinner from '../spinner';
 import RepositoryRow from '../repository-row';
 import { Table, Head, Body, Row, Header } from '../vanilla/table-interactive';
 import { parseGitHubRepoUrl } from '../../helpers/github-url';
@@ -116,8 +117,20 @@ export class RepositoriesListView extends Component {
     );
   }
 
-  render() {
+  renderRows() {
     const { ids } = this.props.snaps;
+
+    if (this.props.hasSnaps) {
+      return Array.from(ids).sort().map(this.renderRow.bind(this));
+    } else if (this.props.snaps.isFetching && !this.props.snaps.success) {
+      // only show spinner during initial loading (not during polling for updates)
+      return <div className={styles.noRepos}><Spinner /></div>;
+    } else {
+      return <div className={styles.noRepos}>No repos</div>;
+    }
+  }
+
+  render() {
 
     return (
       <div className={styles.repositoriesList}>
@@ -131,9 +144,7 @@ export class RepositoriesListView extends Component {
             </Row>
           </Head>
           <Body>
-            { this.props.hasSnaps &&
-              Array.from(ids).sort().map(this.renderRow.bind(this))
-            }
+            { this.renderRows() }
           </Body>
         </Table>
       </div>

@@ -3,3 +3,9 @@
   clear: both;
   position: relative;
 }
+
+.noRepos {
+  text-align: center;
+  padding: 120px 0 0;
+  font-size: 1.2em;
+}

@@ -1,4 +1,5 @@
 .spinner {
+  max-width: 20px;
   animation: rotating 1s linear infinite;
 }
 

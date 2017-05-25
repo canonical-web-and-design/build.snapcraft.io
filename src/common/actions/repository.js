@@ -2,6 +2,7 @@ import { push } from 'react-router-redux';
 
 import { APICompatibleError } from '../helpers/api';
 import { CALL_API } from '../middleware/call-api';
+import { fetchUserSnaps } from './snaps.js';
 
 export const REPO_TOGGLE_SELECT = 'REPO_TOGGLE_SELECT';
 
@@ -27,6 +28,13 @@ export function addRepos(repos, owner) {
         return dispatch(addRepo(repo));
       }));
 
+      // XXX
+      // Wait for updated snaps list (so we don't show My repos until we
+      // updated the list with newly added repos).
+      //
+      // This is a temporary fix before we implement #666
+      await dispatch(fetchUserSnaps(owner));
+
       if (owner) {
         dispatch(push(`/user/${owner}`));
       }
@@ -40,7 +48,7 @@ function addRepo(repository) {
   const { id, url } = repository;
 
   return {
-    id,
+    payload: { id },
     [CALL_API]: {
       path: '/api/launchpad/snaps',
       types: [REPO_ADD_REQUEST, REPO_ADD_SUCCESS],
@@ -78,10 +86,12 @@ export function resetRepository(id) {
   };
 }
 
-function createWebhook({ owner, name }) {
+function createWebhook({ owner, name, id }) {
   return {
+    payload: { id },
     [CALL_API]: {
       path: '/api/github/webhook',
+      types: [REPO_ADD_REQUEST, REPO_ADD_SUCCESS],
       options: {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

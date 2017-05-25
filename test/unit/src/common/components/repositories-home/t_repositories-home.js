@@ -18,33 +18,6 @@ describe('The RepositoriesHome component', () => {
     clock.restore();
   });
 
-  context('when snaps are not loaded', () => {
-    let wrapper;
-
-    beforeEach(() => {
-      props = {
-        auth: {
-          authenticated: true
-        },
-        user: {},
-        entities: {
-          snaps: {}
-        },
-        snaps: {},
-        snapBuilds: {},
-        fetchBuilds: () => {},
-        updateSnaps: () => {},
-        router: {}
-      };
-
-      wrapper = shallow(<RepositoriesHome { ...props } />);
-    });
-
-    it('should render spinner', () => {
-      expect(wrapper.find('Spinner').length).toBe(1);
-    });
-  });
-
   context('when user has no snaps', () => {
     let wrapper;
 
@@ -63,42 +36,14 @@ describe('The RepositoriesHome component', () => {
         snapBuilds: {},
         fetchBuilds: () => {},
         updateSnaps: () => {},
-        router: {
-          replace: expect.createSpy()
-        }
+        router: {}
       };
 
       wrapper = shallow(<RepositoriesHome { ...props } />);
     });
 
-    it('should render spinner', () => {
-      expect(wrapper.find('Spinner').length).toBe(1);
-    });
-
-    context('and component recieves props', () => {
-      beforeEach(() => {
-        wrapper.instance().componentDidMount();
-
-        props = {
-          ...props,
-          snaps: {
-            ...props.snaps,
-            isFetching: false,
-            success: true,
-            snaps: [],
-            ids: []
-          }
-        };
-        wrapper.instance().componentWillReceiveProps(props);
-      });
-
-      afterEach(() => {
-        wrapper.instance().componentWillUnmount();
-      });
-
-      it('should redirect to select repositories', () => {
-        expect(props.router.replace).toHaveBeenCalledWith('/select-repositories');
-      });
+    it('should render repositories list view message', () => {
+      expect(wrapper.find('Connect(RepositoriesListView)').length).toBe(1);
     });
   });
 
@@ -125,7 +70,7 @@ describe('The RepositoriesHome component', () => {
 
     context('and component mounts', () => {
       beforeEach(() => {
-        wrapper.instance().componentDidMount();
+        wrapper.instance().componentWillMount();
       });
 
       afterEach(() => {
@@ -150,7 +95,7 @@ describe('The RepositoriesHome component', () => {
 
     context('and component mounts, then unmounts', () => {
       beforeEach(() => {
-        wrapper.instance().componentDidMount();
+        wrapper.instance().componentWillMount();
         clock.tick(60000);
         wrapper.instance().componentWillUnmount();
         props.updateSnaps.reset();
