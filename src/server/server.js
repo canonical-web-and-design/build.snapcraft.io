@@ -66,6 +66,7 @@ app.use('/', routes.login);
 app.use('/api', routes.github);
 app.use('/api', routes.launchpad);
 app.use('/api', routes.subscribe);
+app.use('/api', routes.store);
 app.use('/', routes.webhook);
 app.use(routes.githubAuth);
 app.use('/', routes.universal);

@@ -6,6 +6,7 @@ import login from './login';
 import universal from './universal';
 import webhook from './webhook';
 import subscribe from './subscribe';
+import store from './store';
 
 export {
   badge,
@@ -15,5 +16,6 @@ export {
   login,
   subscribe,
   webhook,
-  universal
+  universal,
+  store
 };
