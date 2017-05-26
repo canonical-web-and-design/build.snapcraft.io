@@ -14,11 +14,11 @@ describe('The Builds container', function() {
       fullName: 'anowner/aname',
       url: 'https://github.com/anowner/aname'
     },
+    snap: {
+      selfLink: 'https://api.launchpad.net/devel/~anowner/+snap/aname',
+      storeName: 'test-snap'
+    },
     snapBuilds: {
-      snap: {
-        selfLink: 'https://api.launchpad.net/devel/~anowner/+snap/aname',
-        storeName: 'test-snap'
-      },
       builds: []
     }
   };

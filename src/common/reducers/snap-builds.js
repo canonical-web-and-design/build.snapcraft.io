@@ -27,11 +27,7 @@ export function snapBuilds(state = {}, action) {
         ...state,
         [action.payload.id]: {
           ...state[action.payload.id],
-          isFetching: false,
-          // TODO
-          // in refactoring this should go to entities,
-          // or maybe shouldn't be needed at all
-          snap: action.payload.response.payload.snap
+          isFetching: false
         }
       };
     case ActionTypes.FETCH_BUILDS_SUCCESS:

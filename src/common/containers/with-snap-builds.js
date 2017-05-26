@@ -43,10 +43,8 @@ function withSnapBuilds(WrappedComponent) {
     }
 
     render() {
-      const { snap, ...passThroughProps } = this.props; // eslint-disable-line no-unused-vars
-
       return (this.props.snapBuilds.success || this.props.snapBuilds.error
-        ? <WrappedComponent {...passThroughProps} />
+        ? <WrappedComponent {...this.props} />
         : null
       );
     }
@@ -62,12 +60,16 @@ function withSnapBuilds(WrappedComponent) {
 
   const mapStateToProps = (state) => {
     const repository = state.repository;
+
+    // get snap for given repo
+    const snap = state.entities.snaps[repository.url];
+
     // get builds for given repo from the store or set default empty values
     const snapBuilds = state.snapBuilds[repository.fullName] || snapBuildsInitialStatus;
 
     return {
       repository,
-      snap: snapBuilds.snap,
+      snap,
       snapBuilds
     };
   };

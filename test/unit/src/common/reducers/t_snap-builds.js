@@ -112,10 +112,6 @@ describe('snapBuilds reducers', () => {
     it('should stop fetching', () => {
       expect(snapBuilds(state, action)[id].isFetching).toBe(false);
     });
-
-    it('should store snap', () => {
-      expect(snapBuilds(state, action)[id].snap).toEqual(SNAP);
-    });
   });
 
   context('FETCH_BUILDS_SUCCESS', () => {

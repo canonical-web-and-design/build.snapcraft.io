@@ -611,18 +611,8 @@ export const findSnap = async (req, res) => {
 
     return res.status(200).send({
       status: 'success',
-      payload: {
-        code: 'snap-found',
-        snap: {
-          // TODO
-          // temporary solution until snap builds store and actions
-          // are properly refactored
-          ...normalizedSnap.entities.snaps[normalizedSnap.result],
-        }
-      }
-      // TODO
-      // after refactoring of snapBuilds should only return normalized snap
-      // without payload
+      code: 'snap-found',
+      ...normalizedSnap
     });
   } catch (error) {
     return sendError(res, error);

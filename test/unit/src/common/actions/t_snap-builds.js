@@ -64,7 +64,7 @@ describe('snap builds actions', () => {
     });
 
     it('should supply a payload containing the repo full-name', () => {
-      expect(action.payload.id).toEqual(repo);
+      expect(action.payload.id).toEqual(repositoryUrl);
     });
   });
 

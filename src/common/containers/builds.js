@@ -19,8 +19,8 @@ import styles from './container.css';
 
 export class Builds extends Component {
   render() {
-    const { user, repository } = this.props;
-    const { isFetching, success, error, snap, builds } = this.props.snapBuilds;
+    const { user, repository, snap } = this.props;
+    const { isFetching, success, error, builds } = this.props.snapBuilds;
 
     // only show spinner when data is loading for the first time
     const isLoading = isFetching && !success;
@@ -75,12 +75,12 @@ Builds.propTypes = {
     fullName: PropTypes.string.isRequired,
     url: PropTypes.string.isRequired
   }).isRequired,
+  snap: PropTypes.shape({
+    selfLink: PropTypes.string.isRequired,
+    storeName: PropTypes.string.isRequired
+  }),
   snapBuilds: PropTypes.shape({
     isFetching: PropTypes.bool,
-    snap: PropTypes.shape({
-      selfLink: PropTypes.string.isRequired,
-      storeName: PropTypes.string.isRequired
-    }),
     builds: PropTypes.arrayOf(
       PropTypes.shape({
         isPublished: PropTypes.bool

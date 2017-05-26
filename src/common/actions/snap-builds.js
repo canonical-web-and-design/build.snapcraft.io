@@ -10,14 +10,12 @@ export const FETCH_BUILDS_ERROR = 'FETCH_BUILDS_ERROR';
 
 // Fetch snap info (selfLink) for given repository
 export function fetchSnap(repositoryUrl) {
-  const { fullName } = parseGitHubRepoUrl(repositoryUrl);
-  repositoryUrl = encodeURIComponent(repositoryUrl);
   return {
     payload: {
-      id: fullName
+      id: repositoryUrl
     },
     [CALL_API]: {
-      path: `/api/launchpad/snaps?repository_url=${repositoryUrl}`,
+      path: `/api/launchpad/snaps?repository_url=${encodeURIComponent(repositoryUrl)}`,
       types: [FETCH_BUILDS, FETCH_SNAP_SUCCESS]
     }
   };

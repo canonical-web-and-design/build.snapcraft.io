@@ -24,8 +24,8 @@ import styles from './container.css';
 
 class BuildDetails extends Component {
   render() {
-    const { user, repository, buildId, build } = this.props;
-    const { snap, error, isFetching } = this.props.snapBuilds;
+    const { user, repository, buildId, build, snap } = this.props;
+    const { error, isFetching } = this.props.snapBuilds;
 
     const buildFailed = (build.statusMessage === 'Failed to build');
     let helpBox;
@@ -122,12 +122,12 @@ BuildDetails.propTypes = {
   }).isRequired,
   buildId: PropTypes.string.isRequired,
   build: PropTypes.object,
+  snap: PropTypes.shape({
+    selfLink: PropTypes.string.isRequired,
+    storeName: PropTypes.string.isRequired
+  }),
   snapBuilds: PropTypes.shape({
     isFetching: PropTypes.bool,
-    snap: PropTypes.shape({
-      selfLink: PropTypes.string.isRequired,
-      storeName: PropTypes.string.isRequired
-    }),
     error: PropTypes.object,
   })
 };

@@ -974,34 +974,32 @@ describe('The Launchpad API endpoint', () => {
         nock.cleanAll();
       });
 
-      it('should return a 200 response', (done) => {
-        supertest(app)
+      it('should return a 200 response', async () => {
+        await supertest(app)
           .get('/launchpad/snaps')
           .query({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(200, done);
+          .expect(200);
       });
 
-      it('should return a "success" status', (done) => {
-        supertest(app)
+      it('should return a "success" status', async () => {
+        await supertest(app)
           .get('/launchpad/snaps')
           .query({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(hasStatus('success'))
-          .end(done);
+          .expect(hasStatus('success'));
       });
 
-      it('should return a body with a "snap-found" message with the correct snap', (done) => {
-        supertest(app)
+      it('should return a body with a "snap-found" message with the normalized snap', async () => {
+        const res = await supertest(app)
           .get('/launchpad/snaps')
-          .query({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(hasMessage('snap-found'))
-          .expect((res) => {
-            expect(res.body.payload.snap).toContain({
-              gitRepoUrl: testSnaps[1].git_repository_url,
-              selfLink: testSnaps[1].self_link,
-              snapcraftData: snapcraftData
-            });
-          })
-          .end(done);
+          .query({ repository_url: 'https://github.com/anowner/aname' });
+
+        expect(res.body.code).toEqual('snap-found');
+
+        expect(res.body.entities.snaps[res.body.result]).toContain({
+          gitRepoUrl: testSnaps[1].git_repository_url,
+          selfLink: testSnaps[1].self_link,
+          snapcraftData: snapcraftData
+        });
       });
     });
 
@@ -1107,33 +1105,32 @@ describe('The Launchpad API endpoint', () => {
         resetMemcached();
       });
 
-      it('should return a 200 response', (done) => {
-        supertest(app)
+      it('should return a 200 response', async () => {
+        await supertest(app)
           .get('/launchpad/snaps')
           .query({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(200, done);
+          .expect(200);
       });
 
-      it('should return a "success" status', (done) => {
-        supertest(app)
+      it('should return a "success" status', async () => {
+        await supertest(app)
           .get('/launchpad/snaps')
           .query({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(hasStatus('success'))
-          .end(done);
+          .expect(hasStatus('success'));
       });
 
-      it('should return a body with a "snap-found" message with the correct snap', (done) => {
-        supertest(app)
+      it('should return a body with a "snap-found" message with the correct snap', async () => {
+        const res = await supertest(app)
           .get('/launchpad/snaps')
-          .query({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(hasMessage('snap-found'))
-          .expect((res) => {
-            expect(res.body.payload.snap).toInclude({
-              gitRepoUrl: snap.git_repository_url,
-              selfLink: snap.self_link
-            });
-          })
-          .end(done);
+          .query({ repository_url: 'https://github.com/anowner/aname' });
+
+        expect(res.body.code).toEqual('snap-found');
+
+        expect(res.body.entities.snaps[res.body.result]).toContain({
+          gitRepoUrl: snap.git_repository_url,
+          selfLink: snap.self_link,
+          snapcraftData: snapcraftData
+        });
       });
 
     });
