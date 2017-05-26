@@ -24,7 +24,7 @@ const getRemoveWarningMessage = (isBuilt, registeredName) => {
   // builds, we should also implement this design requirement:
   //   Separately, if any build has been published, the text should end
   //   with:
-  //     Published builds will remain published.
+  //     Released builds will remain published.
 
   return warningText;
 };

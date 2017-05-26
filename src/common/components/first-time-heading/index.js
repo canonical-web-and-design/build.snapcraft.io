@@ -41,7 +41,7 @@ class FirstTimeHeading extends Component {
       } else if (this.props.isOnMyRepos) { // further steps are only visible on 'My Repos' page
         // at least one repo, but none have a name yet
         if (hasNoRegisteredNames) {
-          message = 'Great! Next, register a snap name for publishing.';
+          message = 'Great! Next, register a snap name for releasing.';
           progress = [SIGNALS.DONE, SIGNALS.DONE, SIGNALS.ACTIVE];
           // at least one repo has a name but no snapcraft.yaml, and none have both
         } else if (hasSnapsWithRegisteredNameAndNoSnapcraftData &&

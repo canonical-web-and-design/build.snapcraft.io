@@ -58,33 +58,33 @@ export const UserFacingState = {
     7,
     'building_soon'
   ),
-  'WONT_PUBLISH': createState(
-    'Built, won’t be published',
+  'WONT_RELEASE': createState(
+    'Built, won’t be released',
     BuildStatusColours.GREEN,
     BuildStatusIcons.TICK_OUTLINED,
     6,
-    'wont_publish'
+    'wont_release'
   ),
-  'PUBLISHED': createState(
-    'Built and published',
+  'RELEASED': createState(
+    'Built and released',
     BuildStatusColours.GREEN,
     BuildStatusIcons.TICK_SOLID,
     5,
-    'published'
+    'released'
   ),
-  'PUBLISHING_FAILED': createState(
-    'Built, failed to publish',
+  'RELEASE_FAILED': createState(
+    'Built, failed to release',
     BuildStatusColours.RED,
     BuildStatusIcons.TICK,
     4,
-    'publishing_failed'
+    'release_failed'
   ),
-  'PUBLISHING_SOON': createState(
-    'Built, publishing soon',
+  'RELEASING_SOON': createState(
+    'Built, releasing soon',
     BuildStatusColours.GREY,
     BuildStatusIcons.TICK,
     3,
-    'publishing_soon'
+    'releasing_soon'
   ),
   'IN_PROGRESS': createState(
     'In progress',
@@ -172,14 +172,14 @@ function mapBuildAndUploadStates(buildState, uploadState) {
 function internalMapSnapBuildStoreUploadState(uploadState) {
   switch (uploadState) {
     case LaunchpadStoreUploadStates.UNSCHEDULED:
-      return UserFacingState.WONT_PUBLISH;
+      return UserFacingState.WONT_RELEASE;
     case LaunchpadStoreUploadStates.PENDING:
-      return UserFacingState.PUBLISHING_SOON;
+      return UserFacingState.RELEASING_SOON;
     case LaunchpadStoreUploadStates.FAILEDTOUPLOAD:
     case LaunchpadStoreUploadStates.FAILEDTORELEASE:
-      return UserFacingState.PUBLISHING_FAILED;
+      return UserFacingState.RELEASE_FAILED;
     case LaunchpadStoreUploadStates.UPLOADED:
-      return UserFacingState.PUBLISHED;
+      return UserFacingState.RELEASED;
     default:
       throw new RangeError('Unrecognised publishState in internalMapSnapBuildStoreUploadState');
   }

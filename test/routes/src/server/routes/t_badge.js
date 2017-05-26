@@ -71,13 +71,13 @@ describe('The badge endpoint', () => {
         await supertest(app).get('/badge/anowner/aname.svg').expect(200);
       });
 
-      it('shoud return a SVG image with correct status', async () => {
+      it('should return a SVG image with correct status', async () => {
         const response = await supertest(app).get('/badge/anowner/aname.svg')
           .expect('Content-Type', 'image/svg+xml').buffer();
 
         const responseString = response.body.toString();
 
-        expect(responseString).toInclude('built and published');
+        expect(responseString).toInclude('built and released');
       });
     });
 

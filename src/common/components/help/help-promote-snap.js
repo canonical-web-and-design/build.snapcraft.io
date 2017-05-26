@@ -10,8 +10,8 @@ export default class HelpPromoteSnap extends Component {
     const { headline, name, revision, confinement } = this.props;
 
     const heading = headline || (confinement !== 'devmode'
-      ? 'Ready to publish to beta, candidate or stable?'
-      : 'Ready to publish to beta?');
+      ? 'Ready to release to beta, candidate or stable?'
+      : 'Ready to release to beta?');
 
     return (
       <div className={styles.helpWrapper}>
@@ -31,7 +31,7 @@ export default class HelpPromoteSnap extends Component {
 
         { confinement === 'devmode' &&
           <p>
-            To publish to candidate or stable, you’ll need to stop using {' '}
+            To release to candidate or stable, you’ll need to stop using {' '}
             <code>
               <a
                 className={ styles.external }

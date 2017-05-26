@@ -93,7 +93,7 @@ const Caption = (props) => {
     }
   } else {
     // if user is registering new name
-    message = 'To publish to the snap store, this repo needs a registered name.';
+    message = 'To release in the snap store, this repo needs a registered name.';
     if (!authStore.authenticated) {
       message += ' You need to sign in to Ubuntu One to register a name.';
     }

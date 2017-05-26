@@ -37,7 +37,7 @@ class Landing extends Component {
                   Built automatically
                 </li>
                 <li className={ styles.bannerLabel }>
-                  Published for your users
+                  Released for your users
                 </li>
               </ul>
 
@@ -102,7 +102,7 @@ class Landing extends Component {
               How Snapcraft fits into your workflow
             </HeadingTwo>
             <div className={ `${styles.row} `}>
-              <img src='https://assets.ubuntu.com/v1/f82bf626-workflow-illustration-optimized.svg' width='100%' />
+              <img src='https://assets.ubuntu.com/v1/b70a5c55-workflow-illustration.svg' width='100%' />
             </div>
           </div>
 
