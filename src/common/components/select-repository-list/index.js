@@ -116,24 +116,19 @@ export class SelectRepositoryListComponent extends Component {
           <HeadingThree>
             { selectedRepositories.length } selected
           </HeadingThree>
-          <div className={ styles['footer-right'] }>
-            <div className={ styles['button-wrapper'] }>
-              { ids && ids.length > 0 &&
-                <LinkButton appearance="neutral" to={`/user/${user.login}`}>
-                  Cancel
-                </LinkButton>
-              }
-            </div>
-            <div className={ styles['button-wrapper'] }>
-              <Button
-                appearance={ 'positive' }
-                disabled={ !selectedRepositories.length || buttonSpinner }
-                onClick={ this.handleAddRepositories.bind(this) }
-                isSpinner={buttonSpinner}
-              >
-                Add
-              </Button>
-            </div>
+          <div>
+            <LinkButton appearance="neutral" to={`/user/${user.login}`}>
+              Cancel
+            </LinkButton>
+            {' '}
+            <Button
+              appearance={ 'positive' }
+              disabled={ !selectedRepositories.length || buttonSpinner }
+              onClick={ this.handleAddRepositories.bind(this) }
+              isSpinner={buttonSpinner}
+            >
+              Add
+            </Button>
           </div>
         </div>
       </div>
@@ -143,7 +138,7 @@ export class SelectRepositoryListComponent extends Component {
   renderPageLinks(pageLinks) {
     if (pageLinks) {
       return (
-        <div className={ styles['page-links-container'] }>
+        <div className={ styles.pageLinksContainer }>
           <PageLinks { ...pageLinks } onClick={ this.onPageLinkClick.bind(this) } />
         </div>
       );

@@ -1,4 +1,4 @@
-.page-links-container {
+.pageLinksContainer {
   margin: 20px auto;
   display: flex;
   justify-content: center;
@@ -8,12 +8,4 @@
   display: flex;
   justify-content: space-between;
   margin: 60px 0;
-}
-
-.footer-right {
-  display: flex;
-}
-
-.button-wrapper {
-  margin: 0 5px;
 }
