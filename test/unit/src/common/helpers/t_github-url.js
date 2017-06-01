@@ -12,6 +12,14 @@ describe('getGitHubRepoUrl helper', () => {
     expect(getGitHubRepoUrl('foo', 'bar')).toEqual('https://github.com/foo/bar');
   });
 
+  it('should return GH repo url when passed a GH repo url', () => {
+    expect(getGitHubRepoUrl('https://github.com/foo/bar')).toEqual('https://github.com/foo/bar');
+  });
+
+  it('should return null for empty input', () => {
+    expect(getGitHubRepoUrl()).toBe(null);
+  });
+
 });
 
 describe('parseGitHubRepoUrl helper', () => {

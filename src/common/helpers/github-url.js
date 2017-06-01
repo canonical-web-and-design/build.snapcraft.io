@@ -3,6 +3,10 @@ import parseGitHubUrl from 'parse-github-url';
 export const getGitHubRepoUrl = (owner, name) => {
   let repository = !name ? owner : `${owner}/${name}`;
 
+  if (!repository) {
+    return null;
+  }
+
   // if already a valid GH repository
   if (repository.indexOf('https://github.com/') === 0) {
     return repository;
