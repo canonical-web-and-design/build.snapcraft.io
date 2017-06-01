@@ -29,4 +29,10 @@ export default async function updateDeveloperUptake(trx) {
       .where('builds_requested', '>', 0)
       .count('*', { transacting: trx })
   );
+  developerUptake.set(
+    { metric_type: 'kpi', step: 'released_build' },
+    await db.model('GitHubUser')
+      .where('builds_released', '>', 0)
+      .count('*', { transacting: trx })
+  );
 }

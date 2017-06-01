@@ -6,23 +6,29 @@ import db from '../../../../../src/server/db';
 describe('The developer uptake metric', () => {
   let updateDeveloperUptake;
 
-  const testUsers = {
-    0: {},
-    1: {
+  const testUsers = [
+    {},
+    {
       snaps_added: 1,
       snaps_removed: 1
     },
-    2: {
+    {
       snaps_added: 2,
       snaps_removed: 1,
       names_registered: 1
     },
-    3: {
+    {
       snaps_added: 1,
       names_registered: 1,
       builds_requested: 1
+    },
+    {
+      snaps_added: 2,
+      names_registered: 2,
+      builds_requested: 2,
+      builds_released: 1
     }
-  };
+  ];
 
   beforeEach(async () => {
     // Must be required here rather than imported, to make sure that it
@@ -37,9 +43,9 @@ describe('The developer uptake metric', () => {
     promClient.register.clear();
   });
 
-  xit('returns reasonable developer uptake values', () => {
+  it('returns reasonable developer uptake values', () => {
     return db.transaction(async (trx) => {
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < testUsers.length; i++) {
         await db.model('GitHubUser').forge({
           github_id: i,
           name: null,
@@ -56,14 +62,18 @@ describe('The developer uptake metric', () => {
         values: [
           {
             labels: { metric_type: 'kpi', step: 'enabled_repository' },
-            value: 3
+            value: 4
           },
           {
             labels: { metric_type: 'kpi', step: 'registered_name' },
-            value: 2
+            value: 3
           },
           {
             labels: { metric_type: 'kpi', step: 'requested_build' },
+            value: 2
+          },
+          {
+            labels: { metric_type: 'kpi', step: 'released_build' },
             value: 1
           }
         ]
