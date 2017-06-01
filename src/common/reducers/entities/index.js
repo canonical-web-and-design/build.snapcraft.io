@@ -2,6 +2,8 @@ import merge from 'lodash/merge';
 
 import * as RepoActionTypes from '../../actions/repository';
 import * as RegisterNameActionTypes from '../../actions/register-name';
+import * as SnapsActionTypes from '../../actions/snaps';
+
 import repository from './repository';
 import snap from './snap';
 
@@ -29,7 +31,7 @@ export function entities(state = {
   }
 
   // update snaps on register name actions
-  if (RegisterNameActionTypes[action.type]) {
+  if (RegisterNameActionTypes[action.type] || SnapsActionTypes[action.type]) {
     // TODO refactor
     // register name actions use fullName as id instead of repo url
     const snapAction = {

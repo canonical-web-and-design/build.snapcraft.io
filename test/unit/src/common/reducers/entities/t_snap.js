@@ -1,7 +1,8 @@
 import expect from 'expect';
 
 import * as RegisterNameActionTypes from '../../../../../../src/common/actions/register-name';
-import snap from '../../../../../../src/common/reducers/entities/snap.js';
+import snap from '../../../../../../src/common/reducers/entities/snap';
+import { FETCH_SNAP_DETAILS_SUCCESS, FETCH_SNAP_DETAILS_ERROR } from '../../../../../../src/common/actions/snaps';
 
 describe('snaps entities', function() {
 
@@ -80,6 +81,34 @@ describe('snaps entities', function() {
 
       expect(snap(state, action).registerNameStatus).toEqual({
         ...initialStatus
+      });
+    });
+  });
+
+  context('on snap details actions', () => {
+    const id = 'http://github.com/dummy/repo';
+
+    it('should set stable revision to true on FETCH_SNAP_DETAILS_SUCCESS', () => {
+      const action = {
+        type: FETCH_SNAP_DETAILS_SUCCESS,
+        payload: { id, response: { status: 'success' } }
+      };
+
+      expect(snap(state, action)).toEqual({
+        ...state,
+        stableRevision: true
+      });
+    });
+
+    it('should set stable revision to false on FETCH_SNAP_DETAILS_ERROR', () => {
+      const action = {
+        type: FETCH_SNAP_DETAILS_ERROR,
+        payload: { id, response: { status: 'error' } }
+      };
+
+      expect(snap(state, action)).toEqual({
+        ...state,
+        stableRevision: false
       });
     });
   });

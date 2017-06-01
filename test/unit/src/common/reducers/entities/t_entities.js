@@ -3,21 +3,33 @@ import proxyquire from 'proxyquire';
 
 import * as fixtures from './fixtures.js';
 import * as RepoActionTypes from '../../../../../../src/common/actions/repository';
+import * as SnapsActionTypes from '../../../../../../src/common/actions/snaps';
 import * as RegisterNameActionTypes from '../../../../../../src/common/actions/register-name';
 
-const repoSpy = expect.createSpy();
-const snapSpy = expect.createSpy();
+describe('entities reducer', function() {
+  let repoSpy;
+  let snapSpy;
 
-const entities = proxyquire('../../../../../../src/common/reducers/entities', {
-  './repository': {
-    default: repoSpy
-  },
-  './snap': {
-    default: snapSpy
-  }
-}).entities;
+  let entities;
 
-describe('entities', function() {
+  beforeEach(() => {
+    repoSpy = expect.createSpy();
+    snapSpy = expect.createSpy();
+
+    entities = proxyquire('../../../../../../src/common/reducers/entities', {
+      './repository': {
+        default: repoSpy
+      },
+      './snap': {
+        default: snapSpy
+      }
+    }).entities;
+  });
+
+  afterEach(() => {
+    expect.restoreSpies();
+  });
+
   context('slice reducer', function() {
     // "Redux will call our reducer with an undefined state for the first time.
     // This is our chance to return the initial state of our app"
@@ -40,31 +52,45 @@ describe('entities', function() {
         .toEqual(fixtures.finalState)
         .toNotBe(fixtures.finalState);
     });
-  });
 
-  context('repository helper', function() {
+    context('repository helper', function() {
 
-    for (let type in RepoActionTypes) {
-      it(`should call the repository reducer for ${type}`, function() {
+      for (let type in RepoActionTypes) {
+        it(`should call the repository reducer for ${type}`, function() {
+          entities(fixtures.initialState, {
+            type: type,
+            payload: {
+              id: 1001
+            }
+          });
+          expect(repoSpy).toHaveBeenCalled();
+        });
+      }
+
+      it('should call the snap reducer for REGISTER_NAME_SUCCESS', function() {
         entities(fixtures.initialState, {
-          type: type,
+          type: RegisterNameActionTypes.REGISTER_NAME_SUCCESS,
           payload: {
-            id: 1001
+            id: 'https://github.com/anowner/aname'
           }
         });
-        expect(repoSpy).toHaveBeenCalled();
+        expect(snapSpy).toHaveBeenCalled();
       });
-    }
 
-    it('should call the snap reducer for REGISTER_NAME_SUCCESS', function() {
-      entities(fixtures.initialState, {
-        type: RegisterNameActionTypes.REGISTER_NAME_SUCCESS,
-        payload: {
-          id: 'http://github.com/anowner/aname'
-        }
-      });
-      expect(repoSpy).toHaveBeenCalled();
+      for (let type in SnapsActionTypes) {
+        it(`should call the repository reducer for ${type}`, function() {
+          const action = {
+            type: type,
+            payload: {
+              id: 'https://github.com/anowner/aname'
+            }
+          };
+
+          entities(fixtures.initialState, action);
+          expect(snapSpy).toHaveBeenCalledWith(fixtures.initialState[action.payload.id], action);
+        });
+      }
+
     });
-
   });
 });

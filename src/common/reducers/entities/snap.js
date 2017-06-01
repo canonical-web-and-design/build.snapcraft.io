@@ -1,4 +1,5 @@
 import * as RegisterNameActionTypes from '../../actions/register-name';
+import * as SnapsActionTypes from '../../actions/snaps';
 
 export default function snap(state={}, action) {
   const { payload } = action;
@@ -45,6 +46,16 @@ export default function snap(state={}, action) {
         registerNameStatus: {
           ...registerNameInitialStatus
         }
+      };
+    case SnapsActionTypes.FETCH_SNAP_DETAILS_SUCCESS:
+      return {
+        ...state,
+        stableRevision: true
+      };
+    case SnapsActionTypes.FETCH_SNAP_DETAILS_ERROR:
+      return {
+        ...state,
+        stableRevision: false
       };
     default:
       return state;

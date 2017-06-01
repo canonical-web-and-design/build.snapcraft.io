@@ -3,12 +3,26 @@
   padding: 2rem;
 }
 
+.flexible {
+  display: flex;
+  flex: 1;
+}
 .helpWrapper {
   margin-bottom: 1.3rem;
 }
 
 .helpWrapper:last-child {
   margin-bottom: 0;
+}
+
+.helpFlexWrapper {
+  composes: helpWrapper;
+  display: flex;
+  flex-direction: column;
+}
+
+.helpFlexWrapper .helpFlexHeading {
+  flex: 1 0 auto;
 }
 
 .cli {

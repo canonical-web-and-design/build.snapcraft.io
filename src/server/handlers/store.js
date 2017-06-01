@@ -27,7 +27,10 @@ export const getSnapDetails = async (req, res) => {
     });
     const json = await response.json();
 
-    res.status(response.status).send(json);
+    res.status(response.status).send({
+      status: json.error_list ? 'error' : 'success',
+      ...json
+    });
   } catch (error) {
     return res.status(500).send({
       status: 'error',

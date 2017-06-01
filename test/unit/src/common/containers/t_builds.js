@@ -20,7 +20,8 @@ describe('The Builds container', function() {
     },
     snapBuilds: {
       builds: []
-    }
+    },
+    fetchSnapStableRelease: () => {}
   };
 
   it('omits link to "My repos" if not signed in', function() {
