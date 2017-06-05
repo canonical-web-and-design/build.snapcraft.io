@@ -218,12 +218,14 @@ const ActionButtons = (props) => {
     // if we are fetching data show loading button
     actionDisabled = true;
     actionSpinner = true;
-    actionText = 'Checking...';
-  } else if (authStore.authenticated) {
+  }
+
+  if (authStore.authenticated) {
     // if user already signed in, show 'Register' button
     actionDisabled = (
       snapName === '' ||
-      !!registerNameStatus.error
+      !!registerNameStatus.error ||
+      registerNameStatus.success
     );
     actionText = registeredName ? 'Register new name' : 'Register name';
     actionOnClick = onRegisterSubmit;

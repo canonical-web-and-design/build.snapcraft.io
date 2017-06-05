@@ -1,53 +1,58 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
+import classNames from 'classnames';
 
 import Spinner from '../../spinner';
 import style from './button.css';
 
-const defaultProps = {
-  isSpinner: PropTypes.bool,
-  disabled: PropTypes.bool,
-  children: PropTypes.string,
-  onClick: PropTypes.func,
-  type: PropTypes.string,
-  appearance: React.PropTypes.oneOf(['positive', 'negative', 'neutral', 'base']),
-  flavour: React.PropTypes.oneOf(['normal','bigger', 'smaller']),
-  href: PropTypes.string
-};
+function createButtonComponent(Component) {
+  function ButtonComponent(props) {
+    const { appearance='primary', flavour='normal', isSpinner=false, icon, ...rest } = props;
 
-export default function Button(props) {
-  const { appearance='primary', flavour='normal', isSpinner=false, ...rest } = props;
-  return (
-    <button {...rest} className={ `${style[appearance]} ${style[flavour]}` }>
-      { isSpinner && <span className={ style.spinner }><Spinner /></span> }
-      { props.children }
-    </button>
-  );
+    const className = classNames({
+      [style[appearance]]: true,
+      [style[flavour]]: style[flavour] !== undefined, // add flavour class only if any styles are defined for it
+      [style.hasSpinner]: isSpinner
+    });
+
+    return (
+      <Component {...rest} className={ className }>
+        { isSpinner &&
+          <span className={ style.spinner }><Spinner light/></span>
+        }
+        <span className={style.text}>{ props.children }</span>
+        { icon &&
+          <img className= { style.icon } src={ icon } />
+        }
+      </Component>
+    );
+  }
+
+  ButtonComponent.propTypes = {
+    isSpinner: PropTypes.bool,
+    disabled: PropTypes.bool,
+    children: PropTypes.string,
+    onClick: PropTypes.func,
+    appearance: React.PropTypes.oneOf(['positive', 'negative', 'neutral', 'base']),
+    flavour: React.PropTypes.oneOf(['normal','bigger', 'smaller']),
+    href: PropTypes.string,
+    icon: PropTypes.string
+  };
+
+  return ButtonComponent;
 }
 
-export function Anchor(props) {
-  const { appearance='primary', flavour='normal', icon, ...rest } = props;
-  return (
-    <a {...rest} className={ `${style[appearance]} ${style[flavour]}` }>
-      { props.children }
-      { icon && <img className= { style.icon } src={ icon } /> }
-    </a>
-  );
-}
+const Button = createButtonComponent('button');
+Button.displayName = 'Button';
 
-export function LinkButton(props) {
-  const { appearance='primary', ...rest } = props;
-  return <Link {...rest} className={ style[appearance] } />;
-}
+const Anchor = createButtonComponent('a');
+Anchor.displayName = 'Anchor';
 
-Button.propTypes = {
-  ...defaultProps
-};
+const LinkButton = createButtonComponent(Link);
+LinkButton.displayName = 'LinkButton';
 
-Anchor.propTypes = {
-  ...defaultProps
-};
-
-LinkButton.propTypes = {
-  ...defaultProps
+export {
+  Button as default,
+  Anchor,
+  LinkButton
 };

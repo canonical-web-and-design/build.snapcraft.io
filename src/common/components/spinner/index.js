@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 
-import spinner from './spinner.svg';
+import spinnerDark from './spinner-dark.svg';
+import spinnerLight from './spinner-light.svg';
+
 import styles from './spinner.css';
 
 export default class Spinner extends Component {
@@ -9,7 +11,7 @@ export default class Spinner extends Component {
 
     return (
       <img
-        src={ spinner }
+        src={ this.props.light ? spinnerLight : spinnerDark }
         className={ styles.spinner }
         width={ size }
         height={ size }
@@ -19,5 +21,6 @@ export default class Spinner extends Component {
 }
 
 Spinner.propTypes = {
-  size: PropTypes.string
+  size: PropTypes.string,
+  light: PropTypes.bool
 };
