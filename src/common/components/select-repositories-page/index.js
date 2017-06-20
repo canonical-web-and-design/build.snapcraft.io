@@ -8,7 +8,7 @@ import SelectRepositoryList from '../select-repository-list';
 import { HeadingThree } from '../vanilla/heading';
 import FirstTimeHeading from '../first-time-heading';
 import { CardHighlighted } from '../vanilla/card';
-import PrivateReposInfo from '../private-repos-info';
+import PrivateReposInfoPopover from '../private-repos-info';
 
 import styles from './select-repositories-page.css';
 
@@ -36,7 +36,7 @@ class SelectRepositoriesPage extends Component {
           <HeadingThree className={ styles.heading }>
             Choose repos to add
           </HeadingThree>
-          <PrivateReposInfo user={ this.props.user } onRefreshClick={this.onRefresh.bind(this)}/>
+          <PrivateReposInfoPopover user={ this.props.user } onRefreshClick={this.onRefresh.bind(this)}/>
           <SelectRepositoryList/>
         </CardHighlighted>
       </div>
