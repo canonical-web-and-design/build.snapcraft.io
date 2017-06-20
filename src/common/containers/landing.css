@@ -18,6 +18,7 @@
 
 .bannerImage img {
   display: block;
+  padding: 0 1.25rem;
   width: 100%;
 }
 
@@ -40,6 +41,10 @@
 .row {
   display: flex;
   justify-content: space-between;
+}
+
+.row .rowImage {
+  padding: 0 1.25rem;
 }
 
 .rowItemGrow {

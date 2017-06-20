@@ -27,7 +27,7 @@ class Landing extends Component {
 
               <ul className={ styles.banner }>
                 <li className={ styles.bannerImage }>
-                  <img src='https://assets.ubuntu.com/v1/ed6d1c5b-build.snapcraft.hero.svg' />
+                  <img src='https://assets.ubuntu.com/v1/ed6d1c5b-build.snapcraft.hero.svg' alt="Snapcraft hero image, push to GitHub, built automatically, release for your users."/>
                 </li>
 
                 <li className={ styles.bannerLabel }>
@@ -102,7 +102,7 @@ class Landing extends Component {
               How Snapcraft fits into your workflow
             </HeadingTwo>
             <div className={ `${styles.row} `}>
-              <img src='https://assets.ubuntu.com/v1/b70a5c55-workflow-illustration.svg' width='100%' />
+              <img className={ `${styles.rowImage} `} src='https://assets.ubuntu.com/v1/b70a5c55-workflow-illustration.svg' width='100%' alt="Snapcraft workflow diagram."/>
             </div>
           </div>
 
