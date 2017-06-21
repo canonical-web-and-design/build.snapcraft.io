@@ -18,8 +18,10 @@ $text-color: $cool-grey;
 }
 
 .logo {
+  align-items: center;
+  display: flex;
   float: left;
-  padding: 11px 0;
+  height: 51px;
 }
 
 .logo:hover {
@@ -42,8 +44,8 @@ $text-color: $cool-grey;
 .navItem {
   box-sizing: border-box;
   display: inline-block;
-  height: 50px;
-  line-height: 50px;
+  height: 51px;
+  line-height: 51px;
   padding: 0 10px;
   color: $text-color;
   font-size: .875em;
