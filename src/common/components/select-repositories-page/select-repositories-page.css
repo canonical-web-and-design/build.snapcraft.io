@@ -1,3 +1,12 @@
 .heading {
   margin-bottom: 12px;
 }
+
+.selectRepositoriesBox {
+  border: 1px solid $mid-grey;
+  border-radius: 2px;
+}
+
+.selectRepositoriesHeading {
+  padding: 1rem;
+}

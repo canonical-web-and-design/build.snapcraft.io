@@ -6,7 +6,6 @@ import SelectRepositoryRow from '../select-repository-row';
 import Spinner from '../spinner';
 import PageLinks from '../page-links';
 import Button, { LinkButton } from '../vanilla/button';
-import { HeadingThree } from '../vanilla/heading';
 import {
   fetchUserRepositories,
 } from '../../actions/repositories';
@@ -107,15 +106,19 @@ export class SelectRepositoryListComponent extends Component {
 
     return (
       <div>
-        { isFetching &&
-          <div className={ spinnerStyles }><Spinner /></div>
-        }
-        { renderedRepos }
-        { pagination }
+        <div className={ styles.repoList }>
+          { isFetching &&
+            <div className={ styles.spinnerWrapper }>
+              <div className={ spinnerStyles }><Spinner /></div>
+            </div>
+          }
+          { renderedRepos }
+          { pagination }
+        </div>
         <div className={ styles.footer }>
-          <HeadingThree>
+          <strong>
             { selectedRepositories.length } selected
-          </HeadingThree>
+          </strong>
           <div>
             <LinkButton appearance="neutral" to={`/user/${user.login}`}>
               Cancel
@@ -136,7 +139,9 @@ export class SelectRepositoryListComponent extends Component {
   }
 
   renderPageLinks(pageLinks) {
-    if (pageLinks) {
+    const hasPagination = !!(pageLinks && (pageLinks.first || pageLinks.last));
+
+    if (hasPagination) {
       return (
         <div className={ styles.pageLinksContainer }>
           <PageLinks { ...pageLinks } onClick={ this.onPageLinkClick.bind(this) } />

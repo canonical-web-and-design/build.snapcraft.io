@@ -5,7 +5,20 @@
 }
 
 .footer {
+  padding: 1rem;
   display: flex;
   justify-content: space-between;
-  margin: 60px 0;
+  align-items: baseline;
+}
+
+.repoList {
+  height: 300px;
+  overflow: auto;
+  padding: 0 10px;
+  border-bottom: 1px solid $mid-grey;
+  border-top: 1px solid $cool-grey;
+}
+
+.spinnerWrapper {
+  margin-top: 140px;
 }
