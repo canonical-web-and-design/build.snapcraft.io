@@ -91,18 +91,18 @@ export default class PrivateReposInfo extends Component {
 
   render() {
     return (
-      <ul>
-        <li>
+      <ul className={styles.infoList} onClick={this.props.onClick}>
+        <li className={styles.infoListItem}>
           <p className={styles.infoMsg}>Want to use a <strong>private repo</strong>? We’re working hard on making these buildable. If you like, we can e-mail you when we’re ready.</p>
           { this.state.subscribeSuccess
             ? <p className={styles.successMsg}>{ this.state.message }</p>
             : this.renderSubsribeForm()
           }
         </li>
-        <li>
+        <li className={styles.infoListItem}>
           <p className={styles.infoMsg}>Don’t have <strong>admin permission</strong>? Ask a repo admin to add it instead, and it will show up in your repo list too.</p>
         </li>
-        <li>
+        <li className={styles.infoListItem}>
           { this.renderOrgsInfo() }
           <Anchor
             appearance='neutral' flavour='smaller'
@@ -119,7 +119,7 @@ export default class PrivateReposInfo extends Component {
             OK, it’s added
           </Button>
         </li>
-        <li>
+        <li className={styles.infoListItem}>
           <p className={styles.infoMsg}>Using the <strong>wrong GitHub account</strong>? Sign out and try again with the right one.</p>
           <Anchor appearance='neutral' flavour='smaller' href="https://github.com/logout">Change account…</Anchor>
         </li>
@@ -139,5 +139,6 @@ PrivateReposInfo.propTypes = {
   user: PropTypes.shape({
     orgs: PropTypes.array
   }).isRequired,
-  onRefreshClick: PropTypes.func
+  onRefreshClick: PropTypes.func,
+  onClick: PropTypes.func
 };

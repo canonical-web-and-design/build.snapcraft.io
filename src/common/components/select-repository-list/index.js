@@ -23,15 +23,65 @@ import {
 } from '../../selectors/index.js';
 import styles from './styles.css';
 
+import PrivateReposInfo from '../private-repos-info/private-repos-info';
+
 // loading container styles not to duplicate .spinner class
 import { spinner as spinnerStyles } from '../../containers/container.css';
 
 export class SelectRepositoryListComponent extends Component {
 
+  constructor() {
+    super();
+
+    this.state = {
+      showMissingReposInfo: false
+    };
+  }
+
   componentDidMount() {
     this.props.selectedRepositories && this.props.selectedRepositories.map(id => {
       this.props.dispatch(resetRepository(id));
     });
+
+    // bind document click event
+    if (typeof document !== 'undefined') {
+      this.onBoundDocumentClick = this.onDocumentClick.bind(this);
+      document.addEventListener('click', this.onBoundDocumentClick);
+    }
+  }
+
+  componentWillUnmount() {
+    // unbind document click event
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('click', this.onBoundDocumentClick);
+    }
+  }
+
+  onDocumentClick() {
+    this.setState({
+      showMissingReposInfo: false
+    });
+  }
+
+  onHelpClick(event) {
+    // prevent help click from triggering document click
+    event.nativeEvent.stopImmediatePropagation();
+
+    this.setState({
+      showMissingReposInfo: !this.state.showMissingReposInfo
+    });
+  }
+
+  onMissingInfoClick(event) {
+    // prevent info from closing when it's clicked
+    event.nativeEvent.stopImmediatePropagation();
+  }
+
+  onRefreshClick() {
+    this.setState({
+      showMissingReposInfo: false
+    });
+    this.props.onRefresh();
   }
 
   renderRepository(id) {
@@ -86,11 +136,18 @@ export class SelectRepositoryListComponent extends Component {
     return page;
   }
 
-  render() {
-    const { user, selectedRepositories, isAddingSnaps, isUpdatingSnaps } = this.props;
+  renderRepoList() {
     const { ids, error, isFetching, pageLinks } = this.props.repositories;
-    const pagination = this.renderPageLinks(pageLinks);
 
+    if (isFetching) {
+      return (
+        <div className={ styles.spinnerWrapper }>
+          <div className={ spinnerStyles }><Spinner /></div>
+        </div>
+      );
+    }
+
+    const pagination = this.renderPageLinks(pageLinks);
     let renderedRepos = null;
 
     if (!error) {
@@ -102,25 +159,49 @@ export class SelectRepositoryListComponent extends Component {
       // TODO show error message and keep old repo list
     }
 
+    return (
+      <div>
+        { renderedRepos }
+        { pagination }
+      </div>
+    );
+  }
+
+  render() {
+    const { user, selectedRepositories, isAddingSnaps, isUpdatingSnaps } = this.props;
+    const { isFetching } = this.props.repositories;
+
     const buttonSpinner = isFetching || isAddingSnaps || isUpdatingSnaps;
 
     return (
       <div>
         <div className={ styles.repoList }>
-          { isFetching &&
-            <div className={ styles.spinnerWrapper }>
-              <div className={ spinnerStyles }><Spinner /></div>
-            </div>
+          { this.state.showMissingReposInfo
+            ? (
+              <PrivateReposInfo
+                user={user}
+                onRefreshClick={this.onRefreshClick.bind(this)}
+                onClick={this.onMissingInfoClick.bind(this)}
+              />
+            )
+            : this.renderRepoList()
           }
-          { renderedRepos }
-          { pagination }
         </div>
         <div className={ styles.footer }>
-          <strong>
-            { selectedRepositories.length } selected
-          </strong>
+          { this.state.showMissingReposInfo &&
+            <div className={ styles.arrow } />
+          }
+          <div className={ styles.summary }>
+            <strong>
+              { selectedRepositories.length } selected
+            </strong>
+            {' '}
+            (<a href="#" onClick={this.onHelpClick.bind(this)}>
+              { this.state.showMissingReposInfo ? 'Return to repos list' : 'Anything missing?' }
+            </a>)
+          </div>
           <div>
-            <LinkButton appearance="neutral" to={`/user/${user.login}`}>
+            <LinkButton appearance="base" to={`/user/${user.login}`}>
               Cancel
             </LinkButton>
             {' '}
@@ -164,10 +245,11 @@ SelectRepositoryListComponent.propTypes = {
   enabledRepositories: PropTypes.object,
   hasFailedRepositories: PropTypes.bool,
   isUpdatingSnaps: PropTypes.bool,
-  isAddingSnaps: PropTypes.bool
+  isAddingSnaps: PropTypes.bool,
+  onRefresh: PropTypes.func
 };
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
   const {
     user,
     entities,
@@ -175,6 +257,7 @@ function mapStateToProps(state) {
   } = state;
 
   return {
+    onRefresh: ownProps.onRefresh,
     user,
     entities,
     repositories, // ?repository-pagination
