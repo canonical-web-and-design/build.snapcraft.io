@@ -1071,7 +1071,12 @@
       "version": "1.2.0"
     },
     "raven": {
-      "version": "0.12.3"
+      "version": "0.12.3",
+      "dependencies": {
+        "uuid": {
+          "version": "3.0.0"
+        }
+      }
     },
     "raw-body": {
       "version": "2.1.7"
@@ -1370,7 +1375,7 @@
       "version": "1.0.0"
     },
     "uuid": {
-      "version": "3.0.0"
+      "version": "3.0.1"
     },
     "v8flags": {
       "version": "2.0.11"
