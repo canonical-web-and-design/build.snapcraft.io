@@ -11,6 +11,10 @@
   margin: 50px 0 0 0;
 }
 
+.bannerMessage {
+  margin-top: 1.25rem;
+}
+
 .bannerImage {
   width: 920px;
   margin-bottom: 1.2em;
