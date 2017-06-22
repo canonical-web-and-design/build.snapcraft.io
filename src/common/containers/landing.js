@@ -44,8 +44,8 @@ class Landing extends Component {
               <div className={ styles.bannerButton }>
                 { this.props.auth.authenticated
                   ? (
-                    <div>
-                      Hi { user.name || user.login }, <a href={`/user/${user.login}`}>let’s check out your repos</a>.
+                    <div className={ styles.bannerMessage }>
+                      Hi { user.name || user.login }, <a href={`/user/${user.login}`}>let’s take a look at your repos</a>.
                     </div>
                   )
                   : (

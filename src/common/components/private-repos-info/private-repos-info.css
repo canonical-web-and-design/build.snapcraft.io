@@ -4,19 +4,20 @@ $background-color: #FFF;
 
 .info {
   position: relative;
-  margin-bottom: 24px;
 }
 
-.info ul {
+.infoList {
+  padding-top: 10px;
+  padding-bottom: 10px;
   list-style: disc;
   padding-left: 20px;
 }
 
-.info ul li {
+.infoListItem {
   margin-bottom: 12px;
 }
 
-.info ul li:last-child {
+.infoListItem:last-child {
   margin-bottom: 0;
 }
 

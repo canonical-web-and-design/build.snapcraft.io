@@ -5,7 +5,7 @@ $error-color: $error;
 .repositoryRow {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid $border-color;
+  border-bottom: 1px dotted $border-color;
   padding: 10px;
   position: relative;
   cursor: pointer;

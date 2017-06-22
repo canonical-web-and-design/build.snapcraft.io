@@ -5,7 +5,57 @@
 }
 
 .footer {
+  padding: 1rem;
   display: flex;
   justify-content: space-between;
-  margin: 60px 0;
+  align-items: baseline;
+  position: relative;
+}
+
+.summary {
+  flex: 1;
+  margin-right: 10px;
+  text-align: right;
+}
+
+.repoList {
+  height: 330px;
+  overflow: auto;
+  padding: 0 10px;
+  border-bottom: 1px solid $mid-grey;
+  border-top: 1px solid $cool-grey;
+}
+
+.spinnerWrapper {
+  margin-top: 140px;
+}
+
+.arrow {
+  position: absolute;
+  top: -1px;
+  right: 270px; /* positioned above link that opens missing repos info */
+}
+
+/* arrow triangles */
+.arrow:after,
+.arrow:before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+/* white 'background' triangle */
+.arrow:after {
+    border-color: #FFF transparent transparent transparent;
+    border-width: 10px;
+}
+
+/* grey 'border' triangle */
+.arrow:before {
+    left: -1px;
+    border-color: $mid-grey transparent transparent transparent;
+    border-width: 11px;
 }
