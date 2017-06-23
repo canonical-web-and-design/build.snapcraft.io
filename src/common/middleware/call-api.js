@@ -22,6 +22,9 @@ export default (defaults) => () => (next) => (action) => {
   const requestType = settings.types ? settings.types[0] : null;
   const successType = settings.types ? settings.types[1] : null;
   const failureType = settings.types ? settings.types[2] : null;
+  const delayedType = settings.types ? settings.types[3] : null;
+  const delayTimeout = settings.delayTimeout || 2000;
+
   const resource = defaults.endpoint + settings.path;
   const optionsWithCsrfToken = withCsrfToken(defaults.csrfToken, settings.options);
   const createAction = createActionWith.bind({}, action);
@@ -31,8 +34,19 @@ export default (defaults) => () => (next) => (action) => {
     next(createAction({ type: requestType }));
   }
 
+  // Set up timeout to trigger delayed action if response takes long to load
+  let loadingTimeout;
+
+  if (delayedType) {
+    loadingTimeout = setTimeout(() => {
+      next(createAction({ type: delayedType }));
+    }, delayTimeout);
+  }
+
   return fetch(resource, optionsWithCsrfToken)
     .then((response) => {
+      clearTimeout(loadingTimeout);
+
       return checkStatus(response)
         .then(() => {
           return response.json()
@@ -56,6 +70,8 @@ export default (defaults) => () => (next) => (action) => {
         });
     })
     .catch((error) => {
+      clearTimeout(loadingTimeout);
+
       if (failureType) {
         // if type of failure action is defined in settings
         // catch the error and pass it in failure action payload

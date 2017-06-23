@@ -200,4 +200,88 @@ describe('The callApi middleware', () => {
 
     });
   });
+
+  context('when response is delayed', () => {
+    const RESPONSE_CODE = 200;
+    const RESPONSE = {
+      status: 'success',
+      payload: {
+        code: 'snaps-found',
+        repos: []
+      }
+    };
+
+    let clock;
+
+    before(() => {
+      clock = sinon.useFakeTimers();
+    });
+
+    after(() => {
+      clock.restore();
+    });
+
+    beforeEach(() => {
+      api.get('/path')
+        .reply(RESPONSE_CODE, RESPONSE);
+    });
+
+    afterEach(() => {
+      api.done();
+      nock.cleanAll();
+    });
+
+    context('when action invoking [CALL_API] is dispatched', () => {
+      let action;
+      const PAYLOAD = {
+        id: 3
+      };
+
+      beforeEach(() => {
+        action = {
+          payload: PAYLOAD,
+          [CALL_API]: {
+            path: '/path',
+            types: [ 'EXAMPLE_ACTION', 'EXAMPLE_ACTION_SUCCESS', 'EXAMPLE_ACTION_ERROR', 'EXAMPLE_ACTION_DELAYED' ]
+          }
+        };
+      });
+
+      it('should dispatch EXAMPLE_ACTION', async () => {
+        await store.dispatch(action);
+        expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION');
+      });
+
+      it('should dispatch EXAMPLE_ACTION_DELAYED after 2 seconds', async () => {
+        const response = store.dispatch(action);
+        clock.tick(2000);
+
+        await response;
+        expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION_DELAYED');
+      });
+
+      it('should not dispatch EXAMPLE_ACTION_DELAYED if response finished in less then 2 seconds', async () => {
+        const response = store.dispatch(action);
+        clock.tick(1000);
+        await response;
+        expect(store.getActions()).notToHaveActionOfType('EXAMPLE_ACTION_DELAYED');
+      });
+
+      it('should dispatch EXAMPLE_ACTION_DELAYED after configured timeout', async () => {
+        action = {
+          ...action,
+          [CALL_API]: {
+            ...action[CALL_API],
+            delayTimeout: 1000
+          }
+        };
+
+        const response = store.dispatch(action);
+        clock.tick(1000);
+        await response;
+        expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION_DELAYED');
+      });
+
+    });
+  });
 });
