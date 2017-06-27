@@ -34,7 +34,8 @@ export class SelectRepositoryListComponent extends Component {
     super();
 
     this.state = {
-      showMissingReposInfo: false
+      showMissingReposInfo: false,
+      addTriggered: false,
     };
   }
 
@@ -108,8 +109,10 @@ export class SelectRepositoryListComponent extends Component {
   handleAddRepositories() {
     const { reposToAdd, user } = this.props;
 
-    // TODO else "You have not selected any repositories"
     if (reposToAdd.length) {
+      this.setState({
+        addTriggered: true,
+      });
       this.props.dispatch(addRepos(reposToAdd, user.login));
     }
   }
@@ -137,12 +140,14 @@ export class SelectRepositoryListComponent extends Component {
   }
 
   renderRepoList() {
-    const { ids, error, isFetching, pageLinks } = this.props.repositories;
+    const { ids, error, isFetching, isDelayed, pageLinks } = this.props.repositories;
 
     if (isFetching) {
       return (
         <div className={ styles.spinnerWrapper }>
-          <div className={ spinnerStyles }><Spinner /></div>
+          { isDelayed &&
+            <div className={ spinnerStyles }><Spinner /></div>
+          }
         </div>
       );
     }
@@ -169,9 +174,8 @@ export class SelectRepositoryListComponent extends Component {
 
   render() {
     const { user, selectedRepositories, isAddingSnaps, isUpdatingSnaps } = this.props;
-    const { isFetching } = this.props.repositories;
 
-    const buttonSpinner = isFetching || isAddingSnaps || isUpdatingSnaps;
+    const buttonSpinner = this.state.addTriggered && (isAddingSnaps || isUpdatingSnaps);
 
     return (
       <div>

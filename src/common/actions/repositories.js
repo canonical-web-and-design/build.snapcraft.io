@@ -4,6 +4,7 @@ import { fetchUserSnaps } from './snaps.js';
 export const REPOSITORIES_REQUEST = 'REPOSITORIES_REQUEST';
 export const REPOSITORIES_SUCCESS = 'REPOSITORIES_SUCCESS';
 export const REPOSITORIES_FAILURE = 'REPOSITORIES_FAILURE';
+export const REPOSITORIES_DELAYED = 'REPOSITORIES_DELAYED';
 
 export function fetchUserRepositories(pageNumber) {
   let path = '/api/github/repos';
@@ -14,7 +15,7 @@ export function fetchUserRepositories(pageNumber) {
 
   return {
     [CALL_API]: {
-      types: [REPOSITORIES_REQUEST, REPOSITORIES_SUCCESS, REPOSITORIES_FAILURE],
+      types: [REPOSITORIES_REQUEST, REPOSITORIES_SUCCESS, REPOSITORIES_FAILURE, REPOSITORIES_DELAYED],
       path: path,
       options: {
         headers: { 'Content-Type': 'application/json' },

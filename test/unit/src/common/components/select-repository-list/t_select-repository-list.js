@@ -79,12 +79,6 @@ describe('<SelectRepositoryListComponent /> instance', function() {
       spy.restore();
     });
 
-    it('should show spinner when repositories are being fetched', function() {
-      expect(wrapper.find(Spinner).length).toBe(0);
-      wrapper.setProps({ repositories: Object.assign({}, props.repositories, { isFetching: true }) });
-      expect(wrapper.find(Spinner).length).toBe(1);
-    });
-
     it('should hide LinkButton when has no repositories', function() {
       expect(wrapper.find(LinkButton).length).toBe(1);
       wrapper.setProps({ repositories: Object.assign({}, props.repositories, { ids: [] }) });

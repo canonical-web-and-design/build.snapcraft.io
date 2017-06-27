@@ -19,7 +19,8 @@ describe('repositories actions', () => {
         expect(fetchUserRepositories(pageNumber)[CALL_API].types).toEqual([
           ActionTypes.REPOSITORIES_REQUEST,
           ActionTypes.REPOSITORIES_SUCCESS,
-          ActionTypes.REPOSITORIES_FAILURE
+          ActionTypes.REPOSITORIES_FAILURE,
+          ActionTypes.REPOSITORIES_DELAYED
         ]);
       });
     });
