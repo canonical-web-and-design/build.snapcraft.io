@@ -1,14 +1,15 @@
 .wrapper {
   box-sizing: border-box;
-  max-width: 1030px;
+  max-width: 1070px;
   margin: 0 auto;
-  padding: 0;
+  padding: 0 1.25rem;
 }
 
 .container {
   composes: wrapper;
-  padding: 1em 0px;
   margin-bottom: 60px;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
 }
 
 .spinner {

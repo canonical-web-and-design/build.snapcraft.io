@@ -97,6 +97,10 @@
   text-align: center;
 }
 
+.centeredImage {
+  margin: 0 auto;
+}
+
 .external {
   background: url($icon-link-external) 100% 0 no-repeat;
   background-size: 0.7em;

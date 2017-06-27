@@ -21,12 +21,11 @@ body {
   box-sizing: border-box;
 
   font-size: 12px;
-  padding: 2em 1em 1.5em;
+  padding: 2rem 0 1.5rem;
 }
 
 .container {
-  width: 1030px;
-  margin: 0 auto;
+  composes: wrapper from '../../containers/container.css';
 }
 
 .container:after {
