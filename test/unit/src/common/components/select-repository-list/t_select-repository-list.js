@@ -106,52 +106,6 @@ describe('<SelectRepositoryListComponent /> instance', function() {
       wrapper.instance().componentDidMount();
       expect(spy).toNotHaveBeenCalled();
     });
-
-    context('paging repositories list', function() {
-
-      const toBePaged = [...Array(100).keys()];
-
-      // TODO move page length to config, rather than assume it
-      it('should slice out first page', function() {
-        const page = wrapper.instance().pageSlice(toBePaged, {
-          next: 2,
-          last: 4
-        });
-        expect(page.length).toBe(30);
-        expect(page[0]).toBe(0);
-        expect(page[page.length - 1]).toBe(29);
-      });
-
-      it('should slice out second page', function() {
-        const page = wrapper.instance().pageSlice(toBePaged, {
-          first: 1,
-          last: 4,
-          next: 3,
-          prev: 1
-        });
-        expect(page.length).toBe(30);
-        expect(page[0]).toBe(30);
-        expect(page[page.length - 1]).toBe(59);
-      });
-
-      it('should slice out last page', function() {
-        const page = wrapper.instance().pageSlice(toBePaged, {
-          first: 1,
-          prev: 3
-        });
-        expect(page.length).toBe(10);
-        expect(page[0]).toBe(90);
-        expect(page[page.length - 1]).toBe(99);
-      });
-
-      it('should handle list of repos smaller than paging', function() {
-        const toBePaged = [...Array(10).keys()];
-        const page = wrapper.instance().pageSlice(toBePaged);
-        expect(page.length).toBe(10);
-        expect(page[0]).toBe(0);
-        expect(page[page.length - 1]).toBe(9);
-      });
-    });
   });
 
   context('selecting repositories', function() {

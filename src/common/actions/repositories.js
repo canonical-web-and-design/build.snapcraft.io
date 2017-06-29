@@ -30,8 +30,20 @@ export function fetchUserRepositories(pageNumber) {
 export function fetchUserRepositoriesAndSnaps(owner) {
   return (dispatch) => {
     return Promise.all([
-      dispatch(fetchUserRepositories()),
+      dispatch(fetchChainedUserRepos()),
       dispatch(fetchUserSnaps(owner))
     ]);
+  };
+}
+
+export function fetchChainedUserRepos(page) {
+  return (dispatch) => {
+    return dispatch(fetchUserRepositories(page))
+      .then((result) => {
+        // if result contains info about next page, trigger fetching next page of results
+        if (result.pageLinks && result.pageLinks.next) {
+          return dispatch(fetchChainedUserRepos(result.pageLinks.next));
+        }
+      });
   };
 }

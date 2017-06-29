@@ -4,11 +4,7 @@ import { withRouter } from 'react-router';
 
 import SelectRepositoryRow from '../select-repository-row';
 import Spinner from '../spinner';
-import PageLinks from '../page-links';
 import Button, { LinkButton } from '../vanilla/button';
-import {
-  fetchUserRepositories,
-} from '../../actions/repositories';
 import {
   addRepos,
   resetRepository,
@@ -105,32 +101,10 @@ export class SelectRepositoryListComponent extends Component {
     }
   }
 
-  onPageLinkClick(pageNumber) {
-    this.props.dispatch(fetchUserRepositories(pageNumber));
-  }
-
-  pageSlice(repositoriesIndex, pageLinks) {
-    if (!pageLinks) {
-      return repositoriesIndex;
-    }
-
-    const PAGE_SIZE = 30; // TODO move to config or state
-    const { next, prev } = pageLinks;
-    let page = [];
-
-    if (next) {
-      page = repositoriesIndex.slice((next - 2) * PAGE_SIZE, (next - 1) * PAGE_SIZE);
-    } else if (prev) {
-      page = repositoriesIndex.slice(prev * 30);
-    }
-
-    return page;
-  }
-
   renderRepoList() {
-    const { ids, error, isFetching, isDelayed, pageLinks } = this.props.repositories;
+    const { ids, error, isFetching, isDelayed } = this.props.repositories;
 
-    if (isFetching) {
+    if (isFetching && ids.length === 0) {
       return (
         <div className={ styles.spinnerWrapper }>
           { isDelayed &&
@@ -140,24 +114,15 @@ export class SelectRepositoryListComponent extends Component {
       );
     }
 
-    const pagination = this.renderPageLinks(pageLinks);
     let renderedRepos = null;
 
     if (!error) {
-      renderedRepos = this.pageSlice(ids, pageLinks)
-        .map((id) => {
-          return this.renderRepository(id);
-        });
+      renderedRepos = ids.map((id) => this.renderRepository(id));
     } else {
       // TODO show error message and keep old repo list
     }
 
-    return (
-      <div>
-        { renderedRepos }
-        { pagination }
-      </div>
-    );
+    return renderedRepos;
   }
 
   render() {
@@ -209,18 +174,6 @@ export class SelectRepositoryListComponent extends Component {
         </div>
       </div>
     );
-  }
-
-  renderPageLinks(pageLinks) {
-    const hasPagination = !!(pageLinks && (pageLinks.first || pageLinks.last));
-
-    if (hasPagination) {
-      return (
-        <div className={ styles.pageLinksContainer }>
-          <PageLinks { ...pageLinks } onClick={ this.onPageLinkClick.bind(this) } />
-        </div>
-      );
-    }
   }
 }
 
