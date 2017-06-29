@@ -11,7 +11,7 @@ import {
   resetRepository,
   toggleRepositorySelection,
 } from '../../../../../../src/common/actions/repository';
-import Button, { LinkButton } from '../../../../../../src/common/components/vanilla/button';
+import { LinkButton } from '../../../../../../src/common/components/vanilla/button';
 import Spinner from '../../../../../../src/common/components/spinner';
 
 describe('<SelectRepositoryListComponent /> instance', function() {
@@ -86,7 +86,7 @@ describe('<SelectRepositoryListComponent /> instance', function() {
     });
 
     it('should render disabled Add button', function() {
-      expect(wrapper.find('Button').prop('disabled')).toBe(true);
+      expect(wrapper.find('Button').last().prop('disabled')).toBe(true);
     });
 
     it('should show message about 0 selected repos', function() {
@@ -218,7 +218,7 @@ describe('<SelectRepositoryListComponent /> instance', function() {
     });
 
     it('should dispatch selected repositories for building on add button click', function() {
-      wrapper.find(Button).simulate('click');
+      wrapper.find('Button').last().simulate('click');
       expect(spy).toHaveBeenCalledWith(addRepos(testProps.reposToAdd));
     });
   });

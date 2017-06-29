@@ -33,7 +33,7 @@ function createButtonComponent(Component) {
     disabled: PropTypes.bool,
     children: PropTypes.string,
     onClick: PropTypes.func,
-    appearance: React.PropTypes.oneOf(['positive', 'negative', 'neutral', 'base']),
+    appearance: React.PropTypes.oneOf(['positive', 'negative', 'neutral', 'base', 'link']),
     flavour: React.PropTypes.oneOf(['normal','bigger', 'smaller']),
     href: PropTypes.string,
     icon: PropTypes.string

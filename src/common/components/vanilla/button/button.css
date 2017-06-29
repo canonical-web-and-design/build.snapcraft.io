@@ -16,6 +16,8 @@ $neutral-button-color-hover: rgba(0, 0, 0, 0.1);
 $neutral-button-text-color: $dark-grey;
 $neutral-border-color: $dark-grey;
 
+$link-button-text-color: $link-blue;
+
 .button {
   font-family: $base-font-family;
   font-smoothing: subpixel-antialiased;
@@ -97,6 +99,23 @@ $neutral-border-color: $dark-grey;
 .neutral:focus,
 .neutral:hover {
   background-color: $neutral-button-color-hover;
+}
+
+.link {
+  -webkit-appearance: none;
+  -moz-appearance:    none;
+  appearance:         none;
+  background-color: transparent;
+  border: 0;
+  color: $link-button-text-color;
+  padding: 0;
+}
+
+.link:active,
+.link:focus,
+.link:hover {
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .button:disabled {

@@ -43,12 +43,6 @@ export class SelectRepositoryListComponent extends Component {
     this.props.selectedRepositories && this.props.selectedRepositories.map(id => {
       this.props.dispatch(resetRepository(id));
     });
-
-    // bind document click event
-    if (typeof document !== 'undefined') {
-      this.onBoundDocumentClick = this.onDocumentClick.bind(this);
-      document.addEventListener('click', this.onBoundDocumentClick);
-    }
   }
 
   componentWillUnmount() {
@@ -56,12 +50,6 @@ export class SelectRepositoryListComponent extends Component {
     if (typeof document !== 'undefined') {
       document.removeEventListener('click', this.onBoundDocumentClick);
     }
-  }
-
-  onDocumentClick() {
-    this.setState({
-      showMissingReposInfo: false
-    });
   }
 
   onHelpClick(event) {
@@ -200,9 +188,9 @@ export class SelectRepositoryListComponent extends Component {
               { selectedRepositories.length } selected
             </strong>
             {' '}
-            (<a href="#" onClick={this.onHelpClick.bind(this)}>
+            (<Button appearance={ 'link' } onClick={this.onHelpClick.bind(this)}>
               { this.state.showMissingReposInfo ? 'Return to repos list' : 'Anything missing?' }
-            </a>)
+            </Button>)
           </div>
           <div>
             <LinkButton appearance="base" to={`/user/${user.login}`}>
