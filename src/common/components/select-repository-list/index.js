@@ -125,6 +125,26 @@ export class SelectRepositoryListComponent extends Component {
     return renderedRepos;
   }
 
+  renderRepoAmount() {
+    const { ids, isFetching } = this.props.repositories;
+    const { selectedRepositories } = this.props;
+
+    // Return nothing until isFetching completes
+    if (isFetching || ids.length === 0) {
+      return;
+    }
+
+    // Return selected repos amount and the total
+    return (
+      <strong>
+        { (selectedRepositories.length > 0) &&
+          <span>{ selectedRepositories.length } selected of </span>
+        }
+        { ids.length } repos
+      </strong>
+    );
+  }
+
   render() {
     const { user, selectedRepositories, isAddingSnaps, isUpdatingSnaps } = this.props;
 
@@ -149,10 +169,8 @@ export class SelectRepositoryListComponent extends Component {
             <div className={ styles.arrow } />
           }
           <div className={ styles.summary }>
-            <strong>
-              { selectedRepositories.length } selected
-            </strong>
-            {' '}
+            { this.renderRepoAmount() }
+            {'\u00A0'}
             (<Button appearance={ 'link' } onClick={this.onHelpClick.bind(this)}>
               { this.state.showMissingReposInfo ? 'Return to repos list' : 'Anything missing?' }
             </Button>)

@@ -89,8 +89,12 @@ describe('<SelectRepositoryListComponent /> instance', function() {
       expect(wrapper.find('Button').last().prop('disabled')).toBe(true);
     });
 
-    it('should show message about 0 selected repos', function() {
-      expect(wrapper.html()).toInclude('0 selected');
+    it('should show message about 3 total repos', function() {
+      expect(wrapper.html()).toInclude('3 repos');
+    });
+
+    it('should show not message about 0 selected repos', function() {
+      expect(wrapper.html()).toNotInclude('0 selected of');
     });
 
     it('should render same number of rows as repos in state', function() {
@@ -153,6 +157,10 @@ describe('<SelectRepositoryListComponent /> instance', function() {
     it('should dispatch reset action on all selected repos on mount', function() {
       wrapper.instance().componentDidMount();
       expect(spy).toHaveBeenCalledWith(resetRepository(repoId));
+    });
+
+    it('should show message about 1 selected repos', function() {
+      expect(wrapper.html()).toInclude('1 selected of');
     });
   });
 
