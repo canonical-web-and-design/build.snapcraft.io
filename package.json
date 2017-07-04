@@ -7,6 +7,7 @@
     "start": "npm run migrate:latest && node ./webpack/webpack-dev-server",
     "start-build": "node dist/server/",
     "build": "./scripts/build.sh",
+    "build:vanilla-modules": "node-sass --include-path ./node_modules -o ./src/common/style/vanilla/css ./src/common/style/vanilla/",
     "lint": "eslint -c .eslintrc.js '**/*.js'",
     "test": "npm run test:setup-db && nyc npm run test:unit && npm run test:routes && npm run lint",
     "test:setup-db": "rm -f test.sqlite3 && NODE_ENV=test npm run migrate:latest",
@@ -113,6 +114,7 @@
     "flux-standard-action": "^1.0.0",
     "mocha": "^3.1.2",
     "nock": "^9.0.2",
+    "node-sass": "^4.5.3",
     "nyc": "^9.0.1",
     "postcss-loader": "^1.0.0",
     "postcss-simple-vars": "^3.0.0",
@@ -128,6 +130,7 @@
     "style-loader": "^0.13.1",
     "supertest": "^2.0.0",
     "url-loader": "^0.5.7",
+    "vanilla-framework": "git+https://git@github.com/vanilla-framework/vanilla-framework.git#e3b7034a1caf39e4ed87b9481d5fe0e9913c2b0f",
     "webpack": "^1.13.2",
     "webpack-dev-middleware": "^1.8.4",
     "webpack-hot-middleware": "^2.13.0"

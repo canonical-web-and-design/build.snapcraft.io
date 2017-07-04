@@ -1,0 +1,25 @@
+.p-breadcrumbs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%; }
+  .p-breadcrumbs__item {
+    display: inline-block;
+    margin: 0 0.75rem 0.25rem 0.25rem;
+    position: relative; }
+    .p-breadcrumbs__item:not(:first-of-type) {
+      margin-right: -.25rem;
+      text-indent: 1rem; }
+    .p-breadcrumbs__item:first-of-type {
+      margin-right: -.25rem; }
+    .p-breadcrumbs__item:not(:first-of-type)::before {
+      content: '\203A';
+      left: -.75rem;
+      position: absolute;
+      top: 0; }
+  .p-breadcrumbs__link {
+    color: #111;
+    font-weight: 400;
+    text-decoration: none; }
+    .p-breadcrumbs__link:hover {
+      color: #007aa6; }
