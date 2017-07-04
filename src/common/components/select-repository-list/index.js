@@ -172,7 +172,7 @@ export class SelectRepositoryListComponent extends Component {
             { this.renderRepoAmount() }
             {'\u00A0'}
             (<Button appearance={ 'link' } onClick={this.onHelpClick.bind(this)}>
-              { this.state.showMissingReposInfo ? 'Return to repos list' : 'Anything missing?' }
+              { this.state.showMissingReposInfo ? 'Return to repos list' : 'Any missing?' }
             </Button>)
           </div>
           <div>
