@@ -1,7 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import { Link } from 'react-router';
 
 import BuildHistory from '../components/build-history';
 import { Message } from '../components/forms';
@@ -9,7 +8,7 @@ import Spinner from '../components/spinner';
 import { HelpBox, HelpCustom, HelpInstallSnap } from '../components/help';
 import { HeadingOne } from '../components/vanilla/heading';
 import Badge from '../components/badge';
-import Breadcrumbs from '../components/vanilla/breadcrumbs';
+import Breadcrumbs, { BreadcrumbsLink } from '../components/vanilla-modules/breadcrumbs';
 import BetaNotification from '../components/beta-notification';
 
 import withRepository from './with-repository';
@@ -86,7 +85,9 @@ export class Builds extends Component {
         <BetaNotification />
         { user &&
           <Breadcrumbs>
-            <Link to={`/user/${user.login}`}>My repos</Link>
+            <BreadcrumbsLink to={`/user/${user.login}`}>My repos</BreadcrumbsLink>
+            {' ' /* vanilla assumes space between breadcrumb elements */}
+            <BreadcrumbsLink>&nbsp;</BreadcrumbsLink>  {/* hack to show arrow after last breadcrumb item */}
           </Breadcrumbs>
         }
         <div className={styles.repoHeading}>
