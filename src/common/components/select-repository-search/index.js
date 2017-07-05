@@ -1,11 +1,11 @@
 import React, { Component, PropTypes } from 'react';
 import styles from './search.css';
 
-export default class SelectRepositoriesSearch extends Component {
+export default class SelectRepositorySearch extends Component {
 
   render() {
     let id = this.props.id || 'search-repositories';
-    let label = this.props.label || 'Filter respositories';
+    let label = this.props.label || 'Search';
     let placeholder = this.props.placeholder || 'Filter respositories...';
 
     return (
@@ -13,7 +13,7 @@ export default class SelectRepositoriesSearch extends Component {
         { label }
         <input
           id={ id }
-          className={ styles.selectRepositoriesSearch }
+          className={ styles.selectRepositorySearch }
           type='search'
           placeholder={ placeholder }
         />
@@ -22,7 +22,7 @@ export default class SelectRepositoriesSearch extends Component {
   }
 }
 
-SelectRepositoriesSearch.propTypes = {
+SelectRepositorySearch.propTypes = {
   id: PropTypes.string,
   label: PropTypes.string,
   placeholder: PropTypes.string

@@ -5,7 +5,7 @@ import { fetchBuilds } from '../../actions/snap-builds';
 import { fetchUserRepositoriesAndSnaps } from '../../actions/repositories';
 import { fetchUserOrganizations } from '../../actions/organizations';
 import SelectRepositoryList from '../select-repository-list';
-import SelectRepositoriesSearch from '../select-repositories-search';
+import SelectRepositorySearch from '../select-repository-search';
 import { HeadingThree } from '../vanilla/heading';
 import FirstTimeHeading from '../first-time-heading';
 
@@ -36,7 +36,7 @@ class SelectRepositoriesPage extends Component {
             <HeadingThree className={ styles.heading }>
               Add repos
             </HeadingThree>
-            <SelectRepositoriesSearch />
+            <SelectRepositorySearch />
           </div>
           <SelectRepositoryList
             onRefresh={this.onRefresh.bind(this)}
