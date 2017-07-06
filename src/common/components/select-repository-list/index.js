@@ -121,6 +121,8 @@ export class SelectRepositoryListComponent extends Component {
     }
 
     let renderedRepos = null;
+
+    // TODO write unit tests
     let filteredRepos = ids.filter(
       (id) => {
         return this.props.entities.repos[id].fullName.toLowerCase().indexOf(
