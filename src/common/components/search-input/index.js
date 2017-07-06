@@ -8,9 +8,9 @@ export default function SearchInput(props) {
       <input
         id={ props.id }
         className={ styles.selectRepositorySearch }
-        onChange={props.onChange}
+        onChange={ props.onChange }
         placeholder={ props.placeholder }
-        value={props.value}
+        value={ props.value }
         type='search'
       />
     </label>
