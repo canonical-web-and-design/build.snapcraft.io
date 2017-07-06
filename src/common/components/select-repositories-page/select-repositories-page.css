@@ -16,6 +16,7 @@
 .selectRepositoriesBox {
   border: 1px solid $mid-grey;
   border-radius: 2px;
+  position: relative;
 }
 
 .selectRepositoriesHeading {

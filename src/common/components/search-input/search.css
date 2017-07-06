@@ -2,13 +2,13 @@ $border-color: $mid-grey;
 
 .searchInput {
   background-image: url('https://assets.ubuntu.com/v1/4a72426e-search-icon-grey.svg');
-  background-position: right 4px bottom 2px;
-  background-size: 16px;
+  background-position: right 4px bottom 4px;
+  background-size: 24px;
   background-repeat: no-repeat;
   border: 1px solid $border-color;
   border-radius: 2px;
   margin-left: 1rem;
   outline: none;
-  padding: .275rem 1.25rem .275rem .75rem;
+  padding: .275rem 2rem .275rem .75rem;
   vertical-align: baseline;
 }

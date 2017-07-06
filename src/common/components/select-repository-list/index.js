@@ -4,6 +4,7 @@ import { withRouter } from 'react-router';
 
 import SelectRepositoryRow from '../select-repository-row';
 import Spinner from '../spinner';
+import SearchInput from '../search-input';
 import Button, { LinkButton } from '../vanilla/button';
 import {
   addRepos,
@@ -32,6 +33,7 @@ export class SelectRepositoryListComponent extends Component {
     this.state = {
       showMissingReposInfo: false,
       addTriggered: false,
+      search: ''
     };
   }
 
@@ -67,6 +69,10 @@ export class SelectRepositoryListComponent extends Component {
       showMissingReposInfo: false
     });
     this.props.onRefresh();
+  }
+
+  updateSearch(event) {
+    this.setState({ search: event.target.value.substr(0, 20) });
   }
 
   renderRepository(id) {
@@ -115,9 +121,15 @@ export class SelectRepositoryListComponent extends Component {
     }
 
     let renderedRepos = null;
+    let filteredRepos = ids.filter(
+      (id) => {
+        return this.props.entities.repos[id].fullName.toLowerCase().indexOf(
+          this.state.search.toLowerCase()) !== -1;
+      }
+    );
 
     if (!error) {
-      renderedRepos = ids.map((id) => this.renderRepository(id));
+      renderedRepos = filteredRepos.map((id) => this.renderRepository(id));
     } else {
       // TODO show error message and keep old repo list
     }
@@ -152,6 +164,14 @@ export class SelectRepositoryListComponent extends Component {
 
     return (
       <div>
+        <div className={ styles.repoSearch }>
+          <SearchInput
+            id="search-repos"
+            placeholder="Filter all repositories..."
+            value={ this.state.search }
+            onChange={ this.updateSearch.bind(this) }
+          />
+        </div>
         <div className={ styles.repoList }>
           { this.state.showMissingReposInfo
             ? (
