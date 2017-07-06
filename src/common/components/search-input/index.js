@@ -7,7 +7,7 @@ export default function SearchInput(props) {
       { props.label }
       <input
         id={ props.id }
-        className={ styles.selectRepositorySearch }
+        className={ styles.searchInput }
         onChange={ props.onChange }
         placeholder={ props.placeholder }
         value={ props.value }
@@ -21,6 +21,6 @@ SearchInput.propTypes = {
   id: PropTypes.string.isRequired,
   label: PropTypes.string,
   onChange: PropTypes.func.isRequired,
-  placeholder: PropTypes.string.isRequired,
+  placeholder: PropTypes.string,
   value: PropTypes.string.isRequired
 };
