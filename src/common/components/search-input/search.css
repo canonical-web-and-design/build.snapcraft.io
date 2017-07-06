@@ -1,0 +1,10 @@
+$border-color: $mid-grey;
+
+.selectRepositorySearch {
+  border: 1px solid $border-color;
+  border-radius: 2px;
+  margin-left: 1rem;
+  outline: none;
+  padding: .275rem .75rem;
+  vertical-align: baseline;
+}
