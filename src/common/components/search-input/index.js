@@ -22,5 +22,5 @@ SearchInput.propTypes = {
   label: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
-  value: PropTypes.string.isRequired
+  value: PropTypes.string
 };

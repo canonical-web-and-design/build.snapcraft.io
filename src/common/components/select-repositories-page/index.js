@@ -7,10 +7,19 @@ import { fetchUserOrganizations } from '../../actions/organizations';
 import SelectRepositoryList from '../select-repository-list';
 import { HeadingThree } from '../vanilla/heading';
 import FirstTimeHeading from '../first-time-heading';
+import SearchInput from '../search-input';
 
 import styles from './select-repositories-page.css';
 
 class SelectRepositoriesPage extends Component {
+  constructor() {
+    super();
+
+    this.state = {
+      search: ''
+    };
+  }
+
   componentDidMount() {
     this.fetchUserData();
   }
@@ -19,6 +28,10 @@ class SelectRepositoriesPage extends Component {
     if (this.props.snaps.success !== nextProps.snaps.success) {
       this.fetchBuilds(nextProps);
     }
+  }
+
+  updateSearch(event) {
+    this.setState({ search: event.target.value });
   }
 
   render() {
@@ -35,9 +48,15 @@ class SelectRepositoriesPage extends Component {
             <HeadingThree className={ styles.heading }>
               Add repos
             </HeadingThree>
+            <SearchInput
+              id="search-repos"
+              value={ this.state.search }
+              onChange={ this.updateSearch.bind(this) }
+            />
           </div>
           <SelectRepositoryList
-            onRefresh={this.onRefresh.bind(this)}
+            onRefresh={ this.onRefresh.bind(this) }
+            searchTerm={ this.state.search }
           />
         </div>
       </div>

@@ -115,9 +115,18 @@ export class SelectRepositoryListComponent extends Component {
     }
 
     let renderedRepos = null;
+    let filteredRepos = ids;
+
+    if (this.props.searchTerm) {
+      filteredRepos = ids.filter(
+         (id) => {
+           return this.props.entities.repos[id].fullName.toLowerCase().indexOf(
+                this.props.searchTerm.toLowerCase()) !== -1; }
+         );
+    }
 
     if (!error) {
-      renderedRepos = ids.map((id) => this.renderRepository(id));
+      renderedRepos = filteredRepos.map((id) => this.renderRepository(id));
     } else {
       // TODO show error message and keep old repo list
     }
@@ -209,7 +218,8 @@ SelectRepositoryListComponent.propTypes = {
   hasFailedRepositories: PropTypes.bool,
   isUpdatingSnaps: PropTypes.bool,
   isAddingSnaps: PropTypes.bool,
-  onRefresh: PropTypes.func
+  onRefresh: PropTypes.func,
+  searchTerm: PropTypes.string
 };
 
 function mapStateToProps(state, ownProps) {
