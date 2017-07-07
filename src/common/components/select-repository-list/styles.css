@@ -20,12 +20,6 @@
   border-top: 1px solid $cool-grey;
 }
 
-.repoSearch {
-  position: absolute;
-  right: 17px;
-  top: 17px;
-}
-
 .spinnerWrapper {
   margin-top: 140px;
 }
