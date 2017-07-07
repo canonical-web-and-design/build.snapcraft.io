@@ -1,7 +1,6 @@
 import { shallow } from 'enzyme';
 import expect from 'expect';
 import React from 'react';
-import { Link } from 'react-router';
 
 import { HelpInstallSnap } from '../../../../../src/common/components/help';
 import { Builds } from '../../../../../src/common/containers/builds';
@@ -26,14 +25,14 @@ describe('The Builds container', function() {
 
   it('omits link to "My repos" if not signed in', function() {
     const element = shallow(<Builds { ...baseProps } />);
-    expect(element.find(Link).length).toBe(0);
+    expect(element.find('BreadcrumbsLink').length).toBe(0);
   });
 
   it('shows link to "My repos" if signed in', function() {
     const props = { ...baseProps, user: { login: 'test-user' } };
     const element = shallow(<Builds { ...props } />);
-    expect(element.find(Link).length).toBe(1);
-    expect(element.find(Link).prop('to')).toBe('/user/test-user');
+    expect(element.find('BreadcrumbsLink').length).toBe(2);
+    expect(element.find('BreadcrumbsLink').first().prop('to')).toBe('/user/test-user');
   });
 
   it('omits snap testing instructions if snap has no published ' +

@@ -2,6 +2,12 @@
   box-sizing: inherit;
 }
 
+* {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: subpixel-antialiased;
+}
+
 html, body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
