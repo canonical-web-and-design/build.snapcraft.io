@@ -115,12 +115,15 @@ export class SelectRepositoryListComponent extends Component {
     }
 
     let renderedRepos = null;
-    let filteredRepos = ids.filter(
-      (id) => {
-        return this.props.entities.repos[id].fullName.toLowerCase().indexOf(
-          this.props.searchTerm.toLowerCase()) !== -1;
-      }
-    );
+    let filteredRepos = ids;
+
+    if (this.props.searchTerm) {
+      filteredRepos = ids.filter(
+         (id) => {
+           return this.props.entities.repos[id].fullName.toLowerCase().indexOf(
+                this.props.searchTerm.toLowerCase()) !== -1; }
+         );
+    }
 
     if (!error) {
       renderedRepos = filteredRepos.map((id) => this.renderRepository(id));
