@@ -31,7 +31,7 @@ class SelectRepositoriesPage extends Component {
   }
 
   updateSearch(event) {
-    this.setState({ search: event.target.value.substr() });
+    this.setState({ search: event.target.value });
   }
 
   render() {
@@ -50,7 +50,6 @@ class SelectRepositoriesPage extends Component {
             </HeadingThree>
             <SearchInput
               id="search-repos"
-              placeholder="Filter all repositories..."
               value={ this.state.search }
               onChange={ this.updateSearch.bind(this) }
             />
