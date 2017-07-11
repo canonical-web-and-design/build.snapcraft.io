@@ -7,6 +7,7 @@ export function repositories(state = {
   isDelayed: false,
   error: null,
   ids: [],
+  searchTerm: '',
   pageLinks: {}
 }, action) {
 
@@ -36,6 +37,11 @@ export function repositories(state = {
       return {
         ...state,
         isDelayed: true
+      };
+    case ActionTypes.REPOSITORIES_SEARCH:
+      return {
+        ...state,
+        searchTerm: action.payload
       };
     default:
       return state;

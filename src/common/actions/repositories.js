@@ -5,6 +5,7 @@ export const REPOSITORIES_REQUEST = 'REPOSITORIES_REQUEST';
 export const REPOSITORIES_SUCCESS = 'REPOSITORIES_SUCCESS';
 export const REPOSITORIES_FAILURE = 'REPOSITORIES_FAILURE';
 export const REPOSITORIES_DELAYED = 'REPOSITORIES_DELAYED';
+export const REPOSITORIES_SEARCH = 'REPOSITORIES_SEARCH';
 
 export function fetchUserRepositories(pageNumber) {
   let path = '/api/github/repos';
@@ -45,5 +46,12 @@ export function fetchChainedUserRepos(page) {
           return dispatch(fetchChainedUserRepos(result.pageLinks.next));
         }
       });
+  };
+}
+
+export function searchRepos(searchTerm) {
+  return {
+    type: REPOSITORIES_SEARCH,
+    payload: searchTerm
   };
 }

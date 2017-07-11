@@ -9,6 +9,7 @@ describe('repositories reducers', () => {
     isFetching: false,
     isDelayed: false,
     pageLinks: {},
+    searchTerm: '',
     error: null,
     ids: []
   };
@@ -105,6 +106,24 @@ describe('repositories reducers', () => {
       expect(repositories(state, action)).toEqual({
         ...state,
         isDelayed: true
+      });
+    });
+  });
+
+  context('REPOSITORIES_SEARCH', () => {
+    const state = {
+      ...initialState
+    };
+
+    const action = {
+      type: ActionTypes.REPOSITORIES_SEARCH,
+      payload: 'test'
+    };
+
+    it('should store search term', () => {
+      expect(repositories(state, action)).toEqual({
+        ...state,
+        searchTerm: 'test'
       });
     });
   });

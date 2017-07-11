@@ -15,8 +15,9 @@ import {
   getSelectedRepositories,
   getReposToAdd,
   hasFailedRepositories,
-  isAddingSnaps
-} from '../../selectors/index.js';
+  isAddingSnaps,
+  getFilteredRepos
+} from '../../selectors';
 import styles from './styles.css';
 
 import PrivateReposInfo from '../private-repos-info/private-repos-info';
@@ -103,6 +104,7 @@ export class SelectRepositoryListComponent extends Component {
 
   renderRepoList() {
     const { ids, error, isFetching, isDelayed } = this.props.repositories;
+    const { filteredRepos } = this.props;
 
     if (isFetching && ids.length === 0) {
       return (
@@ -115,15 +117,6 @@ export class SelectRepositoryListComponent extends Component {
     }
 
     let renderedRepos = null;
-    let filteredRepos = ids;
-
-    if (this.props.searchTerm) {
-      filteredRepos = ids.filter(
-         (id) => {
-           return this.props.entities.repos[id].fullName.toLowerCase().indexOf(
-                this.props.searchTerm.toLowerCase()) !== -1; }
-         );
-    }
 
     if (!error) {
       renderedRepos = filteredRepos.map((id) => this.renderRepository(id));
@@ -218,15 +211,15 @@ SelectRepositoryListComponent.propTypes = {
   hasFailedRepositories: PropTypes.bool,
   isUpdatingSnaps: PropTypes.bool,
   isAddingSnaps: PropTypes.bool,
-  onRefresh: PropTypes.func,
-  searchTerm: PropTypes.string
+  filteredRepos: PropTypes.array,
+  onRefresh: PropTypes.func
 };
 
 function mapStateToProps(state, ownProps) {
   const {
     user,
     entities,
-    repositories,
+    repositories
   } = state;
 
   return {
@@ -235,6 +228,7 @@ function mapStateToProps(state, ownProps) {
     entities,
     repositories, // ?repository-pagination
     isUpdatingSnaps: state.snaps.isFetching,
+    filteredRepos: getFilteredRepos(state),
     isAddingSnaps: isAddingSnaps(state),
     selectedRepositories: getSelectedRepositories(state),
     reposToAdd: getReposToAdd(state),

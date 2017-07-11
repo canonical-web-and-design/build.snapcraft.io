@@ -4,6 +4,7 @@ import pick from 'lodash/pick';
 import { parseGitHubRepoUrl } from '../helpers/github-url';
 
 const getRepositoriesIndex = state => state.repositories.ids;
+const getRepositoriesState = state => state.repositories;
 const getRepositories = state => state.entities.repos;
 const getRepositoryOwners = state => state.entities.owners;
 const getSnapsIndex = state => state.snaps.ids;
@@ -164,5 +165,20 @@ export const isAddingSnaps = createSelector(
   [getRepositoriesIndex, getRepositories],
   (repositoriesIndex, repositories) => {
     return !!(repositoriesIndex.length && repositoriesIndex.some((id) => repositories[id].isFetching));
+  }
+);
+
+/**
+ * @returns {Array} ids of repos that match the search term
+ */
+export const getFilteredRepos = createSelector(
+  [getRepositoriesIndex, getRepositoriesState, getRepositories],
+  (reposIds, reposState, repos) => {
+    return reposIds.filter((id) => {
+      const fullName = repos[id].fullName.toLowerCase();
+      const searchTerm = reposState.searchTerm.toLowerCase();
+
+      return fullName.indexOf(searchTerm) !== -1;
+    });
   }
 );

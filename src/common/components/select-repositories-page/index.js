@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { fetchBuilds } from '../../actions/snap-builds';
-import { fetchUserRepositoriesAndSnaps } from '../../actions/repositories';
+import { fetchUserRepositoriesAndSnaps, searchRepos } from '../../actions/repositories';
 import { fetchUserOrganizations } from '../../actions/organizations';
 import SelectRepositoryList from '../select-repository-list';
 import { HeadingThree } from '../vanilla/heading';
@@ -12,13 +12,6 @@ import SearchInput from '../search-input';
 import styles from './select-repositories-page.css';
 
 class SelectRepositoriesPage extends Component {
-  constructor() {
-    super();
-
-    this.state = {
-      search: ''
-    };
-  }
 
   componentDidMount() {
     this.fetchUserData();
@@ -31,7 +24,7 @@ class SelectRepositoriesPage extends Component {
   }
 
   updateSearch(event) {
-    this.setState({ search: event.target.value });
+    this.props.dispatch(searchRepos(event.target.value));
   }
 
   render() {
@@ -50,13 +43,12 @@ class SelectRepositoriesPage extends Component {
             </HeadingThree>
             <SearchInput
               id="search-repos"
-              value={ this.state.search }
+              value={ this.props.searchTerm }
               onChange={ this.updateSearch.bind(this) }
             />
           </div>
           <SelectRepositoryList
             onRefresh={ this.onRefresh.bind(this) }
-            searchTerm={ this.state.search }
           />
         </div>
       </div>
@@ -96,6 +88,7 @@ SelectRepositoriesPage.propTypes = {
   entities: PropTypes.object.isRequired,
   user: PropTypes.object,
   snaps: PropTypes.object.isRequired,
+  searchTerm: PropTypes.string.isRequired,
   dispatch: PropTypes.func.isRequired
 };
 
@@ -104,14 +97,16 @@ function mapStateToProps(state) {
     auth,
     entities,
     user,
-    snaps
+    snaps,
+    repositories
   } = state;
 
   return {
     auth,
     entities,
     user,
-    snaps
+    snaps,
+    searchTerm: repositories.searchTerm
   };
 }
 

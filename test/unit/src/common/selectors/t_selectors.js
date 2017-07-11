@@ -9,7 +9,8 @@ import {
   snapsWithRegisteredNameAndSnapcraftData,
   snapsWithRegisteredNameAndNoSnapcraftData,
   snapsWithNoBuilds,
-  isAddingSnaps
+  isAddingSnaps,
+  getFilteredRepos
 } from '../../../../../src/common/selectors';
 
 describe('selectors', function() {
@@ -308,4 +309,75 @@ describe('selectors', function() {
 
   });
 
+  context('getFilteredRepos', function() {
+
+    const stateSearchEmpty = {
+      entities: {
+        repos: {
+          1001: {
+            id: 1001,
+            fullName: 'canonical/snap-test'
+          },
+          1002: {
+            id: 1002,
+            fullName: 'canonical/bsi-test'
+          }
+        }
+      },
+      repositories: {
+        ids: [1001, 1002],
+        searchTerm: ''
+      }
+    };
+
+    const stateSearchMatch = {
+      entities: {
+        repos: {
+          1001: {
+            id: 1001,
+            fullName: 'canonical/snap-test'
+          },
+          1002: {
+            id: 1002,
+            fullName: 'canonical/bsi-test'
+          }
+        }
+      },
+      repositories: {
+        ids: [1001, 1002],
+        searchTerm: 'bsi'
+      }
+    };
+
+    const stateSearchNoMatch = {
+      entities: {
+        repos: {
+          1001: {
+            id: 1001,
+            fullName: 'canonical/snap-test'
+          },
+          1002: {
+            id: 1002,
+            fullName: 'canonical/bsi-test'
+          }
+        }
+      },
+      repositories: {
+        ids: [1001, 1002],
+        searchTerm: 'maas'
+      }
+    };
+
+    it('should return all repos if search term is empty', function() {
+      expect(getFilteredRepos(stateSearchEmpty)).toEqual([1001, 1002]);
+    });
+
+    it('should return filtered repos if search term matches', function() {
+      expect(getFilteredRepos(stateSearchMatch)).toEqual([1002]);
+    });
+
+    it('should return empty list if search term does not match any repos', function() {
+      expect(getFilteredRepos(stateSearchNoMatch)).toEqual([]);
+    });
+  });
 });

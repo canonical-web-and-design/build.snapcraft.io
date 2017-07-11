@@ -52,7 +52,7 @@ describe('<SelectRepositoryListComponent /> instance', function() {
       },
       repositories: {
         isFetching: false,
-        ids: [1001,1002,1003]
+        ids: [1001, 1002, 1003]
       },
       snaps: {
         success: true,
@@ -61,6 +61,7 @@ describe('<SelectRepositoryListComponent /> instance', function() {
       enabledRepositories: { // stub the selector
         1001: {}
       },
+      filteredRepos: [1001, 1002, 1003],
       selectedRepositories: [], // stub the selector
       reposToAdd: [] // stub the selector
     };
@@ -182,6 +183,18 @@ describe('<SelectRepositoryListComponent /> instance', function() {
     it('should dispatch selected repositories for building on add button click', function() {
       wrapper.find('Button').last().simulate('click');
       expect(spy).toHaveBeenCalledWith(addRepos(testProps.reposToAdd));
+    });
+  });
+
+  context('searching repositories', function() {
+    let wrapper;
+
+    beforeEach(function() {
+      wrapper = shallow(<SelectRepositoryListComponent { ...props } />);
+    });
+
+    it('should render same number of rows as repos in filtered repos', function() {
+      expect(wrapper.find(SelectRepositoryRow).length).toBe(props.filteredRepos.length);
     });
   });
 });

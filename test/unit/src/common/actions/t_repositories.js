@@ -2,10 +2,12 @@ import expect from 'expect';
 import nock from 'nock';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import { isFSA } from 'flux-standard-action';
 
 import {
   fetchUserRepositories,
-  fetchChainedUserRepos
+  fetchChainedUserRepos,
+  searchRepos
 } from '../../../../../src/common/actions/repositories';
 import * as ActionTypes from '../../../../../src/common/actions/repositories';
 import callApi, { CALL_API } from '../../../../../src/common/middleware/call-api';
@@ -108,6 +110,27 @@ describe('repositories actions', () => {
         expect(requestActions.length).toBe(3);
       });
     });
+  });
 
+  describe('searchRepos', () => {
+    let store;
+
+    beforeEach(() => {
+      store = mockStore({});
+    });
+
+    it('should create an action to update search term', () => {
+      const expectedAction = {
+        type: ActionTypes.REPOSITORIES_SEARCH,
+        payload: 'test'
+      };
+
+      store.dispatch(searchRepos('test'));
+      expect(store.getActions()).toInclude(expectedAction);
+    });
+
+    it('should create a valid flux standard action', () => {
+      expect(isFSA(searchRepos('test'))).toBe(true);
+    });
   });
 });
