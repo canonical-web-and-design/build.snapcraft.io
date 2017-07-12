@@ -52,7 +52,8 @@ describe('<SelectRepositoryListComponent /> instance', function() {
       },
       repositories: {
         isFetching: false,
-        ids: [1001, 1002, 1003]
+        ids: [1001, 1002, 1003],
+        searchTerm: ''
       },
       snaps: {
         success: true,
@@ -95,7 +96,7 @@ describe('<SelectRepositoryListComponent /> instance', function() {
     });
 
     it('should show not message about 0 selected repos', function() {
-      expect(wrapper.html()).toNotInclude('0 selected of');
+      expect(wrapper.html()).toNotInclude('0 selected');
     });
 
     it('should render same number of rows as repos in state', function() {
@@ -188,13 +189,110 @@ describe('<SelectRepositoryListComponent /> instance', function() {
 
   context('searching repositories', function() {
     let wrapper;
+    let testProps;
 
-    beforeEach(function() {
-      wrapper = shallow(<SelectRepositoryListComponent { ...props } />);
+    context('when search term is empty', function() {
+      beforeEach(() => {
+        testProps = {
+          ...props,
+          repositories: {
+            ...props.repositories,
+            searchTerm: ''
+          }
+        };
+      });
+
+      it('should not show message about search matches', function() {
+        wrapper = shallow(<SelectRepositoryListComponent { ...testProps } />);
+
+        expect(wrapper.html()).toNotInclude('matches in');
+      });
+
+      it('should render all rows', function() {
+        wrapper = shallow(<SelectRepositoryListComponent { ...testProps } />);
+        expect(wrapper.find(SelectRepositoryRow).length).toBe(props.filteredRepos.length);
+      });
     });
 
-    it('should render same number of rows as repos in filtered repos', function() {
-      expect(wrapper.find(SelectRepositoryRow).length).toBe(props.filteredRepos.length);
+    context('when search doesn’t match any repos', function() {
+      beforeEach(() => {
+        testProps = {
+          ...props,
+          repositories: {
+            ...props.repositories,
+            searchTerm: 'test'
+          },
+          filteredRepos: []
+        };
+      });
+
+      it('should show message that no matches were found', function() {
+        wrapper = shallow(<SelectRepositoryListComponent { ...testProps } />);
+
+        expect(wrapper.html()).toInclude('No matches in');
+      });
+
+      it('should show message that no matches were found with selected repos', function() {
+        const filteredProps = {
+          ...testProps,
+          selectedRepositories: [1002]
+        };
+
+        wrapper = shallow(<SelectRepositoryListComponent { ...filteredProps } />);
+
+        expect(wrapper.html()).toInclude('1 selected, no matches in');
+      });
+
+      it('should not render any rows', function() {
+        wrapper = shallow(<SelectRepositoryListComponent { ...testProps } />);
+        expect(wrapper.find(SelectRepositoryRow).length).toBe(0);
+      });
+    });
+
+    context('when search matches some repos', function() {
+      beforeEach(() => {
+        testProps = {
+          ...props,
+          repositories: {
+            ...props.repositories,
+            searchTerm: 'test'
+          }
+        };
+      });
+
+      it('should show message that matches were found', function() {
+        const filterProps = {
+          ...testProps,
+          filteredRepos: [1001, 1002]
+        };
+
+        wrapper = shallow(<SelectRepositoryListComponent { ...filterProps } />);
+
+        expect(wrapper.html()).toInclude('2 matches in');
+      });
+
+      it('should show message that one match was found', function() {
+        const filterProps = {
+          ...testProps,
+          filteredRepos: [1001]
+        };
+
+        wrapper = shallow(<SelectRepositoryListComponent { ...filterProps } />);
+
+        expect(wrapper.html()).toInclude('1 match in');
+      });
+
+      it('should show message that matches were found with selected repos', function() {
+        const filterProps = {
+          ...testProps,
+          selectedRepositories: [1002],
+          filteredRepos: [1001, 1002]
+        };
+
+        wrapper = shallow(<SelectRepositoryListComponent { ...filterProps } />);
+
+        expect(wrapper.html()).toInclude('1 selected, 2 matches in');
+      });
     });
   });
 });

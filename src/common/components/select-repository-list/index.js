@@ -128,22 +128,59 @@ export class SelectRepositoryListComponent extends Component {
   }
 
   renderRepoAmount() {
-    const { ids, isFetching } = this.props.repositories;
-    const { selectedRepositories } = this.props;
+    const { ids, isFetching, searchTerm } = this.props.repositories;
+    const { selectedRepositories, filteredRepos } = this.props;
 
     // Return nothing until isFetching completes
     if (isFetching || ids.length === 0) {
       return;
     }
 
+    // Variables required to calucatate selected amount and filterd amount.
+    let reposSelected = '';
+    let reposFiltered = '';
+
+    // Set reposSelected to value amount of selectedRepositories
+    if (selectedRepositories.length > 0) {
+      reposSelected = `${ selectedRepositories.length } selected`;
+    }
+
+    // Set reposFiltered message dependant on value of searchTerm
+    if (searchTerm) {
+
+      if (filteredRepos.length === 0) {
+
+        if (reposSelected) {
+          reposFiltered = ', no matches in ';
+        } else {
+          reposFiltered = 'No matches in ';
+        }
+
+      } else {
+
+        if (filteredRepos.length === 1) {
+          reposFiltered = '1 match in ';
+        } else {
+          reposFiltered = `${filteredRepos.length} matches in `;
+        }
+
+        if (reposSelected) {
+          reposSelected += ', ';
+        }
+      }
+    } else {
+      if (reposSelected) {
+        reposSelected += ' of ';
+      }
+    }
+
+    // Repo total and overall status text variables
+    let reposTotal = `${ ids.length } repos`;
+    let reposStatus = `${reposSelected}${reposFiltered}${reposTotal}`;
+
     // Return selected repos amount and the total
     return (
-      <strong>
-        { (selectedRepositories.length > 0) &&
-          <span>{ selectedRepositories.length } selected of </span>
-        }
-        { ids.length } repos
-      </strong>
+      <strong>{ reposStatus }</strong>
     );
   }
 
