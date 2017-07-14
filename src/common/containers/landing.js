@@ -27,7 +27,7 @@ class Landing extends Component {
 
               <ul className={ styles.banner }>
                 <li className={ styles.bannerImage }>
-                  <img src='https://assets.ubuntu.com/v1/ed6d1c5b-build.snapcraft.hero.svg' alt="Snapcraft hero image, push to GitHub, built automatically, release for your users."/>
+                  <img src='https://assets.ubuntu.com/v1/ed6d1c5b-build.snapcraft.hero.svg' alt=""/>
                 </li>
 
                 <li className={ styles.bannerLabel }>
@@ -64,12 +64,12 @@ class Landing extends Component {
               Publish your software for
             </HeadingTwo>
             <div className={ `${styles.row}` }>
-              <img className={ styles.brandLogo } src={images.debian} />
-              <img className={ styles.brandLogo } src={images.opensuse} />
-              <img className={ styles.brandLogo } src={images.archlinux} />
-              <img className={ styles.brandLogo } src={images.gentoo} />
-              <img className={ styles.brandLogo } src={images.fedora} />
-              <img className={ styles.brandLogo } src={images.ubuntu} />
+              <img className={ styles.brandLogo } alt="Debian," src={images.debian} />
+              <img className={ styles.brandLogo } alt="openSUSE," src={images.opensuse} />
+              <img className={ styles.brandLogo } alt="Arch Linux," src={images.archlinux} />
+              <img className={ styles.brandLogo } alt="Gentoo," src={images.gentoo} />
+              <img className={ styles.brandLogo } alt="Fedora," src={images.fedora} />
+              <img className={ styles.brandLogo } alt="Ubuntu." src={images.ubuntu} />
             </div>
           </div>
         </section>
@@ -102,7 +102,7 @@ class Landing extends Component {
               How Snapcraft fits into your workflow
             </HeadingTwo>
             <div className={ `${styles.row} `}>
-              <img src='https://assets.ubuntu.com/v1/b70a5c55-workflow-illustration.svg' className={ `${styles.centeredImage}`} alt="Snapcraft workflow diagram."/>
+              <img src='https://assets.ubuntu.com/v1/b70a5c55-workflow-illustration.svg' className={ `${styles.centeredImage}`} alt="1: You receive a pull request on GitHub. 2: Test with Travis or other CI system. 3: The code lands on your GitHub master. 4: Snapcraft builds a new snap version. 5: Auto-released to the snap store for testing. 6: You promote to beta, candidate, or stable."/>
             </div>
           </div>
 
@@ -125,7 +125,7 @@ class Landing extends Component {
               </div>
             </div>
             <div className={styles.oneThird}>
-              <img src='https://assets.ubuntu.com/v1/2c5e93c5-fast-easy-safe-illustration.svg'/>
+              <img alt="" src='https://assets.ubuntu.com/v1/2c5e93c5-fast-easy-safe-illustration.svg'/>
             </div>
           </div>
         </section>
