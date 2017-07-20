@@ -46,7 +46,7 @@ const NameMismatchDropdown = (props) => {
 };
 
 function getNameRegisteredByOtherUserHelpText(snap) {
-  const { snapcraftData, storeName, gitRepoUrl } = snap;
+  const { snapcraftData, storeName } = snap;
 
   return (
     <p>
@@ -55,7 +55,7 @@ function getNameRegisteredByOtherUserHelpText(snap) {
       <a
         target="_blank"
         rel="noopener noreferrer"
-        href={getTemplateUrl(gitRepoUrl, snapcraftData.path)}
+        href={getTemplateUrl(snap)}
       >
         change snapcraft.yaml
       </a> to use “{storeName}” instead.
@@ -64,7 +64,7 @@ function getNameRegisteredByOtherUserHelpText(snap) {
 }
 
 function getNameMismatchHelpText(snap, onOpenRegisterNameClick) {
-  const { snapcraftData, storeName, gitRepoUrl } = snap;
+  const { snapcraftData, storeName } = snap;
 
   return (
     <div className={styles.caption}>
@@ -74,7 +74,7 @@ function getNameMismatchHelpText(snap, onOpenRegisterNameClick) {
           <a
             target="_blank"
             rel="noopener noreferrer"
-            href={getTemplateUrl(gitRepoUrl, snapcraftData.path)}
+            href={getTemplateUrl(snap)}
           >
             Change snapcraft.yaml
           </a> to use “{storeName}”
@@ -89,10 +89,13 @@ function getNameMismatchHelpText(snap, onOpenRegisterNameClick) {
 
 NameMismatchDropdown.propTypes = {
   snap: PropTypes.shape({
-    storeName: PropTypes.string,
+    gitRepoUrl: PropTypes.string,
+    gitBranch: PropTypes.string,
     snapcraftData: PropTypes.shape({
-      name: PropTypes.string
-    })
+      name: PropTypes.string,
+      path: PropTypes.string
+    }),
+    storeName: PropTypes.string,
   }),
   nameOwnership: PropTypes.object,
   onOpenRegisterNameClick: PropTypes.func,

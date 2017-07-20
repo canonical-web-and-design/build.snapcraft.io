@@ -313,12 +313,7 @@ export class RepositoryRowView extends Component {
           />
         }
         { showUnconfiguredDropdown && <UnconfiguredDropdown snap={snap} /> }
-        { showEditConfigDropdown &&
-          <EditConfigDropdown
-            repositoryUrl={ snap.gitRepoUrl }
-            configFilePath={ snap.snapcraftData.path }
-          />
-        }
+        { showEditConfigDropdown && <EditConfigDropdown snap={snap} /> }
         { showUnregisteredDropdown &&
           <RegisterNameDropdown
             registeredName={registeredName}

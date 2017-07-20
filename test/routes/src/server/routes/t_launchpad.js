@@ -13,6 +13,7 @@ import {
 import launchpad from '../../../../../src/server/routes/launchpad';
 import db from '../../../../../src/server/db';
 import {
+  getDefaultBranchCacheId,
   getSnapcraftYamlCacheId,
   listOrganizationsCacheId
 } from '../../../../../src/server/handlers/github';
@@ -458,6 +459,7 @@ describe('The Launchpad API endpoint', () => {
             self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~another-user`,
             git_repository_url: 'https://github.com/anowner/test-snap',
+            git_path: 'refs/heads/master',
             builds_collection_link: `${lp_api_base}/~another-user/+snap/` +
                                     'test-snap/builds',
             webhooks_collection_link: `${lp_api_base}/~another-user/+snap/` +
@@ -469,6 +471,7 @@ describe('The Launchpad API endpoint', () => {
             self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~test-user`,
             git_repository_url: 'https://github.com/org1/test-snap',
+            git_path: 'HEAD',
             builds_collection_link: `${lp_api_base}/~test-user/+snap/` +
                                     'test-snap/builds',
             webhooks_collection_link: `${lp_api_base}/~test-user/+snap/` +
@@ -501,6 +504,10 @@ describe('The Launchpad API endpoint', () => {
           const fullName = snap.git_repository_url.replace('https://github.com/', '');
           const repoContents = contents[snap.git_repository_url];
 
+          if (snap.git_path === 'HEAD') {
+            ghApi.get(`/repos/${fullName}`)
+              .reply(200, { default_branch: 'master' });
+          }
           ghApi.get(`/repos/${fullName}/contents/snap/snapcraft.yaml`)
             .reply(200, repoContents);
           const builds_link = snap.builds_collection_link;
@@ -806,6 +813,7 @@ describe('The Launchpad API endpoint', () => {
             self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~another-user`,
             git_repository_url: 'https://github.com/anowner/test-snap',
+            git_path: 'refs/heads/master',
             builds_collection_link: `${lp_api_base}/~another-user/+snap/` +
                                     'test-snap/builds',
             store_name: 'snap1'
@@ -815,6 +823,7 @@ describe('The Launchpad API endpoint', () => {
             self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
             owner_link: `${lp_api_base}/~test-user`,
             git_repository_url: 'https://github.com/org1/test-snap',
+            git_path: 'HEAD',
             builds_collection_link: `${lp_api_base}/~test-user/+snap/` +
                                     'test-snap/builds'
           }
@@ -836,8 +845,15 @@ describe('The Launchpad API endpoint', () => {
 
         lpApi = nock(lp_api_url);
         testSnaps.map((snap) => {
-          const cacheId = getSnapcraftYamlCacheId(snap.git_repository_url);
-          getMemcached().cache[cacheId] = contents[snap.git_repository_url];
+          if (snap.git_path === 'HEAD') {
+            const defaultBranchCacheId = getDefaultBranchCacheId(
+              snap.git_repository_url);
+            getMemcached().cache[defaultBranchCacheId] = 'master';
+          }
+          const snapcraftYamlCacheId = getSnapcraftYamlCacheId(
+            snap.git_repository_url);
+          getMemcached().cache[snapcraftYamlCacheId] =
+            contents[snap.git_repository_url];
           const builds_link = snap.builds_collection_link;
           lpApi.get(builds_link.replace(lp_api_url, ''))
             .optionally()
@@ -937,14 +953,16 @@ describe('The Launchpad API endpoint', () => {
         testSnaps = [
           {
             resource_type_link: `${lp_api_base}/#snap`,
-            git_repository_url: 'https://github.com/anowner/aname',
             self_link: `${lp_api_base}/~another-user/+snap/test-snap`,
+            git_repository_url: 'https://github.com/anowner/aname',
+            git_path: 'refs/heads/master',
             owner_link: `${lp_api_base}/~another-user`
           },
           {
             resource_type_link: `${lp_api_base}/#snap`,
             self_link: `${lp_api_base}/~test-user/+snap/test-snap`,
             git_repository_url: 'https://github.com/anowner/aname',
+            git_path: 'HEAD',
             owner_link: `${lp_api_base}/~test-user`
           }
         ];
@@ -963,7 +981,11 @@ describe('The Launchpad API endpoint', () => {
             entries: testSnaps
           });
 
-        ghApi = nock(gh_api_url)
+        ghApi = nock(gh_api_url);
+        ghApi
+          .get('/repos/anowner/aname')
+          .reply(200, { default_branch: 'dev' });
+        ghApi
           .get('/repos/anowner/aname/contents/snap/snapcraft.yaml')
           .reply(200, snapcraftData);
       });
@@ -997,6 +1019,7 @@ describe('The Launchpad API endpoint', () => {
 
         expect(res.body.entities.snaps[res.body.result]).toContain({
           gitRepoUrl: testSnaps[1].git_repository_url,
+          gitBranch: 'dev',
           selfLink: testSnaps[1].self_link,
           snapcraftData: snapcraftData
         });
@@ -1091,13 +1114,15 @@ describe('The Launchpad API endpoint', () => {
       const repositoryUrl = 'https://github.com/anowner/aname';
       const snap = {
         self_link: `${conf.get('LP_API_URL')}/devel/~test-user/+snap/test-snap`,
-        git_repository_url: repositoryUrl
+        git_repository_url: repositoryUrl,
+        git_path: 'HEAD'
       };
       let snapcraftData = { name: 'name', confinement: 'test' };
 
       before(() => {
         setupInMemoryMemcached();
         getMemcached().cache[getRepositoryUrlCacheId(repositoryUrl)] = snap;
+        getMemcached().cache[getDefaultBranchCacheId(repositoryUrl)] = 'dev';
         getMemcached().cache[getSnapcraftYamlCacheId(repositoryUrl)] = snapcraftData;
       });
 
@@ -1128,6 +1153,7 @@ describe('The Launchpad API endpoint', () => {
 
         expect(res.body.entities.snaps[res.body.result]).toContain({
           gitRepoUrl: snap.git_repository_url,
+          gitBranch: 'dev',
           selfLink: snap.self_link,
           snapcraftData: snapcraftData
         });

@@ -3,8 +3,8 @@ import React, { PropTypes } from 'react';
 import { Row, Data, Dropdown } from '../../vanilla/table-interactive';
 import getTemplateUrl from './template-url.js';
 
-const EditConfigDropdown = ({ repositoryUrl, configFilePath }) => {
-  const templateUrl = getTemplateUrl(repositoryUrl, configFilePath);
+const EditConfigDropdown = ({ snap }) => {
+  const templateUrl = getTemplateUrl(snap);
 
   return (
     <Dropdown>
@@ -23,8 +23,13 @@ const EditConfigDropdown = ({ repositoryUrl, configFilePath }) => {
 };
 
 EditConfigDropdown.propTypes = {
-  repositoryUrl: PropTypes.string,
-  configFilePath: PropTypes.string
+  snap: PropTypes.shape({
+    gitRepoUrl: PropTypes.string,
+    gitBranch: PropTypes.string,
+    snapcraftData: PropTypes.shape({
+      path: PropTypes.string
+    })
+  })
 };
 
 export default EditConfigDropdown;

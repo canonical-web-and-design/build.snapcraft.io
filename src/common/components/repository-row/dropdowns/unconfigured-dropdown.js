@@ -17,7 +17,7 @@ const getTemplateUrl = (snap) => {
   const templateUrl = url.format({
     protocol: 'https:',
     host: 'github.com',
-    pathname: `${fullName}/new/master`,
+    pathname: `${fullName}/new/${snap.gitBranch}`,
     query: {
       'filename': 'snap/snapcraft.yaml',
       'value': templateYaml
@@ -75,7 +75,8 @@ const UnconfiguredDropdown = (props) => {
 
 UnconfiguredDropdown.propTypes = {
   snap: PropTypes.shape({
-    gitRepoUrl: PropTypes.string
+    gitRepoUrl: PropTypes.string,
+    gitBranch: PropTypes.string
   })
 };
 

@@ -3,8 +3,8 @@ import { json } from 'body-parser';
 
 import { verifyToken } from '../middleware/csrf-token';
 import {
-  getUser,
   createWebhook,
+  getUser,
   listRepositories,
   refreshOrganizations
 } from '../handlers/github';

@@ -8,6 +8,10 @@ Caches list of snaps (enabled repositories) for given GitHub user (via URL prefi
 
 Caches snap data for given repository URL.
 
+## `lp:default_branch:https://github.com/:owner/:name`
+
+Caches default branch for given repository.
+
 ## `lp:snapcraft_data:https://github.com/:owner/:name`
 
 Caches JSON subset of data from `snapcraft.yaml` found in given repository.

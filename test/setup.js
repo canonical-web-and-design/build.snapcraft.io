@@ -1,4 +1,9 @@
+import expect from 'expect';
+import enzymify from 'expect-enzyme';
+
 import './helpers';
+
+expect.extend(enzymify());
 
 // Stub out loading of CSS dependencies
 require.extensions['.css'] = () => {};

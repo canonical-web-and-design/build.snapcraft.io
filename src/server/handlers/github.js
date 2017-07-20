@@ -260,6 +260,30 @@ export const createWebhook = async (req, res) => {
   }
 };
 
+// memcached cache id helper
+export const getDefaultBranchCacheId = (repositoryUrl) => `default_branch:${repositoryUrl}`;
+
+export const getDefaultBranch = async (repositoryUrl, token) => {
+  const { owner, name } = parseGitHubRepoUrl(repositoryUrl);
+  const cacheId = getDefaultBranchCacheId(repositoryUrl);
+
+  try {
+    const result = await getMemcached().get(cacheId);
+    if (result !== undefined) {
+      return result;
+    }
+  } catch (error) {
+    logger.error(`Error getting ${cacheId} from memcached: ${error}`);
+  }
+
+  const response = await requestGitHub.get(`/repos/${owner}/${name}`, {
+    token, json: true
+  });
+  await checkGitHubStatus(response);
+  await getMemcached().set(cacheId, response.body.default_branch, 3600);
+  return response.body.default_branch;
+};
+
 const getRequest = (owner, name, token, secret) => {
   return {
     token,

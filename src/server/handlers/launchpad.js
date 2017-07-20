@@ -14,7 +14,11 @@ import requestGitHub from '../helpers/github';
 import getLaunchpad from '../launchpad';
 import logging from '../logging';
 import * as schema from './schema.js';
-import { getSnapcraftData, internalListOrganizations } from './github';
+import {
+  getDefaultBranch,
+  getSnapcraftData,
+  internalListOrganizations
+} from './github';
 import { getLaunchpadRootSecret, makeWebhookSecret } from './webhook';
 
 const logger = logging.getLogger('express');
@@ -272,7 +276,7 @@ const requestNewSnap = (repositoryUrl) => {
       distro_series: `/${DISTRIBUTION}/${DISTRO_SERIES}`,
       name: `${makeSnapName(repositoryUrl)}-${DISTRO_SERIES}`,
       git_repository_url: repositoryUrl,
-      git_path: 'refs/heads/master',
+      git_path: 'HEAD',
       // auto_build will be enabled later, once snapcraft.yaml exists and
       // the snap name has been registered.
       auto_build: false,
@@ -568,15 +572,28 @@ const updateDatabaseSnaps = async (trx, snaps) => {
   }
 };
 
+export const getGitBranch = async (snap, token) => {
+  if (snap.git_path === 'HEAD') {
+    return await getDefaultBranch(snap.git_repository_url, token);
+  } else {
+    return snap.git_path.replace(/^refs\/heads\//, '');
+  }
+};
+
 export const findSnaps = async (req, res) => {
   const owner = req.query.owner || req.session.user.login;
   try {
     const rawSnaps = await internalFindSnaps(owner, req.session.token);
     const snaps = await Promise.all(rawSnaps.map(async (snap) => {
-      const snapcraftData = await getSnapcraftData(
-        snap.git_repository_url, req.session.token
-      );
-      return { ...snap, snapcraft_data: snapcraftData };
+      const [gitBranch, snapcraftData] = await Promise.all([
+        getGitBranch(snap, req.session.token),
+        getSnapcraftData(snap.git_repository_url, req.session.token)
+      ]);
+      return {
+        ...snap,
+        git_branch: gitBranch,
+        snapcraft_data: snapcraftData
+      };
     }));
     await db.transaction(async (trx) => {
       if (req.session.user) {
@@ -601,10 +618,12 @@ export const findSnaps = async (req, res) => {
 export const findSnap = async (req, res) => {
   try {
     const snap = await internalFindSnap(req.query.repository_url);
-    const snapcraftData = await getSnapcraftData(
-      snap.git_repository_url, req.session.token
-    );
+    const [gitBranch, snapcraftData] = await Promise.all([
+      getGitBranch(snap, req.session.token),
+      getSnapcraftData(snap.git_repository_url, req.session.token)
+    ]);
 
+    snap.git_branch = gitBranch;
     snap.snapcraft_data = snapcraftData;
 
     const normalizedSnap = normalize(snap, schema.snap);
