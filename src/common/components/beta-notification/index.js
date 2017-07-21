@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import localforage from 'localforage';
 
 import { BETA_NOTIFICATION_TOGGLE } from '../../reducers/beta-notification';
-import Notification from '../vanilla/notification';
+import Notification from '../vanilla-modules/notification';
 
 
 const SURVEY_LINK = 'https://docs.google.com/forms/d/e/1FAIpQLSeCAKWHb4w-iNrg-YqyiRVMHULDlZMx9bXyK9a7s40sXYjQzQ/viewform?usp=sf_link';
