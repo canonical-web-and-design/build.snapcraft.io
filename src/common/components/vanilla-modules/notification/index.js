@@ -1,8 +1,8 @@
 import React, { Component, PropTypes } from 'react';
+import classNames from 'classnames';
 
-// TODO: dismiss icon styles
-// import styles from './notification.css';
 import styles from '../../../style/vanilla/css/notifications.css';
+import customStyles from './notification.css';
 
 const notificationStyle = (element = '', modifier = '') => {
   element = element ? '__' + element : '';
@@ -17,15 +17,19 @@ export default class Notification extends Component {
   render() {
     const { status, appearance, onRemoveClick } = this.props;
 
+    const className = classNames({
+      [notificationStyle('', appearance)]: true,
+      [customStyles.hasDismiss]: onRemoveClick
+    });
+
     return (
-      <div className={ notificationStyle('', appearance) }>
+      <div className={ className }>
         <p className={ notificationStyle('response') }>
           { status && this.getStatus(this.props.status) }
           { this.props.children }
         </p>
-        {/*  TODO: dismiss icon styles */}
         { onRemoveClick &&
-          <a tabIndex="0" className={styles.remove} onClick={onRemoveClick} />
+          <a tabIndex="0" className={customStyles.dismiss} onClick={onRemoveClick} />
         }
       </div>
     );
