@@ -1,0 +1,5 @@
+.isTickedGreen {
+  background-image: url('https://assets.ubuntu.com/v1/90067499-green-tick.svg');
+  background-repeat: no-repeat;
+  padding-left: 32px;
+}
