@@ -13,7 +13,7 @@
 }
 
 .repoList {
-  height: 330px;
+  height: 350px;
   overflow: auto;
   padding: 0 10px;
   border-bottom: 1px solid $mid-grey;
@@ -27,7 +27,7 @@
 .arrow {
   position: absolute;
   top: -1px;
-  right: 270px; /* positioned above link that opens missing repos info */
+  right: 290px; /* positioned above link that opens missing repos info */
 }
 
 /* arrow triangles */

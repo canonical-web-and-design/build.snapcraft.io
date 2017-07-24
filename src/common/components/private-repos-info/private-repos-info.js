@@ -4,7 +4,7 @@ import { conf } from '../../helpers/config';
 const BASE_URL = conf.get('BASE_URL');
 const GITHUB_AUTH_CLIENT_ID = conf.get('GITHUB_AUTH_CLIENT_ID');
 
-import Button, { Anchor } from '../vanilla/button';
+import Button, { Anchor } from '../vanilla-modules/button';
 
 import styles from './private-repos-info.css';
 
@@ -61,7 +61,7 @@ export default class PrivateReposInfo extends Component {
           onChange={this.onEmailChange.bind(this)}
           value={this.state.subscribeEmail}
         />
-        <Button type="submit" appearance='neutral' flavour='smaller'>Keep me posted</Button>
+        <Button type="submit" appearance='neutral'>Keep me posted</Button>
         { this.state.subscribeError &&
           // MailChimp errors may contain HTML links in error messages
           // but we sanitize it on server side, so should be safe to insert
@@ -105,7 +105,7 @@ export default class PrivateReposInfo extends Component {
         <li className={styles.infoListItem}>
           { this.renderOrgsInfo() }
           <Anchor
-            appearance='neutral' flavour='smaller'
+            appearance='neutral'
             target="blank" rel="noreferrer noopener"
             href={`https://github.com/settings/connections/applications/${GITHUB_AUTH_CLIENT_ID}`}
           >
@@ -113,7 +113,7 @@ export default class PrivateReposInfo extends Component {
           </Anchor>
           {' '}
           <Button
-            appearance='neutral' flavour='smaller'
+            appearance='neutral'
             onClick={this.onRefreshClick.bind(this)}
           >
             OK, it’s added
@@ -121,7 +121,7 @@ export default class PrivateReposInfo extends Component {
         </li>
         <li className={styles.infoListItem}>
           <p className={styles.infoMsg}>Using the <strong>wrong GitHub account</strong>? Sign out and try again with the right one.</p>
-          <Anchor appearance='neutral' flavour='smaller' href="https://github.com/logout">Change account…</Anchor>
+          <Anchor appearance='neutral' href="https://github.com/logout">Change account…</Anchor>
         </li>
       </ul>
     );

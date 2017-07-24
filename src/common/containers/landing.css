@@ -110,3 +110,13 @@
 .landingHeading {
   margin-bottom: 3rem;
 }
+
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  padding: 1px 0 0 0;
+  margin-left: 1em;
+  height: 32px;
+  box-sizing: content-box;
+}

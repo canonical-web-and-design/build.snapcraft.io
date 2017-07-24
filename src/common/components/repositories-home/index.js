@@ -5,7 +5,7 @@ import { withRouter } from 'react-router';
 import { hasSnaps } from '../../selectors';
 import { fetchUserSnaps } from '../../actions/snaps';
 import { fetchBuilds } from '../../actions/snap-builds';
-import { LinkButton } from '../vanilla/button';
+import { LinkButton } from '../vanilla-modules/button';
 import { HeadingThree } from '../vanilla-modules/heading';
 import FirstTimeHeading from '../first-time-heading';
 import RepositoriesList from '../repositories-list';

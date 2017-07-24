@@ -4,7 +4,7 @@ import { withRouter } from 'react-router';
 
 import SelectRepositoryRow from '../select-repository-row';
 import Spinner from '../spinner';
-import Button, { LinkButton } from '../vanilla/button';
+import Button, { LinkButton } from '../vanilla-modules/button';
 import {
   addRepos,
   resetRepository,
@@ -52,6 +52,7 @@ export class SelectRepositoryListComponent extends Component {
   onHelpClick(event) {
     // prevent help click from triggering document click
     event.nativeEvent.stopImmediatePropagation();
+    event.preventDefault();
 
     this.setState({
       showMissingReposInfo: !this.state.showMissingReposInfo
@@ -210,9 +211,9 @@ export class SelectRepositoryListComponent extends Component {
           <div className={ styles.summary }>
             { this.renderRepoAmount() }
             {'\u00A0'}
-            (<Button appearance={ 'link' } onClick={this.onHelpClick.bind(this)}>
+            (<a href="#any-missing" onClick={this.onHelpClick.bind(this)}>
               { this.state.showMissingReposInfo ? 'Return to repos list' : 'Any missing?' }
-            </Button>)
+            </a>)
           </div>
           <div>
             <LinkButton appearance="base" to={`/user/${user.login}`}>

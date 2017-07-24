@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 
 import { Row, Data, Dropdown } from '../../vanilla/table-interactive';
-import Button from '../../vanilla/button';
+import Button from '../../vanilla-modules/button';
 import { WarningIcon } from '../icons';
 
 import styles from './dropdowns.css';

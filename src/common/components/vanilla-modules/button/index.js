@@ -3,40 +3,40 @@ import { Link } from 'react-router';
 import classNames from 'classnames';
 
 import Spinner from '../../spinner';
-import style from './button.css';
+
+import style from '../../../style/vanilla/css/button.css';
+
+// XXX this additonal styles are needed to support non-vanilla spinner and bigger style
+import customStyle from './customButton.css';
 
 function createButtonComponent(Component) {
   function ButtonComponent(props) {
-    const { appearance='primary', flavour='normal', isSpinner=false, icon, ...rest } = props;
-
+    const { appearance='primary', isBigger=false, isSpinner=false, ...rest } = props;
+    const buttonStyle = `p-button--${appearance}`;
     const className = classNames({
-      [style[appearance]]: true,
-      [style[flavour]]: style[flavour] !== undefined, // add flavour class only if any styles are defined for it
-      [style.hasSpinner]: isSpinner
+      [style[buttonStyle]]: true,
+      [customStyle.bigger]: isBigger,
+      [customStyle.hasSpinner]: isSpinner
     });
 
     return (
       <Component {...rest} className={ className }>
         { isSpinner &&
-          <span className={ style.spinner }><Spinner light/></span>
+          <span className={ customStyle.spinner }><Spinner light/></span>
         }
-        <span className={style.text}>{ props.children }</span>
-        { icon &&
-          <img className= { style.icon } src={ icon } />
-        }
+        <span className={ customStyle.text }>{ props.children }</span>
       </Component>
     );
   }
 
   ButtonComponent.propTypes = {
     isSpinner: PropTypes.bool,
+    isBigger: PropTypes.bool,
     disabled: PropTypes.bool,
-    children: PropTypes.string,
+    children: PropTypes.node,
     onClick: PropTypes.func,
-    appearance: React.PropTypes.oneOf(['positive', 'negative', 'neutral', 'base', 'link']),
-    flavour: React.PropTypes.oneOf(['normal','bigger', 'smaller']),
-    href: PropTypes.string,
-    icon: PropTypes.string
+    appearance: React.PropTypes.oneOf(['positive', 'negative', 'neutral', 'base', 'brand']),
+    href: PropTypes.string
   };
 
   return ButtonComponent;

@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 
 import { conf } from '../../../helpers/config';
 
-import Button from '../../vanilla/button';
+import Button from '../../vanilla-modules/button';
 import { Row, Data, Dropdown } from '../../vanilla/table-interactive';
 import { TickIcon, ErrorIcon } from '../icons';
 
