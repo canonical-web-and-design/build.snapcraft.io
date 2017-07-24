@@ -5,7 +5,7 @@ import { fetchBuilds } from '../../actions/snap-builds';
 import { fetchUserRepositoriesAndSnaps, searchRepos } from '../../actions/repositories';
 import { fetchUserOrganizations } from '../../actions/organizations';
 import SelectRepositoryList from '../select-repository-list';
-import { HeadingThree } from '../vanilla/heading';
+import { HeadingThree } from '../vanilla-modules/heading';
 import FirstTimeHeading from '../first-time-heading';
 import SearchInput from '../search-input';
 

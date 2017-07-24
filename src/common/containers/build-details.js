@@ -11,7 +11,7 @@ import {
   HelpInstallSnap,
   HelpPromoteSnap
 } from '../components/help';
-import { HeadingOne, HeadingThree } from '../components/vanilla/heading';
+import { HeadingOne, HeadingThree } from '../components/vanilla-modules/heading';
 import Spinner from '../components/spinner';
 import Breadcrumbs, { BreadcrumbsLink } from '../components/vanilla-modules/breadcrumbs';
 import BetaNotification from '../components/beta-notification';

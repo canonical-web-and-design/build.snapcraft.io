@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 
 import { CopyToClipboard, Tweet } from '../share';
-import { HeadingThree } from '../vanilla/heading/';
+import { HeadingThree } from '../vanilla-modules/heading/';
 import styles from './help.css';
 
 const HELP_INSTALL_URL = 'https://snapcraft.io/docs/core/install';

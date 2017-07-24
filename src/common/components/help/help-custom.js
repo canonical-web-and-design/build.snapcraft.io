@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 
-import { HeadingThree } from '../vanilla/heading/';
+import { HeadingThree } from '../vanilla-modules/heading/';
 import styles from './help.css';
 
 

@@ -6,7 +6,7 @@ import BuildHistory from '../components/build-history';
 import { Message } from '../components/forms';
 import Spinner from '../components/spinner';
 import { HelpBox, HelpCustom, HelpInstallSnap } from '../components/help';
-import { HeadingOne } from '../components/vanilla/heading';
+import { HeadingOne } from '../components/vanilla-modules/heading';
 import Badge from '../components/badge';
 import Breadcrumbs, { BreadcrumbsLink } from '../components/vanilla-modules/breadcrumbs';
 import BetaNotification from '../components/beta-notification';

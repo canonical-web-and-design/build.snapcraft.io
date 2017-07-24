@@ -5,7 +5,7 @@ import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 
 import UserAvatar, { UserAvatarView } from '../../../../../../src/common/components/user-avatar';
-import { HeadingOne, HeadingThree } from '../../../../../../src/common/components/vanilla/heading';
+import { HeadingOne, HeadingThree } from '../../../../../../src/common/components/vanilla-modules/heading';
 
 const middlewares = [ thunk ];
 const mockStore = configureMockStore(middlewares);

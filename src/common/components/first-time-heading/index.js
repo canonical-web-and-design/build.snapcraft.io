@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { HeadingThree } from '../vanilla/heading';
+import { HeadingThree } from '../vanilla-modules/heading';
 import TrafficLights, { SIGNALS } from '../traffic-lights';
 
 import {

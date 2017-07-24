@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { HeadingOne, HeadingThree } from '../vanilla/heading';
+import { HeadingOne, HeadingThree } from '../vanilla-modules/heading';
 import styles from './user-avatar.css';
 
 export class UserAvatarView extends Component {

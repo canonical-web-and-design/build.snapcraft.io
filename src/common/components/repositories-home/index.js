@@ -6,7 +6,7 @@ import { hasSnaps } from '../../selectors';
 import { fetchUserSnaps } from '../../actions/snaps';
 import { fetchBuilds } from '../../actions/snap-builds';
 import { LinkButton } from '../vanilla/button';
-import { HeadingThree } from '../vanilla/heading';
+import { HeadingThree } from '../vanilla-modules/heading';
 import FirstTimeHeading from '../first-time-heading';
 import RepositoriesList from '../repositories-list';
 import styles from './repositories-home.css';

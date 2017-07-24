@@ -1,15 +1,21 @@
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
-import styles from './heading.css';
+import styles from '../../../style/vanilla/css/headings.css';
 
 const Heading = (props) => {
   const H = props.heading;
+  const headingClassnames = {
+    h1: 'p-heading--one',
+    h2: 'p-heading--two',
+    h3: 'p-heading--three',
+    h4: 'p-heading--four',
+    h5: 'p-heading--five',
+    h6: 'p-heading--six'
+  };
   const className = props.className;
-  const align = props.align;
   const headingClass = classNames({
-    [styles[H]]: true,
-    [styles[align]]: align,
+    [styles[headingClassnames[H]]]: true,
     [className]: className
   });
   return (
@@ -27,7 +33,6 @@ Heading.defaultProps = {
 Heading.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
-  align: React.PropTypes.oneOf(['left', 'right', 'center']),
   heading: PropTypes.oneOf(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
 };
 
