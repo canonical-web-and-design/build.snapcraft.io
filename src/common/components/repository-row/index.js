@@ -7,6 +7,7 @@ import { Row, DataLink } from '../vanilla/table-interactive';
 import BuildStatus from '../build-status';
 
 import {
+  ConfigurationErrorDropdown,
   NameMismatchDropdown,
   RemoveRepoDropdown,
   UnconfiguredDropdown,
@@ -45,6 +46,7 @@ export class RepositoryRowView extends Component {
     this.state = {
       snapName,
       nameMismatchDropdownExpanded: false,
+      configurationErrorDropdownExpanded: false,
       unconfiguredDropdownExpanded: props.configureIsOpen,
       unregisteredDropdownExpanded: props.registerNameIsOpen,
       removeDropdownExpanded: false,
@@ -84,6 +86,7 @@ export class RepositoryRowView extends Component {
   toggleDropdownState(dropdown) {
     this.setState({
       // close all dropdowns
+      configurationErrorDropdownExpanded: false,
       nameMismatchDropdownExpanded: false,
       unconfiguredDropdownExpanded: false,
       editConfigDropdownExpanded: false,
@@ -101,6 +104,10 @@ export class RepositoryRowView extends Component {
 
   onNotConfiguredClick() {
     this.toggleDropdownState('unconfiguredDropdownExpanded');
+  }
+
+  onConfigurationErrorClick() {
+    this.toggleDropdownState('configurationErrorDropdownExpanded');
   }
 
   onNameMismatchClick() {
@@ -152,7 +159,7 @@ export class RepositoryRowView extends Component {
     const { authStore, snap } = this.props;
     const repository = parseGitHubRepoUrl(repositoryUrl);
     const { snapName, signAgreement } = this.state;
-    const requestBuilds = (!!snap.snapcraftData);
+    const requestBuilds = snapIsConfigured(snap);
 
     this.props.nameActions.registerName(repository, snapName, {
       signAgreement: signAgreement ? authStore.userName : null,
@@ -271,6 +278,7 @@ export class RepositoryRowView extends Component {
     } = this.props;
 
     const showUnconfiguredDropdown = !snapIsConfigured(snap) && this.state.unconfiguredDropdownExpanded;
+    const showConfigurationErrorDropdown = this.state.configurationErrorDropdownExpanded;
     const showEditConfigDropdown = this.state.editConfigDropdownExpanded;
     const showUnregisteredDropdown = this.state.unregisteredDropdownExpanded;
     const showRemoveDropdown = this.state.removeDropdownExpanded;
@@ -281,7 +289,7 @@ export class RepositoryRowView extends Component {
 
     const registeredName = snap.storeName;
 
-    const isBuilt = !!(latestBuild && snap.snapcraftData);
+    const isBuilt = !!(latestBuild && snap.snapcraftData && !snap.snapcraftData.error);
 
     const isActive = (
       showNameMismatchDropdown ||
@@ -312,6 +320,7 @@ export class RepositoryRowView extends Component {
             onOpenRegisterNameClick={this.onUnregisteredClick.bind(this)}
           />
         }
+        { showConfigurationErrorDropdown && <ConfigurationErrorDropdown snap={snap} /> }
         { showUnconfiguredDropdown && <UnconfiguredDropdown snap={snap} /> }
         { showEditConfigDropdown && <EditConfigDropdown snap={snap} /> }
         { showUnregisteredDropdown &&
@@ -356,9 +365,18 @@ export class RepositoryRowView extends Component {
     const { snapcraftData } = snap;
     let onClick, content;
 
-    if (!snapcraftData) {
-      onClick = this.onNotConfiguredClick.bind(this);
-      content = <span>Not configured</span>;
+    if (!snapcraftData || snapcraftData.error) {
+      // if there is no snapcraftData or snapcraft data contains 404 error
+      // show repo as not configured
+      if (!snapcraftData ||
+          (snapcraftData.error && snapcraftData.error.status === 404)) {
+        onClick = this.onNotConfiguredClick.bind(this);
+        content = <span>Not configured</span>;
+      // otherwise show a configuration error
+      } else {
+        onClick = this.onConfigurationErrorClick.bind(this);
+        content = <span>Error</span>;
+      }
     } else if (snapNameIsMismatched(snap)){
       onClick = this.onNameMismatchClick.bind(this);
       content = <span><ErrorIcon /> Name mismatch</span>;
@@ -368,6 +386,7 @@ export class RepositoryRowView extends Component {
     }
 
     const active = (
+      this.state.configurationErrorDropdownExpanded ||
       this.state.nameMismatchDropdownExpanded ||
       this.state.unconfiguredDropdownExpanded ||
       this.state.editConfigDropdownExpanded
@@ -455,7 +474,7 @@ const snapNameIsMismatched = (snap) => {
   return snapcraftData && storeName && snapcraftData.name !== storeName;
 };
 
-const snapIsConfigured = (snap) => !!snap.snapcraftData;
+const snapIsConfigured = (snap) => snap.snapcraftData && !snap.snapcraftData.error;
 
 RepositoryRowView.propTypes = {
   snap: PropTypes.shape({
