@@ -154,9 +154,12 @@ export const getSnapcraftData = async (repositoryUrl, token) => {
   try {
     const snapcraftYaml = await internalGetSnapcraftYaml(owner, name, token);
     const snapcraftData = {};
-    for (const index of Object.keys(snapcraftYaml.contents)) {
-      if (SNAPCRAFT_INFO_WHITELIST.indexOf(index) >= 0) {
-        snapcraftData[index] = snapcraftYaml.contents[index];
+
+    if (snapcraftYaml.contents) {
+      for (const index of Object.keys(snapcraftYaml.contents)) {
+        if (SNAPCRAFT_INFO_WHITELIST.indexOf(index) >= 0) {
+          snapcraftData[index] = snapcraftYaml.contents[index];
+        }
       }
     }
 
@@ -167,10 +170,26 @@ export const getSnapcraftData = async (repositoryUrl, token) => {
     // https://snapcraft.io/docs/build-snaps/syntax
     // and also we whitelist only `name`, so no collision should occur
     snapcraftData.path = snapcraftYaml.path;
+
+    // if there was parse error include it as well
+    snapcraftData.error = snapcraftYaml.error;
     await getMemcached().set(cacheId, snapcraftData, 3600);
     return snapcraftData;
   } catch (error) {
-    return null;
+    if (error.status && error.body) {
+      // if it's PreparedError (with status code and body) return whole JSON
+      return {
+        error
+      };
+    } else if (error.message) {
+      return {
+        error: error.message
+      };
+    } else {
+      return {
+        error: `Error while reading snapcraft.yaml for ${repositoryUrl}`
+      };
+    }
   }
 };
 

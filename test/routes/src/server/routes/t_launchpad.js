@@ -440,7 +440,8 @@ describe('The Launchpad API endpoint', () => {
     context('when snaps exist', () => {
       const contents = {
         'https://github.com/anowner/test-snap': { name: 'snap1' },
-        'https://github.com/org1/test-snap': { name: 'snap2' }
+        'https://github.com/org1/test-snap': { name: 'snap2' },
+        'https://github.com/org1/invalid-snap': 'name: invalid-snap\n  invalid: test'
       };
 
       let testSnaps;
@@ -476,6 +477,17 @@ describe('The Launchpad API endpoint', () => {
                                     'test-snap/builds',
             webhooks_collection_link: `${lp_api_base}/~test-user/+snap/` +
                                       'test-snap/webhooks'
+          },
+          {
+            resource_type_link: `${lp_api_base}/#snap`,
+            self_link: `${lp_api_base}/~test-user/+snap/invalid-snap`,
+            owner_link: `${lp_api_base}/~test-user`,
+            git_repository_url: 'https://github.com/org1/invalid-snap',
+            git_path: 'HEAD',
+            builds_collection_link: `${lp_api_base}/~test-user/+snap/` +
+                                    'invalid-snap/builds',
+            webhooks_collection_link: `${lp_api_base}/~test-user/+snap/` +
+                                      'invalid-snap/webhooks'
           }
         ];
 
@@ -610,6 +622,15 @@ describe('The Launchpad API endpoint', () => {
         });
       });
 
+      it('should return error in snapcraftData for invalid snapcraft.yaml', async () => {
+        const response = await apiResponse;
+        const snap = response.body.entities.snaps[testSnaps[2].git_repository_url];
+
+        expect(snap.snapcraftData).toContain({
+          error: { name: 'YAMLException' }
+        });
+      });
+
       it('should leave metrics unmodified if already set', async () => {
         const dbUser = await db.model('GitHubUser')
           .where({ github_id: session.user.id })
@@ -657,10 +678,16 @@ describe('The Launchpad API endpoint', () => {
           },
           {
             owner: 'org1',
+            name: 'invalid-snap',
+            snapcraft_name: null,
+            store_name: null
+          },
+          {
+            owner: 'org1',
             name: 'test-snap',
             snapcraft_name: 'snap2',
             store_name: null
-          }
+          },
         ]);
       });
 
@@ -678,7 +705,7 @@ describe('The Launchpad API endpoint', () => {
           const cacheId = listOrganizationsCacheId('anowner');
           const memcachedOrgs = getMemcached().cache[cacheId];
           expect(memcachedOrgs).toMatch([
-            { login: 'org1' }, { login: 'org2' }
+            { login: 'org1' }, { login: 'org2' },
           ]);
         });
 
@@ -698,8 +725,9 @@ describe('The Launchpad API endpoint', () => {
           );
           expect(memcachedSnaps[0].length).toBe(1);
           expect(memcachedSnaps[0][0]).toContain(testSnaps[0]);
-          expect(memcachedSnaps[1].length).toBe(1);
+          expect(memcachedSnaps[1].length).toBe(2);
           expect(memcachedSnaps[1][0]).toContain(testSnaps[1]);
+          expect(memcachedSnaps[1][1]).toContain(testSnaps[2]);
           expect(memcachedSnaps[2].length).toBe(0);
         });
 

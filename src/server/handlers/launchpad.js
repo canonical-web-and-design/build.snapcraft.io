@@ -79,14 +79,6 @@ const RESPONSE_GITHUB_OTHER = {
   }
 };
 
-const RESPONSE_SNAPCRAFT_YAML_PARSE_FAILED = {
-  status: 'error',
-  payload: {
-    code: 'snapcraft-yaml-parse-failed',
-    message: 'Failed to parse snapcraft.yaml'
-  }
-};
-
 const RESPONSE_SNAP_NOT_FOUND = {
   status: 'error',
   payload: {
@@ -227,8 +219,11 @@ export const internalGetSnapcraftYaml = async (owner, name, token) => {
           contents: yaml.safeLoad(response.body),
           path
         };
-      } catch (e) {
-        throw new PreparedError(400, RESPONSE_SNAPCRAFT_YAML_PARSE_FAILED);
+      } catch (error) {
+        return {
+          path,
+          error
+        };
       }
     } catch (error) {
       if (path !== paths[paths.length - 1] &&
