@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import { Anchor } from '../components/vanilla-modules/button';
 import { HeadingTwo, HeadingThree } from '../components/vanilla-modules/heading';
-import { ListWithIcon } from '../components/vanilla/list';
+import { List, ListItem } from '../components/vanilla-modules/list';
 
 import Testimonial from '../components/testimonial';
 import containerStyles from './container.css';
@@ -80,18 +80,24 @@ class Landing extends Component {
               Why use Snapcraft?
             </HeadingTwo>
             <div className={ `${styles.row}` }>
-              <ListWithIcon className={ styles.rowItemGrow }>
-                <li>Scale to millions of installs</li>
-                <li>Automatic updates for everyone</li>
-              </ListWithIcon>
-              <ListWithIcon className={ styles.rowItemGrow }>
-                <li>Available on all clouds and Linux OSes</li>
-                <li>Roll back versions effortlessly</li>
-              </ListWithIcon>
-              <ListWithIcon className={ styles.rowItemGrow }>
-                <li>No need for build infrastructure</li>
-                <li>FREE for open source projects</li>
-              </ListWithIcon>
+              <div className={ styles.rowItemGrow }>
+                <List>
+                  <ListItem isTicked>Scale to millions of installs</ListItem>
+                  <ListItem isTicked>Automatic updates for everyone</ListItem>
+                </List>
+              </div>
+              <div className={ styles.rowItemGrow }>
+                <List>
+                  <ListItem isTicked>Available on all clouds and Linux OSes</ListItem>
+                  <ListItem isTicked>Roll back versions effortlessly</ListItem>
+                </List>
+              </div>
+              <div className={ styles.rowItemGrow }>
+                <List>
+                  <ListItem isTicked>No need for build infrastructure</ListItem>
+                  <ListItem isTicked>FREE for open source projects</ListItem>
+                </List>
+              </div>
             </div>
           </div>
         </section>
