@@ -2,19 +2,10 @@ import expect, { createSpy } from 'expect';
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import Notification from '../../../../../../src/common/components/vanilla/notification';
+import Notification from '../../../../../../src/common/components/vanilla-modules/notification';
 
 describe('The Notification component', () => {
   let element;
-
-  context('when message prop is supplied', () => {
-    beforeEach(() => {
-      element = shallow(<Notification message="Message" />);
-    });
-    it('should render message', () => {
-      expect(element.containsMatchingElement(<p>Message</p>)).toExist();
-    });
-  });
 
   context('when children prop is supplied', () => {
     beforeEach(() => {
@@ -38,33 +29,13 @@ describe('The Notification component', () => {
     });
   });
 
-  context('when status prop is "success"', () => {
+  context('when status is supplied', () => {
     beforeEach(() => {
       element = shallow(<Notification status="success" />);
     });
 
     it('should render a success status', () => {
       expect(element.text()).toMatch('Success');
-    });
-  });
-
-  context('when status prop is "warning"', () => {
-    beforeEach(() => {
-      element = shallow(<Notification status="warning" />);
-    });
-
-    it('should render a warning status', () => {
-      expect(element.text()).toMatch('Warning');
-    });
-  });
-
-  context('when status prop is "error"', () => {
-    beforeEach(() => {
-      element = shallow(<Notification status="error" />);
-    });
-
-    it('should render a error status', () => {
-      expect(element.text()).toMatch('Error');
     });
   });
 

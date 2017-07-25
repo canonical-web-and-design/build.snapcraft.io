@@ -2,7 +2,7 @@ import React, { PropTypes, Component } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 
-import Notification from '../components/vanilla/notification';
+import Notification from '../components/vanilla-modules/notification';
 
 import styles from './container.css';
 
@@ -13,7 +13,12 @@ export class LoginFailed extends Component {
     return (
       <div className={ styles.container }>
         <Helmet title='Login failed' />
-        <Notification status="error" { ...authError } />
+        <Notification
+          status="error"
+          appearance="negative"
+        >
+          { authError.message }
+        </Notification>
       </div>
     );
   }

@@ -1,0 +1,16 @@
+.hasDismiss {
+  position: relative;
+  padding-right: 2em;
+}
+
+.dismiss {
+  background-image: url('https://assets.ubuntu.com/v1/89c10794-remove.svg');
+  background-repeat: no-repeat;
+  background-size: 18px 18px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  position: absolute;
+  top: 12px;
+  right: 10px;
+}
