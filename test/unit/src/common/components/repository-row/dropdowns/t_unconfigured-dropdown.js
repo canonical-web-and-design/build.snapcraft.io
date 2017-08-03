@@ -10,7 +10,8 @@ describe('<UnconfiguredDropdown />', () => {
   const props = {
     snap: {
       gitRepoUrl: 'https://github.com/anowner/aname',
-      gitBranch: 'dev'
+      gitBranch: 'dev',
+      storeName: 'aname'
     }
   };
 
@@ -25,7 +26,10 @@ describe('<UnconfiguredDropdown />', () => {
       protocol: 'https:',
       host: 'github.com',
       pathname: '/anowner/aname/new/dev',
-      query: { filename: 'snap/snapcraft.yaml', value: templateYaml }
+      query: {
+        filename: 'snap/snapcraft.yaml',
+        value: templateYaml('aname', 'aname')
+      }
     });
   });
 });
