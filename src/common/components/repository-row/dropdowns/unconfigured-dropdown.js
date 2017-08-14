@@ -13,14 +13,14 @@ const LEARN_THE_BASICS_LINK = 'https://snapcraft.io/docs/build-snaps/your-first-
 const INSTALL_IT_LINK = 'https://snapcraft.io/create/';
 
 const getTemplateUrl = (snap) => {
-  const { fullName, name } = parseGitHubRepoUrl(snap.gitRepoUrl);
+  const { fullName } = parseGitHubRepoUrl(snap.gitRepoUrl);
   const templateUrl = url.format({
     protocol: 'https:',
     host: 'github.com',
     pathname: `${fullName}/new/${snap.gitBranch}`,
     query: {
       'filename': 'snap/snapcraft.yaml',
-      'value': templateYaml(name, snap.storeName)
+      'value': templateYaml(snap.storeName)
     }
   });
 
