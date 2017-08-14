@@ -289,7 +289,7 @@ export class RepositoryRowView extends Component {
 
     const registeredName = snap.storeName;
 
-    const isBuilt = !!(latestBuild && snap.snapcraftData && !snap.snapcraftData.error);
+    const isBuilt = !!(latestBuild && snapIsConfigured(snap));
 
     const isActive = (
       showNameMismatchDropdown ||
@@ -470,8 +470,7 @@ export class RepositoryRowView extends Component {
 
 const snapNameIsMismatched = (snap) => {
   const { snapcraftData, storeName } = snap;
-
-  return snapcraftData && storeName && snapcraftData.name !== storeName;
+  return snapIsConfigured(snap) && storeName && snapcraftData.name !== storeName;
 };
 
 const snapIsConfigured = (snap) => snap.snapcraftData && !snap.snapcraftData.error;
