@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
+import { Icon, PlusIcon } from '../components/vanilla-modules/icons';
 import { Anchor } from '../components/vanilla-modules/button';
 import { HeadingTwo, HeadingThree } from '../components/vanilla-modules/heading';
 import { List, ListItem } from '../components/vanilla-modules/list';
@@ -28,7 +29,6 @@ class Landing extends Component {
                 <li className={ styles.bannerImage }>
                   <img src='https://assets.ubuntu.com/v1/ed6d1c5b-build.snapcraft.hero.svg' alt=""/>
                 </li>
-
                 <li className={ styles.bannerLabel }>
                   Push to GitHub
                 </li>
@@ -63,6 +63,8 @@ class Landing extends Component {
             <HeadingTwo className={ styles.landingHeading }>
               Publish your software for
             </HeadingTwo>
+            <PlusIcon/>
+            <Icon icon='minus' />
             <div className={ `${styles.row}` }>
               <img className={ styles.brandLogo } alt="Debian," src={images.debian} />
               <img className={ styles.brandLogo } alt="openSUSE," src={images.opensuse} />
