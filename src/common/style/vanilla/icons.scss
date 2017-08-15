@@ -1,12 +1,12 @@
 @import 'vanilla-framework/scss/settings';
 
+@mixin icon-size($size) {
+  height: $size;
+  width: $size;
+}
+
 /// Icons
 @mixin theme-p-icons {
-
-  @mixin icon-size($size) {
-    height: $size;
-    width: $size;
-  }
 
   %icon {
     @include icon-size($sp-medium);
