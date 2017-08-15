@@ -64,7 +64,7 @@ class Landing extends Component {
               Publish your software for
             </HeadingTwo>
             <PlusIcon/>
-            <Icon icon='minus' />
+            <Icon appearance='minus' />
             <div className={ `${styles.row}` }>
               <img className={ styles.brandLogo } alt="Debian," src={images.debian} />
               <img className={ styles.brandLogo } alt="openSUSE," src={images.opensuse} />

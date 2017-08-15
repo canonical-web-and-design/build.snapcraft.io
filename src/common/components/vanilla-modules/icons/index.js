@@ -3,25 +3,22 @@ import classNames from 'classnames';
 
 import styles from '../../../style/vanilla/css/icons.css';
 
+const iconStyle = (icon = '') => {
+  icon = icon ? '--' + icon : '';
+
+  const className = `p-icon${icon}`;
+
+  return styles[className];
+};
+
 const Icon = (props) => {
-  const I = props.icon;
-  const iconClassnames = {
-    plus: 'p-icon--plus',
-    minus: 'p-icon--minus',
-    expand: 'p-icon--expand',
-    collapse: 'p-icon--collapse',
-    chevron: 'p-icon--chevron',
-    close: 'p-icon--close',
-    help: 'p-icon--help',
-    information: 'p-icon--information',
-    question: 'p-icon--question',
-    delete: 'p-icon--delete',
-  };
-  const className = props.className;
+  const appearance = props.appearance;
   const iconClass = classNames({
-    [styles[iconClassnames[I]]]: true,
-    [className]: className
+    [iconStyle(appearance)]: true,
+    [iconStyle(size)]: true,
+    [iconStyle(color)]: true
   });
+
   return (
     <i
       aria-hidden='true'
@@ -31,16 +28,34 @@ const Icon = (props) => {
 };
 
 Icon.propTypes = {
-  className: PropTypes.string,
-  icon: PropTypes.oneOf(['plus', 'minus', 'expand', 'collapse', 'chevron', 'close'])
+  appearance: PropTypes.oneOf([
+    'plus',
+    'minus',
+    'expand',
+    'collapse',
+    'chevron',
+    'close',
+    'help',
+    'information',
+    'question',
+    'delete',
+    'error',
+    'warning',
+    'external-link',
+    'contextual-menu',
+    'menu',
+    'code',
+    'search',
+    'success',
+    'copy',
+    'share',
+    'user',
+    'spinner'
+  ]),
+  color: PropTypes.oneOf(['inherit-color']),
+  size: PropTypes.oneOf(['medium', 'large', 'x-large', 'xx-large'])
 };
 
-const PlusIcon = (props) => Icon({
-  ...props,
-  icon: 'plus'
-});
-
 export {
-  Icon,
-  PlusIcon
+  Icon
 };
