@@ -1,7 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { Icon, PlusIcon } from '../components/vanilla-modules/icons';
 import { Anchor } from '../components/vanilla-modules/button';
 import { HeadingTwo, HeadingThree } from '../components/vanilla-modules/heading';
 import { List, ListItem } from '../components/vanilla-modules/list';
@@ -22,7 +21,7 @@ class Landing extends Component {
           <div>
             <div className={ `${containerStyles.wrapper} ${styles.centeredText}` }>
               <HeadingTwo>
-                Auto-build and publish software<br />for any Linux system or device
+                <IconPlus />Auto-build and publish software<br />for any Linux system or device
               </HeadingTwo>
 
               <ul className={ styles.banner }>
@@ -63,8 +62,6 @@ class Landing extends Component {
             <HeadingTwo className={ styles.landingHeading }>
               Publish your software for
             </HeadingTwo>
-            <PlusIcon/>
-            <Icon appearance='minus' />
             <div className={ `${styles.row}` }>
               <img className={ styles.brandLogo } alt="Debian," src={images.debian} />
               <img className={ styles.brandLogo } alt="openSUSE," src={images.opensuse} />
