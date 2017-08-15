@@ -31,6 +31,15 @@
     vertical-align: sub;
   }
 
+  @keyframes rotating {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   .p-icon {
 
     // Icon library
@@ -145,6 +154,7 @@
 
     &--spinner {
       @extend %icon;
+      animation: rotating 1s linear infinite;
       background-color: currentColor;
       mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 0 24 24'%3E%3Cpath d='M7.49 23.123c2.78 1.125 5.978 1.213 8.975 0 4.247-1.72 6.972-5.603 7.424-9.87l-1.136-.118c-.408 3.86-2.875 7.374-6.717 8.93-2.71 1.098-5.605 1.018-8.118 0l-.43 1.058zm-2.21-1.176c-1.913-1.29-3.475-3.148-4.404-5.45C-1.284 11.146.686 5.15 5.28 2.05l.638.946C1.76 5.802-.02 11.228 1.934 16.068c.84 2.086 2.254 3.766 3.985 4.933l-.64.947zm18.61-11.2c-.115-1.088-.38-2.178-.81-3.242-2.478-6.142-9.457-9.11-15.59-6.628l.43 1.057c5.546-2.245 11.86.44 14.103 5.998.388.963.63 1.95.733 2.933l1.134-.12z' fill='%23666' fill-rule='nonzero'/%3E%3C/svg%3E");
     }

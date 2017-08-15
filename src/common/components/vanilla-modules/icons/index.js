@@ -3,6 +3,7 @@ import classNames from 'classnames';
 
 import styles from '../../../style/vanilla/css/icons.css';
 
+// Creates icon style class name
 const iconStyle = (icon = '') => {
   icon = icon ? '--' + icon : '';
 
@@ -11,7 +12,10 @@ const iconStyle = (icon = '') => {
   return styles[className];
 };
 
+// Icon component
 const Icon = (props) => {
+
+  // Icons can be effected by appearance, color and size
   const appearance = props.appearance;
   const color = props.color;
   const size = props.size;
@@ -21,6 +25,8 @@ const Icon = (props) => {
     [iconStyle(color)]: true
   });
 
+  // Aria-hidden is required as icons shouldn't be visible to
+  // screen readers
   return (
     <i
       aria-hidden='true'
@@ -58,6 +64,7 @@ Icon.propTypes = {
   size: PropTypes.oneOf(['medium', 'large', 'x-large', 'xx-large'])
 };
 
+// Icon type components
 const IconPlus = (props) => Icon({
   ...props,
   appearance: 'plus'

@@ -17,6 +17,12 @@
   top: -2px;
   vertical-align: sub; }
 
+@keyframes rotating {
+  from {
+    transform: rotate(0deg); }
+  to {
+    transform: rotate(360deg); } }
+
 .p-icon--plus {
   mask-image: url("data:image/svg+xml;charest=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' height='9' width='9' viewBox='0 0 9 9'%3E%3Cg fill='%23888' fill-rule='evenodd'%3E%3Cpath d='M4 0h1v9H4z'/%3E%3Cpath d='M0 5V4h9v1z'/%3E%3C/g%3E%3C/svg%3E"); }
 
@@ -85,6 +91,7 @@
   mask-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' height='16' viewBox='0 0 16 15.999999' width='16'%3E%3Cpath opacity='.12' fill='none' color='%23000' d='M15.997 15.998v-16h-16v16z'/%3E%3Cpath style='text-decoration-color:%23000000;font-variant-numeric:normal;text-decoration-line:none;font-variant-position:normal;mix-blend-mode:normal;block-progression:tb;font-feature-settings:normal;shape-padding:0;font-variant-alternates:normal;text-indent:0;font-variant-caps:normal;text-decoration-style:solid;font-variant-ligatures:normal;isolation:auto;text-transform:none' d='M8 0C7.413 0 6.858.11 6.35.33c-.51.208-.956.514-1.33.91h-.004c-.364.4-.645.88-.844 1.427-.2.545-.3 1.143-.3 1.787 0 .653.1 1.256.3 1.802.2.54.48 1.012.844 1.41h.004c.25.264.53.49.84.676-.257.066-.7.144-.955.237-.878.32-1.617.765-2.196 1.333h-.005c-.573.577-1.003 1.258-1.286 2.03h-.003c-.263.765-.394 1.588-.394 2.464v1.572L14.98 16v-1.57c0-.892-.14-1.702-.42-2.468-.268-.776-.7-1.46-1.292-2.04-.58-.566-1.316-1.01-2.194-1.332-.25-.093-.687-.17-.94-.236.31-.187.59-.414.834-.68.373-.398.66-.873.86-1.412.203-.546.3-1.15.3-1.803 0-.646-.098-1.244-.3-1.79-.2-.548-.486-1.028-.86-1.426C10.602.846 10.16.54 9.652.33 9.143.11 8.588 0 8 0z' fill='gray' color='%23000' solid-color='%23000000' white-space='normal'/%3E%3C/svg%3E"); }
 
 .p-icon--spinner {
+  animation: rotating 1s linear infinite;
   background-color: currentColor;
   mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 0 24 24'%3E%3Cpath d='M7.49 23.123c2.78 1.125 5.978 1.213 8.975 0 4.247-1.72 6.972-5.603 7.424-9.87l-1.136-.118c-.408 3.86-2.875 7.374-6.717 8.93-2.71 1.098-5.605 1.018-8.118 0l-.43 1.058zm-2.21-1.176c-1.913-1.29-3.475-3.148-4.404-5.45C-1.284 11.146.686 5.15 5.28 2.05l.638.946C1.76 5.802-.02 11.228 1.934 16.068c.84 2.086 2.254 3.766 3.985 4.933l-.64.947zm18.61-11.2c-.115-1.088-.38-2.178-.81-3.242-2.478-6.142-9.457-9.11-15.59-6.628l.43 1.057c5.546-2.245 11.86.44 14.103 5.998.388.963.63 1.95.733 2.933l1.134-.12z' fill='%23666' fill-rule='nonzero'/%3E%3C/svg%3E"); }
 
