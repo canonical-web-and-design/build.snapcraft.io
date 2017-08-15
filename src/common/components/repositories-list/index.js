@@ -12,7 +12,6 @@ import {
   getAccountInfo,
   getSSODischarge
 } from '../../actions/auth-store';
-//import Spinner from '../spinner';
 import { IconSpinner } from '../vanilla-modules/icons';
 import RepositoryRow from '../repository-row';
 import { Table, Head, Body, Row, Header } from '../vanilla/table-interactive';

@@ -14,11 +14,7 @@ import {
   EditConfigDropdown,
   RegisterNameDropdown
 } from './dropdowns';
-import {
-  DeleteIcon,
-  TickIcon,
-  ErrorIcon
-} from './icons';
+import { IconDelete, IconSuccess, IconError } from '../vanilla-modules/icons';
 import * as authStoreActionCreators from '../../actions/auth-store';
 import * as registerNameActionCreators from '../../actions/register-name';
 import { NAME_OWNERSHIP_ALREADY_OWNED, checkNameOwnership } from '../../actions/name-ownership';
@@ -379,10 +375,10 @@ export class RepositoryRowView extends Component {
       }
     } else if (snapNameIsMismatched(snap)){
       onClick = this.onNameMismatchClick.bind(this);
-      content = <span><ErrorIcon /> Name mismatch</span>;
+      content = <span><IconError /> Name mismatch</span>;
     } else {
       onClick = this.onConfiguredClick.bind(this);
-      content = <TickIcon />;
+      content = <IconSuccess />;
     }
 
     const active = (
@@ -404,7 +400,7 @@ export class RepositoryRowView extends Component {
 
     if (registeredName !== null) {
       onClick = this.onUnregisteredClick.bind(this);
-      content = <span><TickIcon /> { registeredName }</span>;
+      content = <span><IconSuccess /> { registeredName }</span>;
     } else if (showRegisterNameInput) {
       content = (
         <form onSubmit={this.onRegisterSubmit.bind(this, snap.gitRepoUrl)}>
@@ -462,7 +458,7 @@ export class RepositoryRowView extends Component {
         active={ this.state.removeDropdownExpanded  }
         onClick={ this.onToggleRemoveClick.bind(this) }
       >
-        <DeleteIcon />
+        <IconDelete />
       </DataLink>
     );
   }

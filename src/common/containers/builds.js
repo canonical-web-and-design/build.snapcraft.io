@@ -4,7 +4,7 @@ import Helmet from 'react-helmet';
 
 import BuildHistory from '../components/build-history';
 import { Message } from '../components/forms';
-import Spinner from '../components/spinner';
+import IconSpinner from '../components/vanilla-modules/icons';
 import { HelpBox, HelpCustom, HelpInstallSnap } from '../components/help';
 import { HeadingOne } from '../components/vanilla-modules/heading';
 import Badge from '../components/badge';
@@ -98,7 +98,7 @@ export class Builds extends Component {
         </div>
         <BuildHistory repository={repository} />
         { isLoading &&
-          <div className={styles.spinner}><Spinner /></div>
+          <IconSpinner />
         }
         { error &&
           <Message status='error'>{ error.message || error }</Message>

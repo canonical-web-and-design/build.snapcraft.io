@@ -12,7 +12,7 @@ import {
   HelpPromoteSnap
 } from '../components/help';
 import { HeadingOne, HeadingThree } from '../components/vanilla-modules/heading';
-import Spinner from '../components/spinner';
+import IconSpinner from '../components/vanilla-modules/icons';
 import Breadcrumbs, { BreadcrumbsLink } from '../components/vanilla-modules/breadcrumbs';
 import BetaNotification from '../components/beta-notification';
 
@@ -107,7 +107,7 @@ class BuildDetails extends Component {
         }
         { helpBox }
         { isFetching &&
-          <div className={styles.spinner}><Spinner /></div>
+          <IconSpinner />
         }
       </div>
     );
