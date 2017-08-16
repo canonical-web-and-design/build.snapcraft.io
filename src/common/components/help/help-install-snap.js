@@ -21,11 +21,17 @@ export default class HelpInstallSnap extends Component {
       <div className={styles.helpFlexWrapper}>
         <HeadingThree className={styles.helpFlexHeading}>{ headline }</HeadingThree>
         <div className={styles.helpText}>
-          <pre>
-            <code className={ styles.cli }>
+          <pre className={styles.cli}>
+            <code className={ styles.code }>
               {command}
             </code>
+            <div className={styles.copy}>
+              <CopyToClipboard
+                copyme={ command }
+              />
+            </div>
           </pre>
+
           { revision &&
             <p className={ styles.p }>
               The installed snap will not be auto-updated.
@@ -44,9 +50,6 @@ export default class HelpInstallSnap extends Component {
             )
           </p>
           <div>
-            <CopyToClipboard
-              copyme={ command }
-            />
             { stable &&
               <Tweet
                 text={ tweet }
