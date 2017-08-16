@@ -22,8 +22,6 @@ import styles from './styles.css';
 
 import PrivateReposInfo from '../private-repos-info/private-repos-info';
 
-// loading container styles not to duplicate .spinner class
-import { spinner as spinnerStyles } from '../../containers/container.css';
 
 export class SelectRepositoryListComponent extends Component {
 

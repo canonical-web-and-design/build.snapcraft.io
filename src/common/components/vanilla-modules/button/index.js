@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import classNames from 'classnames';
 
-import Spinner from '../../spinner';
 import { IconSpinner } from '../icons';
 
 import style from '../../../style/vanilla/css/button.css';
