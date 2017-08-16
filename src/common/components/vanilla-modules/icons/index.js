@@ -17,12 +17,12 @@ const Icon = (props) => {
 
   // Icons can be effected by appearance, color and size
   const appearance = props.appearance;
-  const color = props.color;
+  const inheritColor = props.inheritColor;
   const size = props.size;
   const iconClass = classNames({
     [iconStyle(appearance)]: true,
     [iconStyle(size)]: true,
-    [iconStyle(color)]: true
+    [iconStyle('inherit-color')]: inheritColor,
   });
 
   // Aria-hidden is required as icons shouldn't be visible to
@@ -60,7 +60,7 @@ Icon.propTypes = {
     'user',
     'spinner'
   ]),
-  color: PropTypes.oneOf(['inherit-color']),
+  inheritColor: PropTypes.bool,
   size: PropTypes.oneOf(['medium', 'large', 'x-large', 'xx-large'])
 };
 
