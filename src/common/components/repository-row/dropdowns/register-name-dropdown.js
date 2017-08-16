@@ -4,7 +4,7 @@ import { conf } from '../../../helpers/config';
 
 import Button from '../../vanilla-modules/button';
 import { Row, Data, Dropdown } from '../../vanilla/table-interactive';
-import { TickIcon, ErrorIcon } from '../icons';
+import { IconSuccess, IconError } from '../../vanilla-modules/icons';
 
 import styles from './dropdowns.css';
 
@@ -135,7 +135,7 @@ const Caption = (props) => {
   if (registerNameStatus.success) {
     caption = (
       <div>
-        <TickIcon /> Registered successfully
+        <IconSuccess /> Registered successfully
       </div>
     );
   } else if (errorCode === 'already_registered' || errorCode === 'reserved_name') {
@@ -145,7 +145,7 @@ const Caption = (props) => {
     );
     caption = (
       <div>
-        <p><ErrorIcon /> Sorry, { reason }. Try a different name.</p>
+        <p><IconError /> Sorry, { reason }. Try a different name.</p>
         <p className={ styles.helpText }>
           If you think you should have sole rights to the name,
           you can
@@ -162,7 +162,7 @@ const Caption = (props) => {
     );
   } else if (registerNameStatus.error) {
     caption = (
-      <p><ErrorIcon /> { registerNameStatus.error.message }</p>
+      <p><IconError /> { registerNameStatus.error.message }</p>
     );
   } else {
     caption = (
