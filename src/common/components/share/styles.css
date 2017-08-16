@@ -18,8 +18,12 @@
 }
 
 .clipboard {
-  background-image: url(https://assets.ubuntu.com/v1/9cbcbbc7-copy-clipboard.svg);
-  background-size: 12px;
+  background: transparent;
+}
+
+.clipboard:hover {
+  opacity: .5;
+  background-color: transparent;
 }
 
 .tweet {
