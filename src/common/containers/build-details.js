@@ -12,7 +12,7 @@ import {
   HelpPromoteSnap
 } from '../components/help';
 import { HeadingOne, HeadingThree } from '../components/vanilla-modules/heading';
-import IconSpinner from '../components/vanilla-modules/icons';
+import { IconSpinner } from '../components/vanilla-modules/icons';
 import Breadcrumbs, { BreadcrumbsLink } from '../components/vanilla-modules/breadcrumbs';
 import BetaNotification from '../components/beta-notification';
 

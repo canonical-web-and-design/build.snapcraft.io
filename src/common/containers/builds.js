@@ -4,7 +4,7 @@ import Helmet from 'react-helmet';
 
 import BuildHistory from '../components/build-history';
 import { Message } from '../components/forms';
-import IconSpinner from '../components/vanilla-modules/icons';
+import { IconSpinner } from '../components/vanilla-modules/icons';
 import { HelpBox, HelpCustom, HelpInstallSnap } from '../components/help';
 import { HeadingOne } from '../components/vanilla-modules/heading';
 import Badge from '../components/badge';
