@@ -21,8 +21,8 @@ export default class HelpInstallSnap extends Component {
       <div className={styles.helpFlexWrapper}>
         <HeadingThree className={styles.helpFlexHeading}>{ headline }</HeadingThree>
         <div className={styles.helpText}>
-          <pre className={styles.cli}>
-            <code className={ styles.code }>
+          <pre className={styles.pre}>
+            <code className={ styles.cli }>
               {command}
             </code>
             <div className={styles.copy}>

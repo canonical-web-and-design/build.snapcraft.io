@@ -30,13 +30,13 @@
   margin-bottom: 1rem;
 }
 
-.cli {
+.pre {
   display: flex;
   flex: 1;
   margin-bottom: 1rem;
 }
 
-.code {
+.cli {
   font-family: "Ubuntu Mono", monospace;
   line-height:1.5;
   display:inline-block;
