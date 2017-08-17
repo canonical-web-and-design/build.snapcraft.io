@@ -5,13 +5,11 @@
 .hasSpinner .text {
   /* hide text without chaning button width */
   opacity: 0;
-  position: absolute;
 }
 
 .hasSpinner .icon {
-  height: 13px;
-  top: -1px;
-  vertical-align: middle;
+  left: calc(50% - 8px);
+  position: absolute;
 }
 
 .bigger {

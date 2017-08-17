@@ -4,10 +4,10 @@ import classNames from 'classnames';
 import styles from '../../../style/vanilla/css/icons.css';
 
 // Creates icon style class name
-const iconStyle = (icon = '') => {
-  icon = icon ? '--' + icon : '';
+const iconStyle = (modifier = '') => {
+  modifier = modifier ? '--' + modifier : '';
 
-  const className = `p-icon${icon}`;
+  const className = `p-icon${modifier}`;
 
   return styles[className];
 };

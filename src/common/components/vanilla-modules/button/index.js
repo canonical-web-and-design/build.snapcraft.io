@@ -22,7 +22,9 @@ function createButtonComponent(Component) {
     return (
       <Component {...rest} className={ className }>
         { isSpinner &&
-          <IconSpinner inheritColor className={ customStyle.icon } />
+          <span className={ customStyle.icon }>
+            <IconSpinner inheritColor />
+          </span>
         }
         <span className={ customStyle.text }>{ props.children }</span>
       </Component>
