@@ -10,8 +10,9 @@ export default function register(db) {
    *   snapcraft_name: name in snapcraft.yaml
    *   store_name: registered store name corresponding to this repository
    *   registrant: GitHub user who registered this repository in BSI
-   *   created_at: creation date
-   *   updated_at: update date
+   *   created_at: creation datetime
+   *   updated_at: update datetime
+   *   polled_at: last poll datetime
    */
   db.model('Repository', {
     tableName: 'repository',

@@ -8,5 +8,5 @@ NODE_JS_DEB=nodejs_6.9.1-1nodesource1~xenial1_amd64.deb
 tmp_dl_dir=$(mktemp -d /tmp/dl.XXXXXX)
 wget $ACC_URL/$NODE_JS_DEB -O $tmp_dl_dir/$NODE_JS_DEB
 APT_OPTIONS=$(echo {apt.options} | sed -e 's/,//g')
-apt-get install $APT_OPTIONS $tmp_dl_dir/$NODE_JS_DEB 
+apt-get install $APT_OPTIONS $tmp_dl_dir/$NODE_JS_DEB
 rm -fr $tmp_dl_dir

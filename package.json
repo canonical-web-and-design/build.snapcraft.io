@@ -7,6 +7,7 @@
     "start": "npm run migrate:latest && node ./webpack/webpack-dev-server",
     "start-build": "node dist/server/",
     "build": "./scripts/build.sh",
+    "build:scripts": "babel --out-dir=dist src scripts/poller.js --copy-files",
     "build:vanilla-modules": "node-sass --include-path ./node_modules -o ./src/common/style/vanilla/css ./src/common/style/vanilla/",
     "lint": "eslint -c .eslintrc.js '**/*.js'",
     "test": "npm run test:setup-db && nyc npm run test:unit && npm run test:routes && npm run lint",
@@ -17,7 +18,9 @@
     "test:routes": "BABEL_DISABLE_CACHE=1 HTTP_PROXY= HTTPS_PROXY= TZ=US/Pacific mocha --env=environments/test.env --recursive --require babel-core/register --require babel-polyfill --compilers js:babel-register ./test/setup.js ./test/routes/**/*",
     "migrate:latest": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback",
-    "generate-badges": "node scripts/badges.js"
+    "shonkwrap": "shonkwrap",
+    "generate-badges": "node scripts/badges.js",
+    "poll-repositories": "node dist/scripts/poller.js"
   },
   "repository": {
     "type": "git",
@@ -35,6 +38,7 @@
   },
   "homepage": "https://github.com/canonical-ols/build.snapcraft.io-ui#readme",
   "dependencies": {
+    "async-lock": "^1.0.0",
     "babel-polyfill": "^6.16.0",
     "body-parser": "^1.15.2",
     "bookshelf": "^0.10.3",
@@ -69,7 +73,7 @@
     "parse-github-url": "^0.3.2",
     "pg": "^6.1.2",
     "qs": "^6.3.0",
-    "raven": "^0.12.3",
+    "raven": "^2.1.1",
     "react": "^15.4.0",
     "react-dom": "^15.4.0",
     "react-helmet": "^3.1.0",
@@ -121,9 +125,9 @@
     "postcss-simple-vars": "^3.0.0",
     "prompt": "^1.0.0",
     "proxyquire": "^1.7.10",
-    "raven": "^0.12.1",
     "react-addons-test-utils": "^15.4.0",
     "redux-mock-store": "^1.2.1",
+    "shonkwrap": "^1.3.0",
     "sinon": "^1.17.6",
     "sqlite3": "^3.1.8",
     "std-mocks": "^1.0.1",
