@@ -66,7 +66,7 @@ class RepositoriesHome extends Component {
         <div className={ styles['button-container'] }>
           <HeadingThree>Repos to build</HeadingThree>
           <div>
-            <LinkButton appearance="positive" isSpinner to="/select-repositories">
+            <LinkButton appearance="positive" to="/select-repositories">
               Add repos…
             </LinkButton>
           </div>
