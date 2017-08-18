@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 
 import { Row, Data, Dropdown } from '../../vanilla/table-interactive';
 import Button from '../../vanilla-modules/button';
-import { WarningIcon } from '../icons';
+import { IconWarning } from '../../vanilla-modules/icons';
 
 import styles from './dropdowns.css';
 
@@ -42,7 +42,7 @@ const RemoveRepoDropdown = (props) => {
 
   let message = (
     <span>
-      <WarningIcon /> { getRemoveWarningMessage(isBuilt, registeredName) }
+      <IconWarning /> { getRemoveWarningMessage(isBuilt, registeredName) }
     </span>
   );
 

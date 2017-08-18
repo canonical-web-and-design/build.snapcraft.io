@@ -16,7 +16,7 @@ export default class HelpPromoteSnap extends Component {
     return (
       <div className={styles.helpWrapper}>
         <HeadingThree>{heading}</HeadingThree>
-        <pre>
+        <pre className={styles.pre}>
           <code className={ styles.cli }>
             snapcraft release {name} {revision} beta<br/>
 

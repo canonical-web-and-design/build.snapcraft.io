@@ -7,12 +7,9 @@
   opacity: 0;
 }
 
-.spinner {
+.hasSpinner .icon {
+  left: calc(50% - 8px);
   position: absolute;
-  height: 20px;
-  width: 20px;
-  left: calc(50% - 10px);
-  top: calc(50% - 10px);
 }
 
 .bigger {

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
 import SelectRepositoryRow from '../select-repository-row';
-import Spinner from '../spinner';
+import IconSpinner from '../vanilla-modules/icons';
 import Button, { LinkButton } from '../vanilla-modules/button';
 import {
   addRepos,
@@ -22,8 +22,6 @@ import styles from './styles.css';
 
 import PrivateReposInfo from '../private-repos-info/private-repos-info';
 
-// loading container styles not to duplicate .spinner class
-import { spinner as spinnerStyles } from '../../containers/container.css';
 
 export class SelectRepositoryListComponent extends Component {
 
@@ -111,7 +109,7 @@ export class SelectRepositoryListComponent extends Component {
       return (
         <div className={ styles.spinnerWrapper }>
           { isDelayed &&
-            <div className={ spinnerStyles }><Spinner /></div>
+            <IconSpinner />
           }
         </div>
       );

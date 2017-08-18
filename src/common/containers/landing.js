@@ -28,7 +28,6 @@ class Landing extends Component {
                 <li className={ styles.bannerImage }>
                   <img src='https://assets.ubuntu.com/v1/ed6d1c5b-build.snapcraft.hero.svg' alt=""/>
                 </li>
-
                 <li className={ styles.bannerLabel }>
                   Push to GitHub
                 </li>
