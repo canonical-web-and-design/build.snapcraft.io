@@ -8,10 +8,13 @@ import {
   getGitHubRepoUrl,
   parseGitHubRepoUrl
 } from '../../common/helpers/github-url';
-import requestGitHub from '../helpers/github';
-import { internalGetSnapcraftYaml } from '../handlers/launchpad';
+import {
+  internalFindSnap,
+  internalGetSnapcraftYaml,
+  internalRequestSnapBuilds
+} from '../handlers/launchpad';
 import { getDefaultBranch } from '../handlers/github';
-
+import requestGitHub from '../helpers/github';
 
 const logger = logging.getLogger('poller');
 raven.config(conf.get('SENTRY_DSN')).install();
@@ -108,16 +111,30 @@ export const checkSnapRepository = async (owner, name, last_polled_at) => {
 };
 
 
-// Request a build of a given snap repository (in LP) and update `polled_at` (in DB).
+/** Request a build of the corresponding snap repository (in LP) and
+ *  update `polled_at` (in DB).
+ *
+ * Return a `Promise` with the result of the operation.
+ */
 export const buildSnapRepository = async (owner, name) => {
-  const _now = new Date().getTime();
-  // XXX request LP build
-  // const repo_url = getGitHubRepoUrl(owner, name);
+  // TODO: annotate why the repository is being built (change on the main repo
+  // or in parts? which part ?).
+  const repositoryUrl = getGitHubRepoUrl(owner, name);
+  try {
+    const snap = await internalFindSnap(repositoryUrl);
+    await internalRequestSnapBuilds(snap, owner, name);
+    logger.info(`Requested builds of ${repositoryUrl}.`);
+  } catch (e) {
+    logger.error(`Failed to request builds of ${repositoryUrl}: ${e}.`);
+    return Promise.reject(e);
+  }
+
   return db.transaction(async (trx) => {
     const row = await db.model('Repository')
       .where({ owner, name })
       .fetch({ transacting: trx });
-    await row.save({ polled_at: _now }, { method: 'update', transacting: trx });
+    await row.save(
+      { polled_at: new Date() }, { method: 'update', transacting: trx });
   });
 };
 
