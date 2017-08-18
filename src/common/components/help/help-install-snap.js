@@ -25,11 +25,13 @@ export default class HelpInstallSnap extends Component {
             <code className={ styles.cli }>
               {command}
             </code>
-            <div className={styles.copy}>
-              <CopyToClipboard
-                copyme={ `${ command }` }
-              />
-            </div>
+            { stable &&
+              <div className={styles.copy}>
+                <CopyToClipboard
+                  copyme={ `${ command }` }
+                />
+              </div>
+            }
           </pre>
 
           { revision &&
