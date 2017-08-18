@@ -1,0 +1,62 @@
+* + .p-form__control {
+  margin-top: 0.75rem; }
+
+.p-form--stacked {
+  width: 100%; }
+  @media screen and (min-width: 768px) {
+    .p-form--stacked .p-form__group {
+      align-items: baseline;
+      display: flex;
+      flex-flow: wrap; }
+      .p-form--stacked .p-form__group + .p-form__group {
+        margin-top: 0.75rem; } }
+  @media screen and (min-width: 768px) {
+    .p-form--stacked .p-form__label {
+      flex-basis: 25%;
+      flex-grow: 1;
+      margin: 0;
+      max-width: 25%;
+      padding-right: 0.75rem; } }
+  @media screen and (min-width: 768px) {
+    .p-form--stacked .p-form__control {
+      flex-basis: 75%;
+      flex-grow: 1;
+      margin: 0;
+      max-width: 75%; } }
+
+@media screen and (min-width: 768px) {
+  .p-form--inline {
+    align-items: baseline;
+    display: inline-flex;
+    flex-direction: row; }
+    .p-form--inline > * {
+      margin: 0; } }
+
+@media screen and (min-width: 768px) {
+  .p-form--inline .p-form__group {
+    display: inline-flex;
+    width: auto; }
+    .p-form--inline .p-form__group + .p-form__group,
+    .p-form--inline .p-form__group + [class*="p-button"] {
+      margin-left: 1.5rem; }
+    .p-form--inline .p-form__group .p-form__label,
+    .p-form--inline .p-form__group .p-form__control,
+    .p-form--inline .p-form__group .p-form-validation__message {
+      align-self: baseline;
+      box-sizing: border-box; }
+    .p-form--inline .p-form__group .p-form__label {
+      flex-shrink: 0;
+      padding-right: 1rem; }
+    .p-form--inline .p-form__group .p-form__control {
+      display: inline-block;
+      margin: 0; }
+    .p-form--inline .p-form__group .p-form-validation__message {
+      clear: both;
+      margin-top: 0.25rem;
+      min-width: 100%;
+      width: 0; } }
+
+.p-form--inline [class*="p-button"] {
+  flex: initial;
+  flex-shrink: 0;
+  margin-top: 0; }

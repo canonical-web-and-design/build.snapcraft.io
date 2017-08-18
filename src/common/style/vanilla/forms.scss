@@ -1,4 +1,4 @@
-@import 'settings';
+@import 'vanilla-framework/scss/settings';
 
 @mixin theme-p-forms {
   .p-form {
@@ -101,3 +101,5 @@
     }
   }
 }
+
+@include theme-p-forms;
