@@ -40,6 +40,7 @@ export class Builds extends Component {
               <HelpInstallSnap
                 headline='To test the latest successful build on your cloud instance or device'
                 name={ snap.storeName }
+                hasCopyButton
               />
             </HelpBox>
           </div>
@@ -51,6 +52,7 @@ export class Builds extends Component {
                     headline='To install the latest stable version'
                     stable={ true }
                     name={ snap.storeName }
+                    hasCopyButton
                   />
                 </HelpBox>
               )

@@ -8,7 +8,7 @@ const HELP_INSTALL_URL = 'https://snapcraft.io/docs/core/install';
 
 export default class HelpInstallSnap extends Component {
   render() {
-    const { children, headline, name, revision, stable } = this.props;
+    const { children, headline, name, revision, stable, hasCopyButton } = this.props;
     const revOption = revision ? `--revision=${ revision }` : '';
     const command = children || `sudo snap install ${stable ? '' : '--edge '}${name} ${revOption}`;
 
@@ -25,7 +25,7 @@ export default class HelpInstallSnap extends Component {
             <code className={ styles.cli }>
               {command}
             </code>
-            { stable &&
+            { hasCopyButton &&
               <div className={styles.copy}>
                 <CopyToClipboard
                   copyme={ `${ command }` }
@@ -74,5 +74,6 @@ HelpInstallSnap.propTypes = {
   },
   revision: PropTypes.number,
   stable: PropTypes.bool,
-  children: PropTypes.node
+  children: PropTypes.node,
+  hasCopyButton: PropTypes.bool
 };

@@ -51,6 +51,7 @@ class BuildDetails extends Component {
             headline='To test this build on your PC or cloud instance:'
             name={ snap.storeName }
             revision={ build.storeRevision }
+            hasCopyButton
           />
           { snap.snapcraftData &&
             <HelpPromoteSnap
