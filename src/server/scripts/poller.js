@@ -34,8 +34,7 @@ export const pollRepositories = (checker, builder) => {
   let AsyncLock = require('async-lock');
   let pollRepoLock = new AsyncLock();
 
-  let repoDB = db.model('Repository');
-  return repoDB.fetchAll().then(function (results) {
+  return db.model('Repository').fetchAll().then(function (results) {
     logger.info(`Iterating over ${results.length} repositories.`);
     results.models.forEach((repo) => {
       pollRepoLock.acquire('PROCESS-REPO-SYNC', async () => {
@@ -78,6 +77,9 @@ export const pollRepositories = (checker, builder) => {
         logger.info('==========');
       });
     });
+    // Pass the lock through so chained tasks can actually check
+    // for completion, if necessary.
+    return pollRepoLock;
   });
 };
 

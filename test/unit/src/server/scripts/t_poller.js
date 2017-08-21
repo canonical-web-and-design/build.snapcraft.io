@@ -27,18 +27,20 @@ describe('Poller script helpers', function() {
     });
 
     context('when there are no repositories', function() {
-      it('does nothing', async () => {
+      it('does nothing and returns the iteration lock', async () => {
         let checker = sinon.spy();
         let builder = sinon.spy();
-        await pollRepositories(checker, builder);
+        const lock = await pollRepositories(checker, builder);
         expect(checker.callCount).toBe(0);
         expect(builder.callCount).toBe(0);
+        const AsyncLock = require('async-lock');
+        expect(lock).toBeA(AsyncLock);
       });
     });
 
     context('when the repository has no name in snapcraft.yaml', function() {
-      it('gets skipped', () => {
-        return db.transaction(async (trx) => {
+      it('gets skipped', async () => {
+        await db.transaction(async (trx) => {
           const db_user = db.model('GitHubUser').forge({
             github_id: 1234,
             name: null,
@@ -54,19 +56,18 @@ describe('Poller script helpers', function() {
             registrant_id: db_user.get('id')
           });
           await db_repo.save({}, { transacting: trx });
-        }).then(async () => {
-          let checker = sinon.spy();
-          let builder = sinon.spy();
-          await pollRepositories(checker, builder);
-          expect(checker.callCount).toBe(0);
-          expect(builder.callCount).toBe(0);
         });
+        let checker = sinon.spy();
+        let builder = sinon.spy();
+        await pollRepositories(checker, builder);
+        expect(checker.callCount).toBe(0);
+        expect(builder.callCount).toBe(0);
       });
     });
 
     context('when the repository has no name registered in the store', function() {
-      it('gets skipped', () => {
-        return db.transaction(async (trx) => {
+      it('gets skipped', async () => {
+        await db.transaction(async (trx) => {
           const db_user = db.model('GitHubUser').forge({
             github_id: 1234,
             name: null,
@@ -82,19 +83,18 @@ describe('Poller script helpers', function() {
             registrant_id: db_user.get('id')
           });
           await db_repo.save({}, { transacting: trx });
-        }).then(async () => {
-          let checker = sinon.spy();
-          let builder = sinon.spy();
-          await pollRepositories(checker, builder);
-          expect(checker.callCount).toBe(0);
-          expect(builder.callCount).toBe(0);
         });
+        let checker = sinon.spy();
+        let builder = sinon.spy();
+        await pollRepositories(checker, builder);
+        expect(checker.callCount).toBe(0);
+        expect(builder.callCount).toBe(0);
       });
     });
 
     context('when the repository snapcraft name does not match the one in the store', function() {
-      it('gets skipped', () => {
-        return db.transaction(async (trx) => {
+      it('gets skipped', async () => {
+        await db.transaction(async (trx) => {
           const db_user = db.model('GitHubUser').forge({
             github_id: 1234,
             name: null,
@@ -110,19 +110,18 @@ describe('Poller script helpers', function() {
             registrant_id: db_user.get('id')
           });
           await db_repo.save({}, { transacting: trx });
-        }).then(async () => {
-          let checker = sinon.spy();
-          let builder = sinon.spy();
-          await pollRepositories(checker, builder);
-          expect(checker.callCount).toBe(0);
-          expect(builder.callCount).toBe(0);
         });
+        let checker = sinon.spy();
+        let builder = sinon.spy();
+        await pollRepositories(checker, builder);
+        expect(checker.callCount).toBe(0);
+        expect(builder.callCount).toBe(0);
       });
     });
 
     context('when there are repositories with no changes', function() {
-      it('gets checked, but not built', () => {
-        return db.transaction(async (trx) => {
+      it('gets checked, but not built', async () => {
+        await db.transaction(async (trx) => {
           const db_user = db.model('GitHubUser').forge({
             github_id: 1234,
             name: null,
@@ -138,20 +137,19 @@ describe('Poller script helpers', function() {
             registrant_id: db_user.get('id')
           });
           await db_repo.save({}, { transacting: trx });
-        }).then(async () => {
-          let checker = sinon.stub().returns(false);
-          let builder = sinon.spy();
-          await pollRepositories(checker, builder);
-          expect(checker.callCount).toBe(1);
-          expect(checker.calledWithMatch('anowner', 'aname')).toBe(true);
-          expect(builder.callCount).toBe(0);
         });
+        let checker = sinon.stub().returns(false);
+        let builder = sinon.spy();
+        await pollRepositories(checker, builder);
+        expect(checker.callCount).toBe(1);
+        expect(checker.calledWithMatch('anowner', 'aname')).toBe(true);
+        expect(builder.callCount).toBe(0);
       });
     });
 
     context('when there are repositories with changes', function() {
-      it('gets built', () => {
-        return db.transaction(async (trx) => {
+      it('gets built', async () => {
+        await db.transaction(async (trx) => {
           const db_user = db.model('GitHubUser').forge({
             github_id: 1234,
             name: null,
@@ -167,15 +165,14 @@ describe('Poller script helpers', function() {
             registrant_id: db_user.get('id')
           });
           await db_repo.save({}, { transacting: trx });
-        }).then(async () => {
-          let checker = sinon.stub().returns(true);
-          let builder = sinon.spy();
-          await pollRepositories(checker, builder);
-          expect(checker.callCount).toBe(1);
-          expect(checker.calledWithMatch('anowner', 'aname')).toBe(true);
-          expect(builder.callCount).toBe(1);
-          expect(builder.calledWith('anowner', 'aname')).toBe(true);
         });
+        let checker = sinon.stub().returns(true);
+        let builder = sinon.spy();
+        await pollRepositories(checker, builder);
+        expect(checker.callCount).toBe(1);
+        expect(checker.calledWithMatch('anowner', 'aname')).toBe(true);
+        expect(builder.callCount).toBe(1);
+        expect(builder.calledWith('anowner', 'aname')).toBe(true);
       });
     });
 
