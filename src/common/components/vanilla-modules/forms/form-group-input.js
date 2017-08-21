@@ -1,16 +1,14 @@
-import React, { Component, PropTypes } from 'react';
-import classNames from 'classnames';
+import React, { PropTypes } from 'react';
 
 import styles from '../../../style/vanilla/css/forms.css';
 
 export default function FormGroupInput(props) {
   const { disabled, name, label, type, placeholder } = props;
   const id = `ID_${name}`;
-  const status = props.touched ? ( props.valid ? 'success' : 'error' ) : null;
-  const statusStyle = `is-${status}`;
+  const status = props.touched ? ( props.valid ? 'p-form-validation is-success' : 'p-form-validation is-error') : null;
 
   return (
-    <div className={ styles['p-form__group'] }>
+    <div className={ `${styles['p-form__group']} ${styles[status]}` }>
       <label htmlFor={ id } className={ styles['p-form__label'] }>
         { label }
       </label>
@@ -27,7 +25,11 @@ export default function FormGroupInput(props) {
           onBlur={ props.onBlur }
           value={ props.value || '' }
         />
-        { props.errorMsg }
+        { props.errorMsg &&
+          <p className={ styles['p-form-validation__message'] } role="alert">
+            <strong>Error:</strong> { props.errorMsg }
+          </p>
+        }
       </div>
     </div>
   )
@@ -43,7 +45,10 @@ FormGroupInput.propTypes = {
   sensitive: PropTypes.bool,
   valid: PropTypes.bool,
   touched: PropTypes.bool,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+  ]).isRequired,
   errorMsg: PropTypes.string,
   onChange: PropTypes.func,
   onBlur: PropTypes.func

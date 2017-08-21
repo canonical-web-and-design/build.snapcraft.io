@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { Anchor } from '../components/vanilla-modules/button';
 import { HeadingTwo, HeadingThree } from '../components/vanilla-modules/heading';
 import { List, ListItem } from '../components/vanilla-modules/list';
-import { Form, FormGroupInput } from '../components/vanilla-modules/forms';
 
 import Testimonial from '../components/testimonial';
 import containerStyles from './container.css';
@@ -64,11 +63,6 @@ class Landing extends Component {
             <HeadingTwo className={ styles.landingHeading }>
               Publish your software for
             </HeadingTwo>
-            <Form inline>
-              <FormGroupInput type='text' label='testing' placeholder='Testing' />
-              <FormGroupInput type='text' label='testing2' placeholder='Testing2' />
-              <FormGroupInput type='text' label='testing3' placeholder='Testing3' />
-            </Form>
             <div className={ `${styles.row}` }>
               <img className={ styles.brandLogo } alt="Debian," src={images.debian} />
               <img className={ styles.brandLogo } alt="openSUSE," src={images.opensuse} />
