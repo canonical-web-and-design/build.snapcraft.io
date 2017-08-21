@@ -1,4 +1,5 @@
 @import 'vanilla-framework/scss/settings';
+@import 'vanilla-framework/scss/base_forms.scss';
 
 @mixin theme-p-forms {
   .p-form {
@@ -102,4 +103,5 @@
   }
 }
 
+@include vf-b-forms;
 @include theme-p-forms;
