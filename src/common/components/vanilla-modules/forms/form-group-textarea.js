@@ -42,7 +42,6 @@ FormGroupTextarea.propTypes = {
   placeholder: PropTypes.string,
   required: PropTypes.bool,
   disabled: PropTypes.bool,
-  type: PropTypes.string,
   sensitive: PropTypes.bool,
   valid: PropTypes.bool,
   rows: PropTypes.number,
