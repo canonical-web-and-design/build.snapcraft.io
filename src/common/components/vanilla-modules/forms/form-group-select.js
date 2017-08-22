@@ -26,8 +26,8 @@ export default function FormGroupSelect(props) {
         { props.options.map(opt => {
             return (
               <option
-                key={opt}
-                value={opt}>{opt}</option>
+                key={ opt }
+                value={ opt }>{ opt }</option>
             );
           })
         }
@@ -52,7 +52,7 @@ FormGroupSelect.propTypes = {
   sensitive: PropTypes.bool,
   valid: PropTypes.bool,
   touched: PropTypes.bool,
-  selectedOption: PropTypes.string
+  selectedOption: PropTypes.string,
   errorMsg: PropTypes.string,
   onChange: PropTypes.func
 };
