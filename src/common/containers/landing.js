@@ -64,12 +64,6 @@ class Landing extends Component {
             <HeadingTwo className={ styles.landingHeading }>
               Publish your software for
             </HeadingTwo>
-            <Form inline>
-              <FormGroupInput type='text' id='test' label='testing' placeholder='Testing' />
-              <FormGroupInput type='text' id='test2' label='testing2' placeholder='Testing2' />
-              <FormGroupInput type='text' id='test3' label='testing3' placeholder='Testing3' />
-              <FormGroupCheckboxRadio type='checkbox' label='checkbox' />
-            </Form>
             <div className={ `${styles.row}` }>
               <img className={ styles.brandLogo } alt="Debian," src={images.debian} />
               <img className={ styles.brandLogo } alt="openSUSE," src={images.opensuse} />
