@@ -7,7 +7,7 @@ import { conf } from '../helpers/config';
 import { getMemcached } from '../helpers/memcached';
 import { internalListOrganizations, listOrganizationsCacheId, requestUser } from './github';
 
-const AUTH_SCOPE = 'admin:repo_hook read:org';
+const AUTH_SCOPE = 'write:repo_hook read:org';
 const GITHUB_AUTH_LOGIN_URL = conf.get('GITHUB_AUTH_LOGIN_URL');
 const GITHUB_AUTH_VERIFY_URL = conf.get('GITHUB_AUTH_VERIFY_URL');
 const GITHUB_AUTH_CLIENT_ID = conf.get('GITHUB_AUTH_CLIENT_ID');
