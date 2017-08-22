@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import styles from '../../../style/vanilla/css/forms.css';
 
 export default function FormGroupSelect(props) {
-  const { disabled, name, label, type, placeholder } = props;
+  const { disabled, name, label, placeholder } = props;
   const id = `ID_${name}`;
   const status = props.touched ? ( props.valid ? 'p-form-validation is-success' : 'p-form-validation is-error') : null;
 
@@ -22,15 +22,18 @@ export default function FormGroupSelect(props) {
           onChange={ props.onChange }
           value={ props.selectedOption }
         >
-        <option value="">{ props.placeholder }</option>
-        { props.options.map(opt => {
+          <option value="">{ placeholder }</option>
+          { props.options.map(opt => {
             return (
               <option
                 key={ opt }
-                value={ opt }>{ opt }</option>
+                value={ opt }
+              >
+                { opt }
+              </option>
             );
           })
-        }
+          }
         </select>
         { props.errorMsg &&
           <p className={ styles['p-form-validation__message'] } role="alert">
@@ -39,7 +42,7 @@ export default function FormGroupSelect(props) {
         }
       </div>
     </div>
-  )
+  );
 }
 
 FormGroupSelect.propTypes = {

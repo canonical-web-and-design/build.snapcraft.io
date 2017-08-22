@@ -32,7 +32,7 @@ export default function FormGroupInput(props) {
         }
       </div>
     </div>
-  )
+  );
 }
 
 FormGroupInput.propTypes = {

@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import styles from '../../../style/vanilla/css/forms.css';
 
 export default function FormGroupTextarea(props) {
-  const { disabled, name, label, type, placeholder } = props;
+  const { disabled, name, label, placeholder } = props;
   const id = `ID_${name}`;
   const status = props.touched ? ( props.valid ? 'p-form-validation is-success' : 'p-form-validation is-error') : null;
 
@@ -18,7 +18,7 @@ export default function FormGroupTextarea(props) {
           name={ props.sensitive ? null : name }
           data-name={ name }
           required={ props.required }
-          style={ props.resize ? null : {resize: 'none'}}
+          style={ props.resize ? null : { resize: 'none' }}
           disabled={ disabled }
           placeholder={ placeholder }
           rows={ props.rows }
@@ -33,7 +33,7 @@ export default function FormGroupTextarea(props) {
         }
       </div>
     </div>
-  )
+  );
 }
 
 FormGroupTextarea.propTypes = {

@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { Anchor } from '../components/vanilla-modules/button';
 import { HeadingTwo, HeadingThree } from '../components/vanilla-modules/heading';
 import { List, ListItem } from '../components/vanilla-modules/list';
-import { Form, FormGroupInput, FormGroupCheckboxRadio } from '../components/vanilla-modules/forms';
 
 import Testimonial from '../components/testimonial';
 import containerStyles from './container.css';
