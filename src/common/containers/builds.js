@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 
 import BuildHistory from '../components/build-history';
-import { Message } from '../components/forms';
+import Notification from '../components/vanilla-modules/notification';
 import { IconSpinner } from '../components/vanilla-modules/icons';
 import { HelpBox, HelpCustom, HelpInstallSnap } from '../components/help';
 import { HeadingOne } from '../components/vanilla-modules/heading';
@@ -74,7 +74,7 @@ export class Builds extends Component {
 
   render() {
     const { user, repository } = this.props;
-    const { isFetching, success, error } = this.props.snapBuilds;
+    let { isFetching, success, error } = this.props.snapBuilds;
 
     // only show spinner when data is loading for the first time
     const isLoading = isFetching && !success;
@@ -103,7 +103,9 @@ export class Builds extends Component {
           <IconSpinner />
         }
         { error &&
-          <Message status='error'>{ error.message || error }</Message>
+          <div className={styles.strip}>
+            <Notification status='error' appearance='negative'>{ error.message || error }</Notification>
+          </div>
         }
         { this.renderHelpBoxes() }
       </div>
