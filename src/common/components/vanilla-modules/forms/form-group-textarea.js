@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import styles from '../../../style/vanilla/css/forms.css';
 
 export default function FormGroupTextarea(props) {
-  const { disabled, name, label, placeholder } = props;
+  const { isDisabled, name, label, placeholder } = props;
   const id = `ID_${name}`;
   const status = props.touched ? ( props.valid ? 'p-form-validation is-success' : 'p-form-validation is-error') : null;
 
@@ -19,12 +19,11 @@ export default function FormGroupTextarea(props) {
           data-name={ name }
           required={ props.required }
           style={ props.resize ? null : { resize: 'none' }}
-          disabled={ disabled }
+          disabled={ isDisabled }
           placeholder={ placeholder }
           rows={ props.rows }
           onChange={ props.onChange }
           onBlur={ props.onBlur }
-          value={ props.value || '' }
         />
         { props.errorMsg &&
           <p className={ styles['p-form-validation__message'] } role="alert">
@@ -37,20 +36,16 @@ export default function FormGroupTextarea(props) {
 }
 
 FormGroupTextarea.propTypes = {
-  name: PropTypes.string,
+  name: PropTypes.string.isRequired,
   label: PropTypes.string,
   placeholder: PropTypes.string,
   required: PropTypes.bool,
-  disabled: PropTypes.bool,
+  isDisabled: PropTypes.bool,
   sensitive: PropTypes.bool,
   valid: PropTypes.bool,
   rows: PropTypes.number,
   resize: PropTypes.bool,
   touched: PropTypes.bool,
-  value: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]).isRequired,
   errorMsg: PropTypes.string,
   onChange: PropTypes.func,
   onBlur: PropTypes.func

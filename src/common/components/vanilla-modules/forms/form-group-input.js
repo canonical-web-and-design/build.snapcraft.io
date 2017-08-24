@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import styles from '../../../style/vanilla/css/forms.css';
 
 export default function FormGroupInput(props) {
-  const { disabled, name, label, type, placeholder } = props;
+  const { isDisabled, name, label, type, placeholder } = props;
   const id = `ID_${name}`;
   const status = props.touched ? ( props.valid ? 'p-form-validation is-success' : 'p-form-validation is-error') : null;
 
@@ -18,12 +18,11 @@ export default function FormGroupInput(props) {
           name={ props.sensitive ? null : name }
           data-name={ name }
           type={ type }
-          required={ props.required }
-          disabled={ disabled }
+          required={ props.isRequired }
+          disabled={ isDisabled }
           placeholder={ placeholder }
           onChange={ props.onChange }
           onBlur={ props.onBlur }
-          value={ props.value || '' }
         />
         { props.errorMsg &&
           <p className={ styles['p-form-validation__message'] } role="alert">
@@ -36,19 +35,15 @@ export default function FormGroupInput(props) {
 }
 
 FormGroupInput.propTypes = {
-  name: PropTypes.string,
+  name: PropTypes.string.isRequired,
   label: PropTypes.string,
   placeholder: PropTypes.string,
-  required: PropTypes.bool,
-  disabled: PropTypes.bool,
+  isRequired: PropTypes.bool,
+  isDisabled: PropTypes.bool,
   type: PropTypes.string,
   sensitive: PropTypes.bool,
   valid: PropTypes.bool,
   touched: PropTypes.bool,
-  value: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]).isRequired,
   errorMsg: PropTypes.string,
   onChange: PropTypes.func,
   onBlur: PropTypes.func
