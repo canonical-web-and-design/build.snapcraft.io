@@ -7,7 +7,7 @@ export default function FormGroupCheckboxRadio(props) {
   const id = `ID_${name}`;
 
   return (
-    <div className={ `${styles['p-form__group']} ${styles[status]}` }>
+    <div className={ `${styles['p-form__group']}` }>
       <label htmlFor={ id } className={ styles['p-form__label'] }>
         <input
           id={ id }
