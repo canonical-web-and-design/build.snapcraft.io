@@ -4,10 +4,10 @@ import classNames from 'classnames';
 import styles from '../../../style/vanilla/css/forms.css';
 
 export default function Form(props) {
-  const { inline=false, stacked=false } = props;
+  const { appearance } = props;
+  const formStyle = `p-form--${appearance}`;
   const className = classNames({
-    [styles['p-form--inline']]: inline,
-    [styles['p-form--stacked']]: stacked
+    [styles[formStyle]]: true
   });
 
   return (
@@ -24,6 +24,5 @@ export default function Form(props) {
 Form.propTypes = {
   children: PropTypes.node,
   onSubmit: PropTypes.func,
-  stacked: PropTypes.bool,
-  inline: PropTypes.bool
+  appearance: PropTypes.oneOf(['inline', 'stacked'])
 };
