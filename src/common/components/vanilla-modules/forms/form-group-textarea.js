@@ -5,10 +5,10 @@ import styles from '../../../style/vanilla/css/forms.css';
 export default function FormGroupTextarea(props) {
   const { isDisabled, name, label, placeholder } = props;
   const id = `ID_${name}`;
-  const status = props.touched ? ( props.valid ? 'p-form-validation is-success' : 'p-form-validation is-error') : null;
+  const status = props.touched ? ( props.valid ? 'is-success' : 'is-error') : null;
 
   return (
-    <div className={ `${styles['p-form__group']} ${styles[status]}` }>
+    <div className={ `${styles['p-form__group']} ${styles['p-form-validation']} ${styles[status]}` }>
       <label htmlFor={ id } className={ styles['p-form__label'] }>
         { label }
       </label>
