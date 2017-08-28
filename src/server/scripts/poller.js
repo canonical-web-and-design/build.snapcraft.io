@@ -10,6 +10,7 @@ import {
 } from '../../common/helpers/github-url';
 import {
   internalFindSnap,
+  internalGetSnapBuilds,
   internalGetSnapcraftYaml,
   internalRequestSnapBuilds
 } from '../handlers/launchpad';
@@ -19,54 +20,84 @@ import requestGitHub from '../helpers/github';
 const logger = logging.getLogger('poller');
 raven.config(conf.get('SENTRY_DSN')).install();
 
-
 // Process all Repository (DB) models synchronously. Check for changes using
 // `checkSnapRepository` and if changed request a LP snap build and mark
 // it as 'updated'.
-export const pollRepositories = (checker, builder) => {
+export const pollRepositories = (checker) => {
   logger.info('GitHub Repository Poller ...');
   var raven_client = raven.Client(conf.get('SENTRY_DSN'));
 
   checker = checker || checkSnapRepository;
-  builder = builder || buildSnapRepository;
 
   // XXX: meh! no ES6 import support, great library :-/
   let AsyncLock = require('async-lock');
   let pollRepoLock = new AsyncLock();
+  let locked_promises = [];
 
   return db.model('Repository').fetchAll().then(function (results) {
     logger.info(`Iterating over ${results.length} repositories.`);
     results.models.forEach((repo) => {
-      pollRepoLock.acquire('PROCESS-REPO-SYNC', async () => {
+      const p = pollRepoLock.acquire('PROCESS-REPO-SYNC', async () => {
         const owner = repo.get('owner');
         const name = repo.get('name');
-
-        // XXX skip repos already updated recently, create a new datetime
-        // column exclusively for the poller.
-        const last_polled_at = repo.get('polled_at') || repo.get('updated_at');
-
-        if (!repo.get('snapcraft_name')) {
-          logger.info(`${owner}/${name}: NO NAME IN SNAPCRAFT.YAML`);
-          return;
-        }
-
-        if (!repo.get('store_name')) {
-          logger.info(`${owner}/${name}: NO NAME REGISTERED IN THE STORE`);
-          return;
-        }
-
         const store_name = repo.get('store_name');
         const snapcraft_name = repo.get('snapcraft_name');
+
+        if (!snapcraft_name) {
+          logger.info(`${owner}/${name}: NO NAME IN SNAPCRAFT.YAML`);
+          logger.info('==========');
+          return;
+        }
+
+        if (!store_name) {
+          logger.info(`${owner}/${name}: NO NAME REGISTERED IN THE STORE`);
+          logger.info('==========');
+          return;
+        }
+
         if (store_name != snapcraft_name) {
           logger.info(`${owner}/${name}: STORE/SNAPCRAFT NAME MISMATCH ` +
                       `(${store_name} != ${snapcraft_name})`);
+          logger.info('==========');
           return;
         }
 
+        const repositoryUrl = getGitHubRepoUrl(owner, name);
         try {
-          if (await checker(owner, name, last_polled_at)) {
+          const snap = await internalFindSnap(repositoryUrl);
+          const builds = await internalGetSnapBuilds(snap, 0, 1);
+          // https://launchpad.net/+apidoc/devel.html#snap
+          // All builds of this snap package, sorted in descending order of
+          // finishing (or starting if not completed successfully).
+          const last_build = builds.entries[0];
+
+          // TODO: builds won't be triggered if there are already previous ones
+          // waiting in queue ('Needs Building' or 'Building').
+          const last_built_at = last_build.datebuilt || last_build.datecreated;
+          if (!last_built_at) {
+            throw new Error('LP last build timestamps are inconsistent.');
+          }
+          const last_built = moment(last_built_at).utc();
+          logger.info(`${owner}/${name}: last built in ${last_built.format()}`);
+
+          // Do not even check for changes if the snap was already built in the
+          // last `POLLER_BUILD_THRESHOLD` interval (typically 24h).
+          const threshold = conf.get('POLLER_BUILD_THRESHOLD');
+          if (moment().utc().diff(last_built, 'hours', true) <= threshold) {
+            logger.info(
+              `${owner}/${name}: Already built in the last ${threshold}h`);
+            logger.info('==========');
+            return;
+          }
+
+          if (await checker(owner, name, last_built)) {
             logger.info(`${owner}/${name}: NEEDSBUILD`);
-            await builder(owner, name);
+            if (conf.get('POLLER_REQUEST_BUILDS')) {
+              await internalRequestSnapBuilds(snap, owner, name);
+              logger.info(`${owner}/${name}: Builds requested.`);
+            } else {
+              logger.info(`${owner}/${name}: Build requesting DISABLED.`);
+            }
           } else {
             logger.info(`${owner}/${name}: UNCHANGED`);
           }
@@ -76,21 +107,23 @@ export const pollRepositories = (checker, builder) => {
         }
         logger.info('==========');
       });
+
+      locked_promises.push(p);
     });
-    // Pass the lock through so chained tasks can actually check
+    // Wrap all the individual locked promises so chained tasks can actually check
     // for completion, if necessary.
-    return pollRepoLock;
+    return Promise.all(locked_promises);
   });
 };
 
 
-// Whether a given snap (GitHub) repository has changed since 'last_polled_at'.
+// Whether a given snap (GitHub) repository has changed since `since` datetime.
 // Consider changes in the repository itself as well as any of the (GitHub)
 // parts source.
-export const checkSnapRepository = async (owner, name, last_polled_at) => {
-  const token = conf.get('GITHUB_AUTH_CLIENT_TOKEN');
+export const checkSnapRepository = async (owner, name, since) => {
+  const token = conf.get('POLLER_GITHUB_AUTH_TOKEN');
   const repo_url = getGitHubRepoUrl(owner, name);
-  if (await new GitSourcePart(repo_url).hasRepoChangedSince(last_polled_at, token)) {
+  if (await new GitSourcePart(repo_url).hasRepoChangedSince(since, token)) {
     logger.info(`The ${owner}/${name} repository has changed.`);
     return true;
   }
@@ -104,40 +137,12 @@ export const checkSnapRepository = async (owner, name, last_polled_at) => {
   }
   for (const source_part of extractPartsToPoll(snapcraft_yaml.contents)) {
     logger.info(`${owner}/${name}: Checking whether ${source_part.repoUrl} part has changed.`);
-    if (await source_part.hasRepoChangedSince(last_polled_at, token)) {
+    if (await source_part.hasRepoChangedSince(since, token)) {
       logger.info(`${owner}/${name}: ${source_part.repoUrl} changed.`);
       return true;
     }
   }
   return false;
-};
-
-
-/** Request a build of the corresponding snap repository (in LP) and
- *  update `polled_at` (in DB).
- *
- * Return a `Promise` with the result of the operation.
- */
-export const buildSnapRepository = async (owner, name) => {
-  // TODO: annotate why the repository is being built (change on the main repo
-  // or in parts? which part ?).
-  const repositoryUrl = getGitHubRepoUrl(owner, name);
-  try {
-    const snap = await internalFindSnap(repositoryUrl);
-    await internalRequestSnapBuilds(snap, owner, name);
-    logger.info(`Requested builds of ${repositoryUrl}.`);
-  } catch (e) {
-    logger.error(`Failed to request builds of ${repositoryUrl}: ${e}.`);
-    return Promise.reject(e);
-  }
-
-  return db.transaction(async (trx) => {
-    const row = await db.model('Repository')
-      .where({ owner, name })
-      .fetch({ transacting: trx });
-    await row.save(
-      { polled_at: new Date() }, { method: 'update', transacting: trx });
-  });
 };
 
 
@@ -177,7 +182,7 @@ export class GitSourcePart {
     //       support these.
     // TODO: Not sure if we can support setting tags _and_ branch in the same
     //       part.
-    const gh_repo_prefix = conf.get('GITHUB_REPOSITORY_PREFIX');
+    const gh_repo_prefix = conf.get('POLLER_GITHUB_REPOSITORY_PREFIX');
     if (part.source == undefined) {
       logger.info('Skipping part with no source set.');
     } else if (part.source.startsWith(gh_repo_prefix)) {
@@ -200,17 +205,16 @@ export class GitSourcePart {
   /** Determine if the source part has changed since `last_polled_at`
    *
    */
-  async hasRepoChangedSince(last_polled_at, token) {
-    if (last_polled_at === undefined || !last_polled_at) {
-      throw new Error('`last_polled_at` must be given.');
+  async hasRepoChangedSince(since, token) {
+    if (since === undefined || !since) {
+      throw new Error('`since` must be given.');
     }
-    const last_polled = moment(last_polled_at);
     const { owner, name } = parseGitHubRepoUrl(this.repoUrl);
 
     const options = {
       token,
       headers: {
-        'If-Modified-Since': last_polled.format('ddd, MM MMM YYYY HH:mm:ss [GMT]')
+        'If-Modified-Since': since.format('ddd, MM MMM YYYY HH:mm:ss [GMT]')
       },
       json: true
     };
@@ -238,7 +242,7 @@ export class GitSourcePart {
           // here:
           const date_string = response.body.commit.commit.committer.date;
           const branch_date = moment(date_string);
-          return branch_date.isAfter(last_polled);
+          return branch_date.isAfter(since);
         }
         case 304:
           // `If-Modified-Since` in action, cache hit, no changes.

@@ -143,3 +143,26 @@ The root secret key for signing webhook requests.
 - **Example:** http://127.0.0.1:8888
 
 The URL of an HTTP proxy to send outgoing HTTP requests to (such as API requests to GitHub). Example given is the default address [Charles Proxy](https://www.charlesproxy.com/) listens on, a useful app for testing local proxies.
+
+
+## Poller script settings
+
+### POLLER\_GITHUB\_REPOSITORY\_PREFIX
+- **Example:** https://github.com/
+
+Prefix used to match `snapcraft.yaml` parts `source` value to be polled for changes via GitHub API.
+
+### POLLER\_BUILD\_THRESHOLD
+- **Example:** 24
+
+Number of hours, after last built, that poller will suppress checking snap repositories for changes (and consequently triggering builds).
+
+### POLLER\_GITHUB\_AUTH\_TOKEN
+- **Example:** afa3c7fe787a55be28bc7b80b9887683deadbeef
+
+GitHub authorization token to be used specifically for polling. This allow isolated API rate-limits for the poller script and the main web application. If suppressed, the rate-limit is shared.
+
+### POLLER\_REQUEST\_BUILDS
+- **Example:** true
+
+Whether or not the poller will request snap builds when changes are detected. This is effectively a temporary `dry-run` configuration option.
