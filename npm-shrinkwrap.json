@@ -47,6 +47,9 @@
     "ast-types": {
       "version": "0.8.15"
     },
+    "async-lock": {
+      "version": "1.0.0"
+    },
     "asynckit": {
       "version": "0.4.0"
     },
@@ -1071,7 +1074,7 @@
       "version": "1.2.0"
     },
     "raven": {
-      "version": "0.12.3",
+      "version": "2.1.1",
       "dependencies": {
         "uuid": {
           "version": "3.0.0"
@@ -1324,6 +1327,9 @@
     },
     "tildify": {
       "version": "1.0.0"
+    },
+    "timed-out": {
+      "version": "4.0.1"
     },
     "tiny-emitter": {
       "version": "1.2.0"

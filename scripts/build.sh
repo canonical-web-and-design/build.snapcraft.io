@@ -5,6 +5,9 @@ set NODE_ENV="production"
 # Build server files
 babel --out-dir=dist src --copy-files
 
+# Build poller script
+babel --out-dir=dist scripts/poller.js --copy-files
+
 # Build settings files
 babel --out-dir=dist/settings settings --copy-files
 

@@ -80,7 +80,7 @@ describe('The login route', () => {
         .get('/auth/authenticate')
         .expect((res) => {
           expect(url.parse(res.headers.location, true).query.scope)
-            .toBe('admin:repo_hook read:org');
+            .toBe('write:repo_hook read:org');
         })
         .end(done);
     });

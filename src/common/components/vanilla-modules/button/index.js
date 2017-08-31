@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import classNames from 'classnames';
 
-import Spinner from '../../spinner';
+import { IconSpinner } from '../icons';
 
 import style from '../../../style/vanilla/css/button.css';
 
@@ -22,7 +22,9 @@ function createButtonComponent(Component) {
     return (
       <Component {...rest} className={ className }>
         { isSpinner &&
-          <span className={ customStyle.spinner }><Spinner light/></span>
+          <span className={ customStyle.icon }>
+            <IconSpinner inheritColor />
+          </span>
         }
         <span className={ customStyle.text }>{ props.children }</span>
       </Component>

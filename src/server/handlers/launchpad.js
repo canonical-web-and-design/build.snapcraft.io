@@ -455,42 +455,29 @@ const internalFindSnaps = async (owner, token) => {
     remainingPrefixes = urlPrefixes;
   }
 
-  try {
-    const result = await lpClient.named_get('/+snaps', 'findByURLPrefixes', {
-      parameters: {
-        url_prefixes: remainingPrefixes,
-        owner: `/~${username}`
-      }
-    });
-    // Split up results into separate cache entries so that they can help
-    // speed things up for other users in the same organizations.
-    const newSnapsByPrefix = remainingPrefixes.map((urlPrefix) => {
-      return result.entries.filter(
-        (snap) => snap.git_repository_url.startsWith(urlPrefix)
-      );
-    });
-    await Promise.all(zip(remainingPrefixes, newSnapsByPrefix).map(
-      ([urlPrefix, newSnaps]) => memcached.set(
-        getUrlPrefixCacheId(urlPrefix), newSnaps, 3600
-      )
-    ));
-    snaps = snaps.concat(result.entries);
-    for (const snap of snaps) {
-      await ensureWebhook(snap);
+  const result = await lpClient.named_get('/+snaps', 'findByURLPrefixes', {
+    parameters: {
+      url_prefixes: remainingPrefixes,
+      owner: `/~${username}`
     }
-    return snaps;
-  } catch (error) {
-    // At least for the moment, we just wrap the error we get from
-    // Launchpad.
-    const text = await error.response.text();
-    throw new PreparedError(error.response.status, {
-      status: 'error',
-      payload: {
-        code: 'lp-error',
-        message: text
-      }
-    });
+  });
+  // Split up results into separate cache entries so that they can help
+  // speed things up for other users in the same organizations.
+  const newSnapsByPrefix = remainingPrefixes.map((urlPrefix) => {
+    return result.entries.filter(
+      (snap) => snap.git_repository_url.startsWith(urlPrefix)
+    );
+  });
+  await Promise.all(zip(remainingPrefixes, newSnapsByPrefix).map(
+    ([urlPrefix, newSnaps]) => memcached.set(
+      getUrlPrefixCacheId(urlPrefix), newSnaps, 3600
+    )
+  ));
+  snaps = snaps.concat(result.entries);
+  for (const snap of snaps) {
+    await ensureWebhook(snap);
   }
+  return snaps;
 };
 
 // If we haven't yet initialized metrics related to the number of snaps for

@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import Clipboard from 'clipboard';
+import { IconCopy } from '../vanilla-modules/icons';
 
 import styles from './styles.css';
 
@@ -40,7 +41,9 @@ export class CopyToClipboard extends Component {
         className={`${styles.share} ${styles.clipboard}`}
         data-clipboard-action='copy'
         data-clipboard-text={ copyme }
-      />
+      >
+        <IconCopy />
+      </span>
     );
   }
 }

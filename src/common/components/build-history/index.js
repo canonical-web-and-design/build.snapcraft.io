@@ -4,7 +4,9 @@ import { connect } from 'react-redux';
 import { snapBuildsInitialStatus } from '../../reducers/snap-builds';
 import BuildRow from '../build-row';
 import { Table, Head, Body, Row, Header } from '../vanilla/table-interactive';
-import { Message } from '../forms';
+import Notification from '../vanilla-modules/notification';
+
+import styles from './buildHistory.css';
 
 export const BuildHistory = (props) => {
   const { repository, success, builds } = props;
@@ -16,7 +18,11 @@ export const BuildHistory = (props) => {
   }
 
   if (!hasBuilds) {
-    return <Message status='info'>This snap has not been built yet.</Message>;
+    return (
+      <div className={styles.notificationWrapper}>
+        <Notification status='information' appearance="information">This snap has not been built yet.</Notification>
+      </div>
+    );
   }
 
   const buildRows = builds

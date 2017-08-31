@@ -33,8 +33,9 @@ app.locals.host = conf.get('HOST') || appUrl.hostname;
 app.locals.port = conf.get('PORT') || appUrl.port;
 
 // middleware
+raven.config(conf.get('SENTRY_DSN')).install();
 app.use(setRevisionHeader);
-app.use(raven.middleware.express.requestHandler(conf.get('SENTRY_DSN')));
+app.use(raven.requestHandler());
 app.use(expressWinston.logger({
   winstonInstance: accessLogger,
   level: 'info',
@@ -73,7 +74,7 @@ app.use('/', routes.universal);
 
 // FIXME sstewart 18-Nov-16 won't ever log because of
 // https://github.com/canonical-ols/javan-rhino/issues/210
-app.use(raven.middleware.express.errorHandler(conf.get('SENTRY_DSN')));
+app.use(raven.errorHandler());
 app.use(expressWinston.errorLogger({
   winstonInstance: logger,
   level: 'error'

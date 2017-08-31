@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 
 import BuildHistory from '../components/build-history';
-import { Message } from '../components/forms';
-import Spinner from '../components/spinner';
+import Notification from '../components/vanilla-modules/notification';
+import { IconSpinner } from '../components/vanilla-modules/icons';
 import { HelpBox, HelpCustom, HelpInstallSnap } from '../components/help';
 import { HeadingOne } from '../components/vanilla-modules/heading';
 import Badge from '../components/badge';
@@ -40,6 +40,7 @@ export class Builds extends Component {
               <HelpInstallSnap
                 headline='To test the latest successful build on your cloud instance or device'
                 name={ snap.storeName }
+                hasCopyButton
               />
             </HelpBox>
           </div>
@@ -51,6 +52,7 @@ export class Builds extends Component {
                     headline='To install the latest stable version'
                     stable={ true }
                     name={ snap.storeName }
+                    hasCopyButton
                   />
                 </HelpBox>
               )
@@ -72,7 +74,7 @@ export class Builds extends Component {
 
   render() {
     const { user, repository } = this.props;
-    const { isFetching, success, error } = this.props.snapBuilds;
+    let { isFetching, success, error } = this.props.snapBuilds;
 
     // only show spinner when data is loading for the first time
     const isLoading = isFetching && !success;
@@ -98,10 +100,12 @@ export class Builds extends Component {
         </div>
         <BuildHistory repository={repository} />
         { isLoading &&
-          <div className={styles.spinner}><Spinner /></div>
+          <IconSpinner />
         }
         { error &&
-          <Message status='error'>{ error.message || error }</Message>
+          <div className={styles.strip}>
+            <Notification status='error' appearance='negative'>{ error.message || error }</Notification>
+          </div>
         }
         { this.renderHelpBoxes() }
       </div>
