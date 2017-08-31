@@ -1,19 +1,15 @@
-.p-button {
+.p-button, .p-button--neutral, .p-button--brand, .p-button--positive, .p-button--negative, .p-button--base {
   transition-duration: 0.165s;
   transition-property: background-color;
   transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
-  background-color: #fff;
-  border-color: #cdcdcd;
   border-radius: .125rem;
   border-style: solid;
   border-width: 1px;
   box-sizing: border-box;
-  color: #111;
   cursor: pointer;
   display: inline-block;
   font-family: "Ubuntu", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   font-size: 1rem;
-  font-smoothing: subpixel-antialiased;
   font-weight: 300;
   line-height: 1rem;
   outline: none;
@@ -21,228 +17,98 @@
   text-align: center;
   text-decoration: none;
   width: 100%; }
+  @media (max-width: 767px) {
+    .p-button + .p-button, .p-button--neutral + .p-button, .p-button--brand + .p-button, .p-button--positive + .p-button, .p-button--negative + .p-button, .p-button--base + .p-button, .p-button + .p-button--neutral, .p-button--neutral + .p-button--neutral, .p-button--brand + .p-button--neutral, .p-button--positive + .p-button--neutral, .p-button--negative + .p-button--neutral, .p-button--base + .p-button--neutral, .p-button + .p-button--brand, .p-button--neutral + .p-button--brand, .p-button--brand + .p-button--brand, .p-button--positive + .p-button--brand, .p-button--negative + .p-button--brand, .p-button--base + .p-button--brand, .p-button + .p-button--positive, .p-button--neutral + .p-button--positive, .p-button--brand + .p-button--positive, .p-button--positive + .p-button--positive, .p-button--negative + .p-button--positive, .p-button--base + .p-button--positive, .p-button + .p-button--negative, .p-button--neutral + .p-button--negative, .p-button--brand + .p-button--negative, .p-button--positive + .p-button--negative, .p-button--negative + .p-button--negative, .p-button--base + .p-button--negative, .p-button + .p-button--base, .p-button--neutral + .p-button--base, .p-button--brand + .p-button--base, .p-button--positive + .p-button--base, .p-button--negative + .p-button--base, .p-button--base + .p-button--base {
+      margin-top: 1rem; } }
+  @media (min-width: 768px) {
+    .p-button + .p-button, .p-button--neutral + .p-button, .p-button--brand + .p-button, .p-button--positive + .p-button, .p-button--negative + .p-button, .p-button--base + .p-button, .p-button + .p-button--neutral, .p-button--neutral + .p-button--neutral, .p-button--brand + .p-button--neutral, .p-button--positive + .p-button--neutral, .p-button--negative + .p-button--neutral, .p-button--base + .p-button--neutral, .p-button + .p-button--brand, .p-button--neutral + .p-button--brand, .p-button--brand + .p-button--brand, .p-button--positive + .p-button--brand, .p-button--negative + .p-button--brand, .p-button--base + .p-button--brand, .p-button + .p-button--positive, .p-button--neutral + .p-button--positive, .p-button--brand + .p-button--positive, .p-button--positive + .p-button--positive, .p-button--negative + .p-button--positive, .p-button--base + .p-button--positive, .p-button + .p-button--negative, .p-button--neutral + .p-button--negative, .p-button--brand + .p-button--negative, .p-button--positive + .p-button--negative, .p-button--negative + .p-button--negative, .p-button--base + .p-button--negative, .p-button + .p-button--base, .p-button--neutral + .p-button--base, .p-button--brand + .p-button--base, .p-button--positive + .p-button--base, .p-button--negative + .p-button--base, .p-button--base + .p-button--base {
+      margin-left: 1rem; } }
   @media only screen and (min-width: 768px) {
-    .p-button {
+    .p-button, .p-button--neutral, .p-button--brand, .p-button--positive, .p-button--negative, .p-button--base {
       width: auto; } }
+  .p-button:active, .p-button--neutral:active, .p-button--brand:active, .p-button--positive:active, .p-button--negative:active, .p-button--base:active, .p-button:focus, .p-button--neutral:focus, .p-button--brand:focus, .p-button--positive:focus, .p-button--negative:focus, .p-button--base:focus, .p-button:hover, .p-button--neutral:hover, .p-button--brand:hover, .p-button--positive:hover, .p-button--negative:hover, .p-button--base:hover {
+    text-decoration: none; }
+  .p-button:disabled, .p-button--neutral:disabled, .p-button--brand:disabled, .p-button--positive:disabled, .p-button--negative:disabled, .p-button--base:disabled, .is--disabled.p-button, .is--disabled.p-button--neutral, .is--disabled.p-button--brand, .is--disabled.p-button--positive, .is--disabled.p-button--negative, .is--disabled.p-button--base {
+    cursor: not-allowed;
+    opacity: .5; }
+
+.p-button {
+  background-color: #fff;
+  border-color: #cdcdcd;
+  color: #111; }
   .p-button:visited {
     color: #111; }
   .p-button:active, .p-button:focus, .p-button:hover {
     background-color: #f7f7f7;
-    border-color: #cdcdcd;
-    text-decoration: none; }
-  .p-button:disabled, .p-button.is--disabled {
-    cursor: not-allowed;
-    opacity: .5; }
-    .p-button:disabled:active, .p-button:disabled:focus, .p-button:disabled:hover, .p-button.is--disabled:active, .p-button.is--disabled:focus, .p-button.is--disabled:hover {
-      background-color: #fff;
-      border-color: #fff; }
-  .p-button .p-link--external {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='15'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M-1-1h16v16H-1'/%3E%3Cpath fill='%23111' d='M4.867 1.313C.6 1.32.067 1.443.067 4.51v6.4c0 3.2.533 3.2 5.333 3.2h2.133c4.8 0 5.334 0 5.334-3.2v-1.6h-1.6v1.068c0 2.133 0 2.133-4.267 2.133H5.933c-4.266 0-4.266 0-4.266-2.132V5.044c0-1.93.034-2.112 3.2-2.13v-1.6z'/%3E%3Cpath d='M-1-1h16v16H-1'/%3E%3Cpath fill='%23111' d='M6.435 2.16c.11-.446 7.113-2.196 7.448-1.86.335.334-1.416 7.335-1.863 7.447-.447.112-5.697-5.14-5.586-5.586z'/%3E%3Cpath fill='%23111' d='M9.032 3.38L4.705 7.708l1.767 1.767L10.8 5.148'/%3E%3C/g%3E%3C/svg%3E"); }
+    border-color: #cdcdcd; }
+  .p-button:disabled:active, .p-button:disabled:focus, .p-button:disabled:hover, .p-button.is--disabled:active, .p-button.is--disabled:focus, .p-button.is--disabled:hover {
+    background-color: #fff;
+    border-color: #fff; }
 
 .p-button--neutral {
-  transition-duration: 0.165s;
-  transition-property: background-color;
-  transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
   background-color: #fff;
   border-color: #cdcdcd;
-  border-radius: .125rem;
-  border-style: solid;
-  border-width: 1px;
-  box-sizing: border-box;
-  color: #111;
-  cursor: pointer;
-  display: inline-block;
-  font-family: "Ubuntu", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-  font-size: 1rem;
-  font-smoothing: subpixel-antialiased;
-  font-weight: 300;
-  line-height: 1rem;
-  outline: none;
-  padding: 0.75rem 1.5rem;
-  text-align: center;
-  text-decoration: none;
-  width: 100%; }
-  @media only screen and (min-width: 768px) {
-    .p-button--neutral {
-      width: auto; } }
+  color: #111; }
   .p-button--neutral:visited {
     color: #111; }
   .p-button--neutral:active, .p-button--neutral:focus, .p-button--neutral:hover {
     background-color: #f7f7f7;
-    border-color: #cdcdcd;
-    text-decoration: none; }
-  .p-button--neutral:disabled, .p-button--neutral.is--disabled {
-    cursor: not-allowed;
-    opacity: .5; }
-    .p-button--neutral:disabled:active, .p-button--neutral:disabled:focus, .p-button--neutral:disabled:hover, .p-button--neutral.is--disabled:active, .p-button--neutral.is--disabled:focus, .p-button--neutral.is--disabled:hover {
-      background-color: transparent;
-      border-color: #cdcdcd; }
-  .p-button--neutral .p-link--external {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='15'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M-1-1h16v16H-1'/%3E%3Cpath fill='%23111' d='M4.867 1.313C.6 1.32.067 1.443.067 4.51v6.4c0 3.2.533 3.2 5.333 3.2h2.133c4.8 0 5.334 0 5.334-3.2v-1.6h-1.6v1.068c0 2.133 0 2.133-4.267 2.133H5.933c-4.266 0-4.266 0-4.266-2.132V5.044c0-1.93.034-2.112 3.2-2.13v-1.6z'/%3E%3Cpath d='M-1-1h16v16H-1'/%3E%3Cpath fill='%23111' d='M6.435 2.16c.11-.446 7.113-2.196 7.448-1.86.335.334-1.416 7.335-1.863 7.447-.447.112-5.697-5.14-5.586-5.586z'/%3E%3Cpath fill='%23111' d='M9.032 3.38L4.705 7.708l1.767 1.767L10.8 5.148'/%3E%3C/g%3E%3C/svg%3E"); }
+    border-color: #cdcdcd; }
+  .p-button--neutral:disabled:active, .p-button--neutral:disabled:focus, .p-button--neutral:disabled:hover, .p-button--neutral.is--disabled:active, .p-button--neutral.is--disabled:focus, .p-button--neutral.is--disabled:hover {
+    background-color: transparent;
+    border-color: #cdcdcd; }
 
 .p-button--brand {
-  transition-duration: 0.165s;
-  transition-property: background-color;
-  transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
   background-color: #333;
   border-color: #333;
-  border-radius: .125rem;
-  border-style: solid;
-  border-width: 1px;
-  box-sizing: border-box;
-  color: #fff;
-  cursor: pointer;
-  display: inline-block;
-  font-family: "Ubuntu", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-  font-size: 1rem;
-  font-smoothing: subpixel-antialiased;
-  font-weight: 300;
-  line-height: 1rem;
-  outline: none;
-  padding: 0.75rem 1.5rem;
-  text-align: center;
-  text-decoration: none;
-  width: 100%; }
-  @media only screen and (min-width: 768px) {
-    .p-button--brand {
-      width: auto; } }
+  color: #fff; }
   .p-button--brand:visited {
     color: #fff; }
   .p-button--brand:active, .p-button--brand:focus, .p-button--brand:hover {
     background-color: #1a1a1a;
-    border-color: #1a1a1a;
-    text-decoration: none; }
-  .p-button--brand:disabled, .p-button--brand.is--disabled {
-    cursor: not-allowed;
-    opacity: .5; }
-    .p-button--brand:disabled:active, .p-button--brand:disabled:focus, .p-button--brand:disabled:hover, .p-button--brand.is--disabled:active, .p-button--brand.is--disabled:focus, .p-button--brand.is--disabled:hover {
-      background-color: #333;
-      border-color: #333; }
-  .p-button--brand .p-link--external {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='15'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M-1-1h16v16H-1'/%3E%3Cpath fill='%23fff' d='M4.867 1.313C.6 1.32.067 1.443.067 4.51v6.4c0 3.2.533 3.2 5.333 3.2h2.133c4.8 0 5.334 0 5.334-3.2v-1.6h-1.6v1.068c0 2.133 0 2.133-4.267 2.133H5.933c-4.266 0-4.266 0-4.266-2.132V5.044c0-1.93.034-2.112 3.2-2.13v-1.6z'/%3E%3Cpath d='M-1-1h16v16H-1'/%3E%3Cpath fill='%23fff' d='M6.435 2.16c.11-.446 7.113-2.196 7.448-1.86.335.334-1.416 7.335-1.863 7.447-.447.112-5.697-5.14-5.586-5.586z'/%3E%3Cpath fill='%23fff' d='M9.032 3.38L4.705 7.708l1.767 1.767L10.8 5.148'/%3E%3C/g%3E%3C/svg%3E"); }
+    border-color: #1a1a1a; }
+  .p-button--brand:disabled:active, .p-button--brand:disabled:focus, .p-button--brand:disabled:hover, .p-button--brand.is--disabled:active, .p-button--brand.is--disabled:focus, .p-button--brand.is--disabled:hover {
+    background-color: #333;
+    border-color: #333; }
 
 .p-button--positive {
-  transition-duration: 0.165s;
-  transition-property: background-color;
-  transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
   background-color: #0e8420;
   border-color: #0e8420;
-  border-radius: .125rem;
-  border-style: solid;
-  border-width: 1px;
-  box-sizing: border-box;
-  color: #fff;
-  cursor: pointer;
-  display: inline-block;
-  font-family: "Ubuntu", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-  font-size: 1rem;
-  font-smoothing: subpixel-antialiased;
-  font-weight: 300;
-  line-height: 1rem;
-  outline: none;
-  padding: 0.75rem 1.5rem;
-  text-align: center;
-  text-decoration: none;
-  width: 100%; }
-  @media only screen and (min-width: 768px) {
-    .p-button--positive {
-      width: auto; } }
+  color: #fff; }
   .p-button--positive:visited {
     color: #fff; }
   .p-button--positive:active, .p-button--positive:focus, .p-button--positive:hover {
     background-color: #095615;
-    border-color: #095615;
-    text-decoration: none; }
-  .p-button--positive:disabled, .p-button--positive.is--disabled {
-    cursor: not-allowed;
-    opacity: .5; }
-    .p-button--positive:disabled:active, .p-button--positive:disabled:focus, .p-button--positive:disabled:hover, .p-button--positive.is--disabled:active, .p-button--positive.is--disabled:focus, .p-button--positive.is--disabled:hover {
-      background-color: #0e8420;
-      border-color: #0e8420; }
-  .p-button--positive .p-link--external {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='15'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M-1-1h16v16H-1'/%3E%3Cpath fill='%23fff' d='M4.867 1.313C.6 1.32.067 1.443.067 4.51v6.4c0 3.2.533 3.2 5.333 3.2h2.133c4.8 0 5.334 0 5.334-3.2v-1.6h-1.6v1.068c0 2.133 0 2.133-4.267 2.133H5.933c-4.266 0-4.266 0-4.266-2.132V5.044c0-1.93.034-2.112 3.2-2.13v-1.6z'/%3E%3Cpath d='M-1-1h16v16H-1'/%3E%3Cpath fill='%23fff' d='M6.435 2.16c.11-.446 7.113-2.196 7.448-1.86.335.334-1.416 7.335-1.863 7.447-.447.112-5.697-5.14-5.586-5.586z'/%3E%3Cpath fill='%23fff' d='M9.032 3.38L4.705 7.708l1.767 1.767L10.8 5.148'/%3E%3C/g%3E%3C/svg%3E"); }
+    border-color: #095615; }
+  .p-button--positive:disabled:active, .p-button--positive:disabled:focus, .p-button--positive:disabled:hover, .p-button--positive.is--disabled:active, .p-button--positive.is--disabled:focus, .p-button--positive.is--disabled:hover {
+    background-color: #0e8420;
+    border-color: #0e8420; }
 
 .p-button--negative {
-  transition-duration: 0.165s;
-  transition-property: background-color;
-  transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
   background-color: #c7162b;
   border-color: #c7162b;
-  border-radius: .125rem;
-  border-style: solid;
-  border-width: 1px;
-  box-sizing: border-box;
-  color: #fff;
-  cursor: pointer;
-  display: inline-block;
-  font-family: "Ubuntu", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-  font-size: 1rem;
-  font-smoothing: subpixel-antialiased;
-  font-weight: 300;
-  line-height: 1rem;
-  outline: none;
-  padding: 0.75rem 1.5rem;
-  text-align: center;
-  text-decoration: none;
-  width: 100%; }
-  @media only screen and (min-width: 768px) {
-    .p-button--negative {
-      width: auto; } }
+  color: #fff; }
   .p-button--negative:visited {
     color: #fff; }
   .p-button--negative:active, .p-button--negative:focus, .p-button--negative:hover {
     background-color: #991121;
-    border-color: #991121;
-    text-decoration: none; }
-  .p-button--negative:disabled, .p-button--negative.is--disabled {
-    cursor: not-allowed;
-    opacity: .5; }
-    .p-button--negative:disabled:active, .p-button--negative:disabled:focus, .p-button--negative:disabled:hover, .p-button--negative.is--disabled:active, .p-button--negative.is--disabled:focus, .p-button--negative.is--disabled:hover {
-      background-color: #c7162b;
-      border-color: #c7162b; }
-  .p-button--negative .p-link--external {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='15'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M-1-1h16v16H-1'/%3E%3Cpath fill='%23fff' d='M4.867 1.313C.6 1.32.067 1.443.067 4.51v6.4c0 3.2.533 3.2 5.333 3.2h2.133c4.8 0 5.334 0 5.334-3.2v-1.6h-1.6v1.068c0 2.133 0 2.133-4.267 2.133H5.933c-4.266 0-4.266 0-4.266-2.132V5.044c0-1.93.034-2.112 3.2-2.13v-1.6z'/%3E%3Cpath d='M-1-1h16v16H-1'/%3E%3Cpath fill='%23fff' d='M6.435 2.16c.11-.446 7.113-2.196 7.448-1.86.335.334-1.416 7.335-1.863 7.447-.447.112-5.697-5.14-5.586-5.586z'/%3E%3Cpath fill='%23fff' d='M9.032 3.38L4.705 7.708l1.767 1.767L10.8 5.148'/%3E%3C/g%3E%3C/svg%3E"); }
+    border-color: #991121; }
+  .p-button--negative:disabled:active, .p-button--negative:disabled:focus, .p-button--negative:disabled:hover, .p-button--negative.is--disabled:active, .p-button--negative.is--disabled:focus, .p-button--negative.is--disabled:hover {
+    background-color: #c7162b;
+    border-color: #c7162b; }
 
 .p-button--base {
-  transition-duration: 0.165s;
-  transition-property: background-color;
-  transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
   background-color: transparent;
   border-color: transparent;
-  border-radius: .125rem;
-  border-style: solid;
-  border-width: 1px;
-  box-sizing: border-box;
-  color: #111;
-  cursor: pointer;
-  display: inline-block;
-  font-family: "Ubuntu", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-  font-size: 1rem;
-  font-smoothing: subpixel-antialiased;
-  font-weight: 300;
-  line-height: 1rem;
-  outline: none;
-  padding: 0.75rem 1.5rem;
-  text-align: center;
-  text-decoration: none;
-  width: 100%; }
-  @media only screen and (min-width: 768px) {
-    .p-button--base {
-      width: auto; } }
+  color: #111; }
   .p-button--base:visited {
     color: #111; }
   .p-button--base:active, .p-button--base:focus, .p-button--base:hover {
     background-color: #f7f7f7;
-    border-color: transparent;
-    text-decoration: none; }
-  .p-button--base:disabled, .p-button--base.is--disabled {
-    cursor: not-allowed;
-    opacity: .5; }
-    .p-button--base:disabled:active, .p-button--base:disabled:focus, .p-button--base:disabled:hover, .p-button--base.is--disabled:active, .p-button--base.is--disabled:focus, .p-button--base.is--disabled:hover {
-      background-color: transparent;
-      border-color: #cdcdcd; }
-  .p-button--base .p-link--external {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='15'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M-1-1h16v16H-1'/%3E%3Cpath fill='%23111' d='M4.867 1.313C.6 1.32.067 1.443.067 4.51v6.4c0 3.2.533 3.2 5.333 3.2h2.133c4.8 0 5.334 0 5.334-3.2v-1.6h-1.6v1.068c0 2.133 0 2.133-4.267 2.133H5.933c-4.266 0-4.266 0-4.266-2.132V5.044c0-1.93.034-2.112 3.2-2.13v-1.6z'/%3E%3Cpath d='M-1-1h16v16H-1'/%3E%3Cpath fill='%23111' d='M6.435 2.16c.11-.446 7.113-2.196 7.448-1.86.335.334-1.416 7.335-1.863 7.447-.447.112-5.697-5.14-5.586-5.586z'/%3E%3Cpath fill='%23111' d='M9.032 3.38L4.705 7.708l1.767 1.767L10.8 5.148'/%3E%3C/g%3E%3C/svg%3E"); }
+    border-color: transparent; }
+  .p-button--base:disabled:active, .p-button--base:disabled:focus, .p-button--base:disabled:hover, .p-button--base.is--disabled:active, .p-button--base.is--disabled:focus, .p-button--base.is--disabled:hover {
+    background-color: transparent;
+    border-color: #cdcdcd; }
 
 @media (max-width: 768px) {
   [class^="p-button"].is-inline {
