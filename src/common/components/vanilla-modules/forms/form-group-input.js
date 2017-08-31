@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import styles from '../../../style/vanilla/css/forms.css';
 
 export default function FormGroupInput(props) {
-  const { isDisabled, name, label, type, placeholder } = props;
+  const { disabled, name, label, type, placeholder } = props;
   const id = `ID_${name}`;
   const status = props.touched ? ( props.valid ? 'is-success' : 'is-error') : null;
 
@@ -18,8 +18,8 @@ export default function FormGroupInput(props) {
           name={ props.sensitive ? null : name }
           data-name={ name }
           type={ type }
-          required={ props.isRequired }
-          disabled={ isDisabled }
+          required={ props.required }
+          disabled={ disabled }
           placeholder={ placeholder }
           onChange={ props.onChange }
           onBlur={ props.onBlur }
@@ -38,8 +38,8 @@ FormGroupInput.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
   placeholder: PropTypes.string,
-  isRequired: PropTypes.bool,
-  isDisabled: PropTypes.bool,
+  required: PropTypes.bool,
+  disabled: PropTypes.bool,
   type: PropTypes.string,
   sensitive: PropTypes.bool,
   valid: PropTypes.bool,

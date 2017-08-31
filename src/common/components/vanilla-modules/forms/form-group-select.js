@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import styles from '../../../style/vanilla/css/forms.css';
 
 export default function FormGroupSelect(props) {
-  const { isDisabled, name, label, placeholder } = props;
+  const { disabled, name, label, placeholder } = props;
   const id = `ID_${name}`;
   const status = props.touched ? ( props.valid ? 'is-success' : 'is-error') : null;
 
@@ -18,7 +18,7 @@ export default function FormGroupSelect(props) {
           name={ props.sensitive ? null : name }
           data-name={ name }
           required={ props.required }
-          disabled={ isDisabled }
+          disabled={ disabled }
           onChange={ props.onChange }
         >
           <option value="">{ placeholder }</option>
@@ -41,7 +41,7 @@ FormGroupSelect.propTypes = {
   options: React.PropTypes.array.isRequired,
   placeholder: PropTypes.string,
   required: PropTypes.bool,
-  isDisabled: PropTypes.bool,
+  disabled: PropTypes.bool,
   sensitive: PropTypes.bool,
   valid: PropTypes.bool,
   touched: PropTypes.bool,

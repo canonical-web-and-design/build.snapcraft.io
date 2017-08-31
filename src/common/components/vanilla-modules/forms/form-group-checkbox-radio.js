@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import styles from '../../../style/vanilla/css/forms.css';
 
 export default function FormGroupCheckboxRadio(props) {
-  const { isDisabled, name, label, type } = props;
+  const { disabled, name, label, type } = props;
   const id = `ID_${name}`;
 
   return (
@@ -14,7 +14,7 @@ export default function FormGroupCheckboxRadio(props) {
           name={ props.sensitive ? null : name }
           data-name={ name }
           type={ type }
-          disabled={ isDisabled }
+          disabled={ disabled }
           required={ props.required }
           onChange={ props.onChange }
           onBlur={ props.onBlur }
@@ -29,7 +29,7 @@ FormGroupCheckboxRadio.propTypes = {
   type: PropTypes.oneOf(['checkbox', 'radio']).isRequired,
   name: PropTypes.string.isRequired,
   sensitive: PropTypes.bool,
-  isDisabled: PropTypes.bool,
+  disabled: PropTypes.bool,
   onChange: React.PropTypes.func.isRequired,
   onBlur: React.PropTypes.func,
   required: PropTypes.bool
