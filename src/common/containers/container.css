@@ -49,3 +49,8 @@
 .rowItem:last-child {
   margin-right: 0;
 }
+
+.buildOnDemand {
+  display: flex;
+  justify-content: flex-end;
+}

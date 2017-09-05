@@ -29,7 +29,7 @@ describe('The Builds container', function() {
   });
 
   it('shows link to "My repos" if signed in', function() {
-    const props = { ...baseProps, user: { login: 'test-user' } };
+    const props = { ...baseProps, user: { login: 'test-user', orgs: [] } };
     const element = shallow(<Builds { ...props } />);
     expect(element.find('BreadcrumbsLink').length).toBe(2);
     expect(element.find('BreadcrumbsLink').first().prop('to')).toBe('/user/test-user');

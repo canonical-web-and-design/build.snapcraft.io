@@ -1,6 +1,7 @@
 import expect from 'expect';
 
 import {
+  isBuildInProgress,
   snapBuildFromAPI,
   BuildStatusColours,
   UserFacingState
@@ -269,4 +270,18 @@ describe('snapBuildFromAPI helper', () => {
 
   });
 
+});
+
+describe('isBuildInProgress', () => {
+  it('should return true if build is building soon', () => {
+    expect(isBuildInProgress({ statusMessage: 'Building soon' })).toBe(true);
+  });
+
+  it('should return true if build is in progress', () => {
+    expect(isBuildInProgress({ statusMessage: 'Building soon' })).toBe(true);
+  });
+
+  it('should return false if build is not in progress', () => {
+    expect(isBuildInProgress({ statusMessage: 'Failed to build' })).toBe(false);
+  });
 });

@@ -1,21 +1,15 @@
 import React, { PropTypes } from 'react';
-import { connect } from 'react-redux';
 
-import { snapBuildsInitialStatus } from '../../reducers/snap-builds';
 import BuildRow from '../build-row';
 import { Table, Head, Body, Row, Header } from '../vanilla/table-interactive';
 import Notification from '../vanilla-modules/notification';
 
-import styles from './buildHistory.css';
+import styles from './buildsList.css';
 
-export const BuildHistory = (props) => {
-  const { repository, success, builds } = props;
+export const BuildsList = (props) => {
+  const { repository, builds } = props;
 
   const hasBuilds = (builds && builds.length > 0);
-
-  if (!success) {
-    return null;
-  }
 
   if (!hasBuilds) {
     return (
@@ -48,27 +42,15 @@ export const BuildHistory = (props) => {
   );
 };
 
-BuildHistory.propTypes = {
+BuildsList.propTypes = {
   repository: PropTypes.shape({
     owner: PropTypes.string,
     name: PropTypes.string,
     fullName: PropTypes.string
   }),
-  success: PropTypes.bool,
   builds: React.PropTypes.arrayOf(React.PropTypes.object)
 };
 
-function mapStateToProps(state, ownProps) {
-  const { fullName } = ownProps.repository;
 
-  // get builds for given repo from the store or set default empty values
-  const repoBuilds = state.snapBuilds[fullName] || snapBuildsInitialStatus;
-  const { builds, success } = repoBuilds;
 
-  return {
-    builds,
-    success
-  };
-}
-
-export default connect(mapStateToProps)(BuildHistory);
+export default BuildsList;

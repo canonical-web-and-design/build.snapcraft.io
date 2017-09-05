@@ -12,7 +12,7 @@ import {
 } from '../../../../../src/common/actions/auth-store';
 import {
   FETCH_BUILDS_ERROR,
-  FETCH_BUILDS_SUCCESS
+  REQUEST_BUILDS_SUCCESS
 } from '../../../../../src/common/actions/snap-builds';
 import { conf } from '../../../../../src/common/helpers/config';
 import { makeLocalForageStub } from '../../../../helpers';
@@ -328,7 +328,7 @@ describe('register name actions', () => {
                 }));
                 const actions = store.getActions();
                 expect(actions).toInclude(expectedAction);
-                expect(actions).toHaveActionOfType(FETCH_BUILDS_SUCCESS);
+                expect(actions).toHaveActionOfType(REQUEST_BUILDS_SUCCESS);
               });
             });
 

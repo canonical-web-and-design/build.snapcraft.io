@@ -11,7 +11,7 @@ import customStyle from './customButton.css';
 
 function createButtonComponent(Component) {
   function ButtonComponent(props) {
-    const { appearance='primary', isBigger=false, isSpinner=false, ...rest } = props;
+    const { appearance='neutral', isBigger=false, isSpinner=false, ...rest } = props;
     const buttonStyle = `p-button--${appearance}`;
     const className = classNames({
       [style[buttonStyle]]: true,

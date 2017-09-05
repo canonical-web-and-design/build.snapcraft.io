@@ -5,6 +5,7 @@ import { CALL_API } from '../middleware/call-api';
 
 export const FETCH_BUILDS = 'FETCH_BUILDS';
 export const FETCH_SNAP_SUCCESS = 'FETCH_SNAP_SUCCESS';
+export const REQUEST_BUILDS_SUCCESS = 'REQUEST_BUILDS_SUCCESS';
 export const FETCH_BUILDS_SUCCESS = 'FETCH_BUILDS_SUCCESS';
 export const FETCH_BUILDS_ERROR = 'FETCH_BUILDS_ERROR';
 
@@ -47,7 +48,7 @@ export function requestBuilds(repositoryUrl) {
     },
     [CALL_API]: {
       path: '/api/launchpad/snaps/request-builds',
-      types: [FETCH_BUILDS, FETCH_BUILDS_SUCCESS, FETCH_BUILDS_ERROR],
+      types: [FETCH_BUILDS, REQUEST_BUILDS_SUCCESS, FETCH_BUILDS_ERROR],
       options: {
         method: 'POST',
         headers: {

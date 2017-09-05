@@ -84,7 +84,7 @@ describe('snap builds actions', () => {
     it('should supply request, success and failure action types', () => {
       expect(action[CALL_API].types).toEqual([
         ActionTypes.FETCH_BUILDS,
-        ActionTypes.FETCH_BUILDS_SUCCESS,
+        ActionTypes.REQUEST_BUILDS_SUCCESS,
         ActionTypes.FETCH_BUILDS_ERROR
       ]);
     });

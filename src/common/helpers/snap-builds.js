@@ -227,3 +227,7 @@ export function snapBuildFromAPI(entry) {
     storeUploadErrorMessage: entry.store_upload_error_message
   };
 }
+
+export function isBuildInProgress(build) {
+  return build.statusMessage === 'In progress' || build.statusMessage === 'Building soon';
+}

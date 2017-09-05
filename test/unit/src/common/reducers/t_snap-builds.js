@@ -153,6 +153,47 @@ describe('snapBuilds reducers', () => {
     });
   });
 
+  context('REQUEST_BUILDS_SUCCESS', () => {
+    const state = {
+      ...initialState,
+      [id]: {
+        ...initialStatus,
+        isFetching: true,
+        builds: ['test-build-1', 'test-build-2'],
+        error: 'Previous error'
+      }
+    };
+
+    const action = {
+      type: ActionTypes.REQUEST_BUILDS_SUCCESS,
+      payload: {
+        id,
+        response: {
+          payload: {
+            builds: SNAP_BUILDS
+          }
+        }
+      }
+    };
+
+    it('should stop fetching', () => {
+      expect(snapBuilds(state, action)[id].isFetching).toBe(false);
+    });
+
+    it('should prepend requested builds on success', () => {
+      const expected = SNAP_BUILDS.map(snapBuildFromAPI).concat(state[id].builds);
+      expect(snapBuilds(state, action)[id].builds).toEqual(expected);
+    });
+
+    it('should store success state', () => {
+      expect(snapBuilds(state, action)[id].success).toBe(true);
+    });
+
+    it('should clean error', () => {
+      expect(snapBuilds(state, action)[id].error).toBe(null);
+    });
+  });
+
   context('FETCH_BUILDS_ERROR', () => {
     const state = {
       ...initialState,

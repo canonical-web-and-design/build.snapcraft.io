@@ -1,16 +1,18 @@
 import expect from 'expect';
 import { shallow } from 'enzyme';
 
-import { BuildHistory } from '../../../../../../src/common/components/build-history';
+import { BuildsList } from '../../../../../../src/common/components/builds-list';
 
-describe('<BuildHistory />', function() {
+describe('<BuildsList />', function() {
 
   let testProps;
 
   beforeEach(function() {
     testProps = {
       success: true,
-      repository: 'http://example.com/foo',
+      repository: {
+        url: 'http://example.com/foo'
+      },
       builds: [{
         buildId: '0'
       }, {
@@ -23,28 +25,22 @@ describe('<BuildHistory />', function() {
     };
   });
 
-  it('should return null if success is falsey', function() {
-    const props = Object.assign({}, testProps, { success: false });
-
-    expect(BuildHistory(props)).toBe(null);
-  });
-
   it('should message if has no builds', function() {
     const props = Object.assign({}, testProps, { builds: [] });
 
-    expect(shallow(BuildHistory(props)).html())
+    expect(shallow(BuildsList(props)).html())
       .toContain('This snap has not been built yet.');
   });
 
   it('should message if has falsey builds', function() {
     const props = Object.assign({}, testProps, { builds: false });
 
-    expect(shallow(BuildHistory(props)).html())
+    expect(shallow(BuildsList(props)).html())
       .toContain('This snap has not been built yet.');
   });
 
   it('should sort builds by id', function() {
-    const children = shallow(BuildHistory(testProps)).find('Body').children();
+    const children = shallow(BuildsList(testProps)).find('Body').children();
 
     const keys = children.map((child) => child.key());
 

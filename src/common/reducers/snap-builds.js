@@ -41,6 +41,17 @@ export function snapBuilds(state = {}, action) {
           error: null
         }
       };
+    case ActionTypes.REQUEST_BUILDS_SUCCESS:
+      return {
+        ...state,
+        [action.payload.id]: {
+          ...state[action.payload.id],
+          isFetching: false,
+          success: true,
+          builds: action.payload.response.payload.builds.map(snapBuildFromAPI).concat(state[action.payload.id].builds),
+          error: null
+        }
+      };
     case ActionTypes.FETCH_BUILDS_ERROR:
       return {
         ...state,

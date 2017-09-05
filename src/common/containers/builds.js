@@ -2,22 +2,40 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 
-import BuildHistory from '../components/build-history';
+import BuildsList from '../components/builds-list';
 import Notification from '../components/vanilla-modules/notification';
 import { IconSpinner } from '../components/vanilla-modules/icons';
 import { HelpBox, HelpCustom, HelpInstallSnap } from '../components/help';
-import { HeadingOne } from '../components/vanilla-modules/heading';
+import { HeadingOne, HeadingFive } from '../components/vanilla-modules/heading';
 import Badge from '../components/badge';
 import Breadcrumbs, { BreadcrumbsLink } from '../components/vanilla-modules/breadcrumbs';
 import BetaNotification from '../components/beta-notification';
+import Button from '../components/vanilla-modules/button';
 
 import withRepository from './with-repository';
 import withSnapBuilds from './with-snap-builds';
 import { fetchSnapStableRelease } from '../actions/snaps';
+import { requestBuilds } from '../actions/snap-builds';
+import { isBuildInProgress } from '../helpers/snap-builds';
 
 import styles from './container.css';
 
 export class Builds extends Component {
+  constructor() {
+    super();
+
+    this.state = {
+      buildTriggered: false,
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // if builds stopped fetching after they were triggered, reset build button status
+    if (this.props.snapBuilds.isFetching && !nextProps.snapBuilds.isFetching) {
+      this.setState({ buildTriggered: false });
+    }
+  }
+
   componentWillMount() {
     const { url } = this.props.repository;
     const { snap } = this.props;
@@ -27,6 +45,15 @@ export class Builds extends Component {
     }
   }
 
+  renderBuilds(repo, builds, heading) {
+    return (
+      <div>
+        <HeadingFive>{heading}</HeadingFive>
+        <BuildsList repository={repo} builds={builds} />
+      </div>
+    );
+  }
+
   renderHelpBoxes() {
     const { snap } = this.props;
     const { builds } = this.props.snapBuilds;
@@ -34,7 +61,7 @@ export class Builds extends Component {
 
     if (snap && snap.storeName && isPublished) {
       return (
-        <div className={styles.row}>
+        <div className={`${styles.row} ${styles.strip}`}>
           <div className={styles.rowItem}>
             <HelpBox isFlex>
               <HelpInstallSnap
@@ -72,12 +99,53 @@ export class Builds extends Component {
     }
   }
 
+  isRepositoryOwner() {
+    const user = this.props.user;
+    const owner = this.props.repository.owner;
+
+    // if user is not logged in
+    if (!user) {
+      return false;
+    }
+
+    // if user owns of the repo or one of their orgs owns the repo
+    if (user.login === owner || user.orgs.some(o => o.login === owner)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  hasBuildInProgress() {
+    return this.props.snapBuilds.builds && this.props.snapBuilds.builds.some(build => isBuildInProgress(build));
+  }
+
+  getLatestAndPreviousBuilds() {
+    return this.props.snapBuilds.builds.reduce((builds, build) => {
+      let { latest, previous } = builds;
+      if (latest.filter(b => b.architecture === build.architecture).length === 0) {
+        latest.push(build);
+      } else {
+        previous.push(build);
+      }
+      return { latest, previous };
+    }, { latest: [], previous: [] });
+  }
+
+  onBuildNowClick() {
+    this.setState({ buildTriggered: true });
+    this.props.requestSnapBuilds(this.props.repository.url);
+  }
+
   render() {
     const { user, repository } = this.props;
     let { isFetching, success, error } = this.props.snapBuilds;
 
     // only show spinner when data is loading for the first time
     const isLoading = isFetching && !success;
+    const isBuilding = this.hasBuildInProgress() || this.state.buildTriggered;
+
+    const { latest, previous } = this.getLatestAndPreviousBuilds();
 
     return (
       <div className={ styles.container }>
@@ -96,9 +164,20 @@ export class Builds extends Component {
           <HeadingOne>
             {repository.fullName}
           </HeadingOne>
-          <Badge fullName={repository.fullName} />
+          <Badge fullName={repository.fullName} buildStatus={latest[0] ? latest[0].statusMessage : null}/>
         </div>
-        <BuildHistory repository={repository} />
+        {/* TODO: show message if there are no builds */}
+        { this.renderBuilds(repository, latest, 'Latest builds') }
+        { this.isRepositoryOwner() &&
+          <div className={styles.buildOnDemand}>
+            <Button
+              onClick={this.onBuildNowClick.bind(this)}
+              disabled={isBuilding}
+            >
+              Build manually now
+            </Button>
+          </div>
+        }
         { isLoading &&
           <IconSpinner />
         }
@@ -108,6 +187,7 @@ export class Builds extends Component {
           </div>
         }
         { this.renderHelpBoxes() }
+        { !!previous.length && this.renderBuilds(repository, previous, 'Previous builds') }
       </div>
     );
   }
@@ -116,7 +196,8 @@ export class Builds extends Component {
 
 Builds.propTypes = {
   user: PropTypes.shape({
-    login: PropTypes.string
+    login: PropTypes.string,
+    orgs: PropTypes.array
   }),
   repository: PropTypes.shape({
     owner: PropTypes.string.isRequired,
@@ -126,7 +207,7 @@ Builds.propTypes = {
   }).isRequired,
   snap: PropTypes.shape({
     selfLink: PropTypes.string.isRequired,
-    storeName: PropTypes.string.isRequired
+    storeName: PropTypes.string
   }),
   snapBuilds: PropTypes.shape({
     isFetching: PropTypes.bool,
@@ -138,7 +219,8 @@ Builds.propTypes = {
     success: PropTypes.bool,
     error: PropTypes.object
   }),
-  fetchSnapStableRelease: PropTypes.func
+  fetchSnapStableRelease: PropTypes.func,
+  requestSnapBuilds: PropTypes.func
 };
 
 const mapStateToProps = (state) => {
@@ -149,7 +231,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    fetchSnapStableRelease: (url, name) => dispatch(fetchSnapStableRelease(url, name))
+    fetchSnapStableRelease: (url, name) => dispatch(fetchSnapStableRelease(url, name)),
+    requestSnapBuilds: (url) => dispatch(requestBuilds(url))
   };
 };
 
