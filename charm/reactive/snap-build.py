@@ -19,6 +19,8 @@ from ols.http import port
 SYSTEMD_CONFIG = '/lib/systemd/system/snap-build.service'
 KNEXFILE_NORMAL = join(code_dir(), 'knexfile-normal.js')
 KNEXFILE_ADMIN = join(code_dir(), 'knexfile-admin.js')
+CRONTAB_PATH = '/etc/cron.d/snap-build-poller'
+LOGROTATE_PATH = '/etc/logrotate.d/snap-build-poller'
 
 
 def get_node_env(environment):
@@ -180,3 +182,40 @@ def install_custom_nodejs():
         # us, we can't due to the conditional nature of installing these
         # packages *only* if the .deb file isn't used
         queue_install(['npm', 'nodejs', 'nodejs-legacy'])
+
+
+@when('service.configured')
+@when('leadership.is_leader')
+@when_not('leadership.set.poller_enabled')
+def setup_poller():
+    hookenv.log('Enabling poller ...')
+
+    hookenv.log('Writing poller crontab at {}.'.format(CRONTAB_PATH))
+    render('snap-build-poller_cron.j2', CRONTAB_PATH,
+           {'code_dir': code_dir(),
+            'knex_config_path': KNEXFILE_NORMAL,
+            'logs_dir': logs_dir(),
+            'user': user()})
+
+    hookenv.log("Writing service logrotate file.")
+    render('snap-build-poller_logrotate.j2', LOGROTATE_PATH,
+           {'logs_dir': logs_dir()})
+
+    hookenv.log('Poller cron enabled!')
+    hookenv.status_set('active', 'systemd unit configured and poller enabled')
+    leader_set(poller_enabled=True)
+
+
+@when('service.configured')
+@when_not('leadership.is_leader')
+@when('leadership.set.poller_enabled')
+def destroy_poller():
+    hookenv.log('Destroying poller ...')
+
+    for f in [CRONTAB_PATH, LOGROTATE_PATH]:
+        if os.path.isfile(f):
+            os.remove(f)
+
+    hookenv.log('Poller cron removed')
+    hookenv.status_set('active', 'systemd unit configured and poller disabled')
+    leader_set(poller_enabled=False)
