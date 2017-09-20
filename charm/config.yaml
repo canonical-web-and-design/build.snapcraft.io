@@ -32,6 +32,17 @@ options:
     github_webhook_secret:
         type: string
         description: GitHub webhook secret
+    poller_github_auth_token:
+        type: string
+        description: GitHub authorization token to be used exclusively by the poller
+    poller_request_builds:
+        type: string
+        description: set to 'true' in order to allow poller to request builds
+        default: "false"
+    poller_build_threshold:
+        type: string
+        description: number of hours the poller should wait before requesting a build
+        default: "24"
     http_proxy:
         type: string
         description: HTTP proxy URL
