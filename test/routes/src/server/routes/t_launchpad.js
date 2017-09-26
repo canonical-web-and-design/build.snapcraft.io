@@ -4,6 +4,7 @@ import sortBy from 'lodash/sortBy';
 import nock from 'nock';
 import supertest from 'supertest';
 import expect from 'expect';
+import tmatch from 'tmatch';
 
 import {
   getMemcached,
@@ -98,7 +99,7 @@ describe('The Launchpad API endpoint', () => {
         beforeEach(() => {
           const lp_api_url = conf.get('LP_API_URL');
           nock(lp_api_url)
-            .post('/devel/+snaps', { 'ws.op': 'new' })
+            .post('/devel/+snaps', (body) => tmatch(body, { 'ws.op': 'new' }))
             .reply(
               400,
               'There is already a snap package with the same name and owner.');
@@ -155,12 +156,12 @@ describe('The Launchpad API endpoint', () => {
           snapUrl = `${lp_api_url}/devel/~test-user/+snap/${snapName}`;
           lpApi = nock(lp_api_url);
           lpApi
-            .post('/devel/+snaps', {
+            .post('/devel/+snaps', (body) => tmatch(body, {
               'ws.op': 'new',
               git_repository_url: 'https://github.com/anowner/aname',
               auto_build: 'false',
               processors: ['/+processors/amd64', '/+processors/armhf']
-            })
+            }))
             .reply(201, 'Created', { Location: snapUrl });
           lpApi.get(`/devel/~test-user/+snap/${snapName}`)
             .reply(200, {
