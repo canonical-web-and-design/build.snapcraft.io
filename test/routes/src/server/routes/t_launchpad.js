@@ -160,7 +160,11 @@ describe('The Launchpad API endpoint', () => {
               'ws.op': 'new',
               git_repository_url: 'https://github.com/anowner/aname',
               auto_build: 'false',
-              processors: ['/+processors/amd64', '/+processors/armhf']
+              processors: [
+                '/+processors/amd64',
+                '/+processors/armhf',
+                '/+processors/i386'
+              ]
             }))
             .reply(201, 'Created', { Location: snapUrl });
           lpApi.get(`/devel/~test-user/+snap/${snapName}`)
