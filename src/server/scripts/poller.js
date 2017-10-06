@@ -29,9 +29,11 @@ export const pollRepositories = (checker) => {
 
   checker = checker || checkSnapRepository;
 
-  // XXX: meh! no ES6 import support, great library :-/
+  // XXX cprov 2017-10-06: meh! no ES6 import support e small maxPending
+  // default (1000, but we need 1 per registered repo in production),
+  // such a great library I found :-/
   let AsyncLock = require('async-lock');
-  let pollRepoLock = new AsyncLock();
+  let pollRepoLock = new AsyncLock({ maxPending: 10000 });
   let locked_promises = [];
 
   let poller_request_builds = false;
