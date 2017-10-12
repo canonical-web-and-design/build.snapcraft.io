@@ -372,13 +372,13 @@ describe('The Launchpad API endpoint', () => {
           .end(done);
       });
 
-      it('should return a body with a "github-snapcraft-yaml-not-found" ' +
+      it('should return a body with a "github-repository-not-found" ' +
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
           .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(hasMessage('github-snapcraft-yaml-not-found'))
+          .expect(hasMessage('github-repository-not-found'))
           .end(done);
       });
     });
@@ -2166,13 +2166,13 @@ describe('The Launchpad API endpoint', () => {
           .end(done);
       });
 
-      it('should return a body with a "github-snapcraft-yaml-not-found" ' +
+      it('should return a body with a "github-repository-not-found" ' +
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
           .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(hasMessage('github-snapcraft-yaml-not-found'))
+          .expect(hasMessage('github-repository-not-found'))
           .end(done);
       });
     });
@@ -2526,13 +2526,13 @@ describe('The Launchpad API endpoint', () => {
           .end(done);
       });
 
-      it('should return a body with a "github-snapcraft-yaml-not-found" ' +
+      it('should return a body with a "github-repository-not-found" ' +
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
           .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
-          .expect(hasMessage('github-snapcraft-yaml-not-found'))
+          .expect(hasMessage('github-repository-not-found'))
           .end(done);
       });
     });

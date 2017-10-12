@@ -27,23 +27,36 @@ const ConfigurationErrorDropdown = ({ snap }) => {
   //      position: 33
   //    }
   //  }
+  let content;
+
+  if (snap.gitBranch && snap.snapcraftData.error) {
+    content = (
+      <div>
+        <p>
+          The snapcraft.yaml can’t be used because it isn’t valid.
+        </p>
+        <p>
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href={getTemplateUrl(snap)}
+          >
+            Edit snapcraft.yaml…
+          </a>
+        </p>
+      </div>
+    );
+  } else {
+    content = (
+      <p>Check whether the repo has been made private or deleted from GitHub.</p>
+    );
+  }
 
   return (
     <Dropdown>
       <Row>
         <Data col="100">
-          <p>
-            The snapcraft.yaml can’t be used because it isn’t valid.
-          </p>
-          <p>
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href={getTemplateUrl(snap)}
-            >
-              Edit snapcraft.yaml…
-            </a>
-          </p>
+          {content}
         </Data>
       </Row>
     </Dropdown>

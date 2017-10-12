@@ -6,8 +6,9 @@ import logging from '../logging';
 import requestGitHub from '../helpers/github';
 import { conf } from '../helpers/config';
 import { getMemcached } from '../helpers/memcached';
-import { checkGitHubStatus, internalGetSnapcraftYaml } from './launchpad';
+import { internalGetSnapcraftYaml } from './launchpad';
 import { parseGitHubRepoUrl } from '../../common/helpers/github-url';
+import { PreparedError } from '../helpers/prepared-error';
 import { getGitHubRootSecret, makeWebhookSecret } from './webhook';
 
 const logger = logging.getLogger('express');
@@ -29,14 +30,6 @@ const RESPONSE_AUTHENTICATION_FAILED = {
   }
 };
 
-const RESPONSE_OTHER = {
-  status: 'error',
-  payload: {
-    code: 'github-error-other',
-    message: 'Something went wrong when creating a webhook'
-  }
-};
-
 const RESPONSE_CREATED = {
   status: 'success',
   payload: {
@@ -51,6 +44,42 @@ const RESPONSE_ALREADY_CREATED = {
     code: 'github-already-created',
     message: 'A webhook already exists on the given repository'
   }
+};
+
+const RESPONSE_OTHER_ERROR = {
+  status: 'error',
+  payload: {
+    code: 'github-error-other',
+    message: 'Something went wrong when calling GitHub API'
+  }
+};
+
+export const checkGitHubStatus = (response, notFoundError = RESPONSE_NOT_FOUND) => {
+  if (response.statusCode !== 200) {
+    let body = response.body;
+    if (typeof body !== 'object') {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        logger.error('Invalid JSON received', e, body);
+        throw new PreparedError(500, RESPONSE_OTHER_ERROR);
+      }
+    }
+    switch (body.message) {
+      case 'Not Found':
+      case 'This repository is empty.':
+        // repo or snapcraft.yaml not found
+        throw new PreparedError(404, notFoundError);
+      case 'Bad credentials':
+        // Authentication failed
+        throw new PreparedError(401, RESPONSE_AUTHENTICATION_FAILED);
+      default:
+        // Something else
+        logger.error('GitHub API error:', response.statusCode, body);
+        throw new PreparedError(response.statusCode, RESPONSE_OTHER_ERROR);
+    }
+  }
+  return response;
 };
 
 export const requestUser = (token) => {
@@ -101,7 +130,13 @@ export const internalListOrganizations = async (owner, token) => {
     const response = await requestGitHub.get('/user/orgs', {
       token, json: true
     });
-    await checkGitHubStatus(response);
+    await checkGitHubStatus(response, {
+      status: 'error',
+      payload: {
+        code: 'github-orgs-not-found',
+        message: 'Cannot access user organizations'
+      }
+    });
     await getMemcached().set(cacheId, response.body, 3600);
     return response.body;
   } catch (error) {
@@ -151,46 +186,29 @@ export const getSnapcraftData = async (repositoryUrl, token) => {
     logger.error(`Error getting ${cacheId} from memcached: ${error}`);
   }
 
-  try {
-    const snapcraftYaml = await internalGetSnapcraftYaml(owner, name, token);
-    const snapcraftData = {};
+  const snapcraftYaml = await internalGetSnapcraftYaml(owner, name, token);
+  const snapcraftData = {};
 
-    if (snapcraftYaml.contents) {
-      for (const index of Object.keys(snapcraftYaml.contents)) {
-        if (SNAPCRAFT_INFO_WHITELIST.indexOf(index) >= 0) {
-          snapcraftData[index] = snapcraftYaml.contents[index];
-        }
+  if (snapcraftYaml.contents) {
+    for (const index of Object.keys(snapcraftYaml.contents)) {
+      if (SNAPCRAFT_INFO_WHITELIST.indexOf(index) >= 0) {
+        snapcraftData[index] = snapcraftYaml.contents[index];
       }
     }
-
-    // copy snapcraft.yaml path from repo into snapcraftData
-    //
-    // XXX we are mixing our custom `path` into data from snapcraft.yaml file
-    // currently there is no `path` defined in snapcraft syntax
-    // https://snapcraft.io/docs/build-snaps/syntax
-    // and also we whitelist only `name`, so no collision should occur
-    snapcraftData.path = snapcraftYaml.path;
-
-    // if there was parse error include it as well
-    snapcraftData.error = snapcraftYaml.error;
-    await getMemcached().set(cacheId, snapcraftData, 3600);
-    return snapcraftData;
-  } catch (error) {
-    if (error.status && error.body) {
-      // if it's PreparedError (with status code and body) return whole JSON
-      return {
-        error
-      };
-    } else if (error.message) {
-      return {
-        error: error.message
-      };
-    } else {
-      return {
-        error: `Error while reading snapcraft.yaml for ${repositoryUrl}`
-      };
-    }
   }
+
+  // copy snapcraft.yaml path from repo into snapcraftData
+  //
+  // XXX we are mixing our custom `path` into data from snapcraft.yaml file
+  // currently there is no `path` defined in snapcraft syntax
+  // https://snapcraft.io/docs/build-snaps/syntax
+  // and also we whitelist only `name`, so no collision should occur
+  snapcraftData.path = snapcraftYaml.path;
+
+  // if there was parse error include it as well
+  snapcraftData.error = snapcraftYaml.error;
+  await getMemcached().set(cacheId, snapcraftData, 3600);
+  return snapcraftData;
 };
 
 export const listRepositories = async (req, res) => {
@@ -268,7 +286,7 @@ export const createWebhook = async (req, res) => {
         default:
           // Something else
           logger.error('GitHub API error', response.statusCode);
-          return res.status(500).send(RESPONSE_OTHER);
+          return res.status(500).send(RESPONSE_OTHER_ERROR);
       }
     }
 

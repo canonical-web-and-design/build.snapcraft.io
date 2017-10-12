@@ -14,6 +14,7 @@ import {
 describe('<RepositoryRowView />', () => {
   const props = {
     snap: {
+      gitBranch: 'master',
       gitRepoUrl: 'https://github.com/anowner/aname',
       storeName: 'test-snap',
       snapcraftData: { name: 'test-snap' }

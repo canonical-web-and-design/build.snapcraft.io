@@ -11,10 +11,12 @@ import db from '../db';
 import { conf } from '../helpers/config';
 import { getMemcached } from '../helpers/memcached';
 import requestGitHub from '../helpers/github';
+import { PreparedError, prepareError } from '../helpers/prepared-error';
 import getLaunchpad from '../launchpad';
 import logging from '../logging';
 import * as schema from './schema.js';
 import {
+  checkGitHubStatus,
   getDefaultBranch,
   getSnapcraftData,
   internalListOrganizations
@@ -55,27 +57,11 @@ const RESPONSE_GITHUB_NO_ADMIN_PERMISSIONS = {
   }
 };
 
-const RESPONSE_GITHUB_NOT_FOUND = {
+const RESPONSE_GITHUB_SNAPCRAFT_YAML_NOT_FOUND = {
   status: 'error',
   payload: {
     code: 'github-snapcraft-yaml-not-found',
     message: 'Cannot find snapcraft.yaml in this GitHub repository'
-  }
-};
-
-const RESPONSE_GITHUB_AUTHENTICATION_FAILED = {
-  status: 'error',
-  payload: {
-    code: 'github-authentication-failed',
-    message: 'Authentication with GitHub failed'
-  }
-};
-
-const RESPONSE_GITHUB_OTHER = {
-  status: 'error',
-  payload: {
-    code: 'github-error-other',
-    message: 'Something went wrong when looking for snapcraft.yaml'
   }
 };
 
@@ -87,14 +73,6 @@ const RESPONSE_SNAP_NOT_FOUND = {
   }
 };
 
-class PreparedError extends Error {
-  constructor(status, body) {
-    super();
-    this.status = status;
-    this.body = body;
-  }
-}
-
 // helper function to get URL prefix for given repo owner
 export const getRepoUrlPrefix = (owner) => `https://github.com/${owner}/`;
 
@@ -103,65 +81,9 @@ export const getUrlPrefixCacheId = (urlPrefix) => `url_prefix:${urlPrefix}`;
 export const getRepositoryUrlCacheId = (repositoryUrl) => `url:${repositoryUrl}`;
 export const getHasWebhookCacheId = (snapUrl) => `has_webhook:${snapUrl}`;
 
-// Wrap errors in a promise chain so that they always end up as a
-// PreparedError.
-const prepareError = async (error) => {
-  if (error.status && error.body) {
-    // The error comes with a prepared representation.
-    return error;
-  } else if (error.response) {
-    // if it's ResourceError from LP client at least for the moment
-    // we just wrap the error we get from LP
-    const text = await error.response.text();
-    logger.error('Launchpad API error:', text);
-    return new PreparedError(error.response.status, {
-      status: 'error',
-      payload: {
-        code: 'lp-error',
-        message: text
-      }
-    });
-  } else {
-    return new PreparedError(500, {
-      status: 'error',
-      payload: {
-        code: 'internal-error',
-        message: error.message
-      }
-    });
-  }
-};
-
 const sendError = async (res, error) => {
   const preparedError = await prepareError(error);
   res.status(preparedError.status).send(preparedError.body);
-};
-
-export const checkGitHubStatus = (response) => {
-  if (response.statusCode !== 200) {
-    let body = response.body;
-    if (typeof body !== 'object') {
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        logger.error('Invalid JSON received', e, body);
-        throw new PreparedError(500, RESPONSE_GITHUB_OTHER);
-      }
-    }
-    switch (body.message) {
-      case 'Not Found':
-        // snapcraft.yaml not found
-        throw new PreparedError(404, RESPONSE_GITHUB_NOT_FOUND);
-      case 'Bad credentials':
-        // Authentication failed
-        throw new PreparedError(401, RESPONSE_GITHUB_AUTHENTICATION_FAILED);
-      default:
-        // Something else
-        logger.error('GitHub API error:', response.statusCode, body);
-        throw new PreparedError(500, RESPONSE_GITHUB_OTHER);
-    }
-  }
-  return response;
 };
 
 const checkAdminPermissions = async (session, repositoryUrl) => {
@@ -205,7 +127,7 @@ const fetchSnapcraftYaml = async (path, owner, name, token) => {
   logger.info(`Fetching ${path} from ${owner}/${name}`);
 
   const response = await requestGitHub.get(uri, options);
-  await checkGitHubStatus(response);
+  await checkGitHubStatus(response, RESPONSE_GITHUB_SNAPCRAFT_YAML_NOT_FOUND);
   return response;
 };
 
@@ -228,7 +150,7 @@ export const internalGetSnapcraftYaml = async (owner, name, token) => {
     } catch (error) {
       if (path !== paths[paths.length - 1] &&
           error.status === 404 && error.body &&
-          error.body.payload.code === RESPONSE_GITHUB_NOT_FOUND.payload.code) {
+          error.body.payload.code === RESPONSE_GITHUB_SNAPCRAFT_YAML_NOT_FOUND.payload.code) {
         continue;
       } else {
         throw error;
@@ -562,15 +484,53 @@ export const getGitBranch = async (snap, token) => {
   }
 };
 
+const getSnapRepoData = async(snap, token) => {
+  let gitBranch, snapcraftData, gitBranchError, snapcraftDataError;
+
+  [gitBranch, snapcraftData] = await Promise.all([
+    // explicit return of undefined in case of error to avoid arrow function
+    // implicit return (of error object)
+    getGitBranch(snap, token)
+      .catch(e => { gitBranchError = e; return; }),
+    getSnapcraftData(snap.git_repository_url, token)
+      .catch(e => { snapcraftDataError = e; return; })
+  ]);
+
+  const error = gitBranchError || snapcraftDataError;
+
+  if (error) {
+    logger.error(`Error while fetching data of ${snap.git_repository_url}: ${error}`);
+
+    if (error.status && error.body) {
+      // if it's PreparedError (with status code and body) return whole JSON
+      snapcraftData = {
+        error
+      };
+    } else if (error.message) {
+      snapcraftData = {
+        error: error.message
+      };
+    } else {
+      snapcraftData = {
+        error: `Error while fetching data of ${snap.git_repository_url}`
+      };
+    }
+  }
+
+  return {
+    gitBranch,
+    snapcraftData
+  };
+};
+
 export const findSnaps = async (req, res) => {
   const owner = req.query.owner || req.session.user.login;
   try {
     const rawSnaps = await internalFindSnaps(owner, req.session.token);
     const snaps = await Promise.all(rawSnaps.map(async (snap) => {
-      const [gitBranch, snapcraftData] = await Promise.all([
-        getGitBranch(snap, req.session.token),
-        getSnapcraftData(snap.git_repository_url, req.session.token)
-      ]);
+
+      let { gitBranch, snapcraftData } = await getSnapRepoData(snap, req.session.token);
+
       return {
         ...snap,
         git_branch: gitBranch,
@@ -600,10 +560,8 @@ export const findSnaps = async (req, res) => {
 export const findSnap = async (req, res) => {
   try {
     const snap = await internalFindSnap(req.query.repository_url);
-    const [gitBranch, snapcraftData] = await Promise.all([
-      getGitBranch(snap, req.session.token),
-      getSnapcraftData(snap.git_repository_url, req.session.token)
-    ]);
+
+    let { gitBranch, snapcraftData } = await getSnapRepoData(snap, req.session.token);
 
     snap.git_branch = gitBranch;
     snap.snapcraft_data = snapcraftData;

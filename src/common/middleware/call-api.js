@@ -71,7 +71,7 @@ export default (defaults) => () => (next) => (action) => {
     })
     .catch((error) => {
       clearTimeout(loadingTimeout);
-
+      error.action = action;
       if (failureType) {
         // if type of failure action is defined in settings
         // catch the error and pass it in failure action payload
