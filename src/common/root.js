@@ -9,7 +9,21 @@ import store from './store';
 
 const history = syncHistoryWithStore(browserHistory, store);
 
+
 export default class Root extends Component {
+
+  componentDidMount() {
+    /*
+     Create Google Analytics Events when the page in this SPA has changed.
+    */
+    history.listen((location) => {
+      if (window.ga) {
+        window.ga('set', 'page', location.pathname);
+        window.ga('send', 'pageview');
+      }
+    });
+  }
+
   render() {
     return (
       <Provider store={store}>
