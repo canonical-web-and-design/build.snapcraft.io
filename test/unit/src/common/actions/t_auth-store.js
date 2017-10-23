@@ -496,9 +496,9 @@ describe('store authentication actions', () => {
         code: 'user-not-ready',
         message: 'Developer has not signed agreement.'
       };
-      const missingShortNamespaceError = {
+      const missingNamespaceError = {
         code: 'user-not-ready',
-        message: 'Developer profile is missing short namespace.'
+        message: 'Developer profile is missing namespace.'
       };
       const shortNamespaceInUseError = {
         code: 'conflict',
@@ -580,7 +580,7 @@ describe('store authentication actions', () => {
         beforeEach(() => {
           storeApi.get('/account')
             .query(true)
-            .reply(403, { error_list: [missingShortNamespaceError] });
+            .reply(403, { error_list: [missingNamespaceError] });
         });
 
         it('stores an error on failure to set the short ' +

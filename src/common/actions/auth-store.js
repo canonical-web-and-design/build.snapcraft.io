@@ -248,7 +248,7 @@ async function fetchAccountInfo(root, discharge) {
       if (payload.message.indexOf('has not signed agreement') !== -1) {
         data.signedAgreement = false;
       }
-      if (payload.message.indexOf('missing short namespace') !== -1) {
+      if (payload.message.indexOf('missing namespace') !== -1) {
         data.hasShortNamespace = false;
       }
       return data;

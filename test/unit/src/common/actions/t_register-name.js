@@ -342,7 +342,7 @@ describe('register name actions', () => {
               it('sets short namespace if unset', async () => {
                 const error = {
                   code: 'user-not-ready',
-                  message: 'Developer profile is missing short namespace.'
+                  message: 'Developer profile is missing namespace.'
                 };
                 storeApi
                   .get('/account')
