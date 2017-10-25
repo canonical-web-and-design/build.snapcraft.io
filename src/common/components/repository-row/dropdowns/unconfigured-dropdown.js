@@ -9,8 +9,8 @@ import templateYaml from './template-yaml.js';
 
 import styles from './dropdowns.css';
 
-const LEARN_THE_BASICS_LINK = 'https://snapcraft.io/docs/build-snaps/your-first-snap';
-const INSTALL_IT_LINK = 'https://snapcraft.io/create/';
+const LEARN_THE_BASICS_LINK = 'https://docs.snapcraft.io/build-snaps/your-first-snap';
+const INSTALL_IT_LINK = 'https://docs.snapcraft.io/build-snaps/';
 
 const getTemplateUrl = (snap) => {
   const { fullName } = parseGitHubRepoUrl(snap.gitRepoUrl);

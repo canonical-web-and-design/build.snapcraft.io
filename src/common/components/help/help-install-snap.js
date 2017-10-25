@@ -4,7 +4,7 @@ import { CopyToClipboard, Tweet } from '../share';
 import { HeadingThree } from '../vanilla-modules/heading/';
 import styles from './help.css';
 
-const HELP_INSTALL_URL = 'https://snapcraft.io/docs/core/install';
+const HELP_INSTALL_URL = 'https://docs.snapcraft.io/core/install';
 
 export default class HelpInstallSnap extends Component {
   render() {
@@ -15,7 +15,7 @@ export default class HelpInstallSnap extends Component {
     // TODO more at https://github.com/canonical-websites/build.snapcraft.io/issues/655
     const tweet = `Install ${name} in seconds on Linux OSes:\n`
       + `sudo snap install ${name}\n\n`
-      + '(Don’t have snapd? https://snapcraft.io/docs/core/install)';
+      + '(Don’t have snapd? https://docs.snapcraft.io/core/install)';
 
     return (
       <div className={styles.helpFlexWrapper}>
