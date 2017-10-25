@@ -94,7 +94,7 @@ ubuntuone/ols-tests PPA:
 ```
 $ ols-vms setup [--force] build-snapcraft-io
 $ ols-vms shell build-snapcraft-io
-ubuntu@build-snapcraft-io:~$ git clone git://github.com/canonical-ols/build.snapcraft.io.git work
+ubuntu@build-snapcraft-io:~$ git clone git://github.com/canonical-websites/build.snapcraft.io.git work
 ubuntu@build-snapcraft-io:~$ cd work
 ubuntu@build-snapcraft-io:~/work$ npm install
 ubuntu@build-snapcraft-io:~/work$ npm test

@@ -1,5 +1,5 @@
 {
-  "name": "build.snapcraft.io-ui",
+  "name": "build.snapcraft.io",
   "version": "1.0.0",
   "description": "User interface layer for the Snapcraft Build site",
   "main": "src/server/index.js",
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/canonical-ols/build.snapcraft.io-ui.git"
+    "url": "git+https://github.com/canonical-websites/build.snapcraft.io.git"
   },
   "contributors": [
     "Bartek Szopka <bartek.szopka@canonical.com>",
@@ -34,9 +34,9 @@
   ],
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/canonical-ols/build.snapcraft.io-ui/issues"
+    "url": "https://github.com/canonical-websites/build.snapcraft.io/issues"
   },
-  "homepage": "https://github.com/canonical-ols/build.snapcraft.io-ui#readme",
+  "homepage": "https://github.com/canonical-websites/build.snapcraft.io#readme",
   "dependencies": {
     "async-lock": "^1.0.0",
     "babel-polyfill": "^6.16.0",

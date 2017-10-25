@@ -12,7 +12,7 @@ export default class HelpInstallSnap extends Component {
     const revOption = revision ? `--revision=${ revision }` : '';
     const command = children || `sudo snap install ${stable ? '' : '--edge '}${name} ${revOption}`;
 
-    // TODO more at https://github.com/canonical-ols/build.snapcraft.io/issues/655
+    // TODO more at https://github.com/canonical-websites/build.snapcraft.io/issues/655
     const tweet = `Install ${name} in seconds on Linux OSes:\n`
       + `sudo snap install ${name}\n\n`
       + '(Don’t have snapd? https://snapcraft.io/docs/core/install)';

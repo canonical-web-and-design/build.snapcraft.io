@@ -1,4 +1,4 @@
-repo: git@github.com:canonical-ols/build.snapcraft.io.git
+repo: git@github.com:canonical-websites/build.snapcraft.io.git
 includes:
     - layer:leadership
     - layer:ols-http

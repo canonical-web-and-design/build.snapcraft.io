@@ -1,5 +1,5 @@
 {
-  "name": "build.snapcraft.io-ui",
+  "name": "build.snapcraft.io",
   "version": "1.0.0",
   "dependencies": {
     "accepts": {

@@ -25,7 +25,7 @@ export default class Footer extends Component {
             </ul>
           </div>
           <p className={ styles.copyright }>© 2017 Canonical Ltd. Ubuntu and Canonical are registered trademarks of Canonical Ltd.</p>
-          <p><a href="https://www.ubuntu.com/legal">Legal information</a> · <a href="https://github.com/canonical-ols/build.snapcraft.io/issues/new">Report a bug on this site</a></p>
+          <p><a href="https://www.ubuntu.com/legal">Legal information</a> · <a href="https://github.com/canonical-websites/build.snapcraft.io/issues/new">Report a bug on this site</a></p>
         </div>
       </div>
     );

@@ -146,7 +146,7 @@ def configure(pgsql, cache):
         # XXX cjwatson 2017-03-08: Set NODE_ENV from here instead of in .env
         # files?  This may make more sense as part of entirely getting rid
         # of {staging,production}.env
-        # (https://github.com/canonical-ols/build.snapcraft.io/issues/276).
+        # (https://github.com/canonical-websites/build.snapcraft.io/issues/276).
         render(
             source='snap-build_systemd.j2',
             target=SYSTEMD_CONFIG,
