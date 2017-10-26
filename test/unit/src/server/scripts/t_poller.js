@@ -25,6 +25,7 @@ describe('Poller script helpers', function() {
     let db_repo;
 
     beforeEach(async () => {
+      await db.model('BuildAnnotation').query().truncate();
       await db.model('Repository').query().truncate();
       await db.model('GitHubUser').query().del();
       return db.transaction(async (trx) => {
@@ -162,13 +163,25 @@ describe('Poller script helpers', function() {
             }]
           });
         lp.post(`/devel/~${LP_API_USERNAME}/+snap/a_snap`)
-          .reply(200, {});
+          .reply(200, [
+              { self_link: '+build/100' },
+              { self_link: '+build/101' }
+          ]);
 
         let checker = sinon.stub().returns(true);
         await pollRepositoriesMock(checker);
         expect(checker.callCount).toBe(1);
         expect(checker.calledWithMatch('anowner', 'aname')).toBe(true);
         expect(checker.getCall(0).args[2].format()).toBe(since.milliseconds(0).format());
+
+        expect(await db.model('BuildAnnotation').count()).toBe(2);
+        const annotations = await db.model('BuildAnnotation').fetchAll();
+        expect(annotations.models.map((m) => {
+          return { build_id: m.get('build_id'), reason: m.get('reason') };
+        }))
+          .toContain({ build_id: 100, reason: 'triggered-by-poller' })
+          .toContain({ build_id: 101, reason: 'triggered-by-poller' });
+
       });
     });
   });

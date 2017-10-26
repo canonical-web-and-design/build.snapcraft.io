@@ -12,7 +12,6 @@ export default function register(db) {
    *   registrant: GitHub user who registered this repository in BSI
    *   created_at: creation datetime
    *   updated_at: update datetime
-   *   polled_at: last poll datetime
    */
   db.model('Repository', {
     tableName: 'repository',

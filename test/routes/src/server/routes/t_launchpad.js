@@ -14,6 +14,10 @@ import {
 import launchpad from '../../../../../src/server/routes/launchpad';
 import db from '../../../../../src/server/db';
 import {
+  BUILD_TRIGGERED_BY_POLLER,
+  BUILD_TRIGGERED_MANUALLY,
+} from '../../../../../src/common/helpers/build_annotation';
+import {
   getDefaultBranchCacheId,
   getSnapcraftYamlCacheId,
   listOrganizationsCacheId
@@ -1539,11 +1543,16 @@ describe('The Launchpad API endpoint', () => {
     context('when snap and builds are successfully fetched', () => {
       let test_build;
 
-      beforeEach(() => {
+      beforeEach(async () => {
         test_build = {
           'resource_type_link': `${lp_api_url}/devel/#snap_build`,
           'self_link': `${lp_api_url}${lp_snap_path}/+build/12345`,
         };
+
+        // Corresponding build_annotation.
+        await db.model('BuildAnnotation')
+          .forge({ build_id: 12345, reason: 'Testing ...' })
+          .save();
 
         // when getting snap data from API (via self_link)
         nock(lp_api_url)
@@ -1567,7 +1576,8 @@ describe('The Launchpad API endpoint', () => {
           });
       });
 
-      afterEach(() => {
+      afterEach(async () => {
+        await db.model('BuildAnnotation').query().truncate();
         nock.cleanAll();
       });
 
@@ -1612,6 +1622,19 @@ describe('The Launchpad API endpoint', () => {
             // for some reason (async maybe).
             // To be investigated later...
             expect(build.self_link).toEqual(test_build.self_link);
+            done(err);
+          });
+      });
+
+      it('should return build annotations in payload', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
+          .query({ snap: lp_snap_url })
+          .end((err, res) => {
+            expect(res.body.payload.build_annotations).toEqual({
+              12345: { reason: 'Testing ...' }
+            });
             done(err);
           });
       });
@@ -1834,6 +1857,7 @@ describe('The Launchpad API endpoint', () => {
           })
           .save();
         await db.model('Repository').query('truncate').fetch();
+        await db.model('BuildAnnotation').query().truncate();
       });
 
       afterEach(() => {
@@ -1916,6 +1940,60 @@ describe('The Launchpad API endpoint', () => {
                 `${lp_api_base}${lp_snap_path}/+build/1`,
                 `${lp_api_base}${lp_snap_path}/+build/2`
               ]);
+            })
+            .end((err) => {
+              api.done();
+              done(err);
+            });
+        });
+
+        it('records default build annotation', async () => {
+          await supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
+            .send({
+              repository_url: 'https://github.com/anowner/aname',
+            });
+          const build_annotations = await db.model('BuildAnnotation').fetchAll();
+          let reasons = {};
+          for (const m of build_annotations.models) {
+            reasons[m.get('build_id')] = m.get('reason');
+          }
+          expect(reasons).toEqual({
+            1: BUILD_TRIGGERED_MANUALLY,
+            2: BUILD_TRIGGERED_MANUALLY
+          });
+        });
+
+        it('records custom build annotation', async () => {
+          await supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
+            .send({
+              repository_url: 'https://github.com/anowner/aname',
+              reason: BUILD_TRIGGERED_BY_POLLER
+            });
+          const build_annotations = await db.model('BuildAnnotation').fetchAll();
+          let reasons = {};
+          for (const m of build_annotations.models) {
+            reasons[m.get('build_id')] = m.get('reason');
+          }
+          expect(reasons).toEqual({
+            1: BUILD_TRIGGERED_BY_POLLER,
+            2: BUILD_TRIGGERED_BY_POLLER
+          });
+        });
+
+        it('returns just created build annotations in payload', (done) => {
+          supertest(app)
+            .post('/launchpad/snaps/request-builds')
+            .set('X-CSRF-Token', 'blah')
+            .send({ repository_url: 'https://github.com/anowner/aname' })
+            .expect((res) => {
+              expect(res.body.payload.build_annotations).toEqual({
+                1: { reason: BUILD_TRIGGERED_MANUALLY },
+                2: { reason: BUILD_TRIGGERED_MANUALLY }
+              });
             })
             .end((err) => {
               api.done();

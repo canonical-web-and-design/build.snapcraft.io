@@ -6,6 +6,10 @@ import uniq from 'lodash/uniq';
 import zip from 'lodash/zip';
 import { normalize } from 'normalizr';
 
+import {
+  BUILD_TRIGGERED_MANUALLY,
+  getBuildId
+} from '../../common/helpers/build_annotation';
 import { parseGitHubRepoUrl } from '../../common/helpers/github-url';
 import db from '../db';
 import { conf } from '../helpers/config';
@@ -655,6 +659,21 @@ export async function internalGetSnapBuilds(snap, start = 0, size = 10) {
   });
 }
 
+export async function internaGetBuildAnnotations(builds) {
+  const db_annotations = await db.model('BuildAnnotation')
+    .where('build_id', 'IN', builds.map((b) => { return getBuildId(b); }))
+    .fetchAll();
+
+  let build_annotations = {};
+  for (const m of db_annotations.models) {
+    build_annotations[m.get('build_id')] = {
+      reason: m.get('reason')
+    };
+  }
+
+  return build_annotations;
+}
+
 export const getSnapBuilds = async (req, res) => {
   const snapUrl = req.query.snap;
 
@@ -671,12 +690,14 @@ export const getSnapBuilds = async (req, res) => {
   try {
     const snap = await getLaunchpad().get(snapUrl);
     const builds = await internalGetSnapBuilds(snap, req.query.start, req.query.size);
+    const build_annotations = await internaGetBuildAnnotations(builds.entries);
 
     return res.status(200).send({
       status: 'success',
       payload: {
         code: 'snap-builds-found',
-        builds: builds.entries
+        builds: builds.entries,
+        build_annotations: build_annotations
       }
     });
   } catch (error) {
@@ -684,7 +705,7 @@ export const getSnapBuilds = async (req, res) => {
   }
 };
 
-export const internalRequestSnapBuilds = async (snap, owner, name) => {
+export const internalRequestSnapBuilds = async (snap, owner, name, reason) => {
   // Request builds, then make sure that auto_build is enabled so that
   // future push events will cause the webhook to dispatch builds.  Doing
   // things in this order ensures that Launchpad's internal
@@ -697,6 +718,7 @@ export const internalRequestSnapBuilds = async (snap, owner, name) => {
   if (!snap.auto_build) {
     await lpClient.patch(snap.self_link, { auto_build: true });
   }
+
   // We can't do this properly transactionally (i.e. don't request builds if
   // the DB connection fails), because we don't know how many builds we're
   // going to request up-front.  If we find a way to fix that then we should
@@ -718,6 +740,27 @@ export const internalRequestSnapBuilds = async (snap, owner, name) => {
   } catch (error) {
     logger.error(`Error incrementing builds_requested for ${owner}: ${error}`);
   }
+
+  // Record build annotations (reason), same comment above applies (this operation
+  // is not transactional).
+  const build_annotations = builds.map((b) => {
+    return {
+      build_id: getBuildId(b),
+      reason: reason
+    };
+  });
+
+  try {
+    await db.transaction(async (trx) => {
+      for (const ann of build_annotations) {
+        await db.model('BuildAnnotation').forge(ann).save({}, { transacting: trx });
+      }
+    });
+  } catch (error) {
+    const ids = build_annotations.map((b) => { return b.build_id; });
+    logger.error(`Error saving build annotations for ${ids}: ${error}`);
+  }
+
   return builds;
 };
 
@@ -726,13 +769,17 @@ export const requestSnapBuilds = async (req, res) => {
     const { owner, name } = await checkAdminPermissions(
       req.session, req.body.repository_url
     );
+    const reason = req.body.reason || BUILD_TRIGGERED_MANUALLY;
     const snap = await internalFindSnap(req.body.repository_url);
-    const builds = await internalRequestSnapBuilds(snap, owner, name);
+    const builds = await internalRequestSnapBuilds(snap, owner, name, reason);
+    const build_annotations = await internaGetBuildAnnotations(builds);
+
     return res.status(201).send({
       status: 'success',
       payload: {
         code: 'snap-builds-requested',
-        builds: builds
+        builds: builds,
+        build_annotations: build_annotations
       }
     });
   } catch (error) {

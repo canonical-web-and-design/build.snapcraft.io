@@ -1,5 +1,6 @@
 import { createHmac } from 'crypto';
 
+import { BUILD_TRIGGERED_BY_WEBHOOK } from '../../common/helpers/build_annotation';
 import { getGitHubRepoUrl } from '../../common/helpers/github-url';
 import db from '../db';
 import { conf } from '../helpers/config';
@@ -67,7 +68,7 @@ const handleGitHubPush = async (req, res, owner, name) => {
       // XXX cjwatson 2017-02-16: Cache returned snap name, if any.
       await internalGetSnapcraftYaml(owner, name);
     }
-    await internalRequestSnapBuilds(snap, owner, name);
+    await internalRequestSnapBuilds(snap, owner, name, BUILD_TRIGGERED_BY_WEBHOOK);
     logger.info(`Requested builds of ${repositoryUrl}.`);
     return res.status(200).send();
   } catch (error) {
