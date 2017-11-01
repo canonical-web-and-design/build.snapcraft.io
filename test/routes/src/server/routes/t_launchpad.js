@@ -1552,7 +1552,7 @@ describe('The Launchpad API endpoint', () => {
         // Corresponding build_annotation.
         await db.model('BuildAnnotation')
           .forge({ build_id: 12345, reason: 'Testing ...' })
-          .save();
+          .save({}, { method: 'insert' });
 
         // when getting snap data from API (via self_link)
         nock(lp_api_url)

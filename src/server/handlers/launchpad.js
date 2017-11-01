@@ -753,7 +753,9 @@ export const internalRequestSnapBuilds = async (snap, owner, name, reason) => {
   try {
     await db.transaction(async (trx) => {
       for (const ann of build_annotations) {
-        await db.model('BuildAnnotation').forge(ann).save({}, { transacting: trx });
+        await db.model('BuildAnnotation')
+            .forge(ann)
+            .save({}, { method: 'insert', transacting: trx });
       }
     });
   } catch (error) {
