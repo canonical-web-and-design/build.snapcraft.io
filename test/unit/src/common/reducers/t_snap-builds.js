@@ -1,67 +1,90 @@
 import expect from 'expect';
 
-import { snapBuilds, snapBuildsInitialStatus } from '../../../../../src/common/reducers/snap-builds';
+import { getAnnotatedBuilds, snapBuilds, snapBuildsInitialStatus } from '../../../../../src/common/reducers/snap-builds';
 import * as ActionTypes from '../../../../../src/common/actions/snap-builds';
 
-import { snapBuildFromAPI } from '../../../../../src/common/helpers/snap-builds';
+const SNAP_BUILDS = [{
+  'can_be_rescored': false,
+  'builder_link': 'https://api.launchpad.net/devel/builders/lgw01-11',
+  'datebuilt': '2016-11-09T17:08:36.317805+00:00',
+  'distro_arch_series_link': 'https://api.launchpad.net/devel/ubuntu/xenial/amd64',
+  'snap_link': 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2',
+  'duration': '0:02:36.314039',
+  'can_be_cancelled': false,
+  'title': 'amd64 build of godd-test-2 snap package in ubuntu xenial-updates',
+  'buildstate': 'Currently building',
+  'requester_link': 'https://api.launchpad.net/devel/~cjwatson',
+  'http_etag': '\'d4a5173d51d6525b6d07709306bcfd65dbb68c5c-303718749dd6021eaf21d1a9eb4ae538de800de2\'',
+  'score': null,
+  'self_link': 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2/+build/9590',
+  'date_started': '2016-11-09T17:06:00.003766+00:00',
+  'resource_type_link': 'https://api.launchpad.net/devel/#snap_build',
+  'build_log_url': 'https://launchpad.net/~cjwatson/+snap/godd-test-2/+build/9590/+files/buildlog_snap_ubuntu_xenial_amd64_godd-test-2_BUILDING.txt.gz',
+  'pocket': 'Updates',
+  'dependencies': null,
+  'date_first_dispatched': '2016-11-09T17:06:00.003766+00:00',
+  'distribution_link': 'https://api.launchpad.net/devel/ubuntu',
+  'distro_series_link': 'https://api.launchpad.net/devel/ubuntu/xenial',
+  'web_link': 'https://launchpad.net/~cjwatson/+snap/godd-test-2/+build/9590',
+  'datecreated': '2016-11-09T17:05:52.436792+00:00',
+  'archive_link': 'https://api.launchpad.net/devel/ubuntu/+archive/primary',
+  'upload_log_url': null
+}, {
+  'can_be_rescored': false,
+  'builder_link': 'https://api.launchpad.net/devel/builders/lgw01-06',
+  'datebuilt': '2016-06-06T16:44:15.404592+00:00',
+  'distro_arch_series_link': 'https://api.launchpad.net/devel/ubuntu/xenial/amd64',
+  'snap_link': 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2',
+  'duration': '0:03:21.345313',
+  'can_be_cancelled': false,
+  'title': 'amd64 build of godd-test-2 snap package in ubuntu xenial-updates',
+  'buildstate': 'Failed to build',
+  'requester_link': 'https://api.launchpad.net/devel/~cjwatson',
+  'http_etag': '\'8e0a4c14356c8028f2b9ccb77312222ad045b388-b02297890f0ad92c486cfc11f279f452cb8f7dcc\'',
+  'score': null,
+  'self_link': 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2/+build/1149',
+  'date_started': '2016-06-06T16:40:54.059279+00:00',
+  'resource_type_link': 'https://api.launchpad.net/devel/#snap_build',
+  'build_log_url': 'https://launchpad.net/~cjwatson/+snap/godd-test-2/+build/1149/+files/buildlog_snap_ubuntu_xenial_amd64_godd-test-2_BUILDING.txt.gz',
+  'pocket': 'Updates',
+  'dependencies': null,
+  'date_first_dispatched': '2016-06-06T16:40:54.059279+00:00',
+  'distribution_link': 'https://api.launchpad.net/devel/ubuntu',
+  'distro_series_link': 'https://api.launchpad.net/devel/ubuntu/xenial',
+  'web_link': 'https://launchpad.net/~cjwatson/+snap/godd-test-2/+build/1149',
+  'datecreated': '2016-06-06T16:40:51.698805+00:00',
+  'archive_link': 'https://api.launchpad.net/devel/ubuntu/+archive/primary',
+  'upload_log_url': null
+}];
+
+describe('getAnnotatedBuilds', () => {
+  const id = 'dummy/repo';
+
+  it('should return builds with annotations', () => {
+    const action = {
+      type: ActionTypes.FETCH_BUILDS_SUCCESS,
+      payload: {
+        id,
+        response: {
+          payload: {
+            builds: SNAP_BUILDS,
+            build_annotations: {
+              '9590': { reason: 'test-annotation-1' },
+              '1149': { reason: 'test-annotation-2' }
+            }
+          }
+        }
+      }
+    };
+
+    expect(getAnnotatedBuilds(action)[0]).toInclude({ reason: 'test-annotation-1' });
+    expect(getAnnotatedBuilds(action)[1]).toInclude({ reason: 'test-annotation-2' });
+  });
+});
 
 describe('snapBuilds reducers', () => {
   const initialState = {};
   const initialStatus = snapBuildsInitialStatus;
-
-  const SNAP_BUILDS = [{
-    'can_be_rescored': false,
-    'builder_link': 'https://api.launchpad.net/devel/builders/lgw01-11',
-    'datebuilt': '2016-11-09T17:08:36.317805+00:00',
-    'distro_arch_series_link': 'https://api.launchpad.net/devel/ubuntu/xenial/amd64',
-    'snap_link': 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2',
-    'duration': '0:02:36.314039',
-    'can_be_cancelled': false,
-    'title': 'amd64 build of godd-test-2 snap package in ubuntu xenial-updates',
-    'buildstate': 'Currently building',
-    'requester_link': 'https://api.launchpad.net/devel/~cjwatson',
-    'http_etag': '\'d4a5173d51d6525b6d07709306bcfd65dbb68c5c-303718749dd6021eaf21d1a9eb4ae538de800de2\'',
-    'score': null,
-    'self_link': 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2/+build/9590',
-    'date_started': '2016-11-09T17:06:00.003766+00:00',
-    'resource_type_link': 'https://api.launchpad.net/devel/#snap_build',
-    'build_log_url': 'https://launchpad.net/~cjwatson/+snap/godd-test-2/+build/9590/+files/buildlog_snap_ubuntu_xenial_amd64_godd-test-2_BUILDING.txt.gz',
-    'pocket': 'Updates',
-    'dependencies': null,
-    'date_first_dispatched': '2016-11-09T17:06:00.003766+00:00',
-    'distribution_link': 'https://api.launchpad.net/devel/ubuntu',
-    'distro_series_link': 'https://api.launchpad.net/devel/ubuntu/xenial',
-    'web_link': 'https://launchpad.net/~cjwatson/+snap/godd-test-2/+build/9590',
-    'datecreated': '2016-11-09T17:05:52.436792+00:00',
-    'archive_link': 'https://api.launchpad.net/devel/ubuntu/+archive/primary',
-    'upload_log_url': null
-  }, {
-    'can_be_rescored': false,
-    'builder_link': 'https://api.launchpad.net/devel/builders/lgw01-06',
-    'datebuilt': '2016-06-06T16:44:15.404592+00:00',
-    'distro_arch_series_link': 'https://api.launchpad.net/devel/ubuntu/xenial/amd64',
-    'snap_link': 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2',
-    'duration': '0:03:21.345313',
-    'can_be_cancelled': false,
-    'title': 'amd64 build of godd-test-2 snap package in ubuntu xenial-updates',
-    'buildstate': 'Failed to build',
-    'requester_link': 'https://api.launchpad.net/devel/~cjwatson',
-    'http_etag': '\'8e0a4c14356c8028f2b9ccb77312222ad045b388-b02297890f0ad92c486cfc11f279f452cb8f7dcc\'',
-    'score': null,
-    'self_link': 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2/+build/1149',
-    'date_started': '2016-06-06T16:40:54.059279+00:00',
-    'resource_type_link': 'https://api.launchpad.net/devel/#snap_build',
-    'build_log_url': 'https://launchpad.net/~cjwatson/+snap/godd-test-2/+build/1149/+files/buildlog_snap_ubuntu_xenial_amd64_godd-test-2_BUILDING.txt.gz',
-    'pocket': 'Updates',
-    'dependencies': null,
-    'date_first_dispatched': '2016-06-06T16:40:54.059279+00:00',
-    'distribution_link': 'https://api.launchpad.net/devel/ubuntu',
-    'distro_series_link': 'https://api.launchpad.net/devel/ubuntu/xenial',
-    'web_link': 'https://launchpad.net/~cjwatson/+snap/godd-test-2/+build/1149',
-    'datecreated': '2016-06-06T16:40:51.698805+00:00',
-    'archive_link': 'https://api.launchpad.net/devel/ubuntu/+archive/primary',
-    'upload_log_url': null
-  }];
 
   const id = 'dummy/repo';
 
@@ -141,7 +164,7 @@ describe('snapBuilds reducers', () => {
     });
 
     it('should store builds on fetch success', () => {
-      expect(snapBuilds(state, action)[id].builds).toEqual(SNAP_BUILDS.map(snapBuildFromAPI));
+      expect(snapBuilds(state, action)[id].builds).toEqual(getAnnotatedBuilds(action));
     });
 
     it('should store success state', () => {
@@ -181,7 +204,7 @@ describe('snapBuilds reducers', () => {
     });
 
     it('should prepend requested builds on success', () => {
-      const expected = SNAP_BUILDS.map(snapBuildFromAPI).concat(state[id].builds);
+      const expected = getAnnotatedBuilds(action).concat(state[id].builds);
       expect(snapBuilds(state, action)[id].builds).toEqual(expected);
     });
 

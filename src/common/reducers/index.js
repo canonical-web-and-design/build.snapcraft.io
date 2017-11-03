@@ -5,7 +5,7 @@ import * as betaNotification from './beta-notification';
 import * as repository from './repository';
 import * as repositories from './repositories';
 import * as authError from './auth-error';
-import * as snapBuilds from './snap-builds';
+import { snapBuilds } from './snap-builds';
 import * as snaps from './snaps';
 import * as user from './user';
 import * as auth from './auth';
@@ -20,7 +20,7 @@ const rootReducer = combineReducers({
   ...betaNotification,
   ...repositories,
   ...repository,
-  ...snapBuilds,
+  snapBuilds,
   ...snaps,
   ...user,
   ...nameOwnership,

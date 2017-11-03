@@ -29,10 +29,11 @@ export const BuildsList = (props) => {
     <Table>
       <Head>
         <Row>
-          <Header col="20">Number</Header>
-          <Header col="20">Architecture</Header>
-          <Header col="20">Duration</Header>
-          <Header col="40">Result</Header>
+          <Header col="15">Number</Header>
+          <Header col="15">Architecture</Header>
+          <Header col="15">Duration</Header>
+          <Header col="20">Build trigger</Header>
+          <Header col="35">Result</Header>
         </Row>
       </Head>
       <Body>

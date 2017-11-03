@@ -6,6 +6,39 @@ import { Row, Data } from '../vanilla/table-interactive';
 import { BuildStatusColours } from '../../helpers/snap-builds.js';
 import BuildStatus from '../build-status';
 
+import * as buildAnnotation from '../../helpers/build_annotation';
+
+import styles from './buildRow.css';
+
+const getBuildTriggerMessage = (repository, reason, commitId) => {
+  switch (reason) {
+    case buildAnnotation.BUILD_TRIGGERED_MANUALLY:
+      return 'Manual build';
+    case buildAnnotation.BUILD_TRIGGERED_BY_POLLER:
+      return 'Dependency change';
+    case buildAnnotation.BUILD_TRIGGERED_BY_WEBHOOK:
+      if (commitId) {
+        return (
+          <span>
+            Commit
+            {' '}
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href={`https://github.com/bartaz/snap-build-test/commit/${commitId}`}
+            >
+              <img className={ styles.commitIcon } src="https://assets.ubuntu.com/v1/95b0c093-git-commit.svg" alt="" />
+              { commitId.substring(0,7) }
+            </a>
+          </span>
+        );
+      }
+      return 'Unknown';
+    default:
+      return 'Unknown';
+  }
+};
+
 const BuildRow = (props) => {
 
   const {
@@ -16,7 +49,9 @@ const BuildRow = (props) => {
     duration,
     colour,
     statusMessage,
-    dateStarted
+    dateStarted,
+    reason,
+    commitId
   } = props;
 
   let humanDuration;
@@ -33,19 +68,22 @@ const BuildRow = (props) => {
 
   return (
     <Row key={ buildId }>
-      <Data col="20">
+      <Data col="15">
         { buildUrl
           ? <Link to={buildUrl}>{`#${buildId}`}</Link>
           : <span>{`#${buildId}`}</span>
         }
       </Data>
-      <Data col="20">
+      <Data col="15">
         {architecture}
       </Data>
-      <Data col="20">
+      <Data col="15">
         {humanDuration}
       </Data>
-      <Data col="40">
+      <Data col="20">
+        { getBuildTriggerMessage(repository, reason, commitId) }
+      </Data>
+      <Data col="35">
         <BuildStatus
           link={buildUrl}
           colour={colour}
@@ -70,7 +108,9 @@ BuildRow.propTypes = {
   colour: PropTypes.oneOf(Object.values(BuildStatusColours)),
   statusMessage: PropTypes.string,
   dateStarted: PropTypes.string,
-  duration: PropTypes.string
+  duration: PropTypes.string,
+  reason: PropTypes.string,
+  commitId: PropTypes.string
 };
 
 export default BuildRow;

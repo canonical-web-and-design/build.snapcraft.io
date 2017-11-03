@@ -1,12 +1,14 @@
 import expect from 'expect';
 
 import {
+  annotateSnapBuild,
   isBuildInProgress,
   snapBuildFromAPI,
   BuildStatusColours,
   UserFacingState
 } from '../../../../../src/common/helpers/snap-builds';
 
+import { BUILD_TRIGGER_UNKNOWN } from '../../../../../src/common/helpers/build_annotation';
 
 describe('snapBuildFromAPI helper', () => {
   const SNAP_BUILD_ENTRY = {
@@ -283,5 +285,32 @@ describe('isBuildInProgress', () => {
 
   it('should return false if build is not in progress', () => {
     expect(isBuildInProgress({ statusMessage: 'Failed to build' })).toBe(false);
+  });
+});
+
+describe('annotateSnapBuild', () => {
+  const TEST_ANNOTATIONS = {
+    '1234': { reason: 'test1234' },
+    '1235': { reason: 'test1235' }
+  };
+
+  it('should return a function', () => {
+    expect(annotateSnapBuild()).toBeA('function');
+  });
+
+  context('returned function', () => {
+    let annotate;
+
+    beforeEach(() => {
+      annotate = annotateSnapBuild(TEST_ANNOTATIONS);
+    });
+
+    it('should annotate given build with given reason', () => {
+      expect(annotate({ buildId: '1234' }).reason).toBe('test1234');
+    });
+
+    it('should annotate given build with default reason if reason is invalid', () => {
+      expect(annotate({ buildId: '4321' }).reason).toBe(BUILD_TRIGGER_UNKNOWN);
+    });
   });
 });

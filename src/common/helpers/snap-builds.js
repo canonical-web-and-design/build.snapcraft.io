@@ -24,6 +24,8 @@
 //   duration: '0:02:00.124039' // 'duration'
 // };
 
+import { BUILD_TRIGGER_UNKNOWN } from './build_annotation';
+
 export const BuildStatusColours = {
   BLUE: 'blue',
   GREEN: 'green',
@@ -210,6 +212,8 @@ export function snapBuildFromAPI(entry) {
 
     architecture: entry.arch_tag,
 
+    commitId: entry.revision_id,
+
     statusMessage,
     colour,
     icon,
@@ -231,3 +235,12 @@ export function snapBuildFromAPI(entry) {
 export function isBuildInProgress(build) {
   return build.statusMessage === 'In progress' || build.statusMessage === 'Building soon';
 }
+
+export const annotateSnapBuild = (buildAnnotations = {}) => {
+  return (build) => {
+    return {
+      ...build,
+      reason: buildAnnotations[build.buildId] ? buildAnnotations[build.buildId].reason : BUILD_TRIGGER_UNKNOWN
+    };
+  };
+};

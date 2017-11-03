@@ -1,5 +1,10 @@
 import * as ActionTypes from '../actions/snap-builds';
-import { snapBuildFromAPI } from '../helpers/snap-builds';
+import { snapBuildFromAPI, annotateSnapBuild } from '../helpers/snap-builds';
+
+export const getAnnotatedBuilds = (action) => {
+  const payload = action.payload.response.payload;
+  return payload.builds.map(snapBuildFromAPI).map(annotateSnapBuild(payload.build_annotations));
+};
 
 export const snapBuildsInitialStatus = {
   isFetching: false,
@@ -37,7 +42,7 @@ export function snapBuilds(state = {}, action) {
           ...state[action.payload.id],
           isFetching: false,
           success: true,
-          builds: action.payload.response.payload.builds.map(snapBuildFromAPI),
+          builds: getAnnotatedBuilds(action),
           error: null
         }
       };
@@ -48,7 +53,7 @@ export function snapBuilds(state = {}, action) {
           ...state[action.payload.id],
           isFetching: false,
           success: true,
-          builds: action.payload.response.payload.builds.map(snapBuildFromAPI).concat(state[action.payload.id].builds),
+          builds: getAnnotatedBuilds(action).concat(state[action.payload.id].builds),
           error: null
         }
       };

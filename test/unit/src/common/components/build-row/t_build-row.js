@@ -4,7 +4,8 @@ import { shallow } from 'enzyme';
 import { Link } from 'react-router';
 
 import BuildRow from '../../../../../../src/common/components/build-row';
-import { Row } from '../../../../../../src/common/components/vanilla/table-interactive';
+import { Row, Data } from '../../../../../../src/common/components/vanilla/table-interactive';
+import { BUILD_TRIGGER_UNKNOWN } from '../../../../../../src/common/helpers/build_annotation';
 
 describe('<BuildRow />', function() {
   const TEST_BUILD = {
@@ -14,13 +15,23 @@ describe('<BuildRow />', function() {
     colour: 'green',
     statusMessage: 'Build test status',
     dateStarted: '2017-03-07T12:29:45.297305+00:00',
-    duration: '0:01:24.425045'
+    duration: '0:01:24.425045',
+    reason: BUILD_TRIGGER_UNKNOWN
   };
   const TEST_REPO = {
     fullName: 'anowner/aname'
   };
 
   let element;
+
+  it('should display build reason column', () => {
+    element = shallow(<BuildRow repository={TEST_REPO} {...TEST_BUILD} />);
+
+    expect(element.find('Data').length).toBe(5);
+
+    const column = shallow(element.find(Data).get(3));
+    expect(column.html()).toInclude('Unknown');
+  });
 
   context('when build log is available', () => {
     beforeEach(() => {
