@@ -12,7 +12,7 @@ from charmhelpers.core.host import restart_on_change
 from charmhelpers.core.templating import render
 from charms.apt import queue_install
 from charms.leadership import leader_set
-from charms.reactive import when, when_not, set_state
+from charms.reactive import remove_state, set_state, when, when_not
 from ols.base import check_port, code_dir, logs_dir, service_name, user
 from ols.http import port
 
@@ -213,7 +213,7 @@ def install_custom_nodejs():
 
 @when('service.configured')
 @when('leadership.is_leader')
-@when_not('leadership.set.poller_enabled')
+@when_not('service.poller_enabled')
 def setup_poller():
     hookenv.log('Enabling poller ...')
 
@@ -230,7 +230,7 @@ def setup_poller():
 
     hookenv.log('Poller cron enabled!')
     hookenv.status_set('active', 'systemd unit configured and poller enabled')
-    leader_set(poller_enabled=True)
+    set_state('service.poller_enabled')
 
 
 @when('service.configured')
@@ -244,3 +244,4 @@ def destroy_poller():
 
     hookenv.log('Poller cron removed')
     hookenv.status_set('active', 'systemd unit configured and poller disabled')
+    remove_state('service.poller_enabled')
