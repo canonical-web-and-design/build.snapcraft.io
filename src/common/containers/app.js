@@ -5,8 +5,6 @@ import Helmet from 'react-helmet';
 import Header from '../components/header';
 import Footer from '../components/footer';
 
-import BetaNotificationTrigger from '../components/beta-notification/trigger';
-
 export class App extends Component {
   render() {
     return (
@@ -19,7 +17,6 @@ export class App extends Component {
             { 'name': 'description', 'content': 'build.snapcraft.io' },
           ]}
         />
-        <BetaNotificationTrigger />
         <Header
           authenticated={this.props.auth.authenticated}
           user={this.props.user}
