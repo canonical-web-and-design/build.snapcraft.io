@@ -25,7 +25,7 @@ const getBuildTriggerMessage = (repository, reason, commitId) => {
             <a
               target="_blank"
               rel="noopener noreferrer"
-              href={`https://github.com/bartaz/snap-build-test/commit/${commitId}`}
+              href={`${repository.url}/commit/${commitId}`}
             >
               <img className={ styles.commitIcon } src="https://assets.ubuntu.com/v1/95b0c093-git-commit.svg" alt="" />
               { commitId.substring(0,7) }
@@ -33,7 +33,7 @@ const getBuildTriggerMessage = (repository, reason, commitId) => {
           </span>
         );
       }
-      return 'Unknown';
+      return 'Commit';
     default:
       return 'Unknown';
   }

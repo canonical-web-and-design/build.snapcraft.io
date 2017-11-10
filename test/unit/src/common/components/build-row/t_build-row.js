@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 
 import BuildRow from '../../../../../../src/common/components/build-row';
 import { Row, Data } from '../../../../../../src/common/components/vanilla/table-interactive';
-import { BUILD_TRIGGER_UNKNOWN } from '../../../../../../src/common/helpers/build_annotation';
+import { BUILD_TRIGGER_UNKNOWN, BUILD_TRIGGERED_BY_WEBHOOK } from '../../../../../../src/common/helpers/build_annotation';
 
 describe('<BuildRow />', function() {
   const TEST_BUILD = {
@@ -31,6 +31,39 @@ describe('<BuildRow />', function() {
 
     const column = shallow(element.find(Data).get(3));
     expect(column.html()).toInclude('Unknown');
+  });
+
+  context('when build was triggered by webhook', () => {
+    it('should display commit as build reason', () => {
+      const build = {
+        ...TEST_BUILD,
+        reason: BUILD_TRIGGERED_BY_WEBHOOK
+      };
+
+      element = shallow(<BuildRow repository={TEST_REPO} {...build} />);
+
+      expect(element.find('Data').length).toBe(5);
+
+      const column = shallow(element.find(Data).get(3));
+      expect(column.html()).toInclude('Commit');
+    });
+
+    it('should display commit as build reason with link to GitHub', () => {
+      const build = {
+        ...TEST_BUILD,
+        reason: BUILD_TRIGGERED_BY_WEBHOOK,
+        commitId: 'ab1234'
+      };
+
+      element = shallow(<BuildRow repository={TEST_REPO} {...build} />);
+
+      expect(element.find('Data').length).toBe(5);
+
+      const column = shallow(element.find(Data).get(3));
+      expect(column.html()).toInclude('Commit');
+      expect(column.find('a').length).toBe(1);
+      expect(column.html()).toInclude('ab1234');
+    });
   });
 
   context('when build log is available', () => {
