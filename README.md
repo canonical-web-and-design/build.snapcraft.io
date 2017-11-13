@@ -4,10 +4,10 @@ Snapcraft Build site.
 
 ## Local development
 
-First, make sure all dependencies are installed:
+First, make sure all dependencies are installed, you will need the version 6.11.3 of node:
 
 ``` bash
-npm install
+$ npm install
 ```
 
 ### Pre-requisites
@@ -20,24 +20,28 @@ Go and [register a new OAuth application](https://github.com/settings/applicatio
 
 Once you've created the application, you should be given the client id and the client secret. **Make a note of these**.
 
+##### [Optional] GitHub token
 Additionally, if the intention is to run the GitHub repository poller (`npm run poll-repositories`), a API token should be acquired so the API calls are submitted to an acceptable rate-limit (5k req/h instead of 60 req/h for anonymous access)::
 
-  curl -s -u '<GH_USER>' https://api.github.com/authorizations \
-    -H 'Content-Type: application/json' \
-    -H 'X-GitHub-OTP: <GH 2FA CODE IF ENABLED>' \
-    -d '{"client_id": "<CLIENT-ID>", \
-         "client_secret": "<CLIENT-SECRET>", \
-	 "note": "Build.s.io poller token"}' | jq '.token' -r
+```bash
+curl -s -u '<GH_USER>' https://api.github.com/authorizations \
+  -H 'Content-Type: application/json' \
+  -H 'X-GitHub-OTP: <GH 2FA CODE IF ENABLED>' \
+  -d '{"client_id": "<CLIENT-ID>", \
+       "client_secret": "<CLIENT-SECRET>", \
+       "note": "Build.s.io poller token"}' | jq '.token' -r
+```
 
 `curl` will ask for you GitHub password (basic-auth) and acquire a 40-char authorization token. Make note of it, it should be set in the running environment as `GITHUB_AUTH_CLIENT_TOKEN`.
-
 
 #### Launchpad
 
 To connect to Launchpad, you need to set up a **username**, a **consumer key** and obtain an **API token** and an **API token secret**::
 
-  ./scripts/create-launchpad-credentials
-  ...
+```bash
+$ sudo apt install python-launchpadlib
+$ ./scripts/create-launchpad-credentials
+```
 
 It will print the details needed in the next section, for filling your environment file.
 
