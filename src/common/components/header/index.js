@@ -25,6 +25,7 @@ export default class Header extends Component {
                   </span>
                 }
                 <a
+                  href="/auth/logout"
                   className={ styles.link }
                   onClick={ this.onLogoutClick.bind(this) }
                 >
