@@ -1,6 +1,7 @@
 import db from '../db';
-import updateGitHubUsersTotal from './github-users';
+import updateBuildAnnotationTotal from './build-annotation';
 import updateDeveloperUptake from './developer-uptake';
+import updateGitHubUsersTotal from './github-users';
 
 let existingInterval = null;
 
@@ -8,6 +9,7 @@ function updateAllMetrics() {
   return db.transaction(async (trx) => {
     await updateGitHubUsersTotal(trx);
     await updateDeveloperUptake(trx);
+    await updateBuildAnnotationTotal(trx);
   });
 }
 
