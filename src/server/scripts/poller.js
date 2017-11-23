@@ -205,6 +205,12 @@ export class GitSourcePart {
       var sourceUrl = part['source'];
       var sourceBranch = part['source-branch'];
       var sourceTag = part['source-tag'];
+      const { url } = parseGitHubRepoUrl(sourceUrl);
+      if (sourceUrl.replace('.git', '') != url) {
+        logger.info(
+          `Not checking ${sourceUrl} as only top-level repos are supported`);
+        return;
+      }
       // TODO: figure out tag support:
       if (sourceTag) {
         logger.info(
