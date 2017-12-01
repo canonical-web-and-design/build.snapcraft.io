@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import session from 'express-session';
 import url from 'url';
 import path from 'path';
+import healthcheck from 'express-healthcheck';
 import promBundle from 'express-prom-bundle';
 import expressWinston from 'express-winston';
 import raven from 'raven';
@@ -62,6 +63,7 @@ app.use(metricsBundle);
 
 // routes
 app.use('/metrics', trustedNetworks, metricsBundle.metricsMiddleware);
+app.use('/_status/check', trustedNetworks, healthcheck());
 app.use(generateToken);
 app.use('/', routes.login);
 app.use('/api', routes.github);

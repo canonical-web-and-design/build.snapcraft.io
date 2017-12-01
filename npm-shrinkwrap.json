@@ -376,6 +376,9 @@
         }
       }
     },
+    "express-healthcheck": {
+      "version": "0.1.0"
+    },
     "express-prom-bundle": {
       "version": "2.1.0"
     },
