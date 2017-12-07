@@ -51,7 +51,7 @@ tmp
 version-info.txt
 
 # Environment variables
-.env
+.env.local
 environments/development.env
 
 # Development and test SQLite databases
