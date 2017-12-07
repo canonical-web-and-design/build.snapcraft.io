@@ -18,6 +18,7 @@ export default class Root extends Component {
     */
     history.listen((location) => {
       if (window.ga) {
+        window.ga('set', 'location', window.location.href);
         window.ga('set', 'page', location.pathname);
         window.ga('send', 'pageview');
       }
