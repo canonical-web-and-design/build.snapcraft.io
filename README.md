@@ -4,7 +4,7 @@ Snapcraft Build site.
 
 ## Local development
 
-First, make sure all dependencies are installed, you will need node@6 (for example version 6.11.3) and npm in version less then 5 (for example npm@3 from nvm or npm@4):
+First, make sure all dependencies are installed, you will need node@6 (for example version 6.11.3) and npm in version less then 4 (for example latest npm@3 which is 3.10.10):
 
 ``` bash
 $ npm install
