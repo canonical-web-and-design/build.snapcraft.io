@@ -46,6 +46,7 @@
     "classnames": "^2.2.5",
     "clipboard": "^1.6.1",
     "connect-memcached": "^0.2.0",
+    "cookie-policy": "^1.0.5",
     "css-modules-require-hook": "^4.0.5",
     "dotenv": "^2.0.0",
     "es6-promise": "^4.0.5",

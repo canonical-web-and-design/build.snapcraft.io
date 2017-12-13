@@ -4,6 +4,7 @@ import Helmet from 'react-helmet';
 
 import Header from '../components/header';
 import Footer from '../components/footer';
+import CookieNotification from '../components/cookie-notification';
 
 export class App extends Component {
   render() {
@@ -24,6 +25,7 @@ export class App extends Component {
         />
         { this.props.children }
         <Footer />
+        <CookieNotification />
       </div>
     );
   }
