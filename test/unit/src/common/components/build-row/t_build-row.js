@@ -88,6 +88,25 @@ describe('<BuildRow />', function() {
     });
   });
 
+  context('when build link is disabled', () => {
+    beforeEach(() => {
+      element = shallow(<BuildRow repository={TEST_REPO} {...TEST_BUILD} isLinked={false} />);
+    });
+
+    it('should render Row', () => {
+      expect(element.type()).toBe(Row);
+    });
+
+    it('should not contain Link to build page', () => {
+      expect(element.find(Link).length).toBe(0);
+    });
+
+    it('should contain BuildStatus not linked to build page', () => {
+      expect(element.find('BuildStatus').length).toBe(1);
+      expect(element.find('BuildStatus').prop('link')).toBe(null);
+    });
+  });
+
   context('when build log is not yet available', () => {
     beforeEach(() => {
       const buildWithoutLog = {
