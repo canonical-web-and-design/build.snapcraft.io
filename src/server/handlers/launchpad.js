@@ -431,20 +431,39 @@ const initializeMetrics = async (trx, gitHubId, snaps) => {
       row.set({ names_registered: namesRegistered });
     }
     if (rowData.builds_requested === undefined ||
-        rowData.builds_requested === null) {
+        rowData.builds_requested === null ||
+        rowData.builds_released === undefined ||
+        rowData.builds_released === null) {
       // This is potentially quite an expensive piece of initialization, but
       // only the first time that a user who's been using the site since
       // before this code landed comes back, so some one-time expense is
       // tolerable.
       try {
         let buildsRequested = 0;
+        let buildsReleased = 0;
         for (const snap of snaps) {
           const builds = await getLaunchpad().get(
             snap.builds_collection_link
           );
           buildsRequested += builds.total_size;
+          if (rowData.builds_released === undefined ||
+              rowData.builds_released === null) {
+            // https://github.com/babel/babel-eslint/issues/415
+            for await (const build of builds) { // eslint-disable-line semi
+              if (build.store_upload_status === 'Uploaded') {
+                buildsReleased += 1;
+              }
+            }
+          }
         }
-        row.set({ builds_requested: buildsRequested });
+        if (rowData.builds_requested === undefined ||
+            rowData.builds_requested === null) {
+          row.set({ builds_requested: buildsRequested });
+        }
+        if (rowData.builds_released === undefined ||
+            rowData.builds_released === null) {
+          row.set({ builds_released: buildsReleased });
+        }
       } catch (error) {
         logger.error(`Failed to fetch builds from Launchpad: ${error}`);
       }

@@ -539,7 +539,8 @@ describe('The Launchpad API endpoint', () => {
               entries: [
                 {
                   resource_type_link: `${lp_api_url}/devel/#snap_build`,
-                  self_link: `${builds_link.replace(/builds$/, '')}/+build/1`
+                  self_link: `${builds_link.replace(/builds$/, '')}/+build/1`,
+                  store_upload_status: 'Uploaded'
                 },
                 {
                   resource_type_link: `${lp_api_url}/devel/#snap_build`,
@@ -648,7 +649,8 @@ describe('The Launchpad API endpoint', () => {
           snaps_added: 4,
           snaps_removed: 2,
           names_registered: 2,
-          builds_requested: 8
+          builds_requested: 8,
+          builds_released: 6
         });
         await apiResponse;
         await dbUser.refresh();
@@ -656,7 +658,8 @@ describe('The Launchpad API endpoint', () => {
           snaps_added: 4,
           snaps_removed: 2,
           names_registered: 2,
-          builds_requested: 8
+          builds_requested: 8,
+          builds_released: 6
         });
       });
 
@@ -669,7 +672,8 @@ describe('The Launchpad API endpoint', () => {
           snaps_added: 1,
           snaps_removed: 0,
           names_registered: 1,
-          builds_requested: 2
+          builds_requested: 2,
+          builds_released: 1
         });
       });
 
@@ -899,7 +903,8 @@ describe('The Launchpad API endpoint', () => {
               entries: [
                 {
                   resource_type_link: `${lp_api_url}/devel/#snap_build`,
-                  self_link: `${builds_link.replace(/builds$/, '')}/+build/1`
+                  self_link: `${builds_link.replace(/builds$/, '')}/+build/1`,
+                  store_upload_status: 'Uploaded'
                 },
                 {
                   resource_type_link: `${lp_api_url}/devel/#snap_build`,
@@ -945,7 +950,8 @@ describe('The Launchpad API endpoint', () => {
           snaps_added: 4,
           snaps_removed: 2,
           names_registered: 2,
-          builds_requested: 8
+          builds_requested: 8,
+          builds_released: 6
         });
         await apiResponse;
         await dbUser.refresh();
@@ -953,7 +959,8 @@ describe('The Launchpad API endpoint', () => {
           snaps_added: 4,
           snaps_removed: 2,
           names_registered: 2,
-          builds_requested: 8
+          builds_requested: 8,
+          builds_released: 6
         });
       });
 
@@ -966,7 +973,8 @@ describe('The Launchpad API endpoint', () => {
           snaps_added: 1,
           snaps_removed: 0,
           names_registered: 1,
-          builds_requested: 2
+          builds_requested: 2,
+          builds_released: 1
         });
       });
 
