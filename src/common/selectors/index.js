@@ -43,7 +43,7 @@ export const hasNoRegisteredNames = createSelector(
 export const hasNoConfiguredSnaps = createSelector(
   [getSnapsIndex, getSnaps],
   (ids, snaps) => {
-    return !ids.some((id) => snaps[id].snapcraftData);
+    return !ids.some((id) => snaps[id].snapcraftData && !snaps[id].snapcraftData.error);
   }
 );
 
@@ -122,7 +122,7 @@ export const snapsWithRegisteredNameAndSnapcraftData = createSelector(
   [getSnapsIndex, getSnaps],
   (ids, snaps) => {
     return ids.map((id) => snaps[id]).filter((snap) => {
-      return snap.storeName && snap.snapcraftData;
+      return snap.storeName && snap.snapcraftData && !snap.snapcraftData.error;
     });
   }
 );
@@ -134,7 +134,7 @@ export const snapsWithRegisteredNameAndNoSnapcraftData = createSelector(
   [getSnapsIndex, getSnaps],
   (ids, snaps) => {
     return ids.map((id) => snaps[id]).filter((snap) => {
-      return snap.storeName && !snap.snapcraftData;
+      return snap.storeName && (!snap.snapcraftData || snap.snapcraftData.error);
     });
   }
 );

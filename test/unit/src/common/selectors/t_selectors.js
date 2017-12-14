@@ -26,15 +26,15 @@ describe('selectors', function() {
 
   const stateWithNoName = {
     snaps: {
-      ids: ['https:github.com/anowner/aname', 'https:github.com/anowner/aname-i']
+      ids: ['https://github.com/anowner/aname', 'https://github.com/anowner/aname-i']
     },
     entities: {
       snaps: {
-        'https:github.com/anowner/aname': {
-          gitRepoUrl: 'https:github.com/anowner/aname'
+        'https://github.com/anowner/aname': {
+          gitRepoUrl: 'https://github.com/anowner/aname'
         },
-        'https:github.com/anowner/aname-i': {
-          gitRepoUrl: 'https:github.com/anowner/aname-i'
+        'https://github.com/anowner/aname-i': {
+          gitRepoUrl: 'https://github.com/anowner/aname-i'
         }
       }
     }
@@ -42,13 +42,13 @@ describe('selectors', function() {
 
   const stateWithName = {
     snaps: {
-      ids: ['https:github.com/anowner/aname']
+      ids: ['https://github.com/anowner/aname']
     },
     entities: {
       snaps: {
-        'https:github.com/anowner/aname': {
+        'https://github.com/anowner/aname': {
           storeName: 'bsi-test-ii',
-          gitRepoUrl: 'https:github.com/anowner/aname'
+          gitRepoUrl: 'https://github.com/anowner/aname'
         }
       }
     }
@@ -56,14 +56,29 @@ describe('selectors', function() {
 
   const stateWithSnapcraftData = {
     snaps: {
-      ids: ['https:github.com/anowner/aname']
+      ids: ['https://github.com/anowner/aname']
     },
     entities: {
       snaps: {
-        'https:github.com/anowner/aname': {
+        'https://github.com/anowner/aname': {
           storeName: 'bsi-test-ii',
           snapcraftData: { name: 'bsi-test-ii' },
-          gitRepoUrl: 'https:github.com/anowner/aname'
+          gitRepoUrl: 'https://github.com/anowner/aname'
+        }
+      }
+    }
+  };
+
+  const stateWithSnapcraftDataError = {
+    snaps: {
+      ids: ['https://github.com/anowner/aname']
+    },
+    entities: {
+      snaps: {
+        'https://github.com/anowner/aname': {
+          storeName: 'bsi-test-ii',
+          snapcraftData: { error: 'Some error' },
+          gitRepoUrl: 'https://github.com/anowner/aname'
         }
       }
     }
@@ -112,6 +127,10 @@ describe('selectors', function() {
       expect(hasNoConfiguredSnaps(stateWithNoName)).toBe(true);
     });
 
+    it('should be true when error snapcraft data in state', function() {
+      expect(hasNoConfiguredSnaps(stateWithSnapcraftDataError)).toBe(true);
+    });
+
     it('should be false when snapcraft data is in state', function() {
       expect(hasNoConfiguredSnaps(stateWithSnapcraftData)).toBe(false);
     });
@@ -146,17 +165,22 @@ describe('selectors', function() {
     const stateWithNameAndSnapcraftData = {
       snaps: {
         ids: [
-          'https:github.com/anowner/aname',
-          'https:github.com/anowner/aname-i'
+          'https://github.com/anowner/aname',
+          'https://github.com/anowner/aname-i',
+          'https://github.com/anowner/aname-ii'
         ]
       },
       entities: {
         snaps: {
-          'https:github.com/anowner/aname': {
-            storeName: 'bsi-test-ii',
-            snapcraftData: { name: 'bsi-test-ii' }
+          'https://github.com/anowner/aname': {
+            storeName: 'bsi-test',
+            snapcraftData: { name: 'bsi-test' }
           },
-          'https:github.com/anowner/aname-i': {}
+          'https://github.com/anowner/aname-i': {},
+          'https://github.com/anowner/aname-ii': {
+            storeName: 'bsi-test-ii',
+            snapcraftData: { error: 'Some error' }
+          }
         }
       }
     };
@@ -169,8 +193,17 @@ describe('selectors', function() {
       const snaps = snapsWithRegisteredNameAndSnapcraftData(stateWithNameAndSnapcraftData);
       expect(snaps.length).toBe(1);
       expect(snaps).toInclude({
+        storeName: 'bsi-test',
+        snapcraftData: { name: 'bsi-test' }
+      });
+    });
+
+    it('should not include snap with error in snapcraft data', function() {
+      const snaps = snapsWithRegisteredNameAndSnapcraftData(stateWithNameAndSnapcraftData);
+      expect(snaps.length).toBe(1);
+      expect(snaps).toNotInclude({
         storeName: 'bsi-test-ii',
-        snapcraftData: { name: 'bsi-test-ii' }
+        snapcraftData: { error: 'Some error' }
       });
     });
   });
@@ -179,18 +212,23 @@ describe('selectors', function() {
     const stateWithNameAndNoSnapcraftData = {
       snaps: {
         ids: [
-          'https:github.com/anowner/aname',
-          'https:github.com/anowner/aname-i'
+          'https://github.com/anowner/aname',
+          'https://github.com/anowner/aname-i',
+          'https://github.com/anowner/aname-ii'
         ]
       },
       entities: {
         snaps: {
-          'https:github.com/anowner/aname': {
-            storeName: 'bsi-test-ii',
-            snapcraftData: { name: 'bsi-test-ii' }
+          'https://github.com/anowner/aname': {
+            storeName: 'bsi-test',
+            snapcraftData: { name: 'bsi-test' }
           },
-          'https:github.com/anowner/aname-i': {
-            storeName: 'bsi-test-iii'
+          'https://github.com/anowner/aname-i': {
+            storeName: 'bsi-test-i'
+          },
+          'https://github.com/anowner/aname-ii': {
+            storeName: 'bsi-test-ii',
+            snapcraftData: { error: 'Some error' }
           }
         }
       }
@@ -202,9 +240,18 @@ describe('selectors', function() {
 
     it('should include snap with name and no snapcraft data', function() {
       const snaps = snapsWithRegisteredNameAndNoSnapcraftData(stateWithNameAndNoSnapcraftData);
-      expect(snaps.length).toBe(1);
+      expect(snaps.length).toBe(2);
       expect(snaps).toInclude({
-        storeName: 'bsi-test-iii'
+        storeName: 'bsi-test-i'
+      });
+    });
+
+    it('should include snap with name and error snapcraft data', function() {
+      const snaps = snapsWithRegisteredNameAndNoSnapcraftData(stateWithNameAndNoSnapcraftData);
+      expect(snaps.length).toBe(2);
+      expect(snaps).toInclude({
+        storeName: 'bsi-test-ii',
+        snapcraftData: { error: 'Some error' }
       });
     });
   });
