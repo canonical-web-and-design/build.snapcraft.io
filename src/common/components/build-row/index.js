@@ -51,7 +51,8 @@ const BuildRow = (props) => {
     statusMessage,
     dateStarted,
     reason,
-    commitId
+    commitId,
+    isLinked
   } = props;
 
   let humanDuration;
@@ -62,7 +63,7 @@ const BuildRow = (props) => {
   }
 
   // only link to builds that have log available
-  const buildUrl = buildLogUrl
+  const buildUrl = (isLinked && buildLogUrl)
     ? `/user/${repository.fullName}/${buildId}`
     : null;
 
@@ -95,6 +96,10 @@ const BuildRow = (props) => {
   );
 };
 
+BuildRow.defaultProps = {
+  isLinked: true
+};
+
 BuildRow.propTypes = {
   // params from URL
   repository: PropTypes.shape({
@@ -110,7 +115,8 @@ BuildRow.propTypes = {
   dateStarted: PropTypes.string,
   duration: PropTypes.string,
   reason: PropTypes.string,
-  commitId: PropTypes.string
+  commitId: PropTypes.string,
+  isLinked: PropTypes.bool
 };
 
 export default BuildRow;

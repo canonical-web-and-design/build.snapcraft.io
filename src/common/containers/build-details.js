@@ -101,7 +101,11 @@ class BuildDetails extends Component {
                 </Row>
               </Head>
               <Body>
-                <BuildRow repository={repository} {...build} />
+                <BuildRow
+                  repository={repository}
+                  {...build}
+                  isLinked={false} // disable link to the same build we are already looking at
+                />
               </Body>
             </Table>
             {
