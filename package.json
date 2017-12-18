@@ -6,6 +6,7 @@
   "scripts": {
     "start": "npm run migrate:latest && node ./webpack/webpack-dev-server",
     "start-build": "node dist/server/",
+    "serve": "[ -f .env.local ] || ./setup.sh; npm run start",
     "build": "./scripts/build.sh",
     "build:scripts": "babel --out-dir=dist src scripts/poller.js --copy-files",
     "build:vanilla-modules": "node-sass --include-path ./node_modules -o ./src/common/style/vanilla/css ./src/common/style/vanilla/",
