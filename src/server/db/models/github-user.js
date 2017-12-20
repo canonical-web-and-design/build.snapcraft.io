@@ -4,6 +4,7 @@ export default function register(db) {
    *   github_id: ID from GitHub
    *   name: display name from GitHub
    *   login: login name from GitHub
+   *   email: public email from GitHub
    *   created_at: creation date
    *   updated_at: update date
    *   last_login_at: last login date
