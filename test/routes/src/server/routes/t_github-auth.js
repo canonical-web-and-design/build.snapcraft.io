@@ -138,7 +138,7 @@ describe('The login route', () => {
         beforeEach(async () => {
           ghApi = nock(conf.get('GITHUB_API_ENDPOINT'))
             .get('/user')
-            .reply(200, { id: 123, login: 'anowner' })
+            .reply(200, { id: 123, login: 'anowner', email: 'test@email.com' })
             .get('/user/orgs')
             .reply(200, [{ login: 'org2' }]);
           setupInMemoryMemcached();
@@ -181,7 +181,8 @@ describe('The login route', () => {
             .fetch();
           expect(dbUser.serialize()).toMatch({
             github_id: 123,
-            login: 'anowner'
+            login: 'anowner',
+            email: 'test@email.com'
           });
         });
 

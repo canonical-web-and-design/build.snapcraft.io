@@ -95,6 +95,7 @@ export const verify = (req, res, next) => {
         }
         await dbUser.set({
           name: userResponse.body.name || null,
+          email: userResponse.body.email || null,
           login: userResponse.body.login,
           last_login_at: new Date()
         });
