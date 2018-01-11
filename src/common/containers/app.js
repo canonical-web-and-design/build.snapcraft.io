@@ -5,6 +5,9 @@ import Helmet from 'react-helmet';
 import Header from '../components/header';
 import Footer from '../components/footer';
 import CookieNotification from '../components/cookie-notification';
+import Notification from '../components/vanilla-modules/notification';
+
+import styles from './container.css';
 
 export class App extends Component {
   render() {
@@ -23,6 +26,11 @@ export class App extends Component {
           user={this.props.user}
           dispatch={this.props.dispatch}
         />
+        <div className={ styles.container }>
+          <Notification appearance='negative'>
+            The build farm is disabled pending maintenance; we do not yet have an ETA. We apologise for the inconvenience.
+          </Notification>
+        </div>
         { this.props.children }
         <Footer />
         <CookieNotification />
