@@ -30,7 +30,7 @@ export class App extends Component {
         <div className={ styles.container }>
           <Notification appearance='negative'>
             Due to maintenance on the build farm over the past couple of days there is a possible delay in your builds being processed.<br/>
-            Apologies for the incovenience and please bear with us while we work through the backlog.
+            Apologies for the inconvenience and please bear with us while we work through the backlog.
           </Notification>
         </div>
         {/* XXX */}
