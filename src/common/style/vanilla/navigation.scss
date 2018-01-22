@@ -1,0 +1,60 @@
+@import 'vanilla-framework/scss/_utilities_clearfix.scss';
+@import 'vanilla-framework/scss/_base_typography.scss';
+
+// Vanilla 1.5.0 default navigation is dark, so we are using --light navigation,
+// but we need to override background colour to white.
+$color-light: #FFF;
+
+@import 'vanilla-framework/scss/patterns_navigation.scss';
+
+@import 'vanilla-framework/scss/patterns_links.scss';
+@include vf-p-links;
+
+@include vf-p-navigation;
+
+// CUSTOM OVERRIDES
+
+.p-navigation--light {
+
+  .p-navigation__image {
+    display: block;
+  }
+
+  .p-navigation__links {
+    // custom hover styles
+    .p-navigation__link {
+      a:hover,
+      .is-selected {
+        background: darken($color-x-light, 10%);
+      }
+    }
+
+    // custom navigation non-link item for user name
+    .p-navigation__item {
+      @extend .p-navigation__link;
+      border-left: none;
+      display: none;
+
+      // only show user name in navigation when there is space for it
+      @media (min-width: 920px) {
+        display: block;
+      }
+
+      a:hover {
+        background: transparent;
+      }
+    }
+  }
+
+
+  // right aligned sign-in navigation
+  .p-navigation__links--right {
+    @extend .p-navigation__links;
+  }
+
+  @media (min-width: 769px) {
+    .p-navigation__links--right {
+      float: right;
+    }
+  }
+}

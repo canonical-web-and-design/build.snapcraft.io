@@ -3,7 +3,6 @@ import expect from 'expect';
 import { shallow } from 'enzyme';
 
 import Header from '../../../../../../src/common/components/header';
-import { Link } from 'react-router';
 
 describe('<Header />', function() {
   let element;
@@ -14,7 +13,7 @@ describe('<Header />', function() {
     });
 
     it('should render logo link', () => {
-      expect(element.findWhere(isLinkTo('/')).length).toBe(1);
+      expect(element.find({ href: 'https://snapcraft.io' }).length).toBe(1);
     });
 
     it('should render sign in link', () => {
@@ -33,7 +32,7 @@ describe('<Header />', function() {
     });
 
     it('should render logo link', () => {
-      expect(element.findWhere(isLinkTo('/')).length).toBe(1);
+      expect(element.find({ href: 'https://snapcraft.io' }).length).toBe(1);
     });
 
     it('should render user name', () => {
@@ -60,7 +59,3 @@ describe('<Header />', function() {
   });
 
 });
-
-const isLinkTo = (to) => {
-  return (element) => element.is(Link) && (element.prop('to') === to);
-};
