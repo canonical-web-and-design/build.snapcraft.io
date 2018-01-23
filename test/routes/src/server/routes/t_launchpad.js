@@ -1538,12 +1538,16 @@ describe('The Launchpad API endpoint', () => {
     let lp_api_url;
     let lp_snap_path;
     let lp_builds_path;
+    let lp_pending_builds_path;
+    let lp_completed_builds_path;
     let lp_snap_url;
 
     before(() => {
       lp_api_url = conf.get('LP_API_URL');
       lp_snap_path = `/devel/~${lp_snap_user}/+snap/${lp_snap_name}`;
       lp_builds_path = `${lp_snap_path}/builds`;
+      lp_pending_builds_path = `${lp_snap_path}/pending_builds`;
+      lp_completed_builds_path = `${lp_snap_path}/completed_builds`;
 
       lp_snap_url = `${lp_api_url}${lp_snap_path}`;
     });
@@ -1567,18 +1571,20 @@ describe('The Launchpad API endpoint', () => {
           .get(lp_snap_path)
           .reply(200, {
             name: lp_snap_name,
-            builds_collection_link: `${lp_api_url}${lp_builds_path}`
+            builds_collection_link: `${lp_api_url}${lp_builds_path}`,
+            pending_builds_collection_link:  `${lp_api_url}${lp_pending_builds_path}`,
+            completed_builds_collection_link:  `${lp_api_url}${lp_completed_builds_path}`
           });
 
         // when getting builds list (via builds_collection_link)
         nock(lp_api_url)
-          .get(lp_builds_path)
+          .get(lp_pending_builds_path)
           .query({
             'ws.start': 0,
             'ws.size': 10
           })
           .reply(200, {
-            total_size: 1,
+            total_size: 10,
             start: 0,
             entries: [ test_build ]
           });
@@ -1657,7 +1663,9 @@ describe('The Launchpad API endpoint', () => {
           .get(lp_snap_path)
           .reply(200, {
             name: lp_snap_name,
-            builds_collection_link: `${lp_api_url}${lp_builds_path}`
+            builds_collection_link: `${lp_api_url}${lp_builds_path}`,
+            pending_builds_collection_link:  `${lp_api_url}${lp_pending_builds_path}`,
+            completed_builds_collection_link:  `${lp_api_url}${lp_completed_builds_path}`
           });
       });
 
@@ -1668,12 +1676,37 @@ describe('The Launchpad API endpoint', () => {
       it('should default start to 0 and size to 10', (done) => {
         // when getting builds list (via builds_collection_link)
         const lp = nock(lp_api_url)
-          .get(lp_builds_path)
+          .get(lp_pending_builds_path)
           .query({
             'ws.start': 0,
             'ws.size': 10
           })
-          .reply(200,{ entries: [] });
+          .reply(200,{ total_size: 10, entries: [] });
+
+        supertest(app)
+          .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
+          .query({ snap: lp_snap_url })
+          .expect(200, (err) => {
+            lp.done();
+            done(err);
+          });
+      });
+
+      it('should fetch pending builds and then completed builds', (done) => {
+        const lp = nock(lp_api_url)
+          .get(lp_pending_builds_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 10
+          })
+          .reply(200,{ total_size: 5, entries: [] })
+          .get(lp_completed_builds_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 5
+          })
+          .reply(200,{ total_size: 5, entries: [] });
 
         supertest(app)
           .get('/launchpad/builds')
@@ -1688,7 +1721,7 @@ describe('The Launchpad API endpoint', () => {
       it('should pass start and size params to builds_collection_link call', (done) => {
         // when getting builds list (via builds_collection_link)
         const lp = nock(lp_api_url)
-          .get(lp_builds_path)
+          .get(lp_pending_builds_path)
           .query({
             'ws.start': 7,
             'ws.size': 42
@@ -1715,12 +1748,14 @@ describe('The Launchpad API endpoint', () => {
           .get(lp_snap_path)
           .reply(200, {
             name: lp_snap_name,
-            builds_collection_link: `${lp_api_url}${lp_builds_path}`
+            builds_collection_link: `${lp_api_url}${lp_builds_path}`,
+            pending_builds_collection_link:  `${lp_api_url}${lp_pending_builds_path}`,
+            completed_builds_collection_link:  `${lp_api_url}${lp_completed_builds_path}`
           });
 
         // when getting builds list (via builds_collection_link)
         nock(lp_api_url)
-          .get(lp_builds_path)
+          .get(lp_pending_builds_path)
           .query({
             'ws.start': 0,
             'ws.size': 10

@@ -673,9 +673,21 @@ export const authorizeSnap = async (req, res) => {
 };
 
 export async function internalGetSnapBuilds(snap, start = 0, size = 10) {
-  return await getLaunchpad().get(snap.builds_collection_link, {
+  const builds = await getLaunchpad().get(snap.pending_builds_collection_link, {
     start: start, size: size
   });
+
+  if (builds.total_size < size) {
+    const completed = await getLaunchpad().get(snap.completed_builds_collection_link, {
+      start: start,
+      size: size - builds.total_size // fetch only to fill the size
+    });
+
+    builds.entries = builds.entries.concat(completed.entries);
+    builds.total_size = builds.total_size + completed.total_size;
+  }
+
+  return builds;
 }
 
 export async function internaGetBuildAnnotations(builds) {

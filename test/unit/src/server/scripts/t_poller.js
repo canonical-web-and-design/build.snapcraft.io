@@ -99,6 +99,8 @@ describe('Poller script helpers', function() {
             owner_link: `/~${LP_API_USERNAME}`,
             self_link: `/~${LP_API_USERNAME}/+snap/a_snap`,
             builds_collection_link: `${LP_API_URL}/devel/~${LP_API_USERNAME}/+snap/a_snap/builds`,
+            pending_builds_collection_link: `${LP_API_URL}/devel/~${LP_API_USERNAME}/+snap/a_snap/pending_builds`,
+            completed_builds_collection_link: `${LP_API_URL}/devel/~${LP_API_USERNAME}/+snap/a_snap/completed_builds`,
             auto_build: true
           }]);
       });
@@ -110,7 +112,7 @@ describe('Poller script helpers', function() {
       it('gets skipped if built within the previous built window', async () => {
         const threshold = conf.get('POLLER_BUILD_THRESHOLD');
         const since = moment().utc().subtract(threshold - 1, 'hours');
-        lp.get(`/devel/~${LP_API_USERNAME}/+snap/a_snap/builds`)
+        lp.get(`/devel/~${LP_API_USERNAME}/+snap/a_snap/pending_builds`)
           .query({ 'ws.start': '0', 'ws.size': '1' })
           .reply(200, {
             entries: [{
@@ -126,7 +128,7 @@ describe('Poller script helpers', function() {
       it('gets checked, but not built if not changed', async () => {
         const threshold = conf.get('POLLER_BUILD_THRESHOLD');
         const since = moment().utc().subtract(threshold + 1, 'hours');
-        lp.get(`/devel/~${LP_API_USERNAME}/+snap/a_snap/builds`)
+        lp.get(`/devel/~${LP_API_USERNAME}/+snap/a_snap/pending_builds`)
           .query({ 'ws.start': '0', 'ws.size': '1' })
           .reply(200, {
             entries: [{
@@ -155,7 +157,7 @@ describe('Poller script helpers', function() {
 
         const threshold = conf.get('POLLER_BUILD_THRESHOLD');
         const since = moment().utc().subtract(threshold + 1, 'hours');
-        lp.get(`/devel/~${LP_API_USERNAME}/+snap/a_snap/builds`)
+        lp.get(`/devel/~${LP_API_USERNAME}/+snap/a_snap/pending_builds`)
           .query({ 'ws.start': '0', 'ws.size': '1' })
           .reply(200, {
             entries: [{
