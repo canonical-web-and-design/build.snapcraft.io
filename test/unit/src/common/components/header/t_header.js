@@ -39,10 +39,6 @@ describe('<Header />', function() {
       expect(element.html().indexOf('Hi, Joe Doe')).toBeGreaterThan(0);
     });
 
-    it('should render sign out link', () => {
-      expect(element.containsMatchingElement(<a>Sign out</a>)).toBe(true);
-    });
-
     context('when user has no name', () => {
       const user = {
         login: 'jdoe'
