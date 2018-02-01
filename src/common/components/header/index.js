@@ -47,9 +47,6 @@ export default class Header extends Component {
                   <li className={ style['p-navigation__item'] } role="menuitem">
                     <a>Hi, {user.name || user.login}</a>
                   </li>
-                  <li className={ style['p-navigation__link'] } role="menuitem">
-                    <a href="/auth/logout">Sign out</a>
-                  </li>
                 </ul>
               :
                 <ul className={ style['p-navigation__links--right']} role="menu">
