@@ -97,6 +97,17 @@
   text-align: center;
 }
 
+/* workaround for centering headings done with u-align in vanilla */
+.centeredText h1,
+.centeredText h2,
+.centeredText h3,
+.centeredText h4,
+.centeredText h5,
+.centeredText h6 {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .centeredImage {
   margin: 0 auto;
 }

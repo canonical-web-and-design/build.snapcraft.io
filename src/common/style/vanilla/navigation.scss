@@ -1,20 +1,16 @@
 @import 'vanilla-framework/scss/_utilities_clearfix.scss';
 @import 'vanilla-framework/scss/_base_typography.scss';
 
-// Vanilla 1.5.0 default navigation is dark, so we are using --light navigation,
-// but we need to override background colour to white.
-$color-light: #FFF;
-
-@import 'vanilla-framework/scss/patterns_navigation.scss';
-
+// for external links in navigation
 @import 'vanilla-framework/scss/patterns_links.scss';
 @include vf-p-links;
 
+@import 'vanilla-framework/scss/patterns_navigation.scss';
 @include vf-p-navigation;
 
 // CUSTOM OVERRIDES
 
-.p-navigation--light {
+.p-navigation {
 
   .p-navigation__image {
     display: block;
@@ -54,7 +50,7 @@ $color-light: #FFF;
 
   @media (min-width: 769px) {
     .p-navigation__links--right {
-      float: right;
+      margin-left: auto; // alight to right in flexbox parent
     }
   }
 }

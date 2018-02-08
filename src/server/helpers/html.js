@@ -87,6 +87,8 @@ export default class Html extends Component {
           {head.meta.toComponent()}
           {head.link.toComponent()}
           {head.script.toComponent()}
+          <link rel="icon" type="image/png" href="https://assets.ubuntu.com/v1/fdc99abe-ico_16px.png" sizes="16x16" />
+          <link rel="icon" type="image/png" href="https://assets.ubuntu.com/v1/0f3c662c-ico_32px.png" sizes="32x32" />
           <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:300,400" />
           <link rel="stylesheet" href={ assets.main.css } />
           {

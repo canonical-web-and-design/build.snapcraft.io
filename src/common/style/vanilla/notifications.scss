@@ -1,3 +1,5 @@
+@import 'vanilla-framework/scss/_base_typography.scss'; // p-max-width--long required
+
 @import 'vanilla-framework/scss/patterns_notifications.scss';
 
 @include vf-p-notification;
