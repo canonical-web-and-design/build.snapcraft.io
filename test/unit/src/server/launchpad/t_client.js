@@ -22,12 +22,16 @@ function checkAuthorization(val) {
     const parts = param.trim().split('=', 2);
     params[parts[0]] = decodeURIComponent(parts[1].replace(/^"(.*)"$/, '$1'));
   }
-  return (
+
+  console.log("OAuth params", params)
+  const match = (
     params['oauth_version'] === '1.0' &&
     params['oauth_consumer_key'] === 'consumer key' &&
     params['oauth_signature_method'] === 'PLAINTEXT' &&
     params['oauth_token'] === 'token key' &&
     params['oauth_signature'] === '&token%20secret');
+  console.log("match", match)
+  return match
 }
 
 describe('Launchpad', () => {
@@ -101,7 +105,7 @@ describe('Launchpad', () => {
     });
   });
 
-  describe('named_post', () => {
+  describe.only('named_post', () => {
     it('handles successful response', async () => {
       lp.post('/devel/people', { 'ws.op': 'newTeam' })
         .matchHeader('Authorization', checkAuthorization)
