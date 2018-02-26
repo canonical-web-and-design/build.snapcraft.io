@@ -38,6 +38,7 @@ describe('Launchpad', () => {
   let lp;
 
   beforeEach(() => {
+    console.log("NOCK LP", LP_API_URL);
     lp = nock(LP_API_URL)
       .defaultReplyHeaders({ 'Content-Type': 'application/json' });
   });
@@ -105,9 +106,11 @@ describe('Launchpad', () => {
     });
   });
 
+  // http://localhost:4000/launchpad/devel/people
+  // http://localhost:4000/launchpad/devel/people "ws.op=newTeam"
   describe.only('named_post', () => {
     it('handles successful response', async () => {
-      lp.post('/devel/people', { 'ws.op': 'newTeam' })
+      lp.post('/devel/people')
         .matchHeader('Authorization', checkAuthorization)
         .reply(200, { entry: { resource_type_link: 'foo' } });
 
