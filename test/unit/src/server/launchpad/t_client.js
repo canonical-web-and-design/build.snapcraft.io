@@ -110,7 +110,12 @@ describe('Launchpad', () => {
   // http://localhost:4000/launchpad/devel/people "ws.op=newTeam"
   describe.only('named_post', () => {
     it('handles successful response', async () => {
-      lp.post('/devel/people')
+      lp.post('/devel/people', (body) => {
+        // { 'ws.op': 'newTeam' }
+        console.log("body", body);
+        console.log("ws.op", body["ws.op"])
+        return body['ws.op'] === 'newTeam'
+      })
         .matchHeader('Authorization', checkAuthorization)
         .reply(200, { entry: { resource_type_link: 'foo' } });
 
