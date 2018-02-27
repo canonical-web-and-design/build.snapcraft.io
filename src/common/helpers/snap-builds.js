@@ -228,7 +228,8 @@ export function snapBuildFromAPI(entry) {
 
     storeRevision: entry.store_upload_revision,
     storeUploadStatus: entry.store_upload_status,
-    storeUploadErrorMessage: entry.store_upload_error_message
+    storeUploadErrorMessage: entry.store_upload_error_message,
+    storeUploadErrorMessages: entry.store_upload_error_messages,
   };
 }
 

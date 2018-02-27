@@ -11,7 +11,7 @@ import {
   HelpPromoteSnap
 } from '../components/help';
 import { HeadingOne, HeadingThree } from '../components/vanilla-modules/heading';
-import { IconSpinner } from '../components/vanilla-modules/icons';
+import { IconQuestion, IconSpinner } from '../components/vanilla-modules/icons';
 import Breadcrumbs, { BreadcrumbsLink } from '../components/vanilla-modules/breadcrumbs';
 import BetaNotification from '../components/beta-notification';
 import Notification from '../components/vanilla-modules/notification';
@@ -28,7 +28,8 @@ class BuildDetails extends Component {
     const buildFailed = (build.statusMessage === 'Failed to build');
     const buildFailedToUpload = (build.storeUploadStatus === 'Failed to upload'
                               || build.storeUploadStatus === 'Failed to release to channels');
-    const showBuildUploadErrorMessage = buildFailedToUpload && build.storeUploadErrorMessage;
+    const showBuildUploadErrorMessage = buildFailedToUpload && build.storeUploadErrorMessage && !build.storeUploadErrorMessages;
+    const showBuildUploadErrorMessages = buildFailedToUpload && build.storeUploadErrorMessages;
 
     let helpBox;
 
@@ -113,6 +114,26 @@ class BuildDetails extends Component {
               <div className={ styles.strip }>
                 <HeadingThree>Build failed to release</HeadingThree>
                 <Notification appearance='negative' status='error'>{ build.storeUploadErrorMessage }</Notification>
+              </div>
+            }
+            {
+              showBuildUploadErrorMessages &&
+              <div className={ styles.strip }>
+                <HeadingThree>Build failed to release</HeadingThree>
+                { build.storeUploadErrorMessages.map((error) => {
+                  if (error.link) {
+                    return (
+                      <Notification appearance='negative' status='error'>
+                        { error.message }
+                        &nbsp;
+                        <a href={ error.link } target="_blank" rel="noreferrer noopener">
+                          <IconQuestion />
+                        </a>
+                      </Notification>);
+                  } else {
+                    return <Notification appearance='negative' status='error'>{ error.message }</Notification>;
+                  }})
+                }
               </div>
             }
             <div className={ styles.strip }>
