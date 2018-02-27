@@ -103,7 +103,7 @@ describe('Launchpad', () => {
 
   describe('named_post', () => {
     it('handles successful response', async () => {
-      lp.post('/devel/people', { 'ws.op': 'newTeam' })
+      lp.post('/devel/people', { 'ws' : { 'op': 'newTeam' } })
         .matchHeader('Authorization', checkAuthorization)
         .reply(200, { entry: { resource_type_link: 'foo' } });
 
@@ -113,7 +113,7 @@ describe('Launchpad', () => {
     });
 
     it('handles factory response', async () => {
-      lp.post('/devel/people', { 'ws.op': 'newTeam', 'name': 'foo' })
+      lp.post('/devel/people', { 'ws': { 'op': 'newTeam' }, 'name': 'foo' })
         .matchHeader('Authorization', checkAuthorization)
         .reply(201, '', { 'Location': `${LP_API_URL}/devel/~foo` });
       lp.get('/devel/~foo')

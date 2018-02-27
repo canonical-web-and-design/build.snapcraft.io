@@ -103,7 +103,7 @@ describe('The Launchpad API endpoint', () => {
         beforeEach(() => {
           const lp_api_url = conf.get('LP_API_URL');
           nock(lp_api_url)
-            .post('/devel/+snaps', (body) => tmatch(body, { 'ws.op': 'new' }))
+            .post('/devel/+snaps', (body) => tmatch(body, { ws: { op: 'new' } }))
             .reply(
               400,
               'There is already a snap package with the same name and owner.');
@@ -161,7 +161,7 @@ describe('The Launchpad API endpoint', () => {
           lpApi = nock(lp_api_url);
           lpApi
             .post('/devel/+snaps', (body) => tmatch(body, {
-              'ws.op': 'new',
+              ws: { op: 'new' },
               git_repository_url: 'https://github.com/anowner/aname',
               auto_build: 'false',
               processors: [
@@ -185,7 +185,7 @@ describe('The Launchpad API endpoint', () => {
           hmac.update('aname');
           lpApi
             .post(`/devel/~test-user/+snap/${snapName}`, {
-              'ws.op': 'newWebhook',
+              ws: { op: 'newWebhook' },
               delivery_url: `${conf.get('BASE_URL')}/anowner/aname/` +
                             'webhook/notify',
               event_types: 'snap:build:0.1',
@@ -557,7 +557,7 @@ describe('The Launchpad API endpoint', () => {
         hmac.update('test-snap');
         lpApi
           .post('/devel/~another-user/+snap/test-snap', {
-            'ws.op': 'newWebhook',
+            ws: { op: 'newWebhook' },
             delivery_url: `${conf.get('BASE_URL')}/anowner/test-snap/` +
                           'webhook/notify',
             event_types: 'snap:build:0.1',
@@ -1398,7 +1398,7 @@ describe('The Launchpad API endpoint', () => {
               });
             lpScope
               .post('/devel/~test-user/+snap/test-snap', {
-                'ws.op': 'completeAuthorization',
+                ws: { op: 'completeAuthorization' },
                 'root_macaroon': 'dummy-macaroon'
               })
               .reply(200, 'null', {
@@ -1879,7 +1879,7 @@ describe('The Launchpad API endpoint', () => {
           .reply(200, { permissions: { admin: true } });
         api = nock(lp_api_url);
         api.post(`/devel${lp_snap_path}`, {
-          'ws.op': 'requestAutoBuilds'
+          ws: { op: 'requestAutoBuilds' }
         })
           .reply(200, [
             {

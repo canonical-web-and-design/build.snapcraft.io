@@ -22,7 +22,7 @@ describe('The WebHook API endpoint', () => {
   beforeEach(async () => {
     await db.model('BuildAnnotation').query().truncate();
   });
-  
+
   afterEach(() => {
     nock.cleanAll();
   });
@@ -160,7 +160,7 @@ describe('The WebHook API endpoint', () => {
               ]
             });
           requestAutoBuilds = nock(lp_api_url)
-            .post(`/devel${lp_snap_path}`, { 'ws.op': 'requestAutoBuilds' })
+            .post(`/devel${lp_snap_path}`, { ws: { op: 'requestAutoBuilds' } })
             .reply(200, [
               {
                 resource_type_link: `${lp_api_base}/#snap_build`,
@@ -306,7 +306,7 @@ describe('The WebHook API endpoint', () => {
                 auto_build: true
               });
             requestAutoBuilds = nock(lp_api_url)
-              .post(`/devel${lp_snap_path}`, { 'ws.op': 'requestAutoBuilds' })
+              .post(`/devel${lp_snap_path}`, { ws: { op: 'requestAutoBuilds' } })
               .reply(200, [
                 {
                   resource_type_link: `${lp_api_base}/#snap_build`,
