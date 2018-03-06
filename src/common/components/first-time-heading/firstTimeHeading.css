@@ -2,3 +2,7 @@
   text-align: center;
   padding: 2em 0;
 }
+
+.firstTimeHeading h3 {
+  max-width: 100%;
+}

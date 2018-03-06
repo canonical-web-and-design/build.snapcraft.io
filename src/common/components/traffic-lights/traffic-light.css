@@ -3,6 +3,7 @@ $signal-colour-default: $light-grey;
 .trafficlight {
   display: flex;
   margin:1rem auto;
+  overflow: hidden;
 }
 
 .signal {
