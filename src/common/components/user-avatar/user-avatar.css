@@ -1,7 +1,7 @@
 $login-colour: $dark-grey;
 
 .container {
-  composes: container from '../../containers/app.css';
+  composes: container from '../../containers/container.css';
   display: flex;
   margin:2rem 0;
 }

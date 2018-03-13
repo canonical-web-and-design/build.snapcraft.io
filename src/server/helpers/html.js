@@ -5,6 +5,8 @@ import { Provider } from 'react-redux';
 
 import { conf } from '../helpers/config';
 
+import style from '../../common/style/vanilla/css/footer.css';
+
 const GAID = conf.get('GOOGLE_ANALYTICS_ID');
 const OPTID = conf.get('GOOGLE_OPTIMIZE_ID');
 const GTMID = conf.get('GOOGLE_TAG_MANAGER_ID');
@@ -101,7 +103,7 @@ export default class Html extends Component {
         </head>
         <body>
           { googleTagManagerNoScript }
-          <div id="content" dangerouslySetInnerHTML={{ __html: content }}/>
+          <div id="content" className={ style.content } dangerouslySetInnerHTML={{ __html: content }}/>
           <script
             dangerouslySetInnerHTML={{ __html: `window.__CONFIG__ = ${JSON.stringify(config)}` }}
           />

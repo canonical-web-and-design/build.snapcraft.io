@@ -6,10 +6,12 @@ import Header from '../components/header';
 import Footer from '../components/footer';
 import CookieNotification from '../components/cookie-notification';
 
+import style from '../style/vanilla/css/footer.css';
+
 export class App extends Component {
   render() {
     return (
-      <div>
+      <div className={style.hasStickyFooter}>
         <Helmet
           htmlAttributes={{ 'lang': 'en' }}
           titleTemplate='build.snapcraft.io - %s'
