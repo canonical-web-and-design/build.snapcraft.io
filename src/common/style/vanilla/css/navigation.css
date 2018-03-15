@@ -104,9 +104,9 @@
     top: -.725rem; }
 
 .p-navigation {
-  background-color: #fff;
-  border-bottom: 1px solid #cdcdcd;
-  color: #111;
+  background-color: #252525;
+  border-bottom: 1px solid transparent;
+  color: #f7f7f7;
   margin-top: 0;
   position: relative;
   width: 100%; }
@@ -117,12 +117,12 @@
       overflow: hidden;
       position: relative; } }
   .p-navigation .p-navigation__toggle--open, .p-navigation .p-navigation__toggle--close, .p-navigation .p-navigation__link, .p-navigation .p-navigation__links .p-navigation__item, .p-navigation .p-navigation__links--right .p-navigation__item {
-    color: #111; }
+    color: #f7f7f7; }
     .p-navigation .p-navigation__toggle--open:hover, .p-navigation .p-navigation__toggle--close:hover, .p-navigation .p-navigation__link:hover, .p-navigation .p-navigation__links .p-navigation__item:hover, .p-navigation .p-navigation__links--right .p-navigation__item:hover {
       border-bottom: 0;
       text-decoration: underline; }
     .p-navigation .p-navigation__toggle--open:visited, .p-navigation .p-navigation__toggle--close:visited, .p-navigation .p-navigation__link:visited, .p-navigation .p-navigation__links .p-navigation__item:visited, .p-navigation .p-navigation__links--right .p-navigation__item:visited {
-      color: #111; }
+      color: #f7f7f7; }
   .p-navigation .p-navigation__toggle--close {
     display: none; }
   .p-navigation .p-navigation__toggle--open, .p-navigation .p-navigation__toggle--close {
@@ -207,7 +207,7 @@
       @media (min-width: 769px) {
         .p-navigation .p-navigation__links .p-navigation__link > a, .p-navigation .p-navigation__links--right .p-navigation__link > a, .p-navigation .p-navigation__links .p-navigation__item > a, .p-navigation .p-navigation__links--right .p-navigation__item > a,
         .p-navigation .p-navigation__links > a, .p-navigation .p-navigation__links--right > a {
-          color: #111;
+          color: #f7f7f7;
           padding-left: 1.25rem;
           padding-right: 1.25rem; } }
     .p-navigation .p-navigation__links:last-of-type, .p-navigation .p-navigation__links--right:last-of-type {
@@ -484,9 +484,13 @@
 .p-navigation .p-navigation__image {
   display: block; }
 
-.p-navigation .p-navigation__links .p-navigation__link a:hover, .p-navigation .p-navigation__links--right .p-navigation__link a:hover, .p-navigation .p-navigation__links .p-navigation__item a:hover, .p-navigation .p-navigation__links--right .p-navigation__item a:hover,
-.p-navigation .p-navigation__links .p-navigation__link .is-selected, .p-navigation .p-navigation__links--right .p-navigation__link .is-selected, .p-navigation .p-navigation__links .p-navigation__item .is-selected, .p-navigation .p-navigation__links--right .p-navigation__item .is-selected {
-  background: #e6e6e6; }
+.p-navigation .p-navigation__links .p-navigation__link, .p-navigation .p-navigation__links--right .p-navigation__link, .p-navigation .p-navigation__links .p-navigation__item, .p-navigation .p-navigation__links--right .p-navigation__item {
+  border-left: 1px solid #585858; }
+  .p-navigation .p-navigation__links .p-navigation__link a:hover, .p-navigation .p-navigation__links--right .p-navigation__link a:hover, .p-navigation .p-navigation__links .p-navigation__item a:hover, .p-navigation .p-navigation__links--right .p-navigation__item a:hover,
+  .p-navigation .p-navigation__links .p-navigation__link .is-selected, .p-navigation .p-navigation__links--right .p-navigation__link .is-selected, .p-navigation .p-navigation__links .p-navigation__item .is-selected, .p-navigation .p-navigation__links--right .p-navigation__item .is-selected {
+    background: #111111; }
+  .p-navigation .p-navigation__links .p-navigation__link:last-of-type, .p-navigation .p-navigation__links--right .p-navigation__link:last-of-type, .p-navigation .p-navigation__links .p-navigation__item:last-of-type, .p-navigation .p-navigation__links--right .p-navigation__item:last-of-type {
+    border-right: 1px solid #585858; }
 
 .p-navigation .p-navigation__links .p-navigation__item, .p-navigation .p-navigation__links--right .p-navigation__item {
   border-left: none;
@@ -496,6 +500,9 @@
       display: block; } }
   .p-navigation .p-navigation__links .p-navigation__item a:hover, .p-navigation .p-navigation__links--right .p-navigation__item a:hover {
     background: transparent; }
+
+.p-navigation .p-navigation__links--right:last-of-type {
+  border-right: none; }
 
 @media (min-width: 769px) {
   .p-navigation .p-navigation__links--right {

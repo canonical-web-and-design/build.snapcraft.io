@@ -1,6 +1,8 @@
 @import 'vanilla-framework/scss/_utilities_clearfix.scss';
 @import 'vanilla-framework/scss/_base_typography.scss';
 
+$color-navigation-background: #252525;
+
 // for external links in navigation
 @import 'vanilla-framework/scss/patterns_links.scss';
 @include vf-p-links;
@@ -11,6 +13,8 @@
 // CUSTOM OVERRIDES
 
 .p-navigation {
+  $navigation-border-color: lighten($color-navigation-background, 20%);
+  $navigation-hover-color: darken($color-navigation-background, 8%); // from #252525 to #111
 
   .p-navigation__image {
     display: block;
@@ -19,11 +23,20 @@
   .p-navigation__links {
     // custom hover styles
     .p-navigation__link {
+      border-left: 1px solid $navigation-border-color;
+
       a:hover,
       .is-selected {
-        background: darken($color-x-light, 10%);
+        background: $navigation-hover-color;
       }
+
+      &:last-of-type {
+        border-right: 1px solid $navigation-border-color;
+      }
+
     }
+
+
 
     // custom navigation non-link item for user name
     .p-navigation__item {
@@ -46,6 +59,10 @@
   // right aligned sign-in navigation
   .p-navigation__links--right {
     @extend .p-navigation__links;
+
+    &:last-of-type {
+      border-right: none;
+    }
   }
 
   @media (min-width: 769px) {
