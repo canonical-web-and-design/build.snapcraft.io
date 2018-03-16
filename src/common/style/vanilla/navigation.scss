@@ -20,22 +20,23 @@ $color-navigation-background: #252525;
     display: block;
   }
 
-  .p-navigation__links {
-    // custom hover styles
-    .p-navigation__link {
-      border-left: 1px solid $navigation-border-color;
+    .p-navigation__links {
+      // custom hover styles
+      @media (min-width: $breakpoint-navigation-threshold + 1) {
+      .p-navigation__link {
+        border-left: 1px solid $navigation-border-color;
 
-      a:hover,
-      .is-selected {
-        background: $navigation-hover-color;
+        a:hover,
+        .is-selected {
+          background: $navigation-hover-color;
+        }
+
+        &:last-of-type {
+          border-right: 1px solid $navigation-border-color;
+        }
+
       }
-
-      &:last-of-type {
-        border-right: 1px solid $navigation-border-color;
-      }
-
     }
-
 
 
     // custom navigation non-link item for user name
@@ -65,7 +66,7 @@ $color-navigation-background: #252525;
     }
   }
 
-  @media (min-width: 769px) {
+  @media (min-width: $breakpoint-navigation-threshold + 1) {
     .p-navigation__links--right {
       margin-left: auto; // alight to right in flexbox parent
     }

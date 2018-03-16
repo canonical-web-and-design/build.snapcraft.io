@@ -484,13 +484,14 @@
 .p-navigation .p-navigation__image {
   display: block; }
 
-.p-navigation .p-navigation__links .p-navigation__link, .p-navigation .p-navigation__links--right .p-navigation__link, .p-navigation .p-navigation__links .p-navigation__item, .p-navigation .p-navigation__links--right .p-navigation__item {
-  border-left: 1px solid #585858; }
-  .p-navigation .p-navigation__links .p-navigation__link a:hover, .p-navigation .p-navigation__links--right .p-navigation__link a:hover, .p-navigation .p-navigation__links .p-navigation__item a:hover, .p-navigation .p-navigation__links--right .p-navigation__item a:hover,
-  .p-navigation .p-navigation__links .p-navigation__link .is-selected, .p-navigation .p-navigation__links--right .p-navigation__link .is-selected, .p-navigation .p-navigation__links .p-navigation__item .is-selected, .p-navigation .p-navigation__links--right .p-navigation__item .is-selected {
-    background: #111111; }
-  .p-navigation .p-navigation__links .p-navigation__link:last-of-type, .p-navigation .p-navigation__links--right .p-navigation__link:last-of-type, .p-navigation .p-navigation__links .p-navigation__item:last-of-type, .p-navigation .p-navigation__links--right .p-navigation__item:last-of-type {
-    border-right: 1px solid #585858; }
+@media (min-width: 769px) {
+  .p-navigation .p-navigation__links .p-navigation__link, .p-navigation .p-navigation__links--right .p-navigation__link, .p-navigation .p-navigation__links .p-navigation__item, .p-navigation .p-navigation__links--right .p-navigation__item {
+    border-left: 1px solid #585858; }
+    .p-navigation .p-navigation__links .p-navigation__link a:hover, .p-navigation .p-navigation__links--right .p-navigation__link a:hover, .p-navigation .p-navigation__links .p-navigation__item a:hover, .p-navigation .p-navigation__links--right .p-navigation__item a:hover,
+    .p-navigation .p-navigation__links .p-navigation__link .is-selected, .p-navigation .p-navigation__links--right .p-navigation__link .is-selected, .p-navigation .p-navigation__links .p-navigation__item .is-selected, .p-navigation .p-navigation__links--right .p-navigation__item .is-selected {
+      background: #111111; }
+    .p-navigation .p-navigation__links .p-navigation__link:last-of-type, .p-navigation .p-navigation__links--right .p-navigation__link:last-of-type, .p-navigation .p-navigation__links .p-navigation__item:last-of-type, .p-navigation .p-navigation__links--right .p-navigation__item:last-of-type {
+      border-right: 1px solid #585858; } }
 
 .p-navigation .p-navigation__links .p-navigation__item, .p-navigation .p-navigation__links--right .p-navigation__item {
   border-left: none;
