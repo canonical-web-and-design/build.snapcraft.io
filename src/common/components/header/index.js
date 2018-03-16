@@ -29,7 +29,7 @@ export default class Header extends Component {
                 <a href="https://snapcraft.io/store/">Store</a>
               </li>
               <li className={ style['p-navigation__link'] } role="menuitem">
-                <a href="/">Build</a>
+                <a className={ style['is-selected'] } href="/">Build</a>
               </li>
               <li className={ style['p-navigation__link'] } role="menuitem">
                 <a className={ style['p-link--external'] } href="https://dashboard.snapcraft.io/snaps">My snaps</a>
