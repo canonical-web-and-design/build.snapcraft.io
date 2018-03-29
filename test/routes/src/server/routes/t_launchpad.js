@@ -166,6 +166,7 @@ describe('The Launchpad API endpoint', () => {
               auto_build: 'false',
               processors: [
                 '/+processors/amd64',
+                '/+processors/arm64',
                 '/+processors/armhf',
                 '/+processors/i386'
               ]
