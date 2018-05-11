@@ -81,10 +81,10 @@ describe('The RepositoriesHome component', () => {
         expect(props.updateSnaps).toHaveBeenCalled();
       });
 
-      context('and after fifteen seconds', () => {
+      context('and after thirty seconds', () => {
         beforeEach(() => {
           props.updateSnaps.reset();
-          clock.tick(15000);
+          clock.tick(30000);
         });
 
         it('should dispatch updateSnaps callback again', () => {

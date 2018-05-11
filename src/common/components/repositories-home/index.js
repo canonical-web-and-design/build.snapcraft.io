@@ -12,7 +12,7 @@ import RepositoriesList from '../repositories-list';
 import styles from './repositories-home.css';
 
 let interval;
-const SNAP_POLL_PERIOD = (15 * 1000);
+const SNAP_POLL_PERIOD = (30 * 1000);
 
 class RepositoriesHome extends Component {
 
