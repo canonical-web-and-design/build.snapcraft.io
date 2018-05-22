@@ -24,17 +24,42 @@ class RepositoriesHome extends Component {
     });
   }
 
-  componentWillMount() {
+  onVisibilityChange() {
+    if (document.visibilityState === 'visible') {
+      const { authenticated } = this.props.auth;
+      const { updateSnaps } = this.props;
+      const owner = this.props.user.login;
+      const now = Date.now();
+
+      const delay = now - this.snapsUpdatedTimestamp;
+
+      // only fetch if enough time has passed
+      if (authenticated && delay > SNAP_POLL_PERIOD) {
+        updateSnaps(owner);
+      }
+    }
+  }
+
+  componentDidMount() {
     const { authenticated } = this.props.auth;
     const { updateSnaps } = this.props;
     const owner = this.props.user.login;
 
     if (authenticated) {
+      this.snapsUpdatedTimestamp = Date.now();
       updateSnaps(owner);
       if (!interval) {
         interval = setInterval(() => {
-          updateSnaps(owner);
+          // don't fetch snaps (and builds) if page is in the background
+          if (!document.visibilityState || document.visibilityState == 'visible') {
+            this.snapsUpdatedTimestamp = Date.now();
+            updateSnaps(owner);
+          }
         }, SNAP_POLL_PERIOD);
+
+        // but update snaps when page becomes visible
+        this.onBoundDocumentVisibilityChange = this.onVisibilityChange.bind(this);
+        document.addEventListener('visibilitychange', this.onBoundDocumentVisibilityChange);
       }
     }
   }
@@ -42,6 +67,7 @@ class RepositoriesHome extends Component {
   componentWillUnmount() {
     clearInterval(interval);
     interval = null;
+    document.removeEventListener('visibilitychange', this.onBoundDocumentVisibilityChange);
   }
 
   componentWillReceiveProps(nextProps) {
