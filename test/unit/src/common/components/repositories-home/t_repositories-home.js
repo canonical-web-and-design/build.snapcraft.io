@@ -65,12 +65,23 @@ describe('The RepositoriesHome component', () => {
         router: {}
       };
 
+      // mock document for global DOM do work in tests
+      global.document = {
+        visibilityState: 'visible',
+        addEventListener: expect.createSpy(),
+        removeEventListener: expect.createSpy()
+      };
+
       wrapper = shallow(<RepositoriesHome { ...props } />);
+    });
+
+    afterEach(() => {
+      delete global.document;
     });
 
     context('and component mounts', () => {
       beforeEach(() => {
-        wrapper.instance().componentWillMount();
+        wrapper.instance().componentDidMount();
       });
 
       afterEach(() => {
@@ -95,7 +106,7 @@ describe('The RepositoriesHome component', () => {
 
     context('and component mounts, then unmounts', () => {
       beforeEach(() => {
-        wrapper.instance().componentWillMount();
+        wrapper.instance().componentDidMount();
         clock.tick(60000);
         wrapper.instance().componentWillUnmount();
         props.updateSnaps.reset();
