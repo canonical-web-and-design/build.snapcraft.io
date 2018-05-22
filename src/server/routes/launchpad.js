@@ -20,14 +20,12 @@ router.post('/launchpad/snaps', newSnap);
 router.get('/launchpad/snaps', findSnap);
 
 router.use('/launchpad/snaps/list', json());
-router.use('/launchpad/snaps/list', verifyToken);
 router.get('/launchpad/snaps/list', findSnaps);
 
 router.use('/launchpad/snaps/authorize', json());
 router.post('/launchpad/snaps/authorize', authorizeSnap);
 
 router.use('/launchpad/builds', json());
-router.use('/launchpad/builds', verifyToken);
 router.get('/launchpad/builds', getSnapBuilds);
 
 router.use('/launchpad/snaps/request-builds', json());

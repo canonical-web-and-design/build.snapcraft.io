@@ -20,7 +20,6 @@ router.use('/github/user', json());
 router.get('/github/user', getUser);
 
 router.use('/github/orgs', json());
-router.get('/github/orgs', verifyToken);
 router.get('/github/orgs', refreshOrganizations);
 
 router.use('/github/repos', json());

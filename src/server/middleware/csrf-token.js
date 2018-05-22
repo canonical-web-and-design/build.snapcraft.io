@@ -13,8 +13,9 @@ export const generateToken = (req, res, next) => {
 
   req.session.csrfTokens.push(csrfToken);
 
-  // Only 5 valid CSRF tokens at a time. Safe to increase number.
-  while (req.session.csrfTokens.length > 5) {
+  // 100 valid CSRF tokens at a time
+  // (so multiple tabs/requests can be handled at the same time)
+  while (req.session.csrfTokens.length > 100) {
     req.session.csrfTokens.shift();
   }
 
