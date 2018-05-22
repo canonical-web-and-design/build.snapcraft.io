@@ -36,7 +36,7 @@ export class Builds extends Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { url } = this.props.repository;
     const { snap } = this.props;
 

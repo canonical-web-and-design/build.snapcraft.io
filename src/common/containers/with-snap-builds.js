@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import { fetchBuilds, fetchSnap } from '../actions/snap-builds';
 import { snapBuildsInitialStatus } from '../reducers/snap-builds';
 
+const BUILDS_POLL_PERIOD = 15000;
+
 function withSnapBuilds(WrappedComponent) {
 
   class WithSnapBuilds extends Component {
@@ -18,16 +20,39 @@ function withSnapBuilds(WrappedComponent) {
       }
     }
 
+    onVisibilityChange() {
+      if (document.visibilityState === 'visible') {
+        const now = Date.now();
+
+        const delay = now - this.buildsUpdatedTimestamp;
+
+        // only fetch if enough time has passed
+        if (delay > BUILDS_POLL_PERIOD) {
+          this.fetchData(this.props);
+        }
+      }
+    }
+
     componentDidMount() {
+      this.buildsUpdatedTimestamp = Date.now();
       this.fetchData(this.props);
 
       this.fetchInterval = setInterval(() => {
-        this.fetchData(this.props);
-      }, 15000);
+        if (!document.visibilityState || document.visibilityState === 'visible') {
+          this.buildsUpdatedTimestamp = Date.now();
+          this.fetchData(this.props);
+        }
+      }, BUILDS_POLL_PERIOD);
+
+      // but update snaps when page becomes visible
+      this.onBoundDocumentVisibilityChange = this.onVisibilityChange.bind(this);
+      document.addEventListener('visibilitychange', this.onBoundDocumentVisibilityChange);
     }
 
     componentWillUnmount() {
       clearInterval(this.fetchInterval);
+      this.fetchInterval = null;
+      document.removeEventListener('visibilitychange', this.onBoundDocumentVisibilityChange);
     }
 
     componentWillReceiveProps(nextProps) {
