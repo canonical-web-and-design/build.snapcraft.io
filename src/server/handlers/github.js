@@ -186,8 +186,19 @@ export const getSnapcraftData = async (repositoryUrl, token) => {
     logger.error(`Error getting ${cacheId} from memcached: ${error}`);
   }
 
-  const snapcraftYaml = await internalGetSnapcraftYaml(owner, name, token);
+  let snapcraftYaml = {};
   const snapcraftData = {};
+
+  try {
+    snapcraftYaml = await internalGetSnapcraftYaml(owner, name, token);
+  } catch (error) {
+    // if snapcraft.yaml was not found in repo, catch the error and memcache it
+    if (error.status === 404 && error.body) {
+      snapcraftYaml.error = error;
+    } else {
+      throw error;
+    }
+  }
 
   if (snapcraftYaml.contents) {
     for (const index of Object.keys(snapcraftYaml.contents)) {
