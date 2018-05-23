@@ -1,4 +1,5 @@
 import { checkStatus, getError } from '../helpers/api';
+import { authExpired } from '../actions/auth-error';
 
 // Action key that carries API call info interpreted by this Redux middleware.
 export const CALL_API = 'CALL_API';
@@ -72,6 +73,12 @@ export default (defaults) => () => (next) => (action) => {
     .catch((error) => {
       clearTimeout(loadingTimeout);
       error.action = action;
+
+      // if error is 401 Unauthorized it's quite likely that session had expired
+      if (error.response.status === 401) {
+        next(authExpired(error));
+      }
+
       if (failureType) {
         // if type of failure action is defined in settings
         // catch the error and pass it in failure action payload

@@ -1,4 +1,4 @@
-import { AUTH_ERROR } from '../actions/auth-error';
+import { AUTH_ERROR, AUTH_EXPIRED } from '../actions/auth-error';
 
 export function authError(state = {}, action) {
   switch (action.type) {
@@ -6,6 +6,12 @@ export function authError(state = {}, action) {
       return {
         ...state,
         message: action.message
+      };
+    case AUTH_EXPIRED:
+      return {
+        ...state,
+        message: action.payload.error.json.payload.message,
+        expired: true
       };
     default:
       return state;

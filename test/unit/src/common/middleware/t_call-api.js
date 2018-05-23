@@ -7,6 +7,8 @@ import sinon from 'sinon';
 import { CALL_API } from '../../../../../src/common/middleware/call-api';
 import callApi from '../../../../../src/common/middleware/call-api';
 
+import { AUTH_EXPIRED } from '../../../../../src/common/actions/auth-error';
+
 const CSRF_TOKEN = 'blah';
 const middlewares = [ thunk,  callApi({ endpoint: 'http://localhost:8000', csrfToken: 'blah' })];
 const mockStore = configureMockStore(middlewares);
@@ -110,6 +112,108 @@ describe('The callApi middleware', () => {
     });
   });
 
+  context('when response is 401 error', () => {
+    const RESPONSE_CODE = 401;
+    const RESPONSE = {
+      status: 'error',
+      payload: {
+        code: 'lp-error',
+        message: 'Unauthorized'
+      }
+    };
+
+    beforeEach(() => {
+      api.get('/path')
+        .reply(RESPONSE_CODE, RESPONSE);
+    });
+
+    afterEach(() => {
+      api.done();
+      nock.cleanAll();
+    });
+
+    context('and action invoking [CALL_API] is dispatched with action types', () => {
+      let action;
+      const PAYLOAD = {
+        id: 3
+      };
+
+      beforeEach(() => {
+        action = {
+          payload: PAYLOAD,
+          [CALL_API]: {
+            path: '/path',
+            types: [ 'EXAMPLE_ACTION', 'EXAMPLE_ACTION_SUCCESS', 'EXAMPLE_ACTION_ERROR' ],
+            options: {
+              headers: { 'Content-Type': 'application/json' }
+            }
+          }
+        };
+      });
+
+      it('should dispatch EXAMPLE_ACTION', async() => {
+        await store.dispatch(action);
+        expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION');
+      });
+
+      it('should dispatch EXAMPLE_ACTION_ERROR', async () => {
+        await store.dispatch(action);
+        expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION_ERROR');
+      });
+
+      it('should dispatch AUTH_UNAUTHORIZED', async () => {
+        await store.dispatch(action);
+        expect(store.getActions()).toHaveActionOfType(AUTH_EXPIRED);
+      });
+
+      it('should dispatch EXAMPLE_ACTION_ERROR action with a payload containing the error', async () => {
+        await store.dispatch(action);
+        expect(store.getActions()).toHaveActionsMatching((action) => {
+          return action.payload.error && action.payload.error.message === RESPONSE.payload.message;
+        });
+      });
+    });
+
+    context('and action invoking [CALL_API] is dispatched without error action type', () => {
+      let action;
+      const PAYLOAD = {
+        id: 3
+      };
+
+      beforeEach(() => {
+        action = {
+          payload: PAYLOAD,
+          [CALL_API]: {
+            path: '/path',
+            types: [ 'EXAMPLE_ACTION', 'EXAMPLE_ACTION_SUCCESS' ],
+            options: {
+              headers: { 'Content-Type': 'application/json' }
+            }
+          }
+        };
+      });
+
+      it('should dispatch EXAMPLE_ACTION', async() => {
+        await store.dispatch(action).catch(() => {
+          expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION');
+        });
+      });
+
+      it('should dispatch AUTH_UNAUTHORIZED', async () => {
+        await store.dispatch(action).catch(() => {
+          expect(store.getActions()).toHaveActionOfType(AUTH_EXPIRED);
+        });
+      });
+
+      it('should return rejected promise with error message', async () => {
+        await store.dispatch(action).catch((error) => {
+          expect(error.message).toBe(RESPONSE.payload.message);
+        });
+      });
+
+    });
+  });
+
   context('when response is 500 error', () => {
     const RESPONSE_CODE = 500;
     const RESPONSE = {
@@ -159,7 +263,7 @@ describe('The callApi middleware', () => {
         expect(store.getActions()).toHaveActionOfType('EXAMPLE_ACTION_ERROR');
       });
 
-      it('should dispatch EXAMPLE_ACTION_SUCCESS with a payload containing fetched response', async () => {
+      it('should dispatch EXAMPLE_ACTION_ERROR with a payload containing the error', async () => {
         await store.dispatch(action);
         expect(store.getActions()).toHaveActionsMatching((action) => {
           return action.payload.error && action.payload.error.message === RESPONSE.payload.message;

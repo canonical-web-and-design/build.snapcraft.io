@@ -5,6 +5,7 @@ import Helmet from 'react-helmet';
 import Header from '../components/header';
 import Footer from '../components/footer';
 import CookieNotification from '../components/cookie-notification';
+import SessionOverlay from '../components/session-overlay';
 
 import style from '../style/vanilla/css/footer.css';
 
@@ -27,6 +28,7 @@ export class App extends Component {
         />
         { this.props.children }
         <Footer />
+        <SessionOverlay />
         <CookieNotification />
       </div>
     );

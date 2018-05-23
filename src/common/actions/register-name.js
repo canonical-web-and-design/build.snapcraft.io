@@ -6,6 +6,7 @@ import { APICompatibleError, checkStatus, getError, getMacaroonAuthHeader } from
 import { conf } from '../helpers/config';
 import { checkPackageUploadRequest, getAccountInfo } from './auth-store';
 import { requestBuilds } from './snap-builds';
+import { authExpired } from './auth-error';
 
 const BASE_URL = conf.get('BASE_URL');
 const STORE_API_URL = conf.get('STORE_API_URL');
@@ -173,6 +174,10 @@ export function registerName(repository, snapName, options={}) {
         await dispatch(requestBuilds(repository.url));
       }
     } catch (error) {
+      // detect if session has expired in the meantime
+      if (error.response && error.response.status === 401) {
+        dispatch(authExpired(error));
+      }
       dispatch(registerNameError(fullName, error));
     }
   };

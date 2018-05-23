@@ -48,7 +48,9 @@ export default class Header extends Component {
                     <a>Hi, {user.name || user.login}</a>
                   </li>
                   <li className={ style['p-navigation__link'] } role="menuitem">
-                    <a href="/auth/logout">Sign out</a>
+                    <a href="/auth/logout" onClick={ this.onLogoutClick.bind(this)}>
+                      Sign out
+                    </a>
                   </li>
                 </ul>
               :
