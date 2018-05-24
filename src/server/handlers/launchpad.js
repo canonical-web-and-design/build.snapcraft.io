@@ -108,7 +108,7 @@ const checkAdminPermissions = async (session, repositoryUrl) => {
   const response = await requestGitHub.get(uri, options);
   await checkGitHubStatus(response);
   if (!response.body.permissions || !response.body.permissions.admin) {
-    throw new PreparedError(401, RESPONSE_GITHUB_NO_ADMIN_PERMISSIONS);
+    throw new PreparedError(403, RESPONSE_GITHUB_NO_ADMIN_PERMISSIONS);
   }
   return { owner: parsed.owner, name: parsed.name, token };
 };
@@ -822,9 +822,18 @@ export const requestSnapBuilds = async (req, res) => {
 
 export const deleteSnap = async (req, res) => {
   try {
-    const { owner, name } = await checkAdminPermissions(
-      req.session, req.body.repository_url
-    );
+    const { owner, name } = parseGitHubRepoUrl(req.body.repository_url);
+
+    // check if user is an admin of the repo
+    try {
+      await checkAdminPermissions(req.session, req.body.repository_url);
+    } catch (error) {
+      // but ignore the error if repo is removed on GH
+      if (error.status !== 404) {
+        throw error;
+      }
+    }
+
     const snap = await internalFindSnap(req.body.repository_url);
     await db.transaction(async (trx) => {
       if (req.session.user) {

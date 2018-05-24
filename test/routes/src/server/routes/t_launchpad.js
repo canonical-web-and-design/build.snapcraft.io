@@ -321,12 +321,12 @@ describe('The Launchpad API endpoint', () => {
         nock.cleanAll();
       });
 
-      it('should return a 401 Unauthorized response', (done) => {
+      it('should return a 403 Forbidden response', (done) => {
         supertest(app)
           .post('/launchpad/snaps')
           .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(401, done);
+          .expect(403, done);
       });
 
       it('should return a "error" status', (done) => {
@@ -1234,7 +1234,7 @@ describe('The Launchpad API endpoint', () => {
             macaroon: 'dummy-macaroon'
           })
           .expect((res) => {
-            expect(res.statusCode).toEqual(401);
+            expect(res.statusCode).toEqual(403);
             expect(res.body.payload.code)
               .toEqual('github-no-admin-permissions');
           })
@@ -2232,12 +2232,12 @@ describe('The Launchpad API endpoint', () => {
         nock.cleanAll();
       });
 
-      it('should return a 401 Unauthorized response', (done) => {
+      it('should return a 403 Forbidden response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/request-builds')
           .set('X-CSRF-Token', 'blah')
           .send({ repository_url: 'https://github.com/anowner/aname' })
-          .expect(401, done);
+          .expect(403, done);
       });
 
       it('should return a "error" status', (done) => {
@@ -2592,12 +2592,12 @@ describe('The Launchpad API endpoint', () => {
         nock.cleanAll();
       });
 
-      it('returns a 401 Unauthorized response', (done) => {
+      it('returns a 403 Forbidden response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
           .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
-          .expect(401, done);
+          .expect(403, done);
       });
 
       it('returns a "error" status', (done) => {
@@ -2625,36 +2625,58 @@ describe('The Launchpad API endpoint', () => {
         nock(conf.get('GITHUB_API_ENDPOINT'))
           .get('/repos/anowner/aname')
           .reply(404, { message: 'Not Found' });
+        const lp_api_url = conf.get('LP_API_URL');
+        const lp_api_base = `${lp_api_url}/devel`;
+        const testSnap = {
+          resource_type_link: `${lp_api_base}/#snap`,
+          self_link: `${lp_api_base}${lp_snap_path}`,
+          owner_link: `${lp_api_base}/~${lp_snap_user}`,
+          git_repository_url: repositoryUrl
+        };
+        nock(lp_api_url)
+          .get('/devel/+snaps')
+          .query({
+            'ws.op': 'findByURL',
+            url: repositoryUrl
+          })
+          .reply(200, {
+            total_size: 1,
+            start: 0,
+            entries: [testSnap]
+          });
+        nock(lp_api_url)
+          .delete(`/devel${lp_snap_path}`)
+          .reply(200, 'null', { 'Content-Type': 'application/json' });
       });
 
       afterEach(() => {
         nock.cleanAll();
       });
 
-      it('should return a 404 Not Found response', (done) => {
+      it('should return a 200 response', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
           .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
-          .expect(404, done);
+          .expect(200, done);
       });
 
-      it('should return a "error" status', (done) => {
+      it('should return a "success" status', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
           .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
-          .expect(hasStatus('error'))
+          .expect(hasStatus('success'))
           .end(done);
       });
 
-      it('should return a body with a "github-repository-not-found" ' +
+      it('should return a body with a "snap-deleted" ' +
          'message', (done) => {
         supertest(app)
           .post('/launchpad/snaps/delete')
           .set('X-CSRF-Token', 'blah')
           .send({ repository_url: repositoryUrl })
-          .expect(hasMessage('github-repository-not-found'))
+          .expect(hasMessage('snap-deleted'))
           .end(done);
       });
     });
