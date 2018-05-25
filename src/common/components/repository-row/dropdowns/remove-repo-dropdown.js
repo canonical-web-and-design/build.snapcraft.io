@@ -6,27 +6,33 @@ import { IconWarning } from '../../vanilla-modules/icons';
 
 import styles from './dropdowns.css';
 
-const getRemoveWarningMessage = (isBuilt, registeredName) => {
-  let warningText;
-  if (isBuilt) {
-    warningText = (
-      'Removing this repo will delete all its builds and build logs.'
-    );
-  } else {
-    warningText = (
-      'Are you sure you want to remove this repo from the list?'
-    );
-  }
-  if (registeredName !== null) {
-    warningText += ' The name will remain registered.';
-  }
+const getRemoveWarningMessage = (isBuilt, registeredName, isOwnerOfRegisteredName) => {
   // XXX cjwatson 2017-02-28: Once we can get hold of published states for
   // builds, we should also implement this design requirement:
   //   Separately, if any build has been published, the text should end
   //   with:
   //     Released builds will remain published.
 
-  return warningText;
+  return (
+    <div className={styles.warningCaption}>
+      <p>
+        <span className={styles.warningIcon}><IconWarning /></span>
+        &nbsp;&nbsp;
+        Are you sure you want to remove this repo from the list?
+      </p>
+      <ul>
+        {registeredName !== null && isOwnerOfRegisteredName &&
+          <li>The name will remain registered.</li>
+        }
+        {registeredName !== null && !isOwnerOfRegisteredName &&
+          <li>You don’t own the <strong>{registeredName}</strong> name and will not be able to configure this repo again.</li>
+        }
+        {isBuilt &&
+          <li>Removing this repo will delete all its builds and build logs.</li>
+        }
+      </ul>
+    </div>
+  );
 };
 
 const RemoveRepoDropdown = (props) => {
@@ -41,9 +47,7 @@ const RemoveRepoDropdown = (props) => {
   } = props;
 
   let message = (
-    <span>
-      <IconWarning /> { getRemoveWarningMessage(isBuilt, registeredName) }
-    </span>
+    getRemoveWarningMessage(isBuilt, registeredName, isOwnerOfRegisteredName)
   );
 
   let actionButton = (
@@ -56,12 +60,18 @@ const RemoveRepoDropdown = (props) => {
   );
 
   if (registeredName) {
-    if (isAuthenticated) {
-      if (!isOwnerOfRegisteredName) {
-        message = `To remove this repo, contact the person who registered the name ${registeredName}.`;
-        actionButton = null;
-      }
-    } else {
+    if (!isOwnerOfRegisteredName) {
+      actionButton = (
+        <Button
+          appearance="negative"
+          onClick={ onRemoveClick }
+        >
+          I understand the consequences, remove this repo
+        </Button>
+      );
+    }
+
+    if (!isAuthenticated) {
       message = `You can remove this repo only if you registered the name ${registeredName}.`;
 
       actionButton = (

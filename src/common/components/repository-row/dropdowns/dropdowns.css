@@ -20,6 +20,15 @@
   margin-bottom: 1em;
 }
 
+.warningCaption {
+  composes: caption;
+  margin-left: 1em;
+}
+
+.warningIcon {
+  margin-left: -1em;
+}
+
 .snapNameInput {
   width: 250px;
 }

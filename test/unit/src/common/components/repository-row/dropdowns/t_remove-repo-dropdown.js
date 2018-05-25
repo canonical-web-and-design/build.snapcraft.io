@@ -89,11 +89,11 @@ describe('<RemoveRepoDropdown />', () => {
         });
 
         it('should render proper warning message', () => {
-          expect(view.html()).toContain('To remove this repo, contact the person who registered the name');
+          expect(view.html()).toContain('and will not be able to configure this repo again');
         });
 
-        it('should render Remove button', () => {
-          expect(view.find('Button').length).toEqual(0);
+        it('should render Remove button with consequences warning', () => {
+          expect(view.find('Button').last().prop('children')).toEqual('I understand the consequences, remove this repo');
         });
       });
     });

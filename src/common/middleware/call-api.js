@@ -75,7 +75,7 @@ export default (defaults) => () => (next) => (action) => {
       error.action = action;
 
       // if error is 401 Unauthorized it's quite likely that session had expired
-      if (error.response.status === 401) {
+      if (error.response && error.response.status === 401) {
         next(authExpired(error));
       }
 
