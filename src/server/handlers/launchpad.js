@@ -400,8 +400,12 @@ const internalFindSnaps = async (owner, token) => {
     )
   ));
   snaps = snaps.concat(result.entries);
-  for (const snap of snaps) {
-    await ensureWebhook(snap);
+  // ensure LP webhook is set up for all the snaps
+  // but batch it by 10 not to overload LP servers
+  const BATCH_SIZE = 10;
+  for (let i=0; i < snaps.length; i += BATCH_SIZE) {
+    const batch = snaps.slice(i, i + BATCH_SIZE);
+    await Promise.all(batch.map(snap => ensureWebhook(snap)));
   }
   return snaps;
 };
