@@ -7,6 +7,7 @@ import { fetchUserSnaps } from '../../actions/snaps';
 import { fetchBuilds } from '../../actions/snap-builds';
 import { LinkButton } from '../vanilla-modules/button';
 import { HeadingThree } from '../vanilla-modules/heading';
+import Notification from '../vanilla-modules/notification';
 import FirstTimeHeading from '../first-time-heading';
 import RepositoriesList from '../repositories-list';
 import styles from './repositories-home.css';
@@ -86,9 +87,22 @@ class RepositoriesHome extends Component {
     // should it fetch data for first time heading (it already does need it anyway probably)
     // move it to HOC?
 
+    let errorNotification = null;
+    const { error } = this.props.snaps;
+
+    if (error) {
+      const message = (error.json && error.json.payload)
+        ? error.json.payload.message
+        : 'There was an error completing your request, please try again later.';
+      errorNotification = (
+        <Notification appearance='negative'>{ message }</Notification>
+      );
+    }
+
     return (
       <div>
         <FirstTimeHeading isOnMyRepos={true} />
+        { errorNotification }
         <div className={ styles['button-container'] }>
           <HeadingThree>Repos to build</HeadingThree>
           <div>

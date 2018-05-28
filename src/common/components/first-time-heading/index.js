@@ -73,7 +73,7 @@ class FirstTimeHeading extends Component {
   render() {
     const { message, progress } = this.getCurrentState();
 
-    return (
+    return ( (message || progress) &&
       <div className={styles.firstTimeHeading}>
         { this.renderProgress(progress) }
         { this.renderMessage(message) }

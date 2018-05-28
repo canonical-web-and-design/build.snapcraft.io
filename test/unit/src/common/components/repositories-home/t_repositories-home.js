@@ -47,6 +47,40 @@ describe('The RepositoriesHome component', () => {
     });
   });
 
+  context('when there is an error', () => {
+    let wrapper;
+
+    beforeEach(() => {
+      props = {
+        auth: {
+          authenticated: true
+        },
+        user: {},
+        entities: {
+          snaps: {}
+        },
+        snaps: {
+          error: {
+            json: {
+              payload: {
+                message: 'Test error'
+              }
+            }
+          }
+        },
+        snapBuilds: {},
+        updateSnaps: expect.createSpy(),
+        router: {}
+      };
+
+      wrapper = shallow(<RepositoriesHome { ...props } />);
+    });
+
+    it('should render error message', () => {
+      expect(wrapper.find('Notification').html()).toContain('Test error');
+    });
+  });
+
   context('when user is logged in', () => {
     let wrapper;
 
