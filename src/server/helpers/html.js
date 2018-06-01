@@ -10,7 +10,7 @@ import style from '../../common/style/vanilla/css/footer.css';
 const GAID = conf.get('GOOGLE_ANALYTICS_ID');
 const OPTID = conf.get('GOOGLE_OPTIMIZE_ID');
 const GTMID = conf.get('GOOGLE_TAG_MANAGER_ID');
-const SENTRY_DSN = conf.get('SENTRY_DSN');
+const SENTRY_DSN_PUBLIC = conf.get('SENTRY_DSN_PUBLIC');
 
 const googleOptimizePageHideCss = GAID && OPTID ?
   <style
@@ -106,13 +106,13 @@ export default class Html extends Component {
           { googleTagManagerNoScript }
           <div id="content" className={ style.content } dangerouslySetInnerHTML={{ __html: content }}/>
           {
-            SENTRY_DSN &&
+            SENTRY_DSN_PUBLIC &&
             <script src="https://cdn.ravenjs.com/3.25.1/raven.min.js" crossOrigin="anonymous"></script>
           }
           {
-            SENTRY_DSN &&
+            SENTRY_DSN_PUBLIC &&
             <script
-              dangerouslySetInnerHTML={{ __html: `Raven.config('${ SENTRY_DSN }').install();` }}
+              dangerouslySetInnerHTML={{ __html: `Raven.config('${ SENTRY_DSN_PUBLIC }').install();` }}
             />
           }
           <script
