@@ -100,6 +100,7 @@ def configure(pgsql, cache):
     session_secret = hookenv.config('session_secret')
     memcache_session_secret = hookenv.config('memcache_session_secret')
     sentry_dsn = hookenv.config('sentry_dsn')
+    sentry_dsn_public = hookenv.config('sentry_dsn_public')
     lp_api_username = hookenv.config('lp_api_username') or ''
     lp_api_consumer_key = hookenv.config('lp_api_consumer_key') or ''
     lp_api_token = hookenv.config('lp_api_token') or ''
@@ -129,6 +130,7 @@ def configure(pgsql, cache):
                 'cache_hosts': sorted(cache.memcache_hosts()),
                 'memcache_session_secret': memcache_session_secret,
                 'sentry_dsn': sentry_dsn,
+                'sentry_dsn_public': sentry_dsn_public,
                 'lp_api_username': lp_api_username,
                 'lp_api_consumer_key': lp_api_consumer_key,
                 'lp_api_token': lp_api_token,
@@ -160,6 +162,7 @@ def configure(pgsql, cache):
                 'cache_hosts': sorted(cache.memcache_hosts()),
                 'memcache_session_secret': memcache_session_secret,
                 'sentry_dsn': sentry_dsn,
+                'sentry_dsn_public': sentry_dsn_public,
                 'lp_api_username': lp_api_username,
                 'lp_api_consumer_key': lp_api_consumer_key,
                 'lp_api_token': lp_api_token,
