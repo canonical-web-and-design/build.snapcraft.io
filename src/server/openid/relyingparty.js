@@ -1,6 +1,9 @@
 import openid from 'openid';
 import { conf } from '../helpers/config';
 import { Macaroon, Teams } from './extensions';
+import logging from '../logging';
+
+const logger = logging.getLogger('login');
 
 openid['Macaroon'] = Macaroon;
 openid['Teams'] = Teams;
@@ -18,6 +21,11 @@ const saveAssociation = (session) => {
       type,
       secret
     };
+
+    if (session.user) {
+      logger.info(`Saving association handle for user ${session.user.login}`);
+    }
+
     callback(null); // Custom implementations may report error as first argument
   };
 };
@@ -25,8 +33,18 @@ const saveAssociation = (session) => {
 const loadAssociation = (session) => {
   return (handle, callback) => {
     if (session.association) {
+      if (session.user) {
+        logger.info(`Loading association handle for user ${session.user.login}`);
+      }
+
       callback(null, session.association);
     } else {
+      if (session.user) {
+        logger.error(`No association handle found for user ${session.user.login}`);
+      } else {
+        logger.error('No association handle found, no user found in session');
+      }
+
       callback(null, null);
     }
   };
