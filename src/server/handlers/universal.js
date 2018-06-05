@@ -42,9 +42,7 @@ export const handleMatch = (req, res, error, redirectLocation, renderProps) => {
       initialState.user = req.session.user;
     }
 
-    const csrfToken = req.session.csrfTokens
-      ? req.session.csrfTokens[req.session.csrfTokens.length - 1]
-      : null;
+    const csrfToken = req.session.csrfToken || null;
 
     if (req.session.error) {
       initialState['authError'] = { message: req.session.error };

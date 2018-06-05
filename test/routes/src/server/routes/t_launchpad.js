@@ -30,7 +30,7 @@ import { conf } from '../../../../../src/server/helpers/config.js';
 
 describe('The Launchpad API endpoint', () => {
   const app = Express();
-  const session = { token: 'secret', user: { id: 123, login: 'anowner' }, 'csrfTokens': ['blah'] };
+  const session = { token: 'secret', user: { id: 123, login: 'anowner' }, 'csrfToken': 'blah' };
   app.use((req, res, next) => {
     req.session = session;
     next();

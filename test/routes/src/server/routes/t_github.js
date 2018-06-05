@@ -10,7 +10,7 @@ import { conf } from '../../../../../src/server/helpers/config.js';
 
 describe('The GitHub API endpoint', () => {
   const app = Express();
-  const session = { 'token': 'secret', 'csrfTokens': ['blah']  };
+  const session = { 'token': 'secret', 'csrfToken': 'blah' };
 
   let scope;
 

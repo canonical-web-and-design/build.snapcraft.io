@@ -1,24 +1,13 @@
 import uuid from 'uuid';
 
 export const generateToken = (req, res, next) => {
-  // Don't generate new tokens for API calls or if there is no session
-  if (req.path.match(/^\/api/) || !req.session) {
+  // Don't generate new tokens for API calls, if there is no session,
+  // if user is not logged in, or if there is a token already
+  if (req.path.match(/^\/api/) || !req.session || !req.session.user || req.session.csrfToken) {
     return next();
   }
 
-  const csrfToken = uuid.v4();
-  if (typeof req.session.csrfTokens === 'undefined') {
-    req.session.csrfTokens = [];
-  }
-
-  req.session.csrfTokens.push(csrfToken);
-
-  // 100 valid CSRF tokens at a time
-  // (so multiple tabs/requests can be handled at the same time)
-  while (req.session.csrfTokens.length > 100) {
-    req.session.csrfTokens.shift();
-  }
-
+  req.session.csrfToken = uuid.v4();
   next();
 };
 
@@ -29,13 +18,11 @@ export const verifyToken = (req, res, next) => {
     return res.status(401).json(RESPONSE_MISSING_TOKEN);
   }
 
-  if (!req.session.csrfTokens) {
-    req.session.csrfTokens = [];
-
+  if (!req.session.csrfToken) {
     return res.status(401).json(RESPONSE_SESSION_HAS_NO_TOKENS);
   }
 
-  if (req.session.csrfTokens.indexOf(csrfToken) == -1) {
+  if (req.session.csrfToken !== csrfToken) {
     return res.status(401).json(RESPONSE_INVALID_TOKEN);
   }
 
