@@ -11,9 +11,11 @@ options:
     sentry_dsn:
         type: string
         description: The Sentry DSN that will be used by Raven to send error reports to Sentry for the backend
+        default: ""
     sentry_dsn_public:
         type: string
         description: The Sentry DSN that will be used by Raven to send error reports to Sentry for the frontend
+        default: ""
     lp_api_username:
         type: string
         description: The username to use when communicating with Launchpad
