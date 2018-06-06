@@ -6,6 +6,11 @@ export class PreparedError extends Error {
     super();
     this.status = status;
     this.body = body;
+
+    // propagate error message for better logging
+    if (this.body && this.body.payload) {
+      this.message = this.body.payload.message;
+    }
   }
 }
 
