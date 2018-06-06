@@ -8,9 +8,12 @@ import request from 'request';
 import url from 'url';
 
 import { conf } from '../helpers/config';
+import logging from '../logging';
 
 const GITHUB_API_ENDPOINT = conf.get('GITHUB_API_ENDPOINT');
 const HTTP_PROXY = conf.get('HTTP_PROXY');
+
+const logger = logging.getLogger('express');
 
 export const requestGitHub = (options) => {
   return new Promise((resolve, reject) => {
@@ -26,6 +29,8 @@ export const requestGitHub = (options) => {
       params.headers['Authorization'] = `token ${params.token}`;
       delete params.token;
     } else {
+      logger.info(`Calling GH API with service authorisation (no user auth token): ${params.uri}`);
+
       // Make request with service authorisation rather than user
       // authorisation.  This should be kept to a minimum because GitHub
       // imposes a rate limit on each authorisation token, and so a central

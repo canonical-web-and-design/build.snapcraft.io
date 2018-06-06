@@ -127,6 +127,7 @@ export const internalListOrganizations = async (owner, token) => {
   }
 
   try {
+    logger.info(`Getting list of organizations from GitHub (user: ${owner}, token: ${token})`);
     const response = await requestGitHub.get('/user/orgs', {
       token, json: true
     });
@@ -140,7 +141,7 @@ export const internalListOrganizations = async (owner, token) => {
     await getMemcached().set(cacheId, response.body, 3600);
     return response.body;
   } catch (error) {
-    logger.error(`Error getting list of organizations from GitHub: ${error}`);
+    logger.error(`Error getting list of organizations from GitHub (user: ${owner}, token: ${token}): ${error}`);
     return [];
   }
 };
