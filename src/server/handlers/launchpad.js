@@ -551,6 +551,10 @@ const getSnapRepoData = async(snap, token) => {
 };
 
 export const findSnaps = async (req, res) => {
+  if (!req.session || !req.session.token) {
+    return res.status(401).send(RESPONSE_NOT_LOGGED_IN);
+  }
+
   const owner = req.query.owner || req.session.user.login;
   try {
     const rawSnaps = await internalFindSnaps(owner, req.session.token);
@@ -585,6 +589,10 @@ export const findSnaps = async (req, res) => {
 };
 
 export const findSnap = async (req, res) => {
+  if (!req.session || !req.session.token) {
+    return res.status(401).send(RESPONSE_NOT_LOGGED_IN);
+  }
+
   try {
     const snap = await internalFindSnap(req.query.repository_url);
 

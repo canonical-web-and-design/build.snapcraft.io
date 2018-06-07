@@ -51,8 +51,12 @@ class RepositoriesHome extends Component {
       updateSnaps(owner);
       if (!interval) {
         interval = setInterval(() => {
+          const isVisible = (!document.visibilityState || document.visibilityState == 'visible');
+          const { isSessionExpired } = this.props;
+
           // don't fetch snaps (and builds) if page is in the background
-          if (!document.visibilityState || document.visibilityState == 'visible') {
+          // or if user session has expired
+          if (isVisible && !isSessionExpired) {
             this.snapsUpdatedTimestamp = Date.now();
             updateSnaps(owner);
           }
@@ -123,6 +127,7 @@ class RepositoriesHome extends Component {
 
 RepositoriesHome.propTypes = {
   auth: PropTypes.object.isRequired,
+  isSessionExpired: PropTypes.bool.isRequired,
   user: PropTypes.object,
   entities: PropTypes.object,
   snaps: PropTypes.object.isRequired,
@@ -136,6 +141,7 @@ RepositoriesHome.propTypes = {
 function mapStateToProps(state) {
   const {
     auth,
+    authError,
     user,
     entities,
     snaps,
@@ -144,6 +150,7 @@ function mapStateToProps(state) {
 
   return {
     auth,
+    isSessionExpired: !!authError.expired,
     user,
     entities,
     snaps,
