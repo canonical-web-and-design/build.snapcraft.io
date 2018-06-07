@@ -29,6 +29,8 @@ export const badge = async (req, res) => {
         badgeName = latestBuild.badge;
       }
     }
+
+    res.setHeader('Cache-Control', 'no-cache');
     return res.sendFile(path.join(BADGES_PATH, `${badgeName}.svg`));
   } catch (err) {
     logger.error(`Error generating badge for repo ${repoUrl}`, err);
