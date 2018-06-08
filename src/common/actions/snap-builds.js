@@ -17,7 +17,10 @@ export function fetchSnap(repositoryUrl) {
     },
     [CALL_API]: {
       path: `/api/launchpad/snaps?repository_url=${encodeURIComponent(repositoryUrl)}`,
-      types: [FETCH_BUILDS, FETCH_SNAP_SUCCESS]
+      types: [FETCH_BUILDS, FETCH_SNAP_SUCCESS],
+      options: {
+        credentials: 'same-origin'
+      }
     }
   };
 }
