@@ -2,9 +2,10 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
-import { hasSnaps } from '../../selectors';
+import { hasSnaps, snapsWithNoBuilds } from '../../selectors';
 import { fetchUserSnaps } from '../../actions/snaps';
-import { fetchBuilds } from '../../actions/snap-builds';
+import { fetchBuilds, requestBuilds } from '../../actions/snap-builds';
+import { parseGitHubRepoUrl } from '../../helpers/github-url';
 import { LinkButton } from '../vanilla-modules/button';
 import { HeadingThree } from '../vanilla-modules/heading';
 import Notification from '../vanilla-modules/notification';
@@ -84,6 +85,20 @@ class RepositoriesHome extends Component {
         this.updateBuilds(nextProps);
       }
     }
+
+    // if there is a repo that is fully configured but haven't been built yet
+    // request builds for it
+    if (nextProps.snapsWithNoBuilds.length) {
+      // only request builds for first repo (not to trigger too many at once)
+      // if there are more repos to built, they will built eventually
+      const repoUrl = nextProps.snapsWithNoBuilds[0].gitRepoUrl;
+      const { fullName } = parseGitHubRepoUrl(repoUrl);
+      const builds = nextProps.snapBuilds[fullName];
+
+      if (!builds.isFetching) {
+        nextProps.requestBuilds(repoUrl);
+      }
+    }
   }
 
   renderRepositoriesList() {
@@ -132,10 +147,12 @@ RepositoriesHome.propTypes = {
   entities: PropTypes.object,
   snaps: PropTypes.object.isRequired,
   snapBuilds: PropTypes.object.isRequired,
+  snapsWithNoBuilds: PropTypes.array.isRequired,
   hasSnaps: PropTypes.bool,
   router: PropTypes.object.isRequired,
   updateSnaps: PropTypes.func.isRequired,
-  fetchBuilds: PropTypes.func.isRequired
+  fetchBuilds: PropTypes.func.isRequired,
+  requestBuilds: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
@@ -155,7 +172,8 @@ function mapStateToProps(state) {
     entities,
     snaps,
     snapBuilds,
-    hasSnaps: hasSnaps(state)
+    hasSnaps: hasSnaps(state),
+    snapsWithNoBuilds: snapsWithNoBuilds(state),
   };
 }
 
@@ -166,7 +184,11 @@ function mapDispatchToProps(dispatch) {
     },
     fetchBuilds: (repositoryUrl, snapLink) => {
       dispatch(fetchBuilds(repositoryUrl, snapLink));
+    },
+    requestBuilds: (repositoryUrl) => {
+      dispatch(requestBuilds(repositoryUrl));
     }
+
   };
 }
 
