@@ -22,31 +22,36 @@ const saveAssociation = (session) => {
       secret
     };
 
-    if (session.user) {
-      logger.info(`Saving association handle for user ${session.user.login}`);
-    }
+    // make sure session is saved before proceeding
+    session.save((err) => {
+      if (session.user) {
+        logger.info(`Saving association handle for user ${session.user.login}`);
+      }
 
-    callback(null); // Custom implementations may report error as first argument
+      callback(err);
+    });
   };
 };
 
 const loadAssociation = (session) => {
   return (handle, callback) => {
-    if (session.association) {
-      if (session.user) {
-        logger.info(`Loading association handle for user ${session.user.login}`);
-      }
+    session.reload((err) => {
+      if (session.association) {
+        if (session.user) {
+          logger.info(`Loading association handle for user ${session.user.login}`);
+        }
 
-      callback(null, session.association);
-    } else {
-      if (session.user) {
-        logger.error(`No association handle found for user ${session.user.login}`);
+        callback(err, session.association);
       } else {
-        logger.error('No association handle found, no user found in session');
-      }
+        if (session.user) {
+          logger.error(`No association handle found for user ${session.user.login}`);
+        } else {
+          logger.error('No association handle found, no user found in session');
+        }
 
-      callback(null, null);
-    }
+        callback(err, null);
+      }
+    });
   };
 };
 

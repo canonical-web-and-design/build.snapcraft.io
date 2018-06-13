@@ -12,7 +12,9 @@ const OPENID_VERIFY_URL = conf.get('OPENID_VERIFY_URL');
 
 describe('login routes', () => {
   const app = Express();
-  const session = {};
+  const session = {
+    save: (callback) => { callback(); }
+  };
   app.use((req, res, next) => {
     req.session = session;
     next();

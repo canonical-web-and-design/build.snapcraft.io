@@ -80,7 +80,9 @@ describe('RelyingParty with teams extension', () => {
 describe('RelyingParty saveAssociation', () => {
 
   let mySaveAssociation;
-  let mySession = {};
+  let mySession = {
+    save: (callback) => { callback(); }
+  };
 
   before(() => {
     mySaveAssociation = saveAssociation(mySession);
@@ -115,7 +117,8 @@ describe('RelyingParty loadAssociation', () => {
 
   let myLoadAssociation;
   let mySession = {
-    association: 'foo'
+    association: 'foo',
+    reload: (callback) => { callback(); }
   };
   let spy;
 
@@ -134,14 +137,16 @@ describe('RelyingParty loadAssociation', () => {
     });
 
     it('should callback with session association', () => {
-      expect(spy).toHaveBeenCalledWith(null, 'foo');
+      expect(spy).toHaveBeenCalledWith(undefined, 'foo');
     });
   });
 });
 
 describe('RelyingParty removeAssociation', () => {
   let myRemoveAssociation;
-  let mySession = {};
+  let mySession = {
+    association: 'foo'
+  };
 
   before(() => {
     myRemoveAssociation = removeAssociation(mySession);
@@ -153,6 +158,6 @@ describe('RelyingParty removeAssociation', () => {
 
   it('should delete session association', () => {
     myRemoveAssociation();
-    expect(mySession).toEqual({});
+    expect(mySession.association).toBe(undefined);
   });
 });
