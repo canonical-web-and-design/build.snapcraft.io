@@ -8,6 +8,7 @@ import { getMemcached } from '../helpers/memcached';
 import logging from '../logging';
 import { getSnapcraftYamlCacheId } from './github';
 import {
+  getGitBranch,
   internalFindSnap,
   internalGetSnapcraftYaml,
   internalRequestSnapBuilds
@@ -52,7 +53,7 @@ const handlePing = async (req, res) => {
   return res.status(200).send();
 };
 
-const handleGitHubPush = async (req, res, owner, name) => {
+const handleGitHubPush = async (req, res, owner, name, parsedBody) => {
   const repositoryUrl = getGitHubRepoUrl(owner, name);
   const cacheId = getSnapcraftYamlCacheId(repositoryUrl);
   // Clear snap name cache before starting.
@@ -63,6 +64,12 @@ const handleGitHubPush = async (req, res, owner, name) => {
     const snap = await internalFindSnap(repositoryUrl);
     if (!snap.store_name) {
       throw 'Cannot build snap until name is registered';
+    }
+    const gitBranch = await getGitBranch(snap);
+    if (parsedBody.ref !== `refs/heads/${gitBranch}`) {
+      logger.info(`Not requesting builds of ${repositoryUrl} ` +
+                  `(${parsedBody.ref} != refs/heads/${gitBranch}).`);
+      return res.status(200).send();
     }
     if (!snap.auto_build) {
       // XXX cjwatson 2017-02-16: Cache returned snap name, if any.

@@ -135,6 +135,51 @@ describe('The WebHook API endpoint', () => {
         });
       });
 
+      describe('if the push event is to a different branch', () => {
+        let findByURL;
+        let requestAutoBuilds;
+
+        beforeEach(() => {
+          findByURL = nock(lp_api_url)
+            .get('/devel/+snaps')
+            .query({
+              'ws.op': 'findByURL',
+              url: 'https://github.com/anowner/aname'
+            })
+            .reply(200, {
+              total_size: 1,
+              start: 0,
+              entries: [
+                {
+                  resource_type_link: `${lp_api_base}/#snap`,
+                  self_link: `${lp_api_base}${lp_snap_path}`,
+                  owner_link: `${lp_api_base}/~${lp_snap_user}`,
+                  git_path: 'refs/heads/next',
+                  store_name: 'test-snap',
+                  auto_build: true
+                }
+              ]
+            });
+          requestAutoBuilds = nock(lp_api_url)
+            .post(`/devel${lp_snap_path}`)
+            .reply(500);
+        });
+
+        it('returns 200 but does not request builds', (done) => {
+          supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-GitHub-Event', 'push')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body)
+            .expect(200, (err) => {
+              expect(findByURL.isDone()).toBe(true);
+              expect(requestAutoBuilds.isDone()).toBe(false);
+              done(err);
+            });
+        });
+      });
+
       describe('if name is registered and auto_build is true', () => {
         let findByURL;
         let requestAutoBuilds;
@@ -154,6 +199,7 @@ describe('The WebHook API endpoint', () => {
                   resource_type_link: `${lp_api_base}/#snap`,
                   self_link: `${lp_api_base}${lp_snap_path}`,
                   owner_link: `${lp_api_base}/~${lp_snap_user}`,
+                  git_path: 'refs/heads/master',
                   store_name: 'test-snap',
                   auto_build: true
                 }
@@ -223,6 +269,7 @@ describe('The WebHook API endpoint', () => {
                   resource_type_link: `${lp_api_base}/#snap`,
                   self_link: `${lp_api_base}${lp_snap_path}`,
                   owner_link: `${lp_api_base}/~${lp_snap_user}`,
+                  git_path: 'refs/heads/master',
                   store_name: 'test-snap',
                   auto_build: false
                 }
