@@ -42,7 +42,7 @@ export default class TrafficLights extends Component {
 
     this.state = {
       signals: [{
-        message: 'Connect to Github'
+        message: 'Connect to GitHub'
       }, {
         message: 'Choose a repo'
       }, {

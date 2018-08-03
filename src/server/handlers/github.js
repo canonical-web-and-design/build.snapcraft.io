@@ -354,7 +354,7 @@ const getRequest = (owner, name, token, secret) => {
 /*
  * parse_link_header()
  *
- * Parse the Github Link HTTP header used for pageination
+ * Parse the GitHub Link HTTP header used for pageination
  * http://developer.github.com/v3/#pagination
  *
  * Modified by kfenn to return page numbers instead of urls

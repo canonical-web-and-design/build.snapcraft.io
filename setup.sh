@@ -39,11 +39,11 @@ read
 
 echo
 read -p "Enter the GitHub client id: " client_id
-read -p "Enter the Github client secret: " client_secret
-read -p "Enter Github Username: " username
-read -s -p "Enter Github Password: " password
+read -p "Enter the GitHub client secret: " client_secret
+read -p "Enter GitHub Username: " username
+read -s -p "Enter GitHub Password: " password
 echo
-read -p "Enter Github 2FA: " tfa
+read -p "Enter GitHub 2FA: " tfa
 
 user="$username:$password"
 content_type="Content-Type: application/json"
