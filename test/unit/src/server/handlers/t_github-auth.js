@@ -37,7 +37,9 @@ describe('login', () => {
     it('on error calls next with error', () => {
       req.session.destroy.callsArgWith(0, true);
       logout(req, res, next);
-      expect(next.calledWith(new Error())).toBe(true);
+      expect(next.calledWithMatch((arg) => {
+        return arg instanceof Error && arg.message === 'Failed to log out.';
+      })).toBe(true);
     });
 
   });
