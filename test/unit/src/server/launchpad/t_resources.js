@@ -98,8 +98,7 @@ describe('Resources', () => {
       const collection = new Collection(
         getLaunchpad(), `${LP_API_URL}/devel/~foo/ppas`, representation);
       let copied_entries = [];
-      // https://github.com/babel/babel-eslint/issues/415
-      for await (const entry of collection) { // eslint-disable-line semi
+      for await (const entry of collection) {
         copied_entries.push({ name: entry.name });
       }
       expect(copied_entries).toEqual(entries);

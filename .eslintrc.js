@@ -21,10 +21,15 @@ module.exports = {
     'sourceType': 'module'
   },
   'plugins': [
+    'babel',
     'mocha',
     'react'
   ],
   'rules': {
+    'babel/semi': [
+      'error',
+      'always'
+    ],
     'indent': [
       'error',
       2,
@@ -32,8 +37,24 @@ module.exports = {
         'SwitchCase': 1
       }
     ],
-    'react/jsx-no-target-blank': [
-      2
+    'linebreak-style': [
+      'error',
+      'unix'
+    ],
+    'mocha/handle-done-callback': ['error'],
+    'mocha/no-exclusive-tests': ['error'],
+    'mocha/no-return-and-callback': ['error'],
+    'object-curly-spacing': [
+      'error',
+      'always'
+    ],
+    'quotes': [
+      'error',
+      'single'
+    ],
+    'react/jsx-closing-bracket-location': [
+      'error',
+      'tag-aligned'
     ],
     'react/jsx-indent': [
       'error',
@@ -43,28 +64,14 @@ module.exports = {
       'error',
       2
     ],
-    'react/jsx-closing-bracket-location': [
-      'error',
-      'tag-aligned'
+    'react/jsx-no-target-blank': [
+      2
     ],
-    'linebreak-style': [
-      'error',
-      'unix'
-    ],
-    'quotes': [
-      'error',
-      'single'
-    ],
-    'semi': [
-      'error',
-      'always'
-    ],
-    'object-curly-spacing': [
-      'error',
-      'always'
-    ],
-    'mocha/handle-done-callback': ['error'],
-    'mocha/no-exclusive-tests': ['error'],
-    'mocha/no-return-and-callback': ['error']
+    'semi': 'off'
+  },
+  'settings': {
+    'react': {
+      'version': '15.4.0'
+    }
   }
 };

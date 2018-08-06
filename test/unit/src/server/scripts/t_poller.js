@@ -166,8 +166,8 @@ describe('Poller script helpers', function() {
           });
         lp.post(`/devel/~${LP_API_USERNAME}/+snap/a_snap`)
           .reply(200, [
-              { self_link: '+build/100' },
-              { self_link: '+build/101' }
+            { self_link: '+build/100' },
+            { self_link: '+build/101' }
           ]);
 
         let checker = sinon.stub().returns(true);

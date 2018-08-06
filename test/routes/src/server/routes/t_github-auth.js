@@ -158,8 +158,7 @@ describe('The login route', () => {
             .end((err) => {
               scope.done();
               done(err);
-            }
-          );
+            });
         });
 
         it('should clear cached organization information and refetch it', async () => {

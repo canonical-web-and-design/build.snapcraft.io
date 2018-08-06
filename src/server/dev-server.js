@@ -23,6 +23,6 @@ const watcher = chokidar.watch('./src');
 
 watcher.on('ready', function() {
   watcher.on('all', function() {
-    clearRequireCache(/[\/\\]src[\/\\]/, require.cache);
+    clearRequireCache(/[/\\]src[/\\]/, require.cache);
   });
 });

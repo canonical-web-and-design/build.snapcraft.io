@@ -27,7 +27,7 @@ const googleOptimizePageHide = GAID && OPTID ?
     })(window,document.documentElement,'async-hide','dataLayer',4000,
     {'${OPTID}':true});` }}
   />
- : null;
+  : null;
 
 const googleAnalytics = GAID && OPTID ?
   <script
@@ -44,7 +44,7 @@ const googleAnalytics = GAID && OPTID ?
     'landscape.canonical.com', 'pages.ubuntu.com', 'tutorials.ubuntu.com', 'docs.ubuntu.com']);
     ga('require', '${OPTID}');` }}
   />
- : null;
+  : null;
 
 const googleTagManager = GTMID ?
   <script
@@ -95,11 +95,11 @@ export default class Html extends Component {
           <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:300,400" />
           <link rel="stylesheet" href={ assets.main.css } />
           {
-           /*
-            Insert third party scripts (e.g. Stripe) here.
-            Trying to load them with Helmet will make them
-            load twice.
-           */
+            /*
+              Insert third party scripts (e.g. Stripe) here.
+              Trying to load them with Helmet will make them
+              load twice.
+            */
           }
         </head>
         <body>

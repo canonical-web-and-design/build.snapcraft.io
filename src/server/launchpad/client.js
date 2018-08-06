@@ -181,7 +181,8 @@ export class Launchpad {
     if (representation === null || representation === undefined) {
       return representation;
     }
-    if (representation.resource_type_link === undefined) {
+    const resource_type_link = representation.resource_type_link;
+    if (resource_type_link === undefined) {
       // This is a non-entry object returned by a named operation.  It's
       // either a list or a random JSON object.
       if (representation.total_size !== undefined
@@ -208,8 +209,7 @@ export class Launchpad {
         // It's a random JSON object. Leave it alone.
         return representation;
       }
-    } else if (representation.resource_type_link.search(
-        /\/#service-root$/) !== -1) {
+    } else if (resource_type_link.search(/\/#service-root$/) !== -1) {
       return new Root(this, uri, representation);
     } else if (representation.total_size === undefined) {
       return new Entry(this, uri, representation);

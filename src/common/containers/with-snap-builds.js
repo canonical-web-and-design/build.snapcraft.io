@@ -10,7 +10,7 @@ function withSnapBuilds(WrappedComponent) {
 
   class WithSnapBuilds extends Component {
 
-    fetchInterval = null
+    fetchInterval = null;
 
     fetchData({ snap, repository }) {
       if (snap && snap.selfLink) {

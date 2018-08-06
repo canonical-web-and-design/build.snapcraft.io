@@ -43,8 +43,8 @@ export async function internalNameOwnership(root, discharge, snapName) {
       // if code is "already_owned" - current user already owns the name
       // otherwise (code is "already_registered" or else) name is owned by someone else
       return (registerJson.code === 'already_owned')
-          ? NAME_OWNERSHIP_ALREADY_OWNED
-          : NAME_OWNERSHIP_REGISTERED_BY_OTHER_USER;
+        ? NAME_OWNERSHIP_ALREADY_OWNED
+        : NAME_OWNERSHIP_REGISTERED_BY_OTHER_USER;
     } else {
       // unexpected response from name register api
       throw getError(registerResponse, {

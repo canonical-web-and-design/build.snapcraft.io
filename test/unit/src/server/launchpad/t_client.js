@@ -59,8 +59,9 @@ describe('Launchpad', () => {
 
       try {
         const result = await getLaunchpad().get('/people');
-        assert(false, 'Expected promise to be rejected; got %s instead',
-               result);
+        assert(
+          false, 'Expected promise to be rejected; got %s instead', result
+        );
       } catch (error) {
         expect(error.response.status).toEqual(503);
         expect(error.uri).toEqual(`${LP_API_URL}/devel/people`);
@@ -91,8 +92,9 @@ describe('Launchpad', () => {
 
       try {
         const result = await getLaunchpad().named_get('/people', 'getByEmail');
-        assert(false, 'Expected promise to be rejected; got %s instead',
-               result);
+        assert(
+          false, 'Expected promise to be rejected; got %s instead', result
+        );
       } catch (error) {
         expect(error.response.status).toEqual(503);
         expect(error.uri).toEqual(
@@ -134,8 +136,9 @@ describe('Launchpad', () => {
 
       try {
         const result = await getLaunchpad().named_post('/people', 'newTeam');
-        assert(false, 'Expected promise to be rejected; got %s instead',
-               result);
+        assert(
+          false, 'Expected promise to be rejected; got %s instead', result
+        );
       } catch (error) {
         expect(error.response.status).toEqual(503);
         expect(error.uri).toEqual(`${LP_API_URL}/devel/people`);
@@ -170,8 +173,9 @@ describe('Launchpad', () => {
         const result = await getLaunchpad().patch('/~foo', {
           'display_name': 'Foo'
         });
-        assert(false, 'Expected promise to be rejected; got %s instead',
-               result);
+        assert(
+          false, 'Expected promise to be rejected; got %s instead', result
+        );
       } catch (error) {
         expect(error.response.status).toEqual(503);
         expect(error.uri).toEqual(`${LP_API_URL}/devel/~foo`);
@@ -194,8 +198,9 @@ describe('Launchpad', () => {
 
       try {
         const result = await getLaunchpad().delete('/~foo');
-        assert(false, 'Expected promise to be rejected; got %s instead',
-               result);
+        assert(
+          false, 'Expected promise to be rejected; got %s instead', result
+        );
       } catch (error) {
         expect(error.response.status).toEqual(503);
         expect(error.uri).toEqual(`${LP_API_URL}/devel/~foo`);

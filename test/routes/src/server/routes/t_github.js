@@ -214,8 +214,8 @@ describe('The GitHub API endpoint', () => {
 
         it('should return with same error code', (done) => {
           supertest(app)
-          .post('/github/user')
-          .expect(errorCode, done);
+            .post('/github/user')
+            .expect(errorCode, done);
         });
 
         it('should return a "error" status', (done) => {
@@ -252,8 +252,8 @@ describe('The GitHub API endpoint', () => {
 
         it('should return with 200', (done) => {
           supertest(app)
-          .get('/github/user')
-          .expect(200, done);
+            .get('/github/user')
+            .expect(200, done);
         });
 
         it('should return a "success" status', (done) => {
@@ -466,8 +466,8 @@ describe('The GitHub API endpoint', () => {
 
         it('should return with same error code', (done) => {
           supertest(app)
-          .post('/github/repos')
-          .expect(errorCode, done);
+            .post('/github/repos')
+            .expect(errorCode, done);
         });
 
         it('should return a "error" status', (done) => {
@@ -528,8 +528,8 @@ describe('The GitHub API endpoint', () => {
 
         it('should return with 200', (done) => {
           supertest(app)
-          .get('/github/repos')
-          .expect(200, done);
+            .get('/github/repos')
+            .expect(200, done);
         });
 
         it('should return a "success" status', (done) => {
@@ -605,8 +605,7 @@ describe('The GitHub API endpoint', () => {
           .end((err) => {
             scope.done();
             done(err);
-          }
-        );
+          });
       });
 
       it('should return a 201 created response', (done) => {

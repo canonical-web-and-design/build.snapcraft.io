@@ -132,8 +132,8 @@ describe('The Launchpad API endpoint', () => {
             .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect(hasMessage(
-                'lp-error',
-                'There is already a snap package with the same name and owner.'))
+              'lp-error',
+              'There is already a snap package with the same name and owner.'))
             .end(done);
         });
 
@@ -1848,18 +1848,18 @@ describe('The Launchpad API endpoint', () => {
 
       it('should return a "error" status', (done) => {
         supertest(app)
-        .get('/launchpad/builds')
-        .set('X-CSRF-Token', 'blah')
-        .expect(hasStatus('error'))
-        .end(done);
+          .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
+          .expect(hasStatus('error'))
+          .end(done);
       });
 
       it('should return body with error message', (done) => {
         supertest(app)
-        .get('/launchpad/builds')
-        .set('X-CSRF-Token', 'blah')
-        .expect(hasMessage('missing-snap-link'))
-        .end(done);
+          .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
+          .expect(hasMessage('missing-snap-link'))
+          .end(done);
       });
 
     });

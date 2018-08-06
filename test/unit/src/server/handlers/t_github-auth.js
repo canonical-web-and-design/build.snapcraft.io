@@ -18,7 +18,7 @@ describe('login', () => {
       send: spy(),
       redirect: spy()
     },
-      next = spy();
+    next = spy();
   });
 
   describe('logout handler', () => {

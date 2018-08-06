@@ -42,7 +42,7 @@ export default class Header extends Component {
               </li>
             </ul>
             { authenticated
-              ?
+              ? (
                 <ul className={ style['p-navigation__links--right']} role="menu">
                   <li className={ style['p-navigation__item'] } role="menuitem">
                     <a>Hi, {user.name || user.login}</a>
@@ -53,12 +53,13 @@ export default class Header extends Component {
                     </a>
                   </li>
                 </ul>
-              :
+              ) : (
                 <ul className={ style['p-navigation__links--right']} role="menu">
                   <li className={ style['p-navigation__link'] } role="menuitem">
                     <a href="/auth/authenticate">Sign in with GitHub</a>
                   </li>
                 </ul>
+              )
             }
           </nav>
         </div>

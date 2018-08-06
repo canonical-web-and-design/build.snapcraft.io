@@ -225,8 +225,10 @@ const ensureWebhook = async (snap) => {
 
   try {
     const webhooks = await lpClient.get(snap.webhooks_collection_link);
-    if (webhooks.entries.some(
-          (webhook) => webhook.delivery_url === notifyUrl)) {
+    const hasMatch = webhooks.entries.some(
+      (webhook) => webhook.delivery_url === notifyUrl
+    );
+    if (hasMatch) {
       return;
     }
 
@@ -333,8 +335,7 @@ export const internalFindSnap = async (repositoryUrl) => {
     });
   }
   const username = conf.get('LP_API_USERNAME');
-  // https://github.com/babel/babel-eslint/issues/415
-  for await (const entry of entries) { // eslint-disable-line semi
+  for await (const entry of entries) {
     if (entry.owner_link.endsWith(`/~${username}`)) {
       await getMemcached().set(cacheId, entry, 3600);
       return entry;
@@ -452,8 +453,7 @@ const initializeMetrics = async (trx, gitHubId, snaps) => {
           buildsRequested += builds.total_size;
           if (rowData.builds_released === undefined ||
               rowData.builds_released === null) {
-            // https://github.com/babel/babel-eslint/issues/415
-            for await (const build of builds) { // eslint-disable-line semi
+            for await (const build of builds) {
               if (build.store_upload_status === 'Uploaded') {
                 buildsReleased += 1;
               }
@@ -797,8 +797,8 @@ export const internalRequestSnapBuilds = async (snap, owner, name, reason) => {
     await db.transaction(async (trx) => {
       for (const ann of build_annotations) {
         await db.model('BuildAnnotation')
-            .forge(ann)
-            .save({}, { method: 'insert', transacting: trx });
+          .forge(ann)
+          .save({}, { method: 'insert', transacting: trx });
       }
     });
   } catch (error) {
