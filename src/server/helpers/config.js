@@ -11,6 +11,7 @@ import dotenv from 'dotenv';
 const CLIENT_SIDE_WHITELIST = [
   'NODE_ENV',
   'BASE_URL',
+  'SNAPCRAFT_URL',
   'GITHUB_API_ENDPOINT',
   'GITHUB_AUTH_CLIENT_ID',
   'UBUNTU_SSO_URL',

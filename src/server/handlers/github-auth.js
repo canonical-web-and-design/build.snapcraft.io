@@ -14,6 +14,7 @@ const GITHUB_AUTH_CLIENT_ID = conf.get('GITHUB_AUTH_CLIENT_ID');
 const GITHUB_AUTH_CLIENT_SECRET = conf.get('GITHUB_AUTH_CLIENT_SECRET');
 const GITHUB_AUTH_REDIRECT_URL = conf.get('GITHUB_AUTH_REDIRECT_URL');
 const HTTP_PROXY = conf.get('HTTP_PROXY');
+const SNAPCRAFT_URL = conf.get('SNAPCRAFT_URL');
 const logger = logging.getLogger('login');
 
 export const authenticate = (req, res, next) => {
@@ -146,6 +147,6 @@ export const logout = (req, res, next) => {
       return next(new Error('Failed to log out.'));
     }
     // FIXME redirect to page that initiated the sign in request
-    res.redirect('/');
+    res.redirect(`${SNAPCRAFT_URL}/logout?no_redirect=true`);
   });
 };

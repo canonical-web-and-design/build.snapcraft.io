@@ -36,7 +36,7 @@ describe('<Header />', function() {
     });
 
     it('should render user name', () => {
-      expect(element.html().indexOf('Hi, Joe Doe')).toBeGreaterThan(0);
+      expect(element.html().indexOf('Joe Doe')).toBeGreaterThan(0);
     });
 
     it('should render sign out link', () => {
@@ -53,7 +53,7 @@ describe('<Header />', function() {
       });
 
       it('should render login as user name', () => {
-        expect(element.html().indexOf('Hi, jdoe')).toBeGreaterThan(0);
+        expect(element.html().indexOf('jdoe')).toBeGreaterThan(0);
       });
     });
   });

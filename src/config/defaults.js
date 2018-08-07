@@ -2,6 +2,7 @@ export default {
   HOST: '0.0.0.0',
   PORT: '8000',
   BASE_URL: 'http://localhost:8000',
+  SNAPCRAFT_URL: 'https://snapcraft.io',
   WEBPACK_DEV_URL: 'http://localhost:8001',
   NODE_ENV: 'development',
   ENVIRONMENT: 'development',

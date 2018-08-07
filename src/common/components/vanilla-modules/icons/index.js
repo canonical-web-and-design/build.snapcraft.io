@@ -23,6 +23,7 @@ const Icon = (props) => {
     [iconStyle(appearance)]: true,
     [iconStyle(size)]: true,
     [iconStyle('inherit-color')]: inheritColor,
+    [props.className]: props.className
   });
 
   // Aria-hidden is required as icons shouldn't be visible to
@@ -61,7 +62,8 @@ Icon.propTypes = {
     'spinner'
   ]),
   inheritColor: PropTypes.bool,
-  size: PropTypes.oneOf(['medium', 'large', 'x-large', 'xx-large'])
+  size: PropTypes.oneOf(['medium', 'large', 'x-large', 'xx-large']),
+  className: PropTypes.string
 };
 
 // Icon type components

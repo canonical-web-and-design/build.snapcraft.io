@@ -13,11 +13,18 @@ $color-navigation-background: #252525;
 // CUSTOM OVERRIDES
 
 .p-navigation {
-  $navigation-border-color: lighten($color-navigation-background, 20%);
+  $navigation-border-color: transparent;
   $navigation-hover-color: darken($color-navigation-background, 8%); // from #252525 to #111
+
+  .p-navigation__logo {
+    height: 3rem;
+    margin: 0 1rem 0 1.5rem;
+  }
 
   .p-navigation__image {
     display: block;
+    max-height: 2rem;
+    min-height: 1.5rem;
   }
 
     .p-navigation__links {
@@ -25,6 +32,12 @@ $color-navigation-background: #252525;
       @media (min-width: $breakpoint-navigation-threshold + 1) {
       .p-navigation__link {
         border-left: 1px solid $navigation-border-color;
+        position: relative;
+
+        a {
+          font-size: 1rem;
+          padding: .75rem 1rem;
+        }
 
         a:hover,
         .is-selected {
@@ -60,9 +73,49 @@ $color-navigation-background: #252525;
   // right aligned sign-in navigation
   .p-navigation__links--right {
     @extend .p-navigation__links;
+    margin-right: 20px;
+
+    .p-nav-icon {
+      margin-right: .5rem;
+    }
 
     &:last-of-type {
       border-right: none;
+    }
+
+    .p-dropdown__toggle {
+      cursor: pointer;
+
+      .p-nav-icon {
+        width: 12px;
+        height: 12px;
+        margin-right: 0;
+        margin-left: .5rem;
+      }
+
+      &[aria-expanded="true"] i {
+        transform: rotate(180deg);
+      }
+    }
+
+    .p-dropdown__menu {
+      background-color: $color-navigation-background;
+      margin: 0;
+      padding: 0;
+      display: none;
+      position: absolute;
+      right: 0;
+      white-space: nowrap;
+
+      &[aria-hidden="false"] {
+        display: block;
+      }
+
+      .p-navigation__link {
+        border-left: 0;
+        float: none;
+        width: 100%;
+      }
     }
   }
 
