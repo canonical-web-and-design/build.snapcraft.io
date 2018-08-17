@@ -9,6 +9,10 @@ import assets from '../../../webpack-assets.json';
 
 let routes = require('../../common/routes').default;
 
+export const homepage = (req, res) => {
+  res.redirect(302, conf.get('SNAPCRAFT_URL') + '/build');
+};
+
 export const universal = (req, res) => {
   if (process.env.NODE_ENV === 'development') {
     // Hot-reload application files when changes
