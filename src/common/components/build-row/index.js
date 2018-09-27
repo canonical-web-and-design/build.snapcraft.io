@@ -75,14 +75,14 @@ const BuildRow = (props) => {
           : <span>{`#${buildId}`}</span>
         }
       </Data>
+      <Data col="20">
+        { getBuildTriggerMessage(repository, reason, commitId) }
+      </Data>
       <Data col="15">
         {architecture}
       </Data>
       <Data col="15">
         {humanDuration}
-      </Data>
-      <Data col="20">
-        { getBuildTriggerMessage(repository, reason, commitId) }
       </Data>
       <Data col="35">
         <BuildStatus

@@ -29,7 +29,7 @@ describe('<BuildRow />', function() {
 
     expect(element.find('Data').length).toBe(5);
 
-    const column = shallow(element.find(Data).get(3));
+    const column = shallow(element.find(Data).get(1));
     expect(column.html()).toInclude('Unknown');
   });
 
@@ -44,7 +44,7 @@ describe('<BuildRow />', function() {
 
       expect(element.find('Data').length).toBe(5);
 
-      const column = shallow(element.find(Data).get(3));
+      const column = shallow(element.find(Data).get(1));
       expect(column.html()).toInclude('Commit');
     });
 
@@ -59,7 +59,7 @@ describe('<BuildRow />', function() {
 
       expect(element.find('Data').length).toBe(5);
 
-      const column = shallow(element.find(Data).get(3));
+      const column = shallow(element.find(Data).get(1));
       expect(column.html()).toInclude('Commit');
       expect(column.find('a').length).toBe(1);
       expect(column.html()).toInclude('ab1234');

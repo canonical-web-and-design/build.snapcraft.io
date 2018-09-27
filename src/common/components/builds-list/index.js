@@ -30,9 +30,9 @@ export const BuildsList = (props) => {
       <Head>
         <Row>
           <Header col="15">Number</Header>
+          <Header col="20">Build trigger</Header>
           <Header col="15">Architecture</Header>
           <Header col="15">Duration</Header>
-          <Header col="20">Build trigger</Header>
           <Header col="35">Result</Header>
         </Row>
       </Head>
