@@ -76,10 +76,8 @@ export const pollRepositories = (checker) => {
         try {
           const snap = await internalFindSnap(repositoryUrl);
           const builds = await internalGetSnapBuilds(snap, 0, 1);
-          // https://launchpad.net/+apidoc/devel.html#snap
-          // All builds of this snap package, sorted in descending order of
-          // finishing (or starting if not completed successfully).
-          const last_build = builds.entries[0];
+          // The most-recently-changed build or build request for this snap.
+          const last_build = builds[0];
 
           // TODO: builds won't be triggered if there are already previous ones
           // waiting in queue ('Needs Building' or 'Building').

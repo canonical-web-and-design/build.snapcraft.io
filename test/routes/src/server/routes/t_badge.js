@@ -5,7 +5,7 @@ import proxyquire from 'proxyquire';
 
 const launchpadModule = {
   internalFindSnap: () => {},
-  internalGetSnapBuilds: () => {}
+  internalGetSnapBuilds: () => []
 };
 
 const badgeHandlerModule = proxyquire.noCallThru().load(
@@ -43,7 +43,7 @@ describe('The badge endpoint', () => {
       spyOnFindSnap.andThrow(new Error('Snap not found'));
     });
 
-    it('shoud return an error', async () => {
+    it('should return an error', async () => {
       await supertest(app).get('/badge/anowner/aname.svg').expect(404);
     });
   });
@@ -57,17 +57,14 @@ describe('The badge endpoint', () => {
 
     context('when there are builds for given repo', () => {
       beforeEach(() => {
-        spyOnGetBuilds.andReturn({
-          total_size: 1,
-          start: 0,
-          entries: [{
-            buildstate: 'Successfully built',
-            store_upload_status: 'Uploaded'
-          }]
-        });
+        spyOnGetBuilds.andReturn([{
+          resource_type_link: 'https://api.launchpad.net/devel/#snap_build',
+          buildstate: 'Successfully built',
+          store_upload_status: 'Uploaded'
+        }]);
       });
 
-      it('shoud return a 200 OK', async () => {
+      it('should return a 200 OK', async () => {
         await supertest(app).get('/badge/anowner/aname.svg').expect(200);
       });
 
@@ -83,18 +80,14 @@ describe('The badge endpoint', () => {
 
     context('when there are no builds for given repo', () => {
       beforeEach(() => {
-        spyOnGetBuilds.andReturn({
-          total_size: 0,
-          start: 0,
-          entries: []
-        });
+        spyOnGetBuilds.andReturn([]);
       });
 
-      it('shoud return a 200 OK', async () => {
+      it('should return a 200 OK', async () => {
         await supertest(app).get('/badge/anowner/aname.svg').expect(200);
       });
 
-      it('shoud return a SVG image with `never built` status', async () => {
+      it('should return a SVG image with `never built` status', async () => {
         const response = await supertest(app).get('/badge/anowner/aname.svg')
           .expect('Content-Type', 'image/svg+xml').buffer();
 

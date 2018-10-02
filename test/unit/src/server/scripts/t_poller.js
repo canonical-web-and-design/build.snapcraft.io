@@ -115,7 +115,9 @@ describe('Poller script helpers', function() {
         lp.get(`/devel/~${LP_API_USERNAME}/+snap/a_snap/pending_builds`)
           .query({ 'ws.start': '0', 'ws.size': '1' })
           .reply(200, {
+            total_size: 1,
             entries: [{
+              resource_type_link: `${LP_API_URL}/devel/#snap_build`,
               datebuilt: since.format()
             }]
           });
@@ -131,7 +133,9 @@ describe('Poller script helpers', function() {
         lp.get(`/devel/~${LP_API_USERNAME}/+snap/a_snap/pending_builds`)
           .query({ 'ws.start': '0', 'ws.size': '1' })
           .reply(200, {
+            total_size: 1,
             entries: [{
+              resource_type_link: `${LP_API_URL}/devel/#snap_build`,
               datebuilt: since.format()
             }]
           });
@@ -160,7 +164,9 @@ describe('Poller script helpers', function() {
         lp.get(`/devel/~${LP_API_USERNAME}/+snap/a_snap/pending_builds`)
           .query({ 'ws.start': '0', 'ws.size': '1' })
           .reply(200, {
+            total_size: 1,
             entries: [{
+              resource_type_link: `${LP_API_URL}/devel/#snap_build`,
               datebuilt: since.format()
             }]
           });

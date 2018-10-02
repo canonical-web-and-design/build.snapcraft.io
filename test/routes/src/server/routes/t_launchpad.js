@@ -1719,7 +1719,8 @@ describe('The Launchpad API endpoint', () => {
           });
       });
 
-      it('should pass start and size params to builds_collection_link call', (done) => {
+      it('should pass start and size params to builds_collection_link ' +
+         'call', (done) => {
         // when getting builds list (via builds_collection_link)
         const lp = nock(lp_api_url)
           .get(lp_pending_builds_path)
@@ -1727,7 +1728,13 @@ describe('The Launchpad API endpoint', () => {
             'ws.start': 7,
             'ws.size': 42
           })
-          .reply(200, { entries: [] });
+          .reply(200, { total_size: 0, entries: [] })
+          .get(lp_completed_builds_path)
+          .query({
+            'ws.start': 7,
+            'ws.size': 42
+          })
+          .reply(200, { total_size: 0, entries: [] });
 
         supertest(app)
           .get('/launchpad/builds')

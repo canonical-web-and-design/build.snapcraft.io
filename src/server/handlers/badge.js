@@ -22,8 +22,8 @@ export const badge = async (req, res) => {
 
     let badgeName = 'never_built';
 
-    if (builds.entries && builds.entries.length) {
-      const latestBuild = snapBuildFromAPI(builds.entries[0]);
+    if (builds.length) {
+      const latestBuild = snapBuildFromAPI(builds[0]);
 
       if (latestBuild.badge) {
         badgeName = latestBuild.badge;
