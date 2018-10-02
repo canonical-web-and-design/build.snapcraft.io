@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 
+import BuildRequestRow from '../build-request-row';
 import BuildRow from '../build-row';
 import { Table, Head, Body, Row, Header } from '../vanilla/table-interactive';
 import Notification from '../vanilla-modules/notification';
@@ -21,9 +22,21 @@ export const BuildsList = (props) => {
 
   const buildRows = builds
     .sort((a,b) => ((+b.buildId) - (+a.buildId)))
-    .map((build) => (
-      <BuildRow key={build.buildId} {...build} repository={repository} />
-    ));
+    .map((build) => {
+      if (build.isRequest) {
+        return (
+          <BuildRequestRow
+            key={ `request_${build.buildId}` }
+            {...build}
+            repository={repository}
+          />
+        );
+      } else {
+        return (
+          <BuildRow key={build.buildId} {...build} repository={repository} />
+        );
+      }
+    });
 
   return (
     <Table>

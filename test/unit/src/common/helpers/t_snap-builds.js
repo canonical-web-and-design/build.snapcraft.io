@@ -42,6 +42,17 @@ describe('snapBuildFromAPI helper', () => {
     'store_upload_status': 'Uploaded'
   };
 
+  const SNAP_BUILD_REQUEST_ENTRY = {
+    builds_collection_link: 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2/+build-request/10/builds',
+    date_requested: '2016-11-09T17:05:52.436792+00:00',
+    error_message: 'Boom',
+    resource_type_link: 'https://api.launchpad.net/devel/#snap_build_request',
+    self_link: 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2/+build-request/10',
+    snap_link: 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2',
+    status: 'Pending',
+    web_link: 'https://launchpad.net/~cjwatson/+snap/godd-test-2/+build-request/10',
+  };
+
   let snapBuild;
 
   context('when passed a valid snap build entry object', () => {
@@ -52,6 +63,8 @@ describe('snapBuildFromAPI helper', () => {
 
     it('should return an object containing all expected fields', () => {
       expect(snapBuild).toIncludeKeys([
+        'isRequest',
+
         'buildId',
         'buildLogUrl',
 
@@ -61,6 +74,8 @@ describe('snapBuildFromAPI helper', () => {
         'colour',
         'icon',
         'priority',
+        'badge',
+
         'isPublished',
 
         'dateCreated',
@@ -68,8 +83,15 @@ describe('snapBuildFromAPI helper', () => {
         'dateBuilt',
         'duration',
 
-        'storeRevision'
+        'storeRevision',
+        'storeUploadStatus',
+        'storeUploadErrorMessage',
+        'storeUploadErrorMessages'
       ]);
+    });
+
+    it('should set isRequest to false', () => {
+      expect(snapBuild.isRequest).toBe(false);
     });
 
     it('should parse buildId from self_link field', () => {
@@ -112,6 +134,53 @@ describe('snapBuildFromAPI helper', () => {
     it('should take storeRevision from store_upload_revision field', () => {
       expect(snapBuild.storeRevision).toEqual(
         SNAP_BUILD_ENTRY.store_upload_revision);
+    });
+
+  });
+
+  context('when passed a valid snap build request entry object', () => {
+
+    beforeEach(() => {
+      snapBuild = snapBuildFromAPI(SNAP_BUILD_REQUEST_ENTRY);
+    });
+
+    it('should return an object containing all expected fields', () => {
+      expect(snapBuild).toIncludeKeys([
+        'isRequest',
+
+        'buildId',
+
+        'statusMessage',
+        'colour',
+        'icon',
+        'priority',
+        'badge',
+
+        'dateCreated',
+        'errorMessage'
+      ]);
+    });
+
+    it('should set isRequest to true', () => {
+      expect(snapBuild.isRequest).toBe(true);
+    });
+
+    it('should take statusMessage from status field', () => {
+      expect(snapBuild.statusMessage).toEqual(
+        UserFacingState.BUILDING_SOON.statusMessage
+      );
+    });
+
+    it('should take dateCreated from date_requested field', () => {
+      expect(snapBuild.dateCreated).toEqual(
+        SNAP_BUILD_REQUEST_ENTRY.date_requested
+      );
+    });
+
+    it('should take errorMessage from error_message field', () => {
+      expect(snapBuild.errorMessage).toEqual(
+        SNAP_BUILD_REQUEST_ENTRY.error_message
+      );
     });
 
   });
@@ -272,6 +341,37 @@ describe('snapBuildFromAPI helper', () => {
 
   });
 
+  context('when mapping build request states', () => {
+
+    it('should map `Pending` into "grey"', () => {
+      const entry = {
+        ...SNAP_BUILD_REQUEST_ENTRY,
+        status: 'Pending'
+      };
+
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.GREY);
+    });
+
+    it('should map `Completed` into "grey"', () => {
+      const entry = {
+        ...SNAP_BUILD_REQUEST_ENTRY,
+        status: 'Completed'
+      };
+
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.GREY);
+    });
+
+    it('should map `Failed` into "red"', () => {
+      const entry = {
+        ...SNAP_BUILD_REQUEST_ENTRY,
+        status: 'Failed'
+      };
+
+      expect(snapBuildFromAPI(entry).colour).toEqual(BuildStatusColours.RED);
+    });
+
+  });
+
 });
 
 describe('isBuildInProgress', () => {
@@ -289,9 +389,12 @@ describe('isBuildInProgress', () => {
 });
 
 describe('annotateSnapBuild', () => {
-  const TEST_ANNOTATIONS = {
+  const TEST_BUILD_ANNOTATIONS = {
     '1234': { reason: 'test1234' },
     '1235': { reason: 'test1235' }
+  };
+  const TEST_BUILD_REQUEST_ANNOTATIONS = {
+    '123456': { reason: 'test123456' }
   };
 
   it('should return a function', () => {
@@ -302,15 +405,47 @@ describe('annotateSnapBuild', () => {
     let annotate;
 
     beforeEach(() => {
-      annotate = annotateSnapBuild(TEST_ANNOTATIONS);
+      annotate = annotateSnapBuild(
+        TEST_BUILD_ANNOTATIONS, TEST_BUILD_REQUEST_ANNOTATIONS
+      );
     });
 
     it('should annotate given build with given reason', () => {
-      expect(annotate({ buildId: '1234' }).reason).toBe('test1234');
+      expect(annotate({
+        isRequest: false,
+        buildId: '1234'
+      }).reason).toBe('test1234');
     });
 
-    it('should annotate given build with default reason if reason is invalid', () => {
-      expect(annotate({ buildId: '4321' }).reason).toBe(BUILD_TRIGGER_UNKNOWN);
+    it('should annotate given build with default reason if reason ' +
+       'is invalid', () => {
+      expect(annotate({
+        isRequest: false,
+        buildId: '4321'
+      }).reason).toBe(BUILD_TRIGGER_UNKNOWN);
+      expect(annotate({
+        isRequest: false,
+        buildId: '123456'
+      }).reason).toBe(BUILD_TRIGGER_UNKNOWN);
+    });
+
+    it('should annotate given build request with given reason', () => {
+      expect(annotate({
+        isRequest: true,
+        buildId: '123456'
+      }).reason).toBe('test123456');
+    });
+
+    it('should annotate given build request with default reason if reason ' +
+       'is invalid', () => {
+      expect(annotate({
+        isRequest: true,
+        buildId: '654321'
+      }).reason).toBe(BUILD_TRIGGER_UNKNOWN);
+      expect(annotate({
+        isRequest: true,
+        buildId: '1234'
+      }).reason).toBe(BUILD_TRIGGER_UNKNOWN);
     });
   });
 });

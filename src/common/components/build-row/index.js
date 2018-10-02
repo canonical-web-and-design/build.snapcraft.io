@@ -107,7 +107,7 @@ BuildRow.propTypes = {
   }),
 
   // build properties
-  buildId:  PropTypes.string,
+  buildId: PropTypes.string,
   buildLogUrl: PropTypes.string,
   architecture: PropTypes.string,
   colour: PropTypes.oneOf(Object.values(BuildStatusColours)),

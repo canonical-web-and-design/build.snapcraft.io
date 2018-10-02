@@ -3,6 +3,8 @@
 // Parsed from API response in format:
 // https://launchpad.net/+apidoc/devel.html#snap_build
 // {
+//   isRequest: false,
+//
 //   buildId: '1232', // last part of 'self_link'
 //
 //   buildLogUrl: '', // 'build_log_url'
@@ -15,13 +17,23 @@
 //   architecture: 'i386', //'arch_tag'
 //
 //   // https://git.launchpad.net/launchpad/tree/lib/lp/buildmaster/enums.py#n22
-//   status:  'error', // parsed based on 'buildstate' -> success, error, pending
 //   statusMessage: 'Failed to build', // 'buildstate'
 //
 //   dateCreated: '2016-12-01T17:08:36.317805+00:00', // 'datecreated'
 //   dateStarted: '2016-12-01T17:08:36.317805+00:00', // 'date_started'
 //   dateCompleted: '2016-12-01T17:10:36.317805+00:00', // 'datebuilt'
 //   duration: '0:02:00.124039' // 'duration'
+// };
+//
+// or format:
+// https://launchpad.net/+apidoc/devel.html#snap_build_request
+// {
+//   isRequest: true,
+//
+//   buildId: '12345678', // last part of 'self_link'
+//   statusMessage: 'Building soon', // 'status'
+//   dateCreated: '2016-12-01T17:08:36.317805+00:00', // 'date_created'
+//   errorMessage: null
 // };
 
 import { BUILD_TRIGGER_UNKNOWN } from './build_annotation';
@@ -121,6 +133,12 @@ function createState(statusMessage, colour, icon, priority, badge) {
   };
 }
 
+const LaunchpadBuildRequestStates = {
+  'PENDING': 'Pending',
+  'FAILED': 'Failed',
+  'COMPLETED': 'Completed'
+};
+
 // Based on BuildStatusConstants from LP API
 // https://git.launchpad.net/launchpad/tree/lib/lp/buildmaster/enums.py#n22
 //
@@ -145,6 +163,20 @@ const LaunchpadStoreUploadStates = {
   'FAILEDTORELEASE': 'Failed to release to channels',
   'UPLOADED': 'Uploaded'
 };
+
+function mapBuildRequestState(buildRequestState) {
+  switch (buildRequestState) {
+    case LaunchpadBuildRequestStates.PENDING:
+    case LaunchpadBuildRequestStates.COMPLETED:
+      return UserFacingState.BUILDING_SOON;
+    case LaunchpadBuildRequestStates.FAILED:
+      return UserFacingState.FAILED_TO_BUILD;
+    default:
+      throw new RangeError(
+        'Unrecognised buildRequestState in mapBuildRequestState'
+      );
+  }
+}
 
 function mapBuildAndUploadStates(buildState, uploadState) {
   switch (buildState) {
@@ -193,10 +225,11 @@ function getLastPartOfUrl(url) {
 }
 
 export function snapBuildFromAPI(entry) {
-
   if (!entry) {
     return null;
   }
+
+  const isRequest = entry.resource_type_link.endsWith('#snap_build_request');
 
   const {
     colour,
@@ -204,44 +237,69 @@ export function snapBuildFromAPI(entry) {
     icon, // TODO we don't use this yet
     priority, // TODO we don't use this yet
     badge
-  } = mapBuildAndUploadStates(entry.buildstate, entry.store_upload_status);
+  } = (
+    isRequest
+      ? mapBuildRequestState(entry.status)
+      : mapBuildAndUploadStates(entry.buildstate, entry.store_upload_status)
+  );
 
-  return {
+  const result = {
+    isRequest,
+
     buildId: getLastPartOfUrl(entry.self_link),
-    buildLogUrl: entry.build_log_url,
-
-    architecture: entry.arch_tag,
-
-    commitId: entry.revision_id,
 
     statusMessage,
     colour,
     icon,
     priority,
-    badge,
-
-    isPublished: entry.store_upload_status === 'Uploaded',
-    dateCreated: entry.datecreated,
-    dateStarted: entry.date_started,
-    dateBuilt: entry.datebuilt,
-    duration: entry.duration,
-
-    storeRevision: entry.store_upload_revision,
-    storeUploadStatus: entry.store_upload_status,
-    storeUploadErrorMessage: entry.store_upload_error_message,
-    storeUploadErrorMessages: entry.store_upload_error_messages,
+    badge
   };
+
+  if (isRequest) {
+    Object.assign(result, {
+      dateCreated: entry.date_requested,
+      errorMessage: entry.error_message
+    });
+  } else {
+    Object.assign(result, {
+      buildLogUrl: entry.build_log_url,
+
+      architecture: entry.arch_tag,
+
+      commitId: entry.revision_id,
+
+      isPublished: entry.store_upload_status === 'Uploaded',
+      dateCreated: entry.datecreated,
+      dateStarted: entry.date_started,
+      dateBuilt: entry.datebuilt,
+      duration: entry.duration,
+
+      storeRevision: entry.store_upload_revision,
+      storeUploadStatus: entry.store_upload_status,
+      storeUploadErrorMessage: entry.store_upload_error_message,
+      storeUploadErrorMessages: entry.store_upload_error_messages
+    });
+  }
+
+  return result;
 }
 
 export function isBuildInProgress(build) {
   return build.statusMessage === 'In progress' || build.statusMessage === 'Building soon';
 }
 
-export const annotateSnapBuild = (buildAnnotations = {}) => {
+export const annotateSnapBuild = (
+  buildAnnotations = {}, buildRequestAnnotations = {}
+) => {
   return (build) => {
+    const annotation = (
+      build.isRequest
+        ? buildRequestAnnotations[build.buildId]
+        : buildAnnotations[build.buildId]
+    );
     return {
       ...build,
-      reason: buildAnnotations[build.buildId] ? buildAnnotations[build.buildId].reason : BUILD_TRIGGER_UNKNOWN
+      reason: annotation ? annotation.reason : BUILD_TRIGGER_UNKNOWN
     };
   };
 };

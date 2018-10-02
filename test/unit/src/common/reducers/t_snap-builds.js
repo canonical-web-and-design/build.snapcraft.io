@@ -1,6 +1,10 @@
 import expect from 'expect';
 
-import { getAnnotatedBuilds, snapBuilds, snapBuildsInitialStatus } from '../../../../../src/common/reducers/snap-builds';
+import {
+  getAnnotatedBuilds,
+  snapBuilds,
+  snapBuildsInitialStatus
+} from '../../../../../src/common/reducers/snap-builds';
 import * as ActionTypes from '../../../../../src/common/actions/snap-builds';
 
 const SNAP_BUILDS = [{
@@ -57,6 +61,17 @@ const SNAP_BUILDS = [{
   'upload_log_url': null
 }];
 
+const SNAP_BUILD_REQUEST = {
+  builds_collection_link: 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2/+build-request/10/builds',
+  date_requested: '2016-11-09T17:05:52.436792+00:00',
+  error_message: null,
+  resource_type_link: 'https://api.launchpad.net/devel/#snap_build_request',
+  self_link: 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2/+build-request/10',
+  snap_link: 'https://api.launchpad.net/devel/~cjwatson/+snap/godd-test-2',
+  status: 'Pending',
+  web_link: 'https://launchpad.net/~cjwatson/+snap/godd-test-2/+build-request/10',
+};
+
 describe('getAnnotatedBuilds', () => {
   const id = 'dummy/repo';
 
@@ -79,6 +94,26 @@ describe('getAnnotatedBuilds', () => {
 
     expect(getAnnotatedBuilds(action)[0]).toInclude({ reason: 'test-annotation-1' });
     expect(getAnnotatedBuilds(action)[1]).toInclude({ reason: 'test-annotation-2' });
+  });
+
+  it('should return build requests with annotations', () => {
+    const action = {
+      type: ActionTypes.FETCH_BUILDS_SUCCESS,
+      payload: {
+        id,
+        response: {
+          payload: {
+            builds: [SNAP_BUILD_REQUEST],
+            build_request_annotations: {
+              '10': { reason: 'test-annotation-1' }
+            }
+          }
+        }
+      }
+    };
+
+    expect(getAnnotatedBuilds(action)[0])
+      .toInclude({ reason: 'test-annotation-1' });
   });
 });
 
@@ -153,7 +188,7 @@ describe('snapBuilds reducers', () => {
         id,
         response: {
           payload: {
-            builds: SNAP_BUILDS
+            builds: [SNAP_BUILD_REQUEST, ...SNAP_BUILDS]
           }
         }
       }
@@ -163,7 +198,7 @@ describe('snapBuilds reducers', () => {
       expect(snapBuilds(state, action)[id].isFetching).toBe(false);
     });
 
-    it('should store builds on fetch success', () => {
+    it('should store builds and build requests on fetch success', () => {
       expect(snapBuilds(state, action)[id].builds).toEqual(getAnnotatedBuilds(action));
     });
 
@@ -182,7 +217,7 @@ describe('snapBuilds reducers', () => {
       [id]: {
         ...initialStatus,
         isFetching: true,
-        builds: ['test-build-1', 'test-build-2'],
+        builds: ['test-build-request-1', 'test-build-request-2'],
         error: 'Previous error'
       }
     };
@@ -193,7 +228,10 @@ describe('snapBuilds reducers', () => {
         id,
         response: {
           payload: {
-            builds: SNAP_BUILDS
+            builds: [SNAP_BUILD_REQUEST],
+            build_annotations: {
+              '10': { reason: 'test-annotation-1' }
+            }
           }
         }
       }

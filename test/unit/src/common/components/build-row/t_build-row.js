@@ -9,7 +9,8 @@ import { BUILD_TRIGGER_UNKNOWN, BUILD_TRIGGERED_BY_WEBHOOK } from '../../../../.
 
 describe('<BuildRow />', function() {
   const TEST_BUILD = {
-    buildId:  '1234',
+    isRequest: false,
+    buildId: '1234',
     buildLogUrl: 'http://example.com/12344567890_BUILDING.txt.gz',
     architecture: 'arch',
     colour: 'green',
