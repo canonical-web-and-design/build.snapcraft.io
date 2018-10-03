@@ -57,7 +57,9 @@ export class Builds extends Component {
   renderHelpBoxes() {
     const { snap } = this.props;
     const { builds } = this.props.snapBuilds;
-    const isPublished = builds.some((build) => build.isPublished);
+    const isPublished = builds.some(
+      (build) => !build.isRequest && build.isPublished
+    );
 
     if (snap && snap.storeName && isPublished) {
       return (
@@ -123,7 +125,14 @@ export class Builds extends Component {
   getLatestAndPreviousBuilds() {
     return this.props.snapBuilds.builds.reduce((builds, build) => {
       let { latest, previous } = builds;
-      if (latest.filter(b => b.architecture === build.architecture).length === 0) {
+      if (build.isRequest && build.statusMessage === 'Building soon') {
+        latest.push(build);
+      } else if (
+        !build.isRequest &&
+        latest.filter(
+          b => !b.isRequest && b.architecture === build.architecture
+        ).length === 0
+      ) {
         latest.push(build);
       } else {
         previous.push(build);

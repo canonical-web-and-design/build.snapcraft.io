@@ -10,8 +10,13 @@ const BUILD_TRIGGERED_BY_POLLER = 'triggered-by-poller';
 const BUILD_TRIGGER_UNKNOWN = 'trigger-unknown';
 
 
-function getBuildId(build) {
-  return parseInt(build.self_link.split('/').pop(), 10);
+function getLinkId(link) {
+  return parseInt(link.split('/').pop(), 10);
+}
+
+
+function getSelfId(entry) {
+  return getLinkId(entry.self_link);
 }
 
 
@@ -20,5 +25,6 @@ export {
   BUILD_TRIGGERED_BY_WEBHOOK,
   BUILD_TRIGGERED_BY_POLLER,
   BUILD_TRIGGER_UNKNOWN,
-  getBuildId
+  getLinkId,
+  getSelfId
 };

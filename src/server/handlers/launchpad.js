@@ -8,7 +8,7 @@ import { normalize } from 'normalizr';
 
 import {
   BUILD_TRIGGERED_MANUALLY,
-  getBuildId
+  getSelfId
 } from '../../common/helpers/build_annotation';
 import { parseGitHubRepoUrl } from '../../common/helpers/github-url';
 import db from '../db';
@@ -684,9 +684,26 @@ export const authorizeSnap = async (req, res) => {
   }
 };
 
-export async function internalGetSnapBuilds(snap, start = 0, size = 10) {
+export async function internalGetSnapBuilds(
+  snap, start = 0, size = 10, options = {}
+) {
   const builds = [];
   let gotItems = 0;
+
+  if (options.withRequests && gotItems < size) {
+    const buildRequests = await getLaunchpad().get(
+      snap.pending_build_requests_collection_link, { start, size }
+    );
+    for await (const buildRequest of buildRequests) {
+      builds.push(buildRequest);
+    }
+    // XXX cjwatson 2018-10-01: We should also include previously-failed
+    // build requests, since they might fail for reasons that the developer
+    // needs to fix (e.g. malformed snapcraft.yaml).  Doing this in a
+    // pagination-friendly way requires further work on the Launchpad APIs
+    // we're using.
+    gotItems += buildRequests.total_size;
+  }
 
   if (gotItems < size) {
     const pendingBuilds = await getLaunchpad().get(
@@ -710,16 +727,48 @@ export async function internalGetSnapBuilds(snap, start = 0, size = 10) {
   return builds;
 }
 
-async function internalGetBuildAnnotations(builds) {
-  const db_annotations = await db.model('BuildAnnotation')
-    .where('build_id', 'IN', builds.map((b) => { return getBuildId(b); }))
+async function internalGetBuildRequestAnnotations(builds) {
+  if (builds.length === 0) {
+    return {};
+  }
+
+  let build_request_annotations = {};
+
+  const db_annotations = await db.model('BuildRequestAnnotation')
+    .where('request_id', 'IN', builds.map(getSelfId))
     .fetchAll();
 
-  let build_annotations = {};
   for (const m of db_annotations.models) {
-    build_annotations[m.get('build_id')] = {
+    build_request_annotations[m.get('request_id')] = {
       reason: m.get('reason')
     };
+  }
+
+  return build_request_annotations;
+}
+
+async function internalGetBuildAnnotations(builds) {
+  if (builds.length === 0) {
+    return {};
+  }
+
+  let build_annotations = {};
+
+  const db_annotations = await db.model('BuildAnnotation')
+    .where('build_id', 'IN', builds.map(getSelfId))
+    .fetchAll({ withRelated: ['request'] });
+
+  for (const m of db_annotations.models) {
+    let reason = m.get('reason');
+    if (reason === null) {
+      const request_annotation = m.related('request');
+      if (request_annotation) {
+        reason = request_annotation.get('reason');
+      }
+    }
+    if (reason !== null) {
+      build_annotations[m.get('build_id')] = { reason };
+    }
   }
 
   return build_annotations;
@@ -742,15 +791,23 @@ export const getSnapBuilds = async (req, res) => {
     const snap = await getLaunchpad().get(snapUrl);
 
     const builds = await internalGetSnapBuilds(
-      snap, req.query.start, req.query.size
+      snap, req.query.start, req.query.size, { withRequests: true }
     );
-    const build_annotations = await internalGetBuildAnnotations(builds);
+    const build_request_annotations = await internalGetBuildRequestAnnotations(
+      builds.filter(
+        build => build.resource_type_link.endsWith('#snap_build_request')
+      )
+    );
+    const build_annotations = await internalGetBuildAnnotations(
+      builds.filter(build => build.resource_type_link.endsWith('#snap_build'))
+    );
 
     return res.status(200).send({
       status: 'success',
       payload: {
         code: 'snap-builds-found',
         builds,
+        build_request_annotations,
         build_annotations
       }
     });
@@ -799,7 +856,7 @@ export const internalRequestSnapBuilds = async (snap, owner, name, reason) => {
   // is not transactional).
   const build_annotations = builds.map((b) => {
     return {
-      build_id: getBuildId(b),
+      build_id: getSelfId(b),
       reason: reason
     };
   });
@@ -835,6 +892,7 @@ export const requestSnapBuilds = async (req, res) => {
       payload: {
         code: 'snap-builds-requested',
         builds: builds,
+        build_request_annotations: {},
         build_annotations: build_annotations
       }
     });

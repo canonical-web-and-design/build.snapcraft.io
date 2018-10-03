@@ -1538,6 +1538,7 @@ describe('The Launchpad API endpoint', () => {
 
     let lp_api_url;
     let lp_snap_path;
+    let lp_pending_build_requests_path;
     let lp_builds_path;
     let lp_pending_builds_path;
     let lp_completed_builds_path;
@@ -1546,6 +1547,8 @@ describe('The Launchpad API endpoint', () => {
     before(() => {
       lp_api_url = conf.get('LP_API_URL');
       lp_snap_path = `/devel/~${lp_snap_user}/+snap/${lp_snap_name}`;
+      lp_pending_build_requests_path =
+        `${lp_snap_path}/pending_build_requests`;
       lp_builds_path = `${lp_snap_path}/builds`;
       lp_pending_builds_path = `${lp_snap_path}/pending_builds`;
       lp_completed_builds_path = `${lp_snap_path}/completed_builds`;
@@ -1554,12 +1557,20 @@ describe('The Launchpad API endpoint', () => {
     });
 
     context('when snap and builds are successfully fetched', () => {
+      let test_build_request;
       let test_build;
 
       beforeEach(async () => {
+        await db.model('BuildRequestAnnotation').query().truncate();
+        await db.model('BuildAnnotation').query().truncate();
+
+        test_build_request = {
+          resource_type_link: `${lp_api_url}/devel/#snap_build_request`,
+          self_link: `${lp_api_url}${lp_snap_path}/+build-request/123`
+        };
         test_build = {
-          'resource_type_link': `${lp_api_url}/devel/#snap_build`,
-          'self_link': `${lp_api_url}${lp_snap_path}/+build/12345`,
+          resource_type_link: `${lp_api_url}/devel/#snap_build`,
+          self_link: `${lp_api_url}${lp_snap_path}/+build/12345`
         };
 
         // Corresponding build_annotation.
@@ -1572,27 +1583,42 @@ describe('The Launchpad API endpoint', () => {
           .get(lp_snap_path)
           .reply(200, {
             name: lp_snap_name,
+            pending_build_requests_collection_link:
+              `${lp_api_url}${lp_pending_build_requests_path}`,
             builds_collection_link: `${lp_api_url}${lp_builds_path}`,
             pending_builds_collection_link:  `${lp_api_url}${lp_pending_builds_path}`,
             completed_builds_collection_link:  `${lp_api_url}${lp_completed_builds_path}`
           });
 
-        // when getting builds list (via builds_collection_link)
+        // when getting build requests list (via
+        // pending_build_requests_collection_link)
         nock(lp_api_url)
-          .get(lp_pending_builds_path)
+          .get(lp_pending_build_requests_path)
           .query({
             'ws.start': 0,
             'ws.size': 10
           })
           .reply(200, {
-            total_size: 10,
+            total_size: 1,
+            start: 0,
+            entries: [ test_build_request ]
+          });
+
+        // when getting builds list (via pending_builds_collection_link)
+        nock(lp_api_url)
+          .get(lp_pending_builds_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 9
+          })
+          .reply(200, {
+            total_size: 9,
             start: 0,
             entries: [ test_build ]
           });
       });
 
-      afterEach(async () => {
-        await db.model('BuildAnnotation').query().truncate();
+      afterEach(() => {
         nock.cleanAll();
       });
 
@@ -1622,21 +1648,15 @@ describe('The Launchpad API endpoint', () => {
           .end(done);
       });
 
-      it('should return builds list in payload', (done) => {
+      it('should return builds and build requests list in payload', (done) => {
         supertest(app)
           .get('/launchpad/builds')
           .set('X-CSRF-Token', 'blah')
           .query({ snap: lp_snap_url })
           .end((err, res) => {
-            const build = res.body.payload.builds[0];
-            // XXX bartaz
-            // Wanted to use `expect(build).toEqual(test_build)`
-            // but LP client adds more propeties to the object...
-            // also `expect(build).toContain(test_build)` doesnt work
-            // because `expect` fails to iterate over keys on the object
-            // for some reason (async maybe).
-            // To be investigated later...
-            expect(build.self_link).toEqual(test_build.self_link);
+            expect(res.body.payload.builds).toEqual(
+              [test_build_request, test_build]
+            );
             done(err);
           });
       });
@@ -1664,6 +1684,8 @@ describe('The Launchpad API endpoint', () => {
           .get(lp_snap_path)
           .reply(200, {
             name: lp_snap_name,
+            pending_build_requests_collection_link:
+              `${lp_api_url}${lp_pending_build_requests_path}`,
             builds_collection_link: `${lp_api_url}${lp_builds_path}`,
             pending_builds_collection_link:  `${lp_api_url}${lp_pending_builds_path}`,
             completed_builds_collection_link:  `${lp_api_url}${lp_completed_builds_path}`
@@ -1675,14 +1697,24 @@ describe('The Launchpad API endpoint', () => {
       });
 
       it('should default start to 0 and size to 10', (done) => {
-        // when getting builds list (via builds_collection_link)
-        const lp = nock(lp_api_url)
-          .get(lp_pending_builds_path)
+        const lp = nock(lp_api_url);
+
+        // when getting build requests list (via
+        // pending_build_requests_collection_link)
+        lp.get(lp_pending_build_requests_path)
           .query({
             'ws.start': 0,
             'ws.size': 10
           })
-          .reply(200,{ total_size: 10, entries: [] });
+          .reply(200, { total_size: 0, entries: [] });
+
+        // when getting builds list (via pending_builds_collection_link)
+        lp.get(lp_pending_builds_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 10
+          })
+          .reply(200, { total_size: 10, entries: [] });
 
         supertest(app)
           .get('/launchpad/builds')
@@ -1694,20 +1726,27 @@ describe('The Launchpad API endpoint', () => {
           });
       });
 
-      it('should fetch pending builds and then completed builds', (done) => {
+      it('should fetch pending build requests, then pending builds, and ' +
+         'then completed builds', (done) => {
         const lp = nock(lp_api_url)
-          .get(lp_pending_builds_path)
+          .get(lp_pending_build_requests_path)
           .query({
             'ws.start': 0,
             'ws.size': 10
           })
-          .reply(200,{ total_size: 5, entries: [] })
+          .reply(200, { total_size: 1, entries: [] })
+          .get(lp_pending_builds_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 9
+          })
+          .reply(200, { total_size: 5, entries: [] })
           .get(lp_completed_builds_path)
           .query({
             'ws.start': 0,
-            'ws.size': 5
+            'ws.size': 4
           })
-          .reply(200,{ total_size: 5, entries: [] });
+          .reply(200, { total_size: 4, entries: [] });
 
         supertest(app)
           .get('/launchpad/builds')
@@ -1719,10 +1758,15 @@ describe('The Launchpad API endpoint', () => {
           });
       });
 
-      it('should pass start and size params to builds_collection_link ' +
-         'call', (done) => {
-        // when getting builds list (via builds_collection_link)
+      it('should pass start and size params to builds collection ' +
+         'calls', (done) => {
         const lp = nock(lp_api_url)
+          .get(lp_pending_build_requests_path)
+          .query({
+            'ws.start': 7,
+            'ws.size': 42
+          })
+          .reply(200, { total_size: 0, entries: [] })
           .get(lp_pending_builds_path)
           .query({
             'ws.start': 7,
@@ -1756,14 +1800,17 @@ describe('The Launchpad API endpoint', () => {
           .get(lp_snap_path)
           .reply(200, {
             name: lp_snap_name,
+            pending_build_requests_collection_link:
+              `${lp_api_url}${lp_pending_build_requests_path}`,
             builds_collection_link: `${lp_api_url}${lp_builds_path}`,
             pending_builds_collection_link:  `${lp_api_url}${lp_pending_builds_path}`,
             completed_builds_collection_link:  `${lp_api_url}${lp_completed_builds_path}`
           });
 
-        // when getting builds list (via builds_collection_link)
+        // when getting build requests list (via
+        // pending_build_requests_collection_link)
         nock(lp_api_url)
-          .get(lp_pending_builds_path)
+          .get(lp_pending_build_requests_path)
           .query({
             'ws.start': 0,
             'ws.size': 10
@@ -1869,6 +1916,143 @@ describe('The Launchpad API endpoint', () => {
           .end(done);
       });
 
+    });
+
+    context('when builds have an associated build request', () => {
+      let test_build_request;
+      let test_builds;
+
+      beforeEach(async () => {
+        await db.model('BuildRequestAnnotation').query().truncate();
+        await db.model('BuildAnnotation').query().truncate();
+
+        test_build_request = {
+          resource_type_link: `${lp_api_url}/devel/#snap_build_request`,
+          self_link: `${lp_api_url}${lp_snap_path}/+build-request/123`
+        };
+        test_builds = [
+          {
+            resource_type_link: `${lp_api_url}/devel/#snap_build`,
+            self_link: `${lp_api_url}${lp_snap_path}/+build/12345`
+          },
+          {
+            resource_type_link: `${lp_api_url}/devel/#snap_build`,
+            self_link: `${lp_api_url}${lp_snap_path}/+build/12346`
+          },
+          {
+            resource_type_link: `${lp_api_url}/devel/#snap_build`,
+            self_link: `${lp_api_url}${lp_snap_path}/+build/12347`
+          }
+        ];
+
+        await db.model('BuildRequestAnnotation')
+          .forge({ request_id: 123, reason: 'Testing request' })
+          .save({}, { method: 'insert' });
+        await db.model('BuildAnnotation')
+          .forge({ build_id: 12345, request_id: 123 })
+          .save({}, { method: 'insert' });
+        await db.model('BuildAnnotation')
+          .forge({ build_id: 12346, request_id: 123, reason: 'Testing build' })
+          .save({}, { method: 'insert' });
+
+        nock(lp_api_url)
+          .get(lp_snap_path)
+          .reply(200, {
+            name: lp_snap_name,
+            pending_build_requests_collection_link:
+              `${lp_api_url}${lp_pending_build_requests_path}`,
+            builds_collection_link: `${lp_api_url}${lp_builds_path}`,
+            pending_builds_collection_link:
+              `${lp_api_url}${lp_pending_builds_path}`,
+            completed_builds_collection_link:
+              `${lp_api_url}${lp_completed_builds_path}`
+          });
+
+        nock(lp_api_url)
+          .get(lp_pending_build_requests_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 10
+          })
+          .reply(200, {
+            total_size: 1,
+            start: 0,
+            entries: [ test_build_request ]
+          });
+
+        nock(lp_api_url)
+          .get(lp_pending_builds_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 9
+          })
+          .reply(200, {
+            total_size: 9,
+            start: 0,
+            entries: test_builds
+          });
+      });
+
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('should return a 200 OK response', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
+          .query({ snap: lp_snap_url })
+          .expect(200, done);
+      });
+
+      it('should return a "success" status', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
+          .query({ snap: lp_snap_url })
+          .expect(hasStatus('success'))
+          .end(done);
+      });
+
+      it('should return body with "snap-builds-found" message', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
+          .query({ snap: lp_snap_url })
+          .expect(hasMessage('snap-builds-found'))
+          .end(done);
+      });
+
+      it('should return builds and build requests list in payload', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
+          .query({ snap: lp_snap_url })
+          .end((err, res) => {
+            expect(res.body.payload.builds).toEqual(
+              [test_build_request, ...test_builds]
+            );
+            done(err);
+          });
+      });
+
+      it('should return build and build request annotations in ' +
+         'payload', (done) => {
+        supertest(app)
+          .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
+          .query({ snap: lp_snap_url })
+          .end((err, res) => {
+            expect(res.body.payload.build_request_annotations).toEqual({
+              123: { reason: 'Testing request' }
+            });
+            expect(res.body.payload.build_annotations).toEqual({
+              12345: { reason: 'Testing request' },
+              12346: { reason: 'Testing build' }
+            });
+            done(err);
+          });
+      });
     });
 
   });
@@ -2041,6 +2225,7 @@ describe('The Launchpad API endpoint', () => {
             .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect((res) => {
+              expect(res.body.payload.build_request_annotations).toEqual({});
               expect(res.body.payload.build_annotations).toEqual({
                 1: { reason: BUILD_TRIGGERED_MANUALLY },
                 2: { reason: BUILD_TRIGGERED_MANUALLY }
