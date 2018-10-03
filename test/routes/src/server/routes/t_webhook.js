@@ -4,6 +4,9 @@ import Express from 'express';
 import nock from 'nock';
 import supertest from 'supertest';
 
+import {
+  BUILD_TRIGGERED_MANUALLY
+} from '../../../../../src/common/helpers/build_annotation';
 import db from '../../../../../src/server/db';
 import { getSnapcraftYamlCacheId } from '../../../../../src/server/handlers/github';
 import { conf } from '../../../../../src/server/helpers/config';
@@ -20,6 +23,7 @@ describe('The WebHook API endpoint', () => {
   app.use(github);
 
   beforeEach(async () => {
+    await db.model('BuildRequestAnnotation').query().truncate();
     await db.model('BuildAnnotation').query().truncate();
   });
 
@@ -28,6 +32,8 @@ describe('The WebHook API endpoint', () => {
   });
 
   describe('notify route', () => {
+    const lp_api_url = conf.get('LP_API_URL');
+    const lp_api_base = `${lp_api_url}/devel`;
     const lp_snap_user = 'test-user';
     const lp_snap_path = `/~${lp_snap_user}/+snap/test-snap`;
 
@@ -75,8 +81,6 @@ describe('The WebHook API endpoint', () => {
     });
 
     describe('with a good signature from GitHub', () => {
-      const lp_api_url = conf.get('LP_API_URL');
-      const lp_api_base = `${lp_api_url}/devel`;
       const body = JSON.stringify({ ref: 'refs/heads/master' });
       let signature;
 
@@ -459,6 +463,107 @@ describe('The WebHook API endpoint', () => {
           })
           .save();
         await db.model('Repository').query('truncate').fetch();
+      });
+
+      context('if action is created', () => {
+        const body = JSON.stringify({
+          snap_build_link: `${lp_api_base}${lp_snap_path}/+build/2`,
+          action: 'created',
+          build_request_link: `${lp_api_base}${lp_snap_path}/+build-request/1`
+        });
+        let signature;
+
+        before(() => {
+          let hmac = createHmac('sha1', conf.get('LP_WEBHOOK_SECRET'));
+          hmac.update('anowner');
+          hmac.update('aname');
+          hmac = createHmac('sha1', hmac.digest('hex'));
+          hmac.update(body);
+          signature = hmac.digest('hex');
+        });
+
+        it('returns 200 OK', (done) => {
+          supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-Launchpad-Event-Type', 'snap:build:0.1')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body)
+            .expect(200, done);
+        });
+
+        it('leaves builds_requested unmodified if it is unset', async () => {
+          await supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-Launchpad-Event-Type', 'snap:build:0.1')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body);
+          const dbUser = await db.model('GitHubUser')
+            .where({ login: 'anowner' })
+            .fetch();
+          expect(dbUser.get('builds_requested')).toBeFalsy();
+        });
+
+        it('increments builds_requested if it is set', async () => {
+          const dbUser = await db.model('GitHubUser')
+            .where({ login: 'anowner' })
+            .fetch();
+          await dbUser.save({ builds_requested: 1 });
+          await supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-Launchpad-Event-Type', 'snap:build:0.1')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body);
+          await dbUser.refresh();
+          expect(dbUser.get('builds_requested')).toEqual(2);
+        });
+
+        it('attributes builds_requested to the registrant', async () => {
+          const dbUser = await db.model('GitHubUser')
+            .forge({
+              github_id: 2,
+              login: 'another',
+              last_login_at: new Date(),
+              builds_requested: 1
+            })
+            .save();
+          await db.model('Repository')
+            .forge({
+              owner: 'anowner',
+              name: 'aname',
+              registrant_id: dbUser.get('id')
+            })
+            .save();
+          await supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-Launchpad-Event-Type', 'snap:build:0.1')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body);
+          await dbUser.refresh();
+          expect(dbUser.get('builds_requested')).toEqual(2);
+        });
+
+        it('records build request annotation', async () => {
+          await db.model('BuildRequestAnnotation')
+            .forge({
+              request_id: 1,
+              reason: BUILD_TRIGGERED_MANUALLY
+            })
+            .save({}, { method: 'insert' });
+          await supertest(app)
+            .post('/anowner/aname/webhook/notify')
+            .type('application/json')
+            .set('X-Launchpad-Event-Type', 'snap:build:0.1')
+            .set('X-Hub-Signature', `sha1=${signature}`)
+            .send(body);
+          const dbBuildAnnotation = await db.model('BuildAnnotation')
+            .where({ build_id: 2 })
+            .fetch();
+          expect(dbBuildAnnotation.get('request_id')).toEqual(1);
+        });
       });
 
       context('if store_upload_status is not Uploaded', () => {
