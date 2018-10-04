@@ -467,9 +467,9 @@ describe('The WebHook API endpoint', () => {
 
       context('if action is created', () => {
         const body = JSON.stringify({
-          snap_build_link: `${lp_api_base}${lp_snap_path}/+build/2`,
+          snap_build: `${lp_api_base}${lp_snap_path}/+build/2`,
           action: 'created',
-          build_request_link: `${lp_api_base}${lp_snap_path}/+build-request/1`
+          build_request: `${lp_api_base}${lp_snap_path}/+build-request/1`
         });
         let signature;
 
