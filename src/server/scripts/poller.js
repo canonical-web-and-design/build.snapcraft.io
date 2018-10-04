@@ -75,13 +75,20 @@ export const pollRepositories = (checker) => {
         const repositoryUrl = getGitHubRepoUrl(owner, name);
         try {
           const snap = await internalFindSnap(repositoryUrl);
-          const builds = await internalGetSnapBuilds(snap, 0, 1);
+          const builds = await internalGetSnapBuilds(
+            snap, 0, 1, { withRequests: true }
+          );
           // The most-recently-changed build or build request for this snap.
           const last_build = builds[0];
 
           // TODO: builds won't be triggered if there are already previous ones
           // waiting in queue ('Needs Building' or 'Building').
-          const last_built_at = last_build.datebuilt || last_build.datecreated;
+          let last_built_at;
+          if (last_build.resource_type_link.endsWith('#snap_build_request')) {
+            last_built_at = last_build.date_requested;
+          } else {
+            last_built_at = last_build.datebuilt || last_build.datecreated;
+          }
           if (!last_built_at) {
             throw new Error('LP last build timestamps are inconsistent.');
           }

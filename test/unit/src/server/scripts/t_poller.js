@@ -88,6 +88,7 @@ describe('Poller script helpers', function() {
     context('when there are repositories', function() {
       const LP_API_URL = conf.get('LP_API_URL');
       const LP_API_USERNAME = conf.get('LP_API_USERNAME');
+      const snapPath = `/~${LP_API_USERNAME}/+snap/a_snap`;
       let lp;
 
       beforeEach(() => {
@@ -98,9 +99,10 @@ describe('Poller script helpers', function() {
           .reply(200, [{
             owner_link: `/~${LP_API_USERNAME}`,
             self_link: `/~${LP_API_USERNAME}/+snap/a_snap`,
-            builds_collection_link: `${LP_API_URL}/devel/~${LP_API_USERNAME}/+snap/a_snap/builds`,
-            pending_builds_collection_link: `${LP_API_URL}/devel/~${LP_API_USERNAME}/+snap/a_snap/pending_builds`,
-            completed_builds_collection_link: `${LP_API_URL}/devel/~${LP_API_USERNAME}/+snap/a_snap/completed_builds`,
+            pending_build_requests_collection_link: `${LP_API_URL}/devel${snapPath}/pending_build_requests`,
+            builds_collection_link: `${LP_API_URL}/devel${snapPath}/builds`,
+            pending_builds_collection_link: `${LP_API_URL}/devel${snapPath}/pending_builds`,
+            completed_builds_collection_link: `${LP_API_URL}/devel${snapPath}/completed_builds`,
             auto_build: true
           }]);
       });
@@ -109,10 +111,31 @@ describe('Poller script helpers', function() {
         lp.done();
       });
 
+      it('gets skipped if build request already pending', async () => {
+        const threshold = conf.get('POLLER_BUILD_THRESHOLD');
+        const since = moment().utc().subtract(threshold - 1, 'hours');
+        lp.get(`/devel${snapPath}/pending_build_requests`)
+          .query({ 'ws.start': '0', 'ws.size': '1' })
+          .reply(200, {
+            total_size: 1,
+            entries: [{
+              resource_type_link: `${LP_API_URL}/devel/#snap_build_request`,
+              date_requested: since.format()
+            }]
+          });
+
+        let checker = sinon.spy();
+        await pollRepositories(checker);
+        expect(checker.callCount).toBe(0);
+      });
+
       it('gets skipped if built within the previous built window', async () => {
         const threshold = conf.get('POLLER_BUILD_THRESHOLD');
         const since = moment().utc().subtract(threshold - 1, 'hours');
-        lp.get(`/devel/~${LP_API_USERNAME}/+snap/a_snap/pending_builds`)
+        lp.get(`/devel${snapPath}/pending_build_requests`)
+          .query({ 'ws.start': '0', 'ws.size': '1' })
+          .reply(200, { total_size: 0, entries: [] });
+        lp.get(`/devel${snapPath}/pending_builds`)
           .query({ 'ws.start': '0', 'ws.size': '1' })
           .reply(200, {
             total_size: 1,
@@ -130,7 +153,10 @@ describe('Poller script helpers', function() {
       it('gets checked, but not built if not changed', async () => {
         const threshold = conf.get('POLLER_BUILD_THRESHOLD');
         const since = moment().utc().subtract(threshold + 1, 'hours');
-        lp.get(`/devel/~${LP_API_USERNAME}/+snap/a_snap/pending_builds`)
+        lp.get(`/devel${snapPath}/pending_build_requests`)
+          .query({ 'ws.start': '0', 'ws.size': '1' })
+          .reply(200, { total_size: 0, entries: [] });
+        lp.get(`/devel${snapPath}/pending_builds`)
           .query({ 'ws.start': '0', 'ws.size': '1' })
           .reply(200, {
             total_size: 1,
@@ -161,7 +187,10 @@ describe('Poller script helpers', function() {
 
         const threshold = conf.get('POLLER_BUILD_THRESHOLD');
         const since = moment().utc().subtract(threshold + 1, 'hours');
-        lp.get(`/devel/~${LP_API_USERNAME}/+snap/a_snap/pending_builds`)
+        lp.get(`/devel${snapPath}/pending_build_requests`)
+          .query({ 'ws.start': '0', 'ws.size': '1' })
+          .reply(200, { total_size: 0, entries: [] });
+        lp.get(`/devel${snapPath}/pending_builds`)
           .query({ 'ws.start': '0', 'ws.size': '1' })
           .reply(200, {
             total_size: 1,
