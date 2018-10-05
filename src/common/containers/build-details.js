@@ -2,8 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 
-import BuildRow from '../components/build-row';
-import { Table, Head, Body, Row, Header } from '../components/vanilla/table-interactive';
+import BuildsList from '../components/builds-list';
 import BuildLog from '../components/build-log';
 import {
   HelpBox,
@@ -92,23 +91,14 @@ class BuildDetails extends Component {
         }
         { build &&
           <div>
-            <Table>
-              <Head>
-                <Row>
-                  <Header col="20">Number</Header>
-                  <Header col="20">Architecture</Header>
-                  <Header col="20">Duration</Header>
-                  <Header col="40">Result</Header>
-                </Row>
-              </Head>
-              <Body>
-                <BuildRow
-                  repository={repository}
-                  {...build}
-                  isLinked={false} // disable link to the same build we are already looking at
-                />
-              </Body>
-            </Table>
+            <BuildsList
+              repository={repository}
+              builds={[{
+                ...build,
+                // Disable link to the same build we're already looking at.
+                isLinked: false
+              }]}
+            />
             {
               showBuildUploadErrorMessage &&
               <div className={ styles.strip }>
