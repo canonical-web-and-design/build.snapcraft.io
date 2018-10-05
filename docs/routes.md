@@ -106,8 +106,10 @@ To request builds of an existing snap:
       "repository_url": "https://github.com/:owner/:name"
     }
 
-On success, returns the following, where the items in `builds` are
+On success, returns the following, where the items in `builds` are either
 [snap\_build entries](https://launchpad.net/+apidoc/devel.html#snap_build)
+or
+[snap\_build\_request entries](https://launchpad.net/+apidoc/devel.html#snap_build_request)
 as returned by the Launchpad API:
 
     HTTP/1.1 201 Created

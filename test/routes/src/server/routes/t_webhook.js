@@ -141,7 +141,7 @@ describe('The WebHook API endpoint', () => {
 
       describe('if the push event is to a different branch', () => {
         let findByURL;
-        let requestAutoBuilds;
+        let requestBuilds;
 
         beforeEach(() => {
           findByURL = nock(lp_api_url)
@@ -160,11 +160,15 @@ describe('The WebHook API endpoint', () => {
                   owner_link: `${lp_api_base}/~${lp_snap_user}`,
                   git_path: 'refs/heads/next',
                   store_name: 'test-snap',
-                  auto_build: true
+                  auto_build: true,
+                  auto_build_archive_link: `${lp_api_base}/ubuntu/+archive` +
+                                           'primary',
+                  auto_build_pocket: 'Updates',
+                  auto_build_channels: null
                 }
               ]
             });
-          requestAutoBuilds = nock(lp_api_url)
+          requestBuilds = nock(lp_api_url)
             .post(`/devel${lp_snap_path}`)
             .reply(500);
         });
@@ -178,7 +182,7 @@ describe('The WebHook API endpoint', () => {
             .send(body)
             .expect(200, (err) => {
               expect(findByURL.isDone()).toBe(true);
-              expect(requestAutoBuilds.isDone()).toBe(false);
+              expect(requestBuilds.isDone()).toBe(false);
               done(err);
             });
         });
@@ -186,7 +190,8 @@ describe('The WebHook API endpoint', () => {
 
       describe('if name is registered and auto_build is true', () => {
         let findByURL;
-        let requestAutoBuilds;
+        let requestBuilds;
+        let buildRequest;
 
         beforeEach(() => {
           findByURL = nock(lp_api_url)
@@ -205,22 +210,32 @@ describe('The WebHook API endpoint', () => {
                   owner_link: `${lp_api_base}/~${lp_snap_user}`,
                   git_path: 'refs/heads/master',
                   store_name: 'test-snap',
-                  auto_build: true
+                  auto_build: true,
+                  auto_build_archive_link: `${lp_api_base}/ubuntu/+archive/` +
+                                           'primary',
+                  auto_build_pocket: 'Updates',
+                  auto_build_channels: null
                 }
               ]
             });
-          requestAutoBuilds = nock(lp_api_url)
-            .post(`/devel${lp_snap_path}`, { ws: { op: 'requestAutoBuilds' } })
-            .reply(200, [
-              {
-                resource_type_link: `${lp_api_base}/#snap_build`,
-                self_link: `${lp_api_base}${lp_snap_path}/+build/1`
-              },
-              {
-                resource_type_link: `${lp_api_base}/#snap_build`,
-                self_link: `${lp_api_base}${lp_snap_path}/+build/2`
-              }
-            ]);
+          requestBuilds = nock(lp_api_url)
+            .post(`/devel${lp_snap_path}`, {
+              ws: { op: 'requestBuilds' },
+              archive: `${lp_api_base}/ubuntu/+archive/primary`,
+              pocket: 'Updates'
+            })
+            .reply(201, 'Created', {
+              Location: `${lp_api_base}${lp_snap_path}/+build-request/1`
+            });
+          buildRequest = nock(lp_api_url)
+            .get(`/devel${lp_snap_path}/+build-request/1`)
+            .reply(200, {
+              self_link: `${lp_api_base}${lp_snap_path}/+build-request/1`,
+              status: 'Pending',
+              error_message: '',
+              builds_collection_link: `${lp_api_base}${lp_snap_path}/` +
+                                      '+build-request/1/builds'
+            });
         });
 
         it('returns 200 OK and requests builds', (done) => {
@@ -232,7 +247,8 @@ describe('The WebHook API endpoint', () => {
             .send(body)
             .expect(200, (err) => {
               findByURL.done();
-              requestAutoBuilds.done();
+              requestBuilds.done();
+              buildRequest.done();
               done(err);
             });
         });
@@ -275,7 +291,11 @@ describe('The WebHook API endpoint', () => {
                   owner_link: `${lp_api_base}/~${lp_snap_user}`,
                   git_path: 'refs/heads/master',
                   store_name: 'test-snap',
-                  auto_build: false
+                  auto_build: false,
+                  auto_build_archive_link: `${lp_api_base}/ubuntu/+archive/` +
+                                           'primary',
+                  auto_build_pocket: 'Updates',
+                  auto_build_channels: null
                 }
               ]
             });
@@ -339,7 +359,8 @@ describe('The WebHook API endpoint', () => {
         describe('if snapcraft.yaml is present', () => {
           let getSnapcraftYaml;
           let patchSnapAutoBuild;
-          let requestAutoBuilds;
+          let requestBuilds;
+          let buildRequest;
 
           beforeEach(() => {
             getSnapcraftYaml = nock(conf.get('GITHUB_API_ENDPOINT'))
@@ -354,20 +375,30 @@ describe('The WebHook API endpoint', () => {
               .reply(200, {
                 resource_type_link: `${lp_api_base}/#snap`,
                 self_link: `${lp_api_base}${lp_snap_path}`,
-                auto_build: true
+                auto_build: true,
+                auto_build_archive_link: `${lp_api_base}/ubuntu/+archive/` +
+                                         'primary',
+                auto_build_pocket: 'Updates',
+                auto_build_channels: null
               });
-            requestAutoBuilds = nock(lp_api_url)
-              .post(`/devel${lp_snap_path}`, { ws: { op: 'requestAutoBuilds' } })
-              .reply(200, [
-                {
-                  resource_type_link: `${lp_api_base}/#snap_build`,
-                  self_link: `${lp_api_base}${lp_snap_path}/+build/1`
-                },
-                {
-                  resource_type_link: `${lp_api_base}/#snap_build`,
-                  self_link: `${lp_api_base}${lp_snap_path}/+build/2`
-                }
-              ]);
+            requestBuilds = nock(lp_api_url)
+              .post(`/devel${lp_snap_path}`, {
+                ws: { op: 'requestBuilds' },
+                archive: `${lp_api_base}/ubuntu/+archive/primary`,
+                pocket: 'Updates'
+              })
+              .reply(201, 'Created', {
+                Location: `${lp_api_base}${lp_snap_path}/+build-request/1`
+              });
+            buildRequest = nock(lp_api_url)
+              .get(`/devel${lp_snap_path}/+build-request/1`)
+              .reply(200, {
+                self_link: `${lp_api_base}${lp_snap_path}/+build-request/1`,
+                status: 'Pending',
+                error_message: '',
+                builds_collection_link: `${lp_api_base}${lp_snap_path}/` +
+                                        '+build-request/1/builds'
+              });
           });
 
           it('returns 200 OK and requests builds', (done) => {
@@ -381,7 +412,8 @@ describe('The WebHook API endpoint', () => {
                 findByURL.done();
                 getSnapcraftYaml.done();
                 patchSnapAutoBuild.done();
-                requestAutoBuilds.done();
+                requestBuilds.done();
+                buildRequest.done();
                 done(err);
               });
           });
@@ -434,7 +466,7 @@ describe('The WebHook API endpoint', () => {
         const findByURL = nock(lp_api_url)
           .get('/devel/+snaps')
           .reply(500);
-        const requestAutoBuilds = nock(lp_api_url)
+        const requestBuilds = nock(lp_api_url)
           .post(`/devel${lp_snap_path}`)
           .reply(500);
 
@@ -446,7 +478,7 @@ describe('The WebHook API endpoint', () => {
           .send(body)
           .expect(200, (err) => {
             expect(findByURL.isDone()).toBe(false);
-            expect(requestAutoBuilds.isDone()).toBe(false);
+            expect(requestBuilds.isDone()).toBe(false);
             done(err);
           });
       });

@@ -2071,18 +2071,20 @@ describe('The Launchpad API endpoint', () => {
           .reply(200, { permissions: { admin: true } });
         api = nock(lp_api_url);
         api.post(`/devel${lp_snap_path}`, {
-          ws: { op: 'requestAutoBuilds' }
+          ws: { op: 'requestBuilds' },
+          archive: `${lp_api_base}/ubuntu/+archive/primary`,
+          pocket: 'Updates'
         })
-          .reply(200, [
-            {
-              resource_type_link: `${lp_api_base}/#snap_build`,
-              self_link: `${lp_api_base}${lp_snap_path}/+build/1`
-            },
-            {
-              resource_type_link: `${lp_api_base}/#snap_build`,
-              self_link: `${lp_api_base}${lp_snap_path}/+build/2`
-            }
-          ]);
+          .reply(201, 'Created', {
+            Location: `${lp_api_base}${lp_snap_path}/+build-request/1`
+          });
+        api.get(`/devel${lp_snap_path}/+build-request/1`)
+          .reply(200, {
+            self_link: `${lp_api_base}${lp_snap_path}/+build-request/1`,
+            status: 'Pending',
+            error_message: '',
+            builds_collection_link: null
+          });
         await db.model('GitHubUser').query('truncate').fetch();
         await db.model('GitHubUser')
           .forge({
@@ -2092,7 +2094,7 @@ describe('The Launchpad API endpoint', () => {
           })
           .save();
         await db.model('Repository').query('truncate').fetch();
-        await db.model('BuildAnnotation').query().truncate();
+        await db.model('BuildRequestAnnotation').query().truncate();
       });
 
       afterEach(() => {
@@ -2114,7 +2116,11 @@ describe('The Launchpad API endpoint', () => {
                   resource_type_link: `${lp_api_base}/#snap`,
                   self_link: `${lp_api_base}${lp_snap_path}`,
                   owner_link: `${lp_api_base}/~${lp_snap_user}`,
-                  auto_build: false
+                  auto_build: false,
+                  auto_build_archive_link: `${lp_api_base}/ubuntu/+archive/` +
+                                           'primary',
+                  auto_build_pocket: 'Updates',
+                  auto_build_channels: null
                 }
               ]
             });
@@ -2162,19 +2168,16 @@ describe('The Launchpad API endpoint', () => {
             });
         });
 
-        it('returns requested builds list in payload', (done) => {
+        it('returns build request in payload', (done) => {
           supertest(app)
             .post('/launchpad/snaps/request-builds')
             .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect((res) => {
-              const buildUrls = res.body.payload.builds.map((entry) => {
-                return entry.self_link;
-              });
-              expect(buildUrls).toEqual([
-                `${lp_api_base}${lp_snap_path}/+build/1`,
-                `${lp_api_base}${lp_snap_path}/+build/2`
-              ]);
+              expect(res.body.payload.builds.length).toEqual(1);
+              expect(res.body.payload.builds[0].self_link).toEqual(
+                `${lp_api_base}${lp_snap_path}/+build-request/1`
+              );
             })
             .end((err) => {
               api.done();
@@ -2182,25 +2185,25 @@ describe('The Launchpad API endpoint', () => {
             });
         });
 
-        it('records default build annotation', async () => {
+        it('records default build request annotation', async () => {
           await supertest(app)
             .post('/launchpad/snaps/request-builds')
             .set('X-CSRF-Token', 'blah')
             .send({
               repository_url: 'https://github.com/anowner/aname',
             });
-          const build_annotations = await db.model('BuildAnnotation').fetchAll();
+          const annotations = await db.model('BuildRequestAnnotation')
+            .fetchAll();
           let reasons = {};
-          for (const m of build_annotations.models) {
-            reasons[m.get('build_id')] = m.get('reason');
+          for (const m of annotations.models) {
+            reasons[m.get('request_id')] = m.get('reason');
           }
           expect(reasons).toEqual({
-            1: BUILD_TRIGGERED_MANUALLY,
-            2: BUILD_TRIGGERED_MANUALLY
+            1: BUILD_TRIGGERED_MANUALLY
           });
         });
 
-        it('records custom build annotation', async () => {
+        it('records custom build request annotation', async () => {
           await supertest(app)
             .post('/launchpad/snaps/request-builds')
             .set('X-CSRF-Token', 'blah')
@@ -2208,81 +2211,33 @@ describe('The Launchpad API endpoint', () => {
               repository_url: 'https://github.com/anowner/aname',
               reason: BUILD_TRIGGERED_BY_POLLER
             });
-          const build_annotations = await db.model('BuildAnnotation').fetchAll();
+          const annotations = await db.model('BuildRequestAnnotation')
+            .fetchAll();
           let reasons = {};
-          for (const m of build_annotations.models) {
-            reasons[m.get('build_id')] = m.get('reason');
+          for (const m of annotations.models) {
+            reasons[m.get('request_id')] = m.get('reason');
           }
           expect(reasons).toEqual({
-            1: BUILD_TRIGGERED_BY_POLLER,
-            2: BUILD_TRIGGERED_BY_POLLER
+            1: BUILD_TRIGGERED_BY_POLLER
           });
         });
 
-        it('returns just created build annotations in payload', (done) => {
+        it('returns just created build request annotations in ' +
+           'payload', (done) => {
           supertest(app)
             .post('/launchpad/snaps/request-builds')
             .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect((res) => {
-              expect(res.body.payload.build_request_annotations).toEqual({});
-              expect(res.body.payload.build_annotations).toEqual({
-                1: { reason: BUILD_TRIGGERED_MANUALLY },
-                2: { reason: BUILD_TRIGGERED_MANUALLY }
+              expect(res.body.payload.build_request_annotations).toEqual({
+                1: { reason: BUILD_TRIGGERED_MANUALLY }
               });
+              expect(res.body.payload.build_annotations).toEqual({});
             })
             .end((err) => {
               api.done();
               done(err);
             });
-        });
-
-        it('leaves builds_requested unmodified if it is unset', async () => {
-          await supertest(app)
-            .post('/launchpad/snaps/request-builds')
-            .set('X-CSRF-Token', 'blah')
-            .send({ repository_url: 'https://github.com/anowner/aname' });
-          const dbUser = await db.model('GitHubUser')
-            .where({ login: 'anowner' })
-            .fetch();
-          expect(dbUser.get('builds_requested')).toBeFalsy();
-        });
-
-        it('increments builds_requested if it is set', async () => {
-          const dbUser = await db.model('GitHubUser')
-            .where({ login: 'anowner' })
-            .fetch();
-          await dbUser.save({ builds_requested: 2 });
-          await supertest(app)
-            .post('/launchpad/snaps/request-builds')
-            .set('X-CSRF-Token', 'blah')
-            .send({ repository_url: 'https://github.com/anowner/aname' });
-          await dbUser.refresh();
-          expect(dbUser.get('builds_requested')).toEqual(4);
-        });
-
-        it('attributes builds_requested to the registrant', async () => {
-          const dbUser = await db.model('GitHubUser')
-            .forge({
-              github_id: session.user.id + 1,
-              login: 'another',
-              last_login_at: new Date(),
-              builds_requested: 2
-            })
-            .save();
-          await db.model('Repository')
-            .forge({
-              owner: 'anowner',
-              name: 'aname',
-              registrant_id: dbUser.get('id')
-            })
-            .save();
-          await supertest(app)
-            .post('/launchpad/snaps/request-builds')
-            .set('X-CSRF-Token', 'blah')
-            .send({ repository_url: 'https://github.com/anowner/aname' });
-          await dbUser.refresh();
-          expect(dbUser.get('builds_requested')).toEqual(4);
         });
       });
 
@@ -2301,7 +2256,11 @@ describe('The Launchpad API endpoint', () => {
                   resource_type_link: `${lp_api_base}/#snap`,
                   self_link: `${lp_api_base}${lp_snap_path}`,
                   owner_link: `${lp_api_base}/~${lp_snap_user}`,
-                  auto_build: true
+                  auto_build: true,
+                  auto_build_archive_link: `${lp_api_base}/ubuntu/+archive/` +
+                                           'primary',
+                  auto_build_pocket: 'Updates',
+                  auto_build_channels: null
                 }
               ]
             });
@@ -2343,72 +2302,21 @@ describe('The Launchpad API endpoint', () => {
             });
         });
 
-        it('returns requested builds list in payload', (done) => {
+        it('returns build request in payload', (done) => {
           supertest(app)
             .post('/launchpad/snaps/request-builds')
             .set('X-CSRF-Token', 'blah')
             .send({ repository_url: 'https://github.com/anowner/aname' })
             .expect((res) => {
-              const buildUrls = res.body.payload.builds.map((entry) => {
-                return entry.self_link;
-              });
-              expect(buildUrls).toEqual([
-                `${lp_api_base}${lp_snap_path}/+build/1`,
-                `${lp_api_base}${lp_snap_path}/+build/2`
-              ]);
+              expect(res.body.payload.builds.length).toEqual(1);
+              expect(res.body.payload.builds[0].self_link).toEqual(
+                `${lp_api_base}${lp_snap_path}/+build-request/1`
+              );
             })
             .end((err) => {
               api.done();
               done(err);
             });
-        });
-
-        it('leaves builds_requested unmodified if it is unset', async () => {
-          await supertest(app)
-            .post('/launchpad/snaps/request-builds')
-            .set('X-CSRF-Token', 'blah')
-            .send({ repository_url: 'https://github.com/anowner/aname' });
-          const dbUser = await db.model('GitHubUser')
-            .where({ login: 'anowner' })
-            .fetch();
-          expect(dbUser.get('builds_requested')).toBeFalsy();
-        });
-
-        it('increments builds_requested if it is set', async () => {
-          const dbUser = await db.model('GitHubUser')
-            .where({ login: 'anowner' })
-            .fetch();
-          await dbUser.save({ builds_requested: 2 });
-          await supertest(app)
-            .post('/launchpad/snaps/request-builds')
-            .set('X-CSRF-Token', 'blah')
-            .send({ repository_url: 'https://github.com/anowner/aname' });
-          await dbUser.refresh();
-          expect(dbUser.get('builds_requested')).toEqual(4);
-        });
-
-        it('attributes builds_requested to the registrant', async () => {
-          const dbUser = await db.model('GitHubUser')
-            .forge({
-              github_id: session.user.id + 1,
-              login: 'another',
-              last_login_at: new Date(),
-              builds_requested: 2
-            })
-            .save();
-          await db.model('Repository')
-            .forge({
-              owner: 'anowner',
-              name: 'aname',
-              registrant_id: dbUser.get('id')
-            })
-            .save();
-          await supertest(app)
-            .post('/launchpad/snaps/request-builds')
-            .set('X-CSRF-Token', 'blah')
-            .send({ repository_url: 'https://github.com/anowner/aname' });
-          await dbUser.refresh();
-          expect(dbUser.get('builds_requested')).toEqual(4);
         });
       });
     });

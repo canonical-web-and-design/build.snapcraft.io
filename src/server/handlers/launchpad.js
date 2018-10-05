@@ -823,58 +823,42 @@ export const internalRequestSnapBuilds = async (snap, owner, name, reason) => {
   // `SnapSet.makeAutoBuilds` code won't come along and dispatch an extra
   // set of builds between these two requests.
   const lpClient = getLaunchpad();
-  const builds = await lpClient.named_post(
-    snap.self_link, 'requestAutoBuilds'
+  const parameters = {
+    archive: snap.auto_build_archive_link,
+    pocket: snap.auto_build_pocket
+  };
+  if (snap.auto_build_channels !== null) {
+    parameters['channels'] = snap.auto_build_channels;
+  }
+  const buildRequest = await lpClient.named_post(
+    snap.self_link, 'requestBuilds', { parameters }
   );
   if (!snap.auto_build) {
     await lpClient.patch(snap.self_link, { auto_build: true });
   }
 
-  // We can't do this properly transactionally (i.e. don't request builds if
-  // the DB connection fails), because we don't know how many builds we're
-  // going to request up-front.  If we find a way to fix that then we should
-  // rearrange this to increment the metric first and then roll it back if
-  // requesting builds fails.
+  // Record a build request annotation so that we know why these builds were
+  // dispatched.  This is best-effort: we can't do this properly
+  // transactionally (i.e. don't request builds if the DB connection fails)
+  // because we don't know the request ID until we've issued the request.
+  const buildRequestAnnotation = {
+    request_id: getSelfId(buildRequest),
+    reason
+  };
   try {
     await db.transaction(async (trx) => {
-      const dbRepository = await db.model('Repository')
-        .where({ owner, name })
-        .fetch({ withRelated: ['registrant'], transacting: trx });
-      const userQuery = (
-        (dbRepository && dbRepository.related('registrant')) ||
-        { login: owner }
-      );
-      await db.model('GitHubUser').incrementMetric(
-        userQuery, 'builds_requested', builds.length, { transacting: trx }
-      );
+      await db.model('BuildRequestAnnotation')
+        .forge(buildRequestAnnotation)
+        .save({}, { method: 'insert', transacting: trx });
     });
   } catch (error) {
-    logger.error(`Error incrementing builds_requested for ${owner}: ${error}`);
+    logger.error(
+      'Error saving build request annotation for ' +
+      `${buildRequestAnnotation.request_id}: ${error}`
+    );
   }
 
-  // Record build annotations (reason), same comment above applies (this operation
-  // is not transactional).
-  const build_annotations = builds.map((b) => {
-    return {
-      build_id: getSelfId(b),
-      reason: reason
-    };
-  });
-
-  try {
-    await db.transaction(async (trx) => {
-      for (const ann of build_annotations) {
-        await db.model('BuildAnnotation')
-          .forge(ann)
-          .save({}, { method: 'insert', transacting: trx });
-      }
-    });
-  } catch (error) {
-    const ids = build_annotations.map((b) => { return b.build_id; });
-    logger.error(`Error saving build annotations for ${ids}: ${error}`);
-  }
-
-  return builds;
+  return buildRequest;
 };
 
 export const requestSnapBuilds = async (req, res) => {
@@ -884,16 +868,20 @@ export const requestSnapBuilds = async (req, res) => {
     );
     const reason = req.body.reason || BUILD_TRIGGERED_MANUALLY;
     const snap = await internalFindSnap(req.body.repository_url);
-    const builds = await internalRequestSnapBuilds(snap, owner, name, reason);
-    const build_annotations = await internalGetBuildAnnotations(builds);
+    const build_request = await internalRequestSnapBuilds(
+      snap, owner, name, reason
+    );
+    const build_request_annotations = await internalGetBuildRequestAnnotations(
+      [build_request]
+    );
 
     return res.status(201).send({
       status: 'success',
       payload: {
         code: 'snap-builds-requested',
-        builds: builds,
-        build_request_annotations: {},
-        build_annotations: build_annotations
+        builds: [build_request],
+        build_request_annotations,
+        build_annotations: {}
       }
     });
   } catch (error) {

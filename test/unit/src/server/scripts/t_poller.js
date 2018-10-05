@@ -25,7 +25,7 @@ describe('Poller script helpers', function() {
     let db_repo;
 
     beforeEach(async () => {
-      await db.model('BuildAnnotation').query().truncate();
+      await db.model('BuildRequestAnnotation').query().truncate();
       await db.model('Repository').query().truncate();
       await db.model('GitHubUser').query().del();
       return db.transaction(async (trx) => {
@@ -103,7 +103,11 @@ describe('Poller script helpers', function() {
             builds_collection_link: `${LP_API_URL}/devel${snapPath}/builds`,
             pending_builds_collection_link: `${LP_API_URL}/devel${snapPath}/pending_builds`,
             completed_builds_collection_link: `${LP_API_URL}/devel${snapPath}/completed_builds`,
-            auto_build: true
+            auto_build: true,
+            auto_build_archive_link: `${LP_API_URL}/devel/` +
+                                     'ubuntu/+archive/primary',
+            auto_build_pocket: 'Updates',
+            auto_build_channels: null
           }]);
       });
 
@@ -199,11 +203,18 @@ describe('Poller script helpers', function() {
               datebuilt: since.format()
             }]
           });
-        lp.post(`/devel/~${LP_API_USERNAME}/+snap/a_snap`)
-          .reply(200, [
-            { self_link: '+build/100' },
-            { self_link: '+build/101' }
-          ]);
+        lp.post(`/devel${snapPath}`)
+          .reply(201, 'Created', {
+            Location: `${LP_API_URL}/devel${snapPath}/+build-request/2`
+          });
+        lp.get(`/devel${snapPath}/+build-request/2`)
+          .reply(200, {
+            self_link: `${snapPath}/+build-request/2`,
+            status: 'Pending',
+            error_message: '',
+            builds_collection_link: `${LP_API_URL}/devel${snapPath}/` +
+                                    '+build-request/2/builds'
+          });
 
         let checker = sinon.stub().returns(true);
         await pollRepositoriesMock(checker);
@@ -211,13 +222,13 @@ describe('Poller script helpers', function() {
         expect(checker.calledWithMatch('anowner', 'aname')).toBe(true);
         expect(checker.getCall(0).args[2].format()).toBe(since.milliseconds(0).format());
 
-        expect(await db.model('BuildAnnotation').count()).toBe(2);
-        const annotations = await db.model('BuildAnnotation').fetchAll();
+        expect(await db.model('BuildRequestAnnotation').count()).toBe(1);
+        const annotations = await db.model('BuildRequestAnnotation')
+          .fetchAll();
         expect(annotations.models.map((m) => {
-          return { build_id: m.get('build_id'), reason: m.get('reason') };
+          return { request_id: m.get('request_id'), reason: m.get('reason') };
         }))
-          .toContain({ build_id: 100, reason: 'triggered-by-poller' })
-          .toContain({ build_id: 101, reason: 'triggered-by-poller' });
+          .toContain({ request_id: 2, reason: 'triggered-by-poller' });
 
       });
     });
