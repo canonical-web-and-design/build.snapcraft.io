@@ -696,13 +696,15 @@ export async function internalGetSnapBuilds(
     );
     for await (const buildRequest of buildRequests) {
       builds.push(buildRequest);
+      if (++gotItems >= size) {
+        break;
+      }
     }
     // XXX cjwatson 2018-10-01: We should also include previously-failed
     // build requests, since they might fail for reasons that the developer
     // needs to fix (e.g. malformed snapcraft.yaml).  Doing this in a
     // pagination-friendly way requires further work on the Launchpad APIs
     // we're using.
-    gotItems += buildRequests.total_size;
   }
 
   if (gotItems < size) {
@@ -711,8 +713,10 @@ export async function internalGetSnapBuilds(
     );
     for await (const build of pendingBuilds) {
       builds.push(build);
+      if (++gotItems >= size) {
+        break;
+      }
     }
-    gotItems += pendingBuilds.total_size;
   }
 
   if (gotItems < size) {
@@ -721,6 +725,9 @@ export async function internalGetSnapBuilds(
     );
     for await (const build of completedBuilds) {
       builds.push(build);
+      if (++gotItems >= size) {
+        break;
+      }
     }
   }
 

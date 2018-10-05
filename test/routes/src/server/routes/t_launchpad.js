@@ -1590,7 +1590,7 @@ describe('The Launchpad API endpoint', () => {
             completed_builds_collection_link:  `${lp_api_url}${lp_completed_builds_path}`
           });
 
-        // when getting build requests list (via
+        // when getting pending build requests list (via
         // pending_build_requests_collection_link)
         nock(lp_api_url)
           .get(lp_pending_build_requests_path)
@@ -1604,7 +1604,8 @@ describe('The Launchpad API endpoint', () => {
             entries: [ test_build_request ]
           });
 
-        // when getting builds list (via pending_builds_collection_link)
+        // when getting pending builds list (via
+        // pending_builds_collection_link)
         nock(lp_api_url)
           .get(lp_pending_builds_path)
           .query({
@@ -1612,9 +1613,23 @@ describe('The Launchpad API endpoint', () => {
             'ws.size': 9
           })
           .reply(200, {
-            total_size: 9,
+            total_size: 1,
             start: 0,
             entries: [ test_build ]
+          });
+
+        // when getting completed builds list (via
+        // completed_builds_collection_link)
+        nock(lp_api_url)
+          .get(lp_completed_builds_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 8
+          })
+          .reply(200, {
+            total_size: 0,
+            start: 0,
+            entries: []
           });
       });
 
@@ -1699,7 +1714,7 @@ describe('The Launchpad API endpoint', () => {
       it('should default start to 0 and size to 10', (done) => {
         const lp = nock(lp_api_url);
 
-        // when getting build requests list (via
+        // when getting pending build requests list (via
         // pending_build_requests_collection_link)
         lp.get(lp_pending_build_requests_path)
           .query({
@@ -1708,13 +1723,31 @@ describe('The Launchpad API endpoint', () => {
           })
           .reply(200, { total_size: 0, entries: [] });
 
-        // when getting builds list (via pending_builds_collection_link)
+        // when getting pending builds list (via
+        // pending_builds_collection_link)
         lp.get(lp_pending_builds_path)
           .query({
             'ws.start': 0,
             'ws.size': 10
           })
-          .reply(200, { total_size: 10, entries: [] });
+          .reply(200, { total_size: 0, entries: [] });
+
+        // when getting completed builds list (via
+        // completed_builds_collection_link)
+        lp.get(lp_completed_builds_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 10
+          })
+          .reply(200, {
+            total_size: 20,
+            entries: Array(10).fill({
+              resource_type_link: `${lp_api_url}/devel/#snap_build`,
+              self_link: `${lp_api_url}${lp_snap_path}/+build/12345`,
+            }),
+            next_collection_link: `${lp_api_url}${lp_pending_builds_path}` +
+                                  '?ws.size=10&memo=10&ws.start=10'
+          });
 
         supertest(app)
           .get('/launchpad/builds')
@@ -1728,25 +1761,34 @@ describe('The Launchpad API endpoint', () => {
 
       it('should fetch pending build requests, then pending builds, and ' +
          'then completed builds', (done) => {
+        const test_build = {
+          resource_type_link: `${lp_api_url}/devel/#snap_build`,
+          self_link: `${lp_api_url}${lp_snap_path}/+build/12345`,
+        };
         const lp = nock(lp_api_url)
           .get(lp_pending_build_requests_path)
           .query({
             'ws.start': 0,
             'ws.size': 10
           })
-          .reply(200, { total_size: 1, entries: [] })
+          .reply(200, { total_size: 1, entries: [ test_build ] })
           .get(lp_pending_builds_path)
           .query({
             'ws.start': 0,
             'ws.size': 9
           })
-          .reply(200, { total_size: 5, entries: [] })
+          .reply(200, { total_size: 5, entries: Array(5).fill(test_build) })
           .get(lp_completed_builds_path)
           .query({
             'ws.start': 0,
             'ws.size': 4
           })
-          .reply(200, { total_size: 4, entries: [] });
+          .reply(200, {
+            total_size: 44,
+            entries: Array(4).fill(test_build),
+            next_collection_link: `${lp_api_url}${lp_completed_builds_path}` +
+                                  '?ws.size=4&memo=4&ws.start=4'
+          });
 
         supertest(app)
           .get('/launchpad/builds')
@@ -1754,6 +1796,47 @@ describe('The Launchpad API endpoint', () => {
           .query({ snap: lp_snap_url })
           .expect(200, (err) => {
             lp.done();
+            done(err);
+          });
+      });
+
+      it('should only return as many items as requested', (done) => {
+        const test_build = {
+          resource_type_link: `${lp_api_url}/devel/#snap_build`,
+          self_link: `${lp_api_url}${lp_snap_path}/+build/12345`,
+        };
+        const lp = nock(lp_api_url)
+          .get(lp_pending_build_requests_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 10
+          })
+          .reply(200, { total_size: 1, entries: [ test_build ] })
+          .get(lp_pending_builds_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 9
+          })
+          .reply(200, { total_size: 5, entries: Array(5).fill(test_build) })
+          .get(lp_completed_builds_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 4
+          })
+          .reply(200, {
+            total_size: 44,
+            entries: Array(4).fill(test_build),
+            next_collection_link: `${lp_api_url}${lp_completed_builds_path}` +
+                                  '?ws.size=4&memo=4&ws.start=4'
+          });
+
+        supertest(app)
+          .get('/launchpad/builds')
+          .set('X-CSRF-Token', 'blah')
+          .query({ snap: lp_snap_url })
+          .end((err, res) => {
+            lp.done();
+            expect(res.body.payload.builds.length).toEqual(10);
             done(err);
           });
       });
@@ -1987,9 +2070,21 @@ describe('The Launchpad API endpoint', () => {
             'ws.size': 9
           })
           .reply(200, {
-            total_size: 9,
+            total_size: 3,
             start: 0,
             entries: test_builds
+          });
+
+        nock(lp_api_url)
+          .get(lp_completed_builds_path)
+          .query({
+            'ws.start': 0,
+            'ws.size': 6
+          })
+          .reply(200, {
+            total_size: 0,
+            start: 0,
+            entries: []
           });
       });
 
