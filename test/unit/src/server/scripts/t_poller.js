@@ -328,10 +328,16 @@ describe('Poller script helpers', function() {
 
       beforeEach(function() {
         ghApi
-          .get(/\/repos\/anowner\/aname.*/)
+          .get('/repos/anowner/aname/contents/snap/snapcraft.yaml')
+          .query(true)
+          .reply(200, 'name: aname');
+        ghApi
+          .get('/repos/anowner/aname')
+          .query(true)
           .reply(200, { default_branch: 'abranch' });
         ghApi
-          .get(/\/repos\/anowner\/aname\/branches\/abranch.*/)
+          .get('/repos/anowner/aname/branches/abranch')
+          .query(true)
           .reply(200, { commit: { commit: { committer: { date: 1501762400001 } } } });
       });
 
@@ -346,20 +352,25 @@ describe('Poller script helpers', function() {
 
       beforeEach(function() {
         ghApi
-          .get(/\/repos\/anowner\/aname.*/)
-          .reply(200, { default_branch: 'abranch' });
-        ghApi
-          .get(/\/repos\/anowner\/aname\/branches\/abranch.*/)
-          .reply(200, { commit: { commit: { committer: { date: 1501762300000 } } } });
-        ghApi
-          .get(/\/repos\/anowner\/aname\/contents.*/)
+          .get('/repos/anowner/aname/contents/snap/snapcraft.yaml')
+          .query(true)
           .reply(200, 'parts:\n  foo:\n    source-type: git\n    ' +
                       'source: https://github.com/some/part.git');
         ghApi
-          .get(/\/repos\/some\/part.*/)
+          .get('/repos/anowner/aname')
+          .query(true)
+          .reply(200, { default_branch: 'abranch' });
+        ghApi
+          .get('/repos/anowner/aname/branches/abranch')
+          .query(true)
+          .reply(200, { commit: { commit: { committer: { date: 1501762300000 } } } });
+        ghApi
+          .get('/repos/some/part')
+          .query(true)
           .reply(200, { default_branch: 'part_branch' });
         ghApi
-          .get(/\/repos\/some\/part\/branches\/part_branch.*/)
+          .get('/repos/some/part/branches/part_branch')
+          .query(true)
           .reply(200, { commit: { commit: { committer: { date: 1501762400001 } } } });
       });
 
@@ -374,20 +385,25 @@ describe('Poller script helpers', function() {
 
       beforeEach(function() {
         ghApi
-          .get(/\/repos\/anowner\/aname.*/)
-          .reply(200, { default_branch: 'abranch' });
-        ghApi
-          .get(/\/repos\/anowner\/aname\/branches\/abranch.*/)
-          .reply(200, { commit: { commit: { committer: { date: 1501762300000 } } } });
-        ghApi
-          .get(/\/repos\/anowner\/aname\/contents.*/)
+          .get('/repos/anowner/aname/contents/snap/snapcraft.yaml')
+          .query(true)
           .reply(200, 'parts:\n  foo:\n    source-type: git\n    ' +
                       'source: https://github.com/some/part.git');
         ghApi
-          .get(/\/repos\/some\/part.*/)
+          .get('/repos/anowner/aname')
+          .query(true)
+          .reply(200, { default_branch: 'abranch' });
+        ghApi
+          .get('/repos/anowner/aname/branches/abranch')
+          .query(true)
+          .reply(200, { commit: { commit: { committer: { date: 1501762300000 } } } });
+        ghApi
+          .get('/repos/some/part')
+          .query(true)
           .reply(200, { default_branch: 'part_branch' });
         ghApi
-          .get(/\/repos\/some\/part\/branches\/part_branch.*/)
+          .get('/repos/some/part/branches/part_branch')
+          .query(true)
           .reply(200, { commit: { commit: { committer: { date: 1501762300000 } } } });
       });
 
@@ -402,7 +418,12 @@ describe('Poller script helpers', function() {
 
       beforeEach(function() {
         ghApi
-          .get(/\/repos\/anowner\/aname.*/)
+          .get('/repos/anowner/aname/contents/snap/snapcraft.yaml')
+          .query(true)
+          .reply(200, 'name: aname');
+        ghApi
+          .get('/repos/anowner/aname')
+          .query(true)
           .reply(404, {});
       });
 
@@ -417,13 +438,8 @@ describe('Poller script helpers', function() {
 
       beforeEach(function() {
         ghApi
-          .get(/\/repos\/anowner\/aname.*/)
-          .reply(200, { default_branch: 'abranch' });
-        ghApi
-          .get(/\/repos\/anowner\/aname\/branches\/abranch.*/)
-          .reply(200, { commit: { commit: { committer: { date: 1501762300000 } } } });
-        ghApi
-          .get(/\/repos\/anowner\/aname\/contents.*/)
+          .get('/repos/anowner/aname/contents/snap/snapcraft.yaml')
+          .query(true)
           .reply(404, {});
       });
 

@@ -144,18 +144,22 @@ export const pollRepositories = (checker) => {
 export const checkSnapRepository = async (owner, name, since) => {
   const token = conf.get('POLLER_GITHUB_AUTH_TOKEN');
   const repo_url = getGitHubRepoUrl(owner, name);
-  if (await new GitSourcePart(repo_url).hasRepoChangedSince(since, token)) {
-    logger.info(`The ${owner}/${name} repository has changed.`);
-    return true;
-  }
-  logger.info(`${owner}/${name}: unchanged, checking parts ...`);
 
+  // Check for snapcraft.yaml first; if we can't find it, there's no point
+  // requesting builds.
   let snapcraft_yaml;
   try {
     snapcraft_yaml = await internalGetSnapcraftYaml(owner, name, token);
   } catch (e) {
     return false;
   }
+
+  if (await new GitSourcePart(repo_url).hasRepoChangedSince(since, token)) {
+    logger.info(`The ${owner}/${name} repository has changed.`);
+    return true;
+  }
+  logger.info(`${owner}/${name}: unchanged, checking parts ...`);
+
   for (const source_part of extractPartsToPoll(snapcraft_yaml.contents)) {
     logger.info(`${owner}/${name}: Checking whether ${source_part.repoUrl} part has changed.`);
     if (await source_part.hasRepoChangedSince(since, token)) {

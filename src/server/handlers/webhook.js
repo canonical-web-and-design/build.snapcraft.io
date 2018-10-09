@@ -74,10 +74,8 @@ const handleGitHubPush = async (req, res, owner, name, parsedBody) => {
                   `(${parsedBody.ref} != refs/heads/${gitBranch}).`);
       return res.status(200).send();
     }
-    if (!snap.auto_build) {
-      // XXX cjwatson 2017-02-16: Cache returned snap name, if any.
-      await internalGetSnapcraftYaml(owner, name);
-    }
+    // If we can't find snapcraft.yaml, there's no point requesting builds.
+    await internalGetSnapcraftYaml(owner, name);
     await internalRequestSnapBuilds(snap, owner, name, BUILD_TRIGGERED_BY_WEBHOOK);
     logger.info(`Requested builds of ${repositoryUrl}.`);
     return res.status(200).send();
