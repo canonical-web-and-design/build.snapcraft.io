@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { hot } from 'react-hot-loader';
 import { Provider } from 'react-redux';
 import { Router, browserHistory } from 'react-router';
 
@@ -10,7 +11,7 @@ import store from './store';
 const history = syncHistoryWithStore(browserHistory, store);
 
 
-export default class Root extends Component {
+class Root extends Component {
 
   componentDidMount() {
     /*
@@ -33,3 +34,5 @@ export default class Root extends Component {
     );
   }
 }
+
+export default hot(module)(Root);

@@ -59,12 +59,6 @@
     "aws4": {
       "version": "1.5.0"
     },
-    "babel-code-frame": {
-      "version": "6.16.0"
-    },
-    "babel-messages": {
-      "version": "6.8.0"
-    },
     "babel-polyfill": {
       "version": "6.16.0",
       "dependencies": {
@@ -80,18 +74,6 @@
           "version": "2.4.1"
         }
       }
-    },
-    "babel-template": {
-      "version": "6.16.0"
-    },
-    "babel-traverse": {
-      "version": "6.19.0"
-    },
-    "babel-types": {
-      "version": "6.19.0"
-    },
-    "babylon": {
-      "version": "6.14.1"
     },
     "base62": {
       "version": "0.1.1"
@@ -336,9 +318,6 @@
     "error-ex": {
       "version": "1.3.0"
     },
-    "error-stack-parser": {
-      "version": "1.3.6"
-    },
     "es3ify": {
       "version": "0.1.4",
       "dependencies": {
@@ -361,9 +340,6 @@
     },
     "esprima": {
       "version": "2.7.3"
-    },
-    "esutils": {
-      "version": "2.0.2"
     },
     "etag": {
       "version": "1.7.0"
@@ -425,6 +401,9 @@
     },
     "falafel": {
       "version": "1.2.0"
+    },
+    "fast-levenshtein": {
+      "version": "2.0.6"
     },
     "fastparse": {
       "version": "1.1.1"
@@ -507,16 +486,13 @@
       "version": "0.1.0"
     },
     "global": {
-      "version": "4.3.1"
+      "version": "4.3.2"
     },
     "global-modules": {
       "version": "0.2.3"
     },
     "global-prefix": {
       "version": "0.1.5"
-    },
-    "globals": {
-      "version": "9.14.0"
     },
     "good-listener": {
       "version": "1.2.2"
@@ -1064,6 +1040,20 @@
     "promise": {
       "version": "7.1.1"
     },
+    "prop-types": {
+      "version": "15.6.2",
+      "dependencies": {
+        "js-tokens": {
+          "version": "4.0.0"
+        },
+        "loose-envify": {
+          "version": "1.4.0"
+        },
+        "object-assign": {
+          "version": "4.1.1"
+        }
+      }
+    },
     "proxy-addr": {
       "version": "1.1.2"
     },
@@ -1102,9 +1092,6 @@
     "react": {
       "version": "15.4.2"
     },
-    "react-deep-force-update": {
-      "version": "2.0.1"
-    },
     "react-dom": {
       "version": "15.4.2"
     },
@@ -1112,10 +1099,18 @@
       "version": "3.2.2"
     },
     "react-hot-loader": {
-      "version": "3.0.0-beta.6"
+      "version": "4.3.11",
+      "dependencies": {
+        "hoist-non-react-statics": {
+          "version": "2.5.5"
+        },
+        "shallowequal": {
+          "version": "1.1.0"
+        }
+      }
     },
-    "react-proxy": {
-      "version": "3.0.0-alpha.1"
+    "react-lifecycles-compat": {
+      "version": "3.0.4"
     },
     "react-redux": {
       "version": "4.4.6"
@@ -1159,9 +1154,6 @@
     },
     "rechoir": {
       "version": "0.6.2"
-    },
-    "redbox-react": {
-      "version": "1.3.3"
     },
     "redux": {
       "version": "3.6.0"
@@ -1275,9 +1267,6 @@
     "sntp": {
       "version": "1.0.9"
     },
-    "source-map": {
-      "version": "0.4.4"
-    },
     "spdx-correct": {
       "version": "1.0.2"
     },
@@ -1303,9 +1292,6 @@
     },
     "stack-trace": {
       "version": "0.0.9"
-    },
-    "stackframe": {
-      "version": "0.3.1"
     },
     "statuses": {
       "version": "1.3.1"
@@ -1348,9 +1334,6 @@
     },
     "tiny-emitter": {
       "version": "1.2.0"
-    },
-    "to-fast-properties": {
-      "version": "1.0.2"
     },
     "tough-cookie": {
       "version": "2.3.2"
