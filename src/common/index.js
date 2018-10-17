@@ -1,5 +1,5 @@
 // import global stylesheets before app renders
-import './style/normalize.css';
+import '../../node_modules/normalize.css/normalize.css';
 import './style/base.css';
 
 import React from 'react';
