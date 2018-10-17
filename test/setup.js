@@ -1,8 +1,11 @@
+import enzyme from 'enzyme';
+import EnzymeAdapter from 'enzyme-adapter-react-15.4';
 import expect from 'expect';
 import enzymify from 'expect-enzyme';
 
 import './helpers';
 
+enzyme.configure({ adapter: new EnzymeAdapter() });
 expect.extend(enzymify());
 
 // Stub out loading of CSS dependencies

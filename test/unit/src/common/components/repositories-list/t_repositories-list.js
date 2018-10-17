@@ -132,7 +132,9 @@ describe('<RepositoriesList />', function() {
 });
 
 function getWrapper(state) {
-  return shallow(<RepositoriesListView { ...state } />)
+  return shallow(
+    <RepositoriesListView { ...state } />, { disableLifecycleMethods: true }
+  )
     .find(Table)
     .find(Body);
 }

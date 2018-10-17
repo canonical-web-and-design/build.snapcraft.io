@@ -39,7 +39,9 @@ describe('The RepositoriesHome component', () => {
         router: {}
       };
 
-      wrapper = shallow(<RepositoriesHome { ...props } />);
+      wrapper = shallow(
+        <RepositoriesHome { ...props } />, { disableLifecycleMethods: true }
+      );
     });
 
     it('should render repositories list view message', () => {
@@ -73,7 +75,9 @@ describe('The RepositoriesHome component', () => {
         router: {}
       };
 
-      wrapper = shallow(<RepositoriesHome { ...props } />);
+      wrapper = shallow(
+        <RepositoriesHome { ...props } />, { disableLifecycleMethods: true }
+      );
     });
 
     it('should render error message', () => {
