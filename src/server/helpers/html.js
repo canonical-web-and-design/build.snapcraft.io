@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom/server';
 import Helmet from 'react-helmet';
 import { Provider } from 'react-redux';
@@ -76,7 +77,7 @@ export default class Html extends Component {
     const content = component ? this.renderComponent(component, store) : '';
 
     // read Helmet props after component is rendered
-    const head = Helmet.rewind();
+    const head = Helmet.renderStatic();
     const attrs = head.htmlAttributes.toComponent();
 
     return (

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import url from 'url';
 
 import { parseGitHubRepoUrl } from '../../../helpers/github-url';

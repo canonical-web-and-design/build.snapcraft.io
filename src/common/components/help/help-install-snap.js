@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import { CopyToClipboard, Tweet } from '../share';
 import { HeadingThree } from '../vanilla-modules/heading/';

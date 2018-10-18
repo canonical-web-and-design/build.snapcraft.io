@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import BuildRequestRow from '../build-request-row';
 import BuildRow from '../build-row';
@@ -62,7 +63,7 @@ BuildsList.propTypes = {
     name: PropTypes.string,
     fullName: PropTypes.string
   }),
-  builds: React.PropTypes.arrayOf(React.PropTypes.object)
+  builds: PropTypes.arrayOf(PropTypes.object)
 };
 
 

@@ -208,6 +208,20 @@
     "create-error": {
       "version": "0.3.1"
     },
+    "create-react-class": {
+      "version": "15.6.3",
+      "dependencies": {
+        "js-tokens": {
+          "version": "4.0.0"
+        },
+        "loose-envify": {
+          "version": "1.4.0"
+        },
+        "object-assign": {
+          "version": "4.1.1"
+        }
+      }
+    },
     "crypt": {
       "version": "0.0.2"
     },
@@ -344,6 +358,9 @@
     "etag": {
       "version": "1.7.0"
     },
+    "exenv": {
+      "version": "1.2.2"
+    },
     "expand-brackets": {
       "version": "0.1.5"
     },
@@ -409,7 +426,7 @@
       "version": "1.1.1"
     },
     "fbjs": {
-      "version": "0.8.6"
+      "version": "0.8.17"
     },
     "filename-regex": {
       "version": "2.0.0"
@@ -531,13 +548,13 @@
       "version": "1.0.0"
     },
     "history": {
-      "version": "3.2.1"
+      "version": "3.3.0"
     },
     "hoek": {
       "version": "2.16.3"
     },
     "hoist-non-react-statics": {
-      "version": "1.2.0"
+      "version": "2.5.5"
     },
     "homedir-polyfill": {
       "version": "1.0.1"
@@ -1090,13 +1107,26 @@
       "version": "2.1.7"
     },
     "react": {
-      "version": "15.4.2"
+      "version": "15.6.2"
     },
     "react-dom": {
-      "version": "15.4.2"
+      "version": "15.6.2",
+      "dependencies": {
+        "fbjs": {
+          "version": "0.8.17"
+        },
+        "ua-parser-js": {
+          "version": "0.7.18"
+        }
+      }
     },
     "react-helmet": {
-      "version": "3.2.2"
+      "version": "5.2.0",
+      "dependencies": {
+        "object-assign": {
+          "version": "4.1.1"
+        }
+      }
     },
     "react-hot-loader": {
       "version": "4.3.11",
@@ -1113,24 +1143,21 @@
       "version": "3.0.4"
     },
     "react-redux": {
-      "version": "4.4.6"
+      "version": "4.4.9",
+      "dependencies": {
+        "hoist-non-react-statics": {
+          "version": "2.5.5"
+        }
+      }
     },
     "react-router": {
-      "version": "3.0.0"
+      "version": "3.2.1"
     },
     "react-router-redux": {
       "version": "4.0.7"
     },
     "react-side-effect": {
-      "version": "1.0.2",
-      "dependencies": {
-        "fbjs": {
-          "version": "0.1.0-alpha.10"
-        },
-        "whatwg-fetch": {
-          "version": "0.9.0"
-        }
-      }
+      "version": "1.1.5"
     },
     "read-pkg": {
       "version": "1.1.0"
@@ -1255,11 +1282,14 @@
     "set-blocking": {
       "version": "2.0.0"
     },
+    "setimmediate": {
+      "version": "1.0.5"
+    },
     "setprototypeof": {
       "version": "1.0.2"
     },
     "shallowequal": {
-      "version": "0.2.2"
+      "version": "1.1.0"
     },
     "simple-lru-cache": {
       "version": "0.0.2"
@@ -1352,7 +1382,7 @@
       "version": "3.1.2"
     },
     "ua-parser-js": {
-      "version": "0.7.12"
+      "version": "0.7.18"
     },
     "uid-safe": {
       "version": "2.1.3"

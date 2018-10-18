@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import spinnerDark from './spinner-dark.svg';
 import spinnerLight from './spinner-light.svg';

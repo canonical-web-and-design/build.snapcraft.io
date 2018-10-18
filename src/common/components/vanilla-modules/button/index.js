@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { Link } from 'react-router';
 import classNames from 'classnames';
 
@@ -37,7 +38,7 @@ function createButtonComponent(Component) {
     disabled: PropTypes.bool,
     children: PropTypes.node,
     onClick: PropTypes.func,
-    appearance: React.PropTypes.oneOf(['positive', 'negative', 'neutral', 'base', 'brand']),
+    appearance: PropTypes.oneOf(['positive', 'negative', 'neutral', 'base', 'brand']),
     href: PropTypes.string
   };
 

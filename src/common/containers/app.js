@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 
@@ -14,13 +15,12 @@ export class App extends Component {
     return (
       <div className={style.hasStickyFooter}>
         <Helmet
-          htmlAttributes={{ 'lang': 'en' }}
           titleTemplate='build.snapcraft.io - %s'
           defaultTitle='build.snapcraft.io'
-          meta={[
-            { 'name': 'description', 'content': 'build.snapcraft.io' },
-          ]}
-        />
+        >
+          <html lang='en' />
+          <meta name='description' content='build.snapcraft.io' />
+        </Helmet>
         <Header
           authenticated={this.props.auth.authenticated}
           user={this.props.user}

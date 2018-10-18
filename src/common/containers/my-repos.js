@@ -10,9 +10,9 @@ class MyRepos extends Component {
   render() {
     return (
       <div className={ styles.container }>
-        <Helmet
-          title='Home'
-        />
+        <Helmet>
+          <title>Home</title>
+        </Helmet>
         <BetaNotification />
         <UserAvatar />
         <RepositoriesHome />

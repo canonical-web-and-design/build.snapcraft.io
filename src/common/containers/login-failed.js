@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 
@@ -12,7 +13,9 @@ export class LoginFailed extends Component {
 
     return (
       <div className={ styles.container }>
-        <Helmet title='Login failed' />
+        <Helmet>
+          <title>Login failed</title>
+        </Helmet>
         <Notification
           status="error"
           appearance="negative"

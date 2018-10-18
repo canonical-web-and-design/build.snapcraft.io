@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import classNames from 'classnames';
 
 import styles from './traffic-light.css';
@@ -71,7 +72,7 @@ export default class TrafficLights extends Component {
 
 TrafficLights.propTypes = {
   signalState: PropTypes.arrayOf(
-    React.PropTypes.oneOf([
+    PropTypes.oneOf([
       SIGNALS.DEFAULT,
       SIGNALS.ACTIVE,
       SIGNALS.DONE

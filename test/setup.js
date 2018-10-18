@@ -1,5 +1,5 @@
 import enzyme from 'enzyme';
-import EnzymeAdapter from 'enzyme-adapter-react-15.4';
+import EnzymeAdapter from 'enzyme-adapter-react-15';
 import expect from 'expect';
 import enzymify from 'expect-enzyme';
 

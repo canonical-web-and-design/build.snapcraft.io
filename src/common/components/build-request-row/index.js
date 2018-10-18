@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import { Row, Data } from '../vanilla/table-interactive';
 import { BuildStatusColours } from '../../helpers/snap-builds.js';

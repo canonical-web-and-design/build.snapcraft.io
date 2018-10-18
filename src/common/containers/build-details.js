@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 
@@ -70,9 +71,9 @@ class BuildDetails extends Component {
 
     return (
       <div className={ styles.container }>
-        <Helmet
-          title={`${repository.fullName} builds`}
-        />
+        <Helmet>
+          <title>{ repository.fullName } builds</title>
+        </Helmet>
         <BetaNotification />
         <Breadcrumbs>
           { user &&

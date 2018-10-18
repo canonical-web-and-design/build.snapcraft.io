@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import { conf } from '../../helpers/config';
 const BASE_URL = conf.get('BASE_URL');

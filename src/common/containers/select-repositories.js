@@ -10,9 +10,9 @@ class SelectRepositories extends Component {
   render() {
     return (
       <div className={ styles.container }>
-        <Helmet
-          title='Select Repositories'
-        />
+        <Helmet>
+          <title>Select Repositories</title>
+        </Helmet>
         <BetaNotification />
         <UserAvatar />
         <SelectRepositoriesPage />
