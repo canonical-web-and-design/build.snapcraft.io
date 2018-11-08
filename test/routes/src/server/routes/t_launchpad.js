@@ -168,7 +168,9 @@ describe('The Launchpad API endpoint', () => {
                 '/+processors/amd64',
                 '/+processors/arm64',
                 '/+processors/armhf',
-                '/+processors/i386'
+                '/+processors/i386',
+                '/+processors/ppc64el',
+                '/+processors/s390x'
               ]
             }))
             .reply(201, 'Created', { Location: snapUrl });

@@ -35,7 +35,7 @@ import { getSnapcraftYamlCacheId } from './github';
 // configurable.
 const DISTRIBUTION = 'ubuntu';
 const DISTRO_SERIES = 'xenial';
-const ARCHITECTURES = ['amd64', 'arm64', 'armhf', 'i386'];
+const ARCHITECTURES = ['amd64', 'arm64', 'armhf', 'i386', 'ppc64el', 's390x'];
 
 const RESPONSE_NOT_LOGGED_IN = {
   status: 'error',
