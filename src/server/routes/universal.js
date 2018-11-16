@@ -4,7 +4,9 @@ import { universal, homepage } from '../handlers/universal';
 
 const router = Router();
 
-router.get('/', homepage);
+if (process.env.NODE_ENV !== 'development') {
+  router.get('/', homepage);
+}
 router.get('*', universal);
 
 export default router;
