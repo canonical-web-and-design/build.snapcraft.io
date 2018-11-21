@@ -108,6 +108,7 @@ version-info.txt
 
 # Environment variables
 environments/development.env
+environments/dev.env
 
 # Development and test SQLite databases
 /dev.sqlite3
