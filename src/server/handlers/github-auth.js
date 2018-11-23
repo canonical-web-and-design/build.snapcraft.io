@@ -146,7 +146,11 @@ export const logout = (req, res, next) => {
     if (err) {
       return next(new Error('Failed to log out.'));
     }
-    // FIXME redirect to page that initiated the sign in request
-    res.redirect(`${SNAPCRAFT_URL}/logout?no_redirect=true`);
+    if (process.env.NODE_ENV !== 'development') {
+      res.redirect(`${SNAPCRAFT_URL}/logout?no_redirect=true`);
+    } else {
+      // FIXME redirect to page that initiated the sign in request
+      res.redirect('/');
+    }
   });
 };

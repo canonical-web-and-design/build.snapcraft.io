@@ -9,7 +9,7 @@ import assets from '../../../webpack-assets.json';
 
 let routes = require('../../common/routes').default;
 
-export const homepage = (req, res) => {
+export const homepageRedirect = (req, res) => {
   res.redirect(302, conf.get('SNAPCRAFT_URL') + '/build');
 };
 
