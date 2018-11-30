@@ -66,6 +66,7 @@ LP_API_TOKEN_SECRET=
 GITHUB_AUTH_CLIENT_ID=
 GITHUB_AUTH_CLIENT_SECRET=
 GITHUB_AUTH_CLIENT_TOKEN=
+NODE_ENV=development
 ```
 
 You should now have all the configuration necessary for starting the development site.
