@@ -28,6 +28,7 @@ const authStoreModule = proxyquire.noCallThru().load(
 
 const {
   checkSignedIntoStore,
+  clearSession,
   extractExpiresCaveat,
   extractSSOCaveat,
   getAccountInfo,
@@ -666,6 +667,40 @@ describe('store authentication actions', () => {
       expect(store.getActions()).toHaveActionOfType(
         ActionTypes.SIGN_AGREEMENT_SUCCESS
       );
+    });
+  });
+
+  context('clearSession', () => {
+    afterEach(() => {
+      localForageStub.clear();
+    });
+
+    context('when local storage throws an error', () => {
+      beforeEach(() => {
+        localForageStub.store['package_upload_request'] = new Error(
+          'Something went wrong!'
+        );
+      });
+
+      it('stores an error', async () => {
+        const expectedMessage = 'Something went wrong!';
+
+        await store.dispatch(clearSession());
+        const action = store.getActions().filter(
+          (a) => a.type === ActionTypes.SIGN_OUT_OF_STORE_ERROR)[0];
+        expect(action.payload.message).toBe(expectedMessage);
+      });
+    });
+
+    context('when local storage succeeds', () => {
+      beforeEach(() => {
+        localForageStub.store['package_upload_request'] = 'dummy';
+      });
+
+      it('removes the item', async () => {
+        await store.dispatch(clearSession());
+        expect(localForageStub.store).toExcludeKey('package_upload_request');
+      });
     });
   });
 

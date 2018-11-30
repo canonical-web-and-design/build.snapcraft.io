@@ -2,7 +2,10 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { signOut } from '../../actions/auth-store';
+import { clearSession } from '../../actions/auth-store';
+
+import { conf } from '../../helpers/config';
+const BASE_URL = conf.get('BASE_URL');
 
 import Notification from '../vanilla-modules/notification';
 
@@ -14,7 +17,7 @@ export class SessionOverlay extends Component {
   onReloadClick(event) {
     event.preventDefault();
     this.props.clearSession();
-    window.location.reload();
+    window.location.href = `${BASE_URL}/auth/authenticate`;
   }
 
   render() {
@@ -53,7 +56,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    clearSession: () => dispatch(signOut())
+    clearSession: () => dispatch(clearSession())
   };
 }
 

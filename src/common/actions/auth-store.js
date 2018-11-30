@@ -335,6 +335,16 @@ export function signAgreementSuccess() {
   return { type: SIGN_AGREEMENT_SUCCESS };
 }
 
+export function clearSession() {
+  return async (dispatch) => {
+    try {
+      await localforage.removeItem('package_upload_request');
+    } catch (error) {
+      dispatch(signOutError(error));
+    }
+  };
+}
+
 export function signOut(location) { // location for tests
   return async (dispatch) => {
     try {
