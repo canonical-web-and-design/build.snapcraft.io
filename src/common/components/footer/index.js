@@ -28,7 +28,7 @@ export default class Footer extends Component {
                 </li>
               </ul>
             </nav>
-            <p>&copy; 2018 Canonical Ltd. <br/> Ubuntu and Canonical are registered trademarks of Canonical Ltd.</p>
+            <p>&copy; 2019 Canonical Ltd. <br/> Ubuntu and Canonical are registered trademarks of Canonical Ltd.</p>
             <p>
               You can contribute to, or report problems with,
               {' '}
@@ -49,7 +49,7 @@ export default class Footer extends Component {
                 href="https://github.com/canonical-websites/build.snapcraft.io/issues"
               >this site</a>.
               <br />
-              Powered by <a href="https://www.ubuntu.com/kubernetes">the Canonical Distribution of Kubernetes</a>
+              Powered by <a href="https://www.ubuntu.com/kubernetes">the Charmed Distribution of Kubernetes</a>
               {' '}&#183;{' '}
               <a href="https://status.snapcraft.io/">Service status</a>
             </p>
