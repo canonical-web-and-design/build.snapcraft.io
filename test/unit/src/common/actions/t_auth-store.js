@@ -9,6 +9,7 @@ import tmatch from 'tmatch';
 import url from 'url';
 
 import { conf } from '../../../../../src/common/helpers/config';
+import { STORE_SERIES } from '../../../../../src/common/helpers/launchpad';
 import { makeLocalForageStub } from '../../../../helpers';
 
 const localForageStub = makeLocalForageStub();
@@ -16,7 +17,7 @@ const registerNameModule = proxyquire.noCallThru().load(
   '../../../../../src/common/actions/register-name',
   { 'localforage': localForageStub }
 );
-const { getPackageUploadRequestMacaroon, STORE_SERIES } = registerNameModule;
+const { getPackageUploadRequestMacaroon } = registerNameModule;
 
 const authStoreModule = proxyquire.noCallThru().load(
   '../../../../../src/common/actions/auth-store',

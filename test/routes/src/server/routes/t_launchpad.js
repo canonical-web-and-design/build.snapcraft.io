@@ -162,8 +162,13 @@ describe('The Launchpad API endpoint', () => {
           lpApi
             .post('/devel/+snaps', (body) => tmatch(body, {
               ws: { op: 'new' },
+              owner: `/~${conf.get('LP_API_USERNAME')}`,
+              distro_series: '/ubuntu/xenial',
               git_repository_url: 'https://github.com/anowner/aname',
+              git_path: 'HEAD',
               auto_build: 'false',
+              auto_build_archive: '/ubuntu/+archive/primary',
+              auto_build_pocket: 'Updates',
               processors: [
                 '/+processors/amd64',
                 '/+processors/arm64',
@@ -171,7 +176,8 @@ describe('The Launchpad API endpoint', () => {
                 '/+processors/i386',
                 '/+processors/ppc64el',
                 '/+processors/s390x'
-              ]
+              ],
+              store_series: '/+snappy-series/16'
             }))
             .reply(201, 'Created', { Location: snapUrl });
           lpApi.get(`/devel/~test-user/+snap/${snapName}`)

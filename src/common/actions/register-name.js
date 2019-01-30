@@ -4,6 +4,7 @@ import { MacaroonsBuilder } from 'macaroons.js';
 
 import { APICompatibleError, checkStatus, getError, getMacaroonAuthHeader } from '../helpers/api';
 import { conf } from '../helpers/config';
+import { STORE_CHANNELS, STORE_SERIES } from '../helpers/launchpad';
 import { checkPackageUploadRequest, getAccountInfo } from './auth-store';
 import { requestBuilds } from './snap-builds';
 import { authExpired } from './auth-error';
@@ -16,11 +17,6 @@ export const REGISTER_NAME = 'REGISTER_NAME';
 export const REGISTER_NAME_SUCCESS = 'REGISTER_NAME_SUCCESS';
 export const REGISTER_NAME_ERROR = 'REGISTER_NAME_ERROR';
 export const REGISTER_NAME_CLEAR = 'REGISTER_NAME_CLEAR';
-
-// XXX cjwatson 2017-02-08: Hardcoded for now, but should eventually be
-// configurable.
-export const STORE_SERIES = '16';
-export const STORE_CHANNELS = ['edge'];
 
 export async function getPackageUploadRequestMacaroon() {
   let packageUploadRequest;

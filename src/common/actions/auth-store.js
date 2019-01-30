@@ -7,8 +7,9 @@ import url from 'url';
 
 import { checkStatus, getError, getMacaroonAuthHeader } from '../helpers/api';
 import { conf } from '../helpers/config';
+import { STORE_SERIES } from '../helpers/launchpad';
 import { getCaveats } from '../helpers/macaroons';
-import { STORE_SERIES, getPackageUploadRequestMacaroon } from './register-name';
+import { getPackageUploadRequestMacaroon } from './register-name';
 
 const BASE_URL = conf.get('BASE_URL');
 const STORE_API_URL = conf.get('STORE_API_URL');
