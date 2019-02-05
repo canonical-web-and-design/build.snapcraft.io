@@ -28,9 +28,16 @@ export default class Footer extends Component {
                 </li>
               </ul>
             </nav>
-            <p>&copy; 2019 Canonical Ltd. <br/> Ubuntu and Canonical are registered trademarks of Canonical Ltd.</p>
             <p>
-              You can contribute to, or report problems with,
+              &copy; 2019 Canonical Ltd. <br/> Ubuntu and Canonical are registered trademarks of Canonical Ltd.
+              <br />
+              Powered by <a href="https://www.ubuntu.com/kubernetes">the Charmed Distribution of Kubernetes</a>
+            </p>
+            <p><small>
+              <a
+                className={ style['p-link--external'] }
+                href="https://bugs.launchpad.net/snapd"
+              >Join the forum</a>, contribute to or report problems with,
               {' '}
               <a
                 className={ style['p-link--external'] }
@@ -48,19 +55,32 @@ export default class Footer extends Component {
                 className={ style['p-link--external'] }
                 href="https://github.com/canonical-websites/build.snapcraft.io/issues"
               >this site</a>.
-              <br />
-              Powered by <a href="https://www.ubuntu.com/kubernetes">the Charmed Distribution of Kubernetes</a>
               {' '}&#183;{' '}
-              <a href="https://status.snapcraft.io/">Service status</a>
-            </p>
+            </small></p>
+            <div className={ gridStyle['col-12'] }>
+              <ul className={ style['p-inline-list--middot'] }>
+                <li className={ style['p-inline-list__item'] }>
+                  <a href="https://www.ubuntu.com/legal" className={ style['p-link--soft'] } accessKey="6"><small>Legal information</small></a>
+                </li>
+                <li className={ style['p-inline-list__item'] }>
+                  <a href="https://www.ubuntu.com/legal/data-privacy" className={ style['p-link--soft'] } accessKey="7"><small>Data privacy</small></a>
+                </li>
+                <li className={ style['p-inline-list__item'] }>
+                  <a href="https://status.snapcraft.io" className={ style['p-link--soft'] } accessKey="8"><small>Service status</small></a>
+                </li>
+                <li className={ style['p-inline-list__item'] }>
+                  <a href="https://dashboard.snapcraft.io" className={ style['p-link--soft'] } accessKey="9"><small>Other functions</small></a>
+                </li>
+                <li className={ style['p-inline-list__item'] }>
+                  <a href="https://boards.greenhouse.io/canonical/jobs/1161820" className={ style['p-link--soft','p-link--external'] } accessKey="7"><small>We’re hiring!</small></a>
+                </li>
+              </ul>
+            </div>
           </div>
           <div className={ gridStyle['col-4'] }>
             <ul className={ style['p-inline-list--compact'] }>
               <li className={ style['p-inline-list__item'] }>
                 <a href="https://twitter.com/snapcraftio" className={ style['p-social-icon--twitter'] }>Share on Twitter</a>
-              </li>
-              <li className={ style['p-inline-list__item'] }>
-                <a href="https://plus.google.com/+SnapcraftIo" className={ style['p-social-icon--google'] }>Share on Google plus</a>
               </li>
               <li className={ style['p-inline-list__item'] }>
                 <a href="https://www.facebook.com/snapcraftio" className={ style['p-social-icon--facebook'] }>Share on Facebook</a>

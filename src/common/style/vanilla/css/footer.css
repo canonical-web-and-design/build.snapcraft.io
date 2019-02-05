@@ -550,9 +550,16 @@ body,
 
 .p-footer {
   background-color: #f7f7f7;
+  border-top: none;
+  font-size: 1rem;
   padding-bottom: 2.5rem; }
   .p-footer p {
     max-width: 100%; }
+  .p-footer small {
+    font-size: .875rem;
+    line-height: 1.25rem;
+    margin-bottom: .7rem;
+    padding-top: 0.05rem; }
   .p-footer * + * {
     margin-top: 1.25rem; }
     @media screen and (min-width: 768px) {
@@ -628,7 +635,7 @@ body,
     @media screen and (min-width: 1030px) {
       .p-footer .row ~ .row {
         margin-top: 2rem; } }
-  .p-footer .p-social-icon--twitter, .p-footer .p-social-icon--google, .p-footer .p-social-icon--facebook, .p-footer .p-social-icon--youtube {
+  .p-footer .p-social-icon--twitter, .p-footer .p-social-icon--facebook, .p-footer .p-social-icon--youtube {
     background-image: url("https://assets.ubuntu.com/v1/6bfc3d6a-build.snapcraft.social.optimize.svg");
     background-repeat: no-repeat;
     background-size: 160px 80px;
@@ -637,12 +644,10 @@ body,
     overflow: hidden;
     text-indent: -99999px;
     width: 40px; }
-    .p-footer .p-social-icon--twitter:hover, .p-footer .p-social-icon--google:hover, .p-footer .p-social-icon--facebook:hover, .p-footer .p-social-icon--youtube:hover {
+    .p-footer .p-social-icon--twitter:hover, .p-footer .p-social-icon--facebook:hover, .p-footer .p-social-icon--youtube:hover {
       background-position-y: -40px; }
   .p-footer .p-social-icon--twitter {
     background-position: 0 0; }
-  .p-footer .p-social-icon--google {
-    background-position: -40px 0; }
   .p-footer .p-social-icon--facebook {
     background-position: -80px 0; }
   .p-footer .p-social-icon--youtube {

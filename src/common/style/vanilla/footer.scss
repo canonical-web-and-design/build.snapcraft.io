@@ -41,10 +41,20 @@ body,
 .p-footer {
   // not to include whole strip pattern
   background-color: $color-light;
+  border-top: none;
+  font-size: 1rem;
   padding-bottom: $sp-xx-large;
 
   p {
     max-width: 100%;
+  }
+
+  // vanilla 1.7 compatibility
+  small {
+    font-size: .875rem;
+    line-height: 1.25rem;
+    margin-bottom: .7rem;
+    padding-top: 0.05rem;
   }
 
   // make sure default vanilla vertical spacing works in footer
@@ -69,11 +79,6 @@ body,
   .p-social-icon--twitter {
     @extend %p-social-icon;
     background-position: 0 0;
-  }
-
-  .p-social-icon--google {
-    @extend %p-social-icon;
-    background-position: -40px 0;
   }
 
   .p-social-icon--facebook {
