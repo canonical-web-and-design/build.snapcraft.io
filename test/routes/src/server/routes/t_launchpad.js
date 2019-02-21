@@ -163,7 +163,6 @@ describe('The Launchpad API endpoint', () => {
             .post('/devel/+snaps', (body) => tmatch(body, {
               ws: { op: 'new' },
               owner: `/~${conf.get('LP_API_USERNAME')}`,
-              distro_series: '/ubuntu/xenial',
               git_repository_url: 'https://github.com/anowner/aname',
               git_path: 'HEAD',
               auto_build: 'false',

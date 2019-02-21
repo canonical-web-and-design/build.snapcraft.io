@@ -14,7 +14,6 @@ import { parseGitHubRepoUrl } from '../../common/helpers/github-url';
 import {
   ARCHITECTURES,
   DISTRIBUTION,
-  DISTRO_SERIES,
   STORE_SERIES
 } from '../../common/helpers/launchpad';
 import db from '../db';
@@ -194,8 +193,7 @@ const requestNewSnap = (repositoryUrl) => {
   return lpClient.named_post('/+snaps', 'new', {
     parameters: {
       owner: `/~${username}`,
-      distro_series: `/${DISTRIBUTION}/${DISTRO_SERIES}`,
-      name: `${makeSnapName(repositoryUrl)}-${DISTRO_SERIES}`,
+      name: `${makeSnapName(repositoryUrl)}`,
       git_repository_url: repositoryUrl,
       git_path: 'HEAD',
       // auto_build will be enabled later, once snapcraft.yaml exists and

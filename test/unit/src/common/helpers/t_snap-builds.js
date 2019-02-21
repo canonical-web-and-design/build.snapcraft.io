@@ -32,7 +32,7 @@ describe('snapBuildFromAPI helper', () => {
     'dependencies': null,
     'date_first_dispatched': '2016-11-09T17:06:00.003766+00:00',
     'distribution_link': 'https://api.launchpad.net/devel/ubuntu',
-    'distro_series_link': 'https://api.launchpad.net/devel/ubuntu/xenial',
+    'distro_series_link': null,
     'web_link': 'https://launchpad.net/~cjwatson/+snap/godd-test-2/+build/9590',
     'datecreated': '2016-11-09T17:05:52.436792+00:00',
     'archive_link': 'https://api.launchpad.net/devel/ubuntu/+archive/primary',

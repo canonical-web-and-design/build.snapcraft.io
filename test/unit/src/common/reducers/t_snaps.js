@@ -13,12 +13,12 @@ describe('snaps reducers', () => {
 
   const SNAPS = [{
     gitRepoUrl: 'https://github.com/anowner/aname',
-    selfLink: 'https://api.launchpad.net/devel/~anowner/+snap/blahblah-xenial',
+    selfLink: 'https://api.launchpad.net/devel/~anowner/+snap/blahblah',
     storeName: 'test-snap-store-name'
   },
   {
     gitRepoUrl: 'https://github.com/anowner/anothername',
-    selfLink: 'https://api.launchpad.net/devel/~anowner/+snap/blahblahtest-xenial',
+    selfLink: 'https://api.launchpad.net/devel/~anowner/+snap/blahblahtest',
     storeName: 'test-snap-store-another-name'
   }];
 

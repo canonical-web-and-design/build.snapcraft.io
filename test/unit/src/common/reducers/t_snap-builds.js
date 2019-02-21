@@ -28,7 +28,7 @@ const SNAP_BUILDS = [{
   'dependencies': null,
   'date_first_dispatched': '2016-11-09T17:06:00.003766+00:00',
   'distribution_link': 'https://api.launchpad.net/devel/ubuntu',
-  'distro_series_link': 'https://api.launchpad.net/devel/ubuntu/xenial',
+  'distro_series_link': null,
   'web_link': 'https://launchpad.net/~cjwatson/+snap/godd-test-2/+build/9590',
   'datecreated': '2016-11-09T17:05:52.436792+00:00',
   'archive_link': 'https://api.launchpad.net/devel/ubuntu/+archive/primary',
@@ -54,7 +54,7 @@ const SNAP_BUILDS = [{
   'dependencies': null,
   'date_first_dispatched': '2016-06-06T16:40:54.059279+00:00',
   'distribution_link': 'https://api.launchpad.net/devel/ubuntu',
-  'distro_series_link': 'https://api.launchpad.net/devel/ubuntu/xenial',
+  'distro_series_link': null,
   'web_link': 'https://launchpad.net/~cjwatson/+snap/godd-test-2/+build/1149',
   'datecreated': '2016-06-06T16:40:51.698805+00:00',
   'archive_link': 'https://api.launchpad.net/devel/ubuntu/+archive/primary',
@@ -144,7 +144,7 @@ describe('snapBuilds reducers', () => {
   context('FETCH_SNAP_SUCCESS', () => {
     const SNAP = {
       gitRepoUrl: 'https://github.com/anowner/aname',
-      selfLink: 'https://api.launchpad.net/devel/~anowner/+snap/blahblah-xenial',
+      selfLink: 'https://api.launchpad.net/devel/~anowner/+snap/blahblah',
       storeName: 'test-snap-store-name'
     };
 
