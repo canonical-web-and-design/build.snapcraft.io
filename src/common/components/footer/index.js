@@ -36,8 +36,8 @@ export default class Footer extends Component {
             <p><small>
               <a
                 className={ style['p-link--external'] }
-                href="https://bugs.launchpad.net/snapd"
-              >Join the forum</a>, contribute to or report problems with,
+                href="https://forum.snapcraft.io/"
+              >Join the forum</a>, contribute to or report problems with
               {' '}
               <a
                 className={ style['p-link--external'] }
