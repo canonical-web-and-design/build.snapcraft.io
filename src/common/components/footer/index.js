@@ -30,8 +30,6 @@ export default class Footer extends Component {
             </nav>
             <p>
               &copy; 2019 Canonical Ltd. <br/> Ubuntu and Canonical are registered trademarks of Canonical Ltd.
-              <br />
-              Powered by <a href="https://www.ubuntu.com/kubernetes">the Charmed Distribution of Kubernetes</a>
             </p>
             <p><small>
               <a
