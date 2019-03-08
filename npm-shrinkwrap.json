@@ -2,6 +2,9 @@
   "name": "build.snapcraft.io",
   "version": "1.0.0",
   "dependencies": {
+    "@canonical/global-nav": {
+      "version": "2.0.3"
+    },
     "accepts": {
       "version": "1.3.3"
     },
@@ -1329,11 +1332,11 @@
     "strict-uri-encode": {
       "version": "1.1.0"
     },
-    "string_decoder": {
-      "version": "0.10.31"
-    },
     "string-width": {
       "version": "1.0.2"
+    },
+    "string_decoder": {
+      "version": "0.10.31"
     },
     "stringstream": {
       "version": "0.0.5"

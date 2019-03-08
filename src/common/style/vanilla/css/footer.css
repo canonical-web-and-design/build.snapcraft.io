@@ -539,14 +539,16 @@
 
 /* for sticky footer to work */
 html,
-body,
-.content {
-  height: 100%; }
+body {
+  min-height: 100vh; }
 
+body,
 .hasStickyFooter {
-  height: 100%;
   display: flex;
   flex-direction: column; }
+
+.hasStickyFooter {
+  flex-grow: 1; }
 
 .p-footer {
   background-color: #f7f7f7;

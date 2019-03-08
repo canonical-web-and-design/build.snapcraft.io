@@ -26,15 +26,18 @@
 
 /* for sticky footer to work */
 html,
+body {
+  min-height: 100vh;
+}
+
 body,
-.content {
-  height: 100%;
+.hasStickyFooter {
+  display: flex;
+  flex-direction: column;
 }
 
 .hasStickyFooter {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+  flex-grow: 1;
 }
 
 @import 'vanilla-framework/scss/_base_vertical-spacing.scss';

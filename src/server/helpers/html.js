@@ -105,7 +105,7 @@ export default class Html extends Component {
         </head>
         <body>
           { googleTagManagerNoScript }
-          <div id="content" className={ style.content } dangerouslySetInnerHTML={{ __html: content }}/>
+          <div id="content" className={ style.hasStickyFooter } dangerouslySetInnerHTML={{ __html: content }}/>
           {
             SENTRY_DSN_PUBLIC &&
             <script src="https://cdn.ravenjs.com/3.25.1/raven.min.js" crossOrigin="anonymous"></script>

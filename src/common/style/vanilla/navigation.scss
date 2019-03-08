@@ -1,7 +1,7 @@
 @import 'vanilla-framework/scss/_utilities_clearfix.scss';
 @import 'vanilla-framework/scss/_base_typography.scss';
 
-$color-navigation-background: #252525;
+$color-navigation-background: #333;
 
 // for external links in navigation
 @import 'vanilla-framework/scss/patterns_links.scss';
@@ -14,7 +14,7 @@ $color-navigation-background: #252525;
 
 .p-navigation {
   $navigation-border-color: transparent;
-  $navigation-hover-color: darken($color-navigation-background, 8%); // from #252525 to #111
+  $navigation-hover-color: darken($color-navigation-background, 8%);
 
   .p-navigation__logo {
     height: 3rem;

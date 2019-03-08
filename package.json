@@ -39,6 +39,7 @@
   },
   "homepage": "https://github.com/canonical-websites/build.snapcraft.io#readme",
   "dependencies": {
+    "@canonical/global-nav": "^2.0.3",
     "async-lock": "^1.0.0",
     "babel-polyfill": "^6.16.0",
     "body-parser": "^1.15.2",

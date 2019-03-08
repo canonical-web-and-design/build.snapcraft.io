@@ -3,7 +3,11 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 module.exports = [
   {
     test: /\.js$/i,
-    exclude: /node_modules/,
+    // global-nav needs babel transpilation
+    exclude: function(modulePath) {
+      return /node_modules/.test(modulePath) &&
+        !/node_modules\/global-nav/.test(modulePath);
+    },
     loaders: ['babel'],
   },
   {
