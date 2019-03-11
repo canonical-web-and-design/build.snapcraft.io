@@ -6,7 +6,7 @@ module.exports = [
     // global-nav needs babel transpilation
     exclude: function(modulePath) {
       return /node_modules/.test(modulePath) &&
-        !/node_modules\/global-nav/.test(modulePath);
+        !/node_modules\/@canonical\/global-nav/.test(modulePath);
     },
     loaders: ['babel'],
   },

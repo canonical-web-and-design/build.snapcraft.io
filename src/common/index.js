@@ -2,7 +2,7 @@
 import '../../node_modules/normalize.css/normalize.css';
 import './style/base.css';
 
-import { createNav } from 'global-nav';
+import { createNav } from '@canonical/global-nav';
 
 import React from 'react';
 import { render } from 'react-dom';
