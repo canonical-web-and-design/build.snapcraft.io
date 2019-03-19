@@ -387,10 +387,17 @@ const internalFindSnaps = async (owner, token) => {
       owner: `/~${username}`
     }
   });
+
+  // The response may be split across multiple batches.  Gather them all.
+  const entries = [];
+  for await (const entry of result) {
+    entries.push(entry);
+  }
+
   // Split up results into separate cache entries so that they can help
   // speed things up for other users in the same organizations.
   const newSnapsByPrefix = remainingPrefixes.map((urlPrefix) => {
-    return result.entries.filter(
+    return entries.filter(
       (snap) => snap.git_repository_url.startsWith(urlPrefix)
     );
   });
@@ -399,7 +406,7 @@ const internalFindSnaps = async (owner, token) => {
       getUrlPrefixCacheId(urlPrefix), newSnaps, 3600
     )
   ));
-  snaps = snaps.concat(result.entries);
+  snaps = snaps.concat(entries);
   // ensure LP webhook is set up for all the snaps
   // but batch it by 10 not to overload LP servers
   const BATCH_SIZE = 10;
