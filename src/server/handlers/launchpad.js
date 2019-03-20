@@ -595,10 +595,6 @@ export const findSnaps = async (req, res) => {
 };
 
 export const findSnap = async (req, res) => {
-  if (!req.session || !req.session.token) {
-    return res.status(401).send(RESPONSE_NOT_LOGGED_IN);
-  }
-
   try {
     const snap = await internalFindSnap(req.query.repository_url);
 
