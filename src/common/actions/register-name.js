@@ -131,7 +131,7 @@ async function getPackageUploadMacaroon(root, discharge, snapName) {
 }
 
 export function registerName(repository, snapName, options={}) {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
     const { fullName } = repository;
 
     dispatch({
@@ -166,7 +166,11 @@ export function registerName(repository, snapName, options={}) {
       });
       await checkStatus(response);
       await dispatch(registerNameSuccess(fullName, snapName));
-      if (options.requestBuilds) {
+
+      // only request builds if there are no builds in progress already
+      const builds = getState().snapBuilds[fullName];
+      const isFetchingBuilds = builds && builds.isFetching;
+      if (options.requestBuilds && !isFetchingBuilds) {
         await dispatch(requestBuilds(repository.url));
       }
     } catch (error) {

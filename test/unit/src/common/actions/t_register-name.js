@@ -44,9 +44,7 @@ const mockStore = configureMockStore(middlewares);
 
 describe('register name actions', () => {
   const initialState = {
-    isFetching: false,
-    success: false,
-    error: null
+    snapBuilds: {}
   };
   const repository = {
     url: 'https://github.com/foo/bar',
@@ -287,6 +285,24 @@ describe('register name actions', () => {
             });
 
             context('if requesting builds', () => {
+              it('does not request builds when they are already in progress', async () => {
+                store = mockStore({
+                  ...initialState,
+                  snapBuilds: {
+                    [repository.fullName]: {
+                      isFetching: true
+                    }
+                  }
+                });
+
+                await store.dispatch(registerName(repository, 'test-snap', {
+                  requestBuilds: true
+                }));
+                const actions = store.getActions();
+                expect(actions).toInclude(expectedAction);
+                expect(actions).notToHaveActionOfType(FETCH_BUILDS_ERROR);
+              });
+
               it('stores success and error actions if requesting builds ' +
                  'fails', async () => {
                 scope

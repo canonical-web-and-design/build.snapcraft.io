@@ -156,7 +156,8 @@ export class RepositoryRowView extends Component {
     const { authStore, snap } = this.props;
     const repository = parseGitHubRepoUrl(repositoryUrl);
     const { snapName, signAgreement } = this.state;
-    const requestBuilds = snapIsConfigured(snap);
+    // request builds only if the snap is fully configured and there is no name mismatch
+    const requestBuilds = snapIsConfigured(snap) && !snapNameIsMismatched(snap, snapName);
 
     this.props.nameActions.registerName(repository, snapName, {
       signAgreement: signAgreement ? authStore.userName : null,
@@ -468,8 +469,10 @@ export class RepositoryRowView extends Component {
   }
 }
 
-const snapNameIsMismatched = (snap) => {
-  const { snapcraftData, storeName } = snap;
+const snapNameIsMismatched = (snap, storeName) => {
+  const { snapcraftData } = snap;
+  storeName = storeName || snap.storeName;
+
   return snapIsConfigured(snap) && storeName && snapcraftData.name !== storeName;
 };
 
