@@ -113,7 +113,7 @@ class RepositoriesHome extends Component {
     if (error) {
       const message = (error.json && error.json.payload)
         ? error.json.payload.message
-        : 'There was an error completing your request, please try again later.';
+        : 'Sorry, we had a problem listing your repos. Try again in a few minutes.';
       errorNotification = (
         <Notification appearance='negative'>{ message }</Notification>
       );
