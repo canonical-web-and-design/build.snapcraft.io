@@ -61,11 +61,47 @@ describe('The GitHub API endpoint', () => {
 
     });
 
+    context('when build-aux/snap/snapcraft.yaml is valid', () => {
+
+      beforeEach(() => {
+        scope = nock(conf.get('GITHUB_API_ENDPOINT'))
+          .get(`/repos/${fullName}/contents/snap/snapcraft.yaml`)
+          .reply(404, { message: 'Not Found' })
+          .get(`/repos/${fullName}/contents/build-aux/snap/snapcraft.yaml`)
+          .reply(200, 'name: snap-name');
+      });
+
+      afterEach(() => {
+        scope.done();
+        nock.cleanAll();
+      });
+
+      it('should successfully return', async () => {
+        await apiResponse.expect(200);
+      });
+
+      it('should return a "success" status', async () => {
+        await apiResponse.expect(hasStatus('success'));
+      });
+
+      it('should return a body with a "snapcraft-yaml-found" message', async () => {
+        await apiResponse.expect(hasPayloadCode('snapcraft-yaml-found'));
+      });
+
+      it('should return a path to build-aux/snap/snapcraft.yaml', async () => {
+        const response = await apiResponse;
+        expect(response.body.payload.path).toBe('build-aux/snap/snapcraft.yaml');
+      });
+
+    });
+
     context('when /snapcraft.yaml is valid', () => {
 
       beforeEach(() => {
         scope = nock(conf.get('GITHUB_API_ENDPOINT'))
           .get(`/repos/${fullName}/contents/snap/snapcraft.yaml`)
+          .reply(404, { message: 'Not Found' })
+          .get(`/repos/${fullName}/contents/build-aux/snap/snapcraft.yaml`)
           .reply(404, { message: 'Not Found' })
           .get(`/repos/${fullName}/contents/snapcraft.yaml`)
           .reply(200, 'name: snap-name');
@@ -99,6 +135,8 @@ describe('The GitHub API endpoint', () => {
       beforeEach(() => {
         scope = nock(conf.get('GITHUB_API_ENDPOINT'))
           .get(`/repos/${fullName}/contents/snap/snapcraft.yaml`)
+          .reply(404, { message: 'Not Found' })
+          .get(`/repos/${fullName}/contents/build-aux/snap/snapcraft.yaml`)
           .reply(404, { message: 'Not Found' })
           .get(`/repos/${fullName}/contents/snapcraft.yaml`)
           .reply(404, { message: 'Not Found' })
@@ -134,6 +172,8 @@ describe('The GitHub API endpoint', () => {
       beforeEach(() => {
         scope = nock(conf.get('GITHUB_API_ENDPOINT'))
           .get(`/repos/${fullName}/contents/snap/snapcraft.yaml`)
+          .reply(404, { message: 'Not Found' })
+          .get(`/repos/${fullName}/contents/build-aux/snap/snapcraft.yaml`)
           .reply(404, { message: 'Not Found' })
           .get(`/repos/${fullName}/contents/snapcraft.yaml`)
           .reply(404, { message: 'Not Found' })

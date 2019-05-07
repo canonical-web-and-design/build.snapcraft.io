@@ -135,7 +135,12 @@ const fetchSnapcraftYaml = async (path, owner, name, token) => {
 };
 
 export const internalGetSnapcraftYaml = async (owner, name, token) => {
-  const paths = ['snap/snapcraft.yaml', 'snapcraft.yaml', '.snapcraft.yaml'];
+  const paths = [
+    'snap/snapcraft.yaml',
+    'build-aux/snap/snapcraft.yaml',
+    'snapcraft.yaml',
+    '.snapcraft.yaml'
+  ];
   for (const path of paths) {
     try {
       const response = await fetchSnapcraftYaml(path, owner, name, token);
