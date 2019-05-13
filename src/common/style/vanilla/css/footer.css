@@ -48,6 +48,22 @@
     .p-footer__link:hover::after {
       color: #111; }
 
+.u-align--center {
+  justify-content: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: center !important; }
+
+.u-align--left {
+  justify-content: flex-start !important;
+  margin-right: auto !important;
+  text-align: left !important; }
+
+.u-align--right {
+  justify-content: flex-end !important;
+  margin-left: auto !important;
+  text-align: right !important; }
+
 .p-link--soft {
   color: #111; }
   .p-link--soft:visited {
@@ -641,6 +657,7 @@ body,
     background-image: url("https://assets.ubuntu.com/v1/6bfc3d6a-build.snapcraft.social.optimize.svg");
     background-repeat: no-repeat;
     background-size: 160px 80px;
+    color: transparent;
     display: inline-block;
     height: 40px;
     overflow: hidden;

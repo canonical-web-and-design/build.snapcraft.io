@@ -358,3 +358,9 @@ img {
 [grid-outline] [class*="col-"] {
   outline: 1px solid #fff;
   padding: 0.25rem; }
+
+.row {
+  box-sizing: border-box;
+  max-width: 64.875rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem; }

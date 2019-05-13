@@ -76,7 +76,7 @@ export default class Footer extends Component {
             </div>
           </div>
           <div className={ gridStyle['col-4'] }>
-            <ul className={ style['p-inline-list--compact'] }>
+            <ul className={ `${style['p-inline-list--compact']} ${style['u-align--right']}` }>
               <li className={ style['p-inline-list__item'] }>
                 <a href="https://twitter.com/snapcraftio" className={ style['p-social-icon--twitter'] }>Share on Twitter</a>
               </li>

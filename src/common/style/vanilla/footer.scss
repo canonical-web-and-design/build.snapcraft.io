@@ -1,6 +1,9 @@
 @import 'vanilla-framework/scss/patterns_footer.scss';
 @include vf-p-footer;
 
+@import 'vanilla-framework/scss/_utilities_content-align.scss';
+@include vf-u-align;
+
 // for external links
 @import 'vanilla-framework/scss/patterns_links.scss';
 @include vf-p-links;
@@ -68,6 +71,7 @@ body,
     background-image: url('#{$assets-path}6bfc3d6a-build.snapcraft.social.optimize.svg');
     background-repeat: no-repeat;
     background-size: 160px 80px; // 2x4 icons 40x40px each (in 2 rows for regular and hover state)
+    color: transparent;
     display: inline-block;
     height: 40px;
     overflow: hidden;
