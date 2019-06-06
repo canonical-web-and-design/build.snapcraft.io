@@ -44,7 +44,7 @@ class BuildDetails extends Component {
             <br/>
             git clone {repository.url}<br/>
             cd {repository.name}<br/>
-            snapcraft cleanbuild --debug
+            snapcraft build --use-lxd --debug
           </HelpInstallSnap>
         </HelpBox>
       );
