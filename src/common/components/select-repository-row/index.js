@@ -55,7 +55,10 @@ SelectRepositoryRow.defaultProps = {
 SelectRepositoryRow.propTypes = {
   errorMsg: PropTypes.node,
   repository: PropTypes.shape({
-    fullName: PropTypes.string.isRequired
+    fullName: PropTypes.string.isRequired,
+    isFetching: PropTypes.bool,
+    isAdmin: PropTypes.bool,
+    isSelected: PropTypes.bool
   }).isRequired,
   isRepoEnabled: PropTypes.bool,
   onChange: PropTypes.func,

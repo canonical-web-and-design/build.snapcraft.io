@@ -17,7 +17,8 @@ function createButtonComponent(Component) {
     const className = classNames({
       [style[buttonStyle]]: true,
       [customStyle.bigger]: isBigger,
-      [customStyle.hasSpinner]: isSpinner
+      [customStyle.hasSpinner]: isSpinner,
+      [customStyle.noMarginBottom]: true
     });
 
     return (

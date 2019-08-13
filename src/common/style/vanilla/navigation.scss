@@ -1,7 +1,5 @@
-@import 'vanilla-framework/scss/_utilities_clearfix.scss';
-@import 'vanilla-framework/scss/_base_typography.scss';
-
 $color-navigation-background: #333;
+$color-navigation-border: $color-navigation-background;
 
 // for external links in navigation
 @import 'vanilla-framework/scss/patterns_links.scss';
@@ -10,118 +8,25 @@ $color-navigation-background: #333;
 @import 'vanilla-framework/scss/patterns_navigation.scss';
 @include vf-p-navigation;
 
+@import 'vanilla-framework/scss/base_placeholders.scss'; // for hide text
+@import 'vanilla-framework/scss/patterns_icons.scss'; // for chevron icon
+@import 'vanilla-framework/scss/patterns_subnav.scss';
+@include vf-p-subnav;
+
 // CUSTOM OVERRIDES
+// based on _snapcraft_p-navigation.scss in snapcraft.io project
 
-.p-navigation {
-  $navigation-border-color: transparent;
-  $navigation-hover-color: darken($color-navigation-background, 8%);
+// https://github.com/canonical-web-and-design/vanilla-framework/issues/2480
+.p-navigation__links:last-child {
+  margin-right: $grid-margin-width;
 
-  .p-navigation__logo {
-    height: 3rem;
-    margin: 0 1rem 0 1.5rem;
+  // https://github.com/canonical-web-and-design/vanilla-framework/issues/2479
+  .p-subnav__items {
+    right: 0;
   }
+}
 
-  .p-navigation__image {
-    display: block;
-    max-height: 2rem;
-    min-height: 1.5rem;
-  }
-
-    .p-navigation__links {
-      // custom hover styles
-      @media (min-width: $breakpoint-navigation-threshold + 1) {
-      .p-navigation__link {
-        border-left: 1px solid $navigation-border-color;
-        position: relative;
-
-        a {
-          font-size: 1rem;
-          padding: .75rem 1rem;
-        }
-
-        a:hover,
-        .is-selected {
-          background: $navigation-hover-color;
-        }
-
-        &:last-of-type {
-          border-right: 1px solid $navigation-border-color;
-        }
-
-      }
-    }
-
-
-    // custom navigation non-link item for user name
-    .p-navigation__item {
-      @extend .p-navigation__link;
-      border-left: none;
-      display: none;
-
-      // only show user name in navigation when there is space for it
-      @media (min-width: 920px) {
-        display: block;
-      }
-
-      a:hover {
-        background: transparent;
-      }
-    }
-  }
-
-
-  // right aligned sign-in navigation
-  .p-navigation__links--right {
-    @extend .p-navigation__links;
-    margin-right: 20px;
-
-    .p-nav-icon {
-      margin-right: .5rem;
-    }
-
-    &:last-of-type {
-      border-right: none;
-    }
-
-    .p-dropdown__toggle {
-      cursor: pointer;
-
-      .p-nav-icon {
-        width: 12px;
-        height: 12px;
-        margin-right: 0;
-        margin-left: .5rem;
-      }
-
-      &[aria-expanded="true"] i {
-        transform: rotate(180deg);
-      }
-    }
-
-    .p-dropdown__menu {
-      background-color: $color-navigation-background;
-      margin: 0;
-      padding: 0;
-      display: none;
-      position: absolute;
-      right: 0;
-      white-space: nowrap;
-
-      &[aria-hidden="false"] {
-        display: block;
-      }
-
-      .p-navigation__link {
-        border-left: 0;
-        float: none;
-        width: 100%;
-      }
-    }
-  }
-
-  @media (min-width: $breakpoint-navigation-threshold + 1) {
-    .p-navigation__links--right {
-      margin-left: auto; // alight to right in flexbox parent
-    }
-  }
+// https://github.com/canonical-web-and-design/vanilla-framework/issues/2478
+.p-subnav__items {
+  border-color: $color-navigation-border;
 }

@@ -1,6 +1,6 @@
+@import 'vanilla-framework/scss/_base_placeholders.scss';
 @import 'vanilla-framework/scss/_patterns_grid.scss'; // column mixing needed by list pattern
-@import 'vanilla-framework/scss/_utilities_clearfix.scss';
+@include vf-p-grid;
 
 @import 'vanilla-framework/scss/patterns_lists.scss';
-
 @include vf-p-lists;

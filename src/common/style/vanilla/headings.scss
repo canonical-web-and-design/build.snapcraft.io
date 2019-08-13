@@ -1,4 +1,7 @@
-@import 'vanilla-framework/scss/base_typography.scss';
-@import 'vanilla-framework/scss/patterns_headings.scss';
+@import 'vanilla-framework/scss/_base_typography-definitions.scss';
+@import 'vanilla-framework/scss/_base_typography-max-widths.scss';
+@include vf-b-typography-max-widths;
+@include vf-b-typography-definitions;
 
+@import 'vanilla-framework/scss/patterns_headings.scss';
 @include vf-p-headings;

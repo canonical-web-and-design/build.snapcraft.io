@@ -1,4 +1,8 @@
-*, *:before, *:after {
+html {
+  box-sizing: border-box;
+}
+
+*,*::before,*::after {
   box-sizing: inherit;
 }
 
@@ -111,4 +115,12 @@ h5 {
 h6 {
   font-size: 1.063rem;
   line-height: 1.412;
+}
+
+/* Vanilla 2.0 large screens */
+@media screen and (min-width: 1680px) {
+  html {
+      font-size: 1.125rem;
+      line-height: 1.6875rem;
+  }
 }

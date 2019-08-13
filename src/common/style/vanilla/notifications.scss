@@ -1,5 +1,8 @@
-@import 'vanilla-framework/scss/_base_typography.scss'; // p-max-width--long required
+@import 'vanilla-framework/scss/_base_placeholders.scss';
+@import 'vanilla-framework/scss/_base_typography-definitions.scss';
+@import 'vanilla-framework/scss/_base_typography-max-widths.scss';
+@include vf-b-typography-max-widths;
+@include vf-b-typography-definitions;
 
 @import 'vanilla-framework/scss/patterns_notifications.scss';
-
 @include vf-p-notification;

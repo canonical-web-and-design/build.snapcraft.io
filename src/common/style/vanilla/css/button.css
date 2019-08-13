@@ -1,50 +1,80 @@
-.p-button, .p-button--neutral, .p-button--brand, .p-button--positive, .p-button--negative, .p-button--base {
+button {
+  background-color: #fff;
+  border-color: #999;
+  color: #000; }
+  button:visited {
+    color: #000; }
+  button:active, button:active:hover {
+    background-color: #d9d9d9;
+    border-color: #999;
+    transition-duration: 0s; }
+  button:hover {
+    background-color: #e6e6e6;
+    border-color: #999; }
+  button:disabled:active, button:disabled:hover, button.is-disabled:active, button.is-disabled:hover {
+    background-color: transparent;
+    border-color: #999; }
+  button .p-link--external {
+    color: currentColor; }
+
+button, .p-button, .p-button--neutral, .p-button--brand, .p-button--positive, .p-button--negative, .p-button--base {
   transition-duration: 0.165s;
-  transition-property: background-color;
+  transition-property: background-color, border-color;
   transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
-  border-radius: .125rem;
+  border-radius: 0.125rem;
   border-style: solid;
   border-width: 1px;
-  box-sizing: border-box;
   cursor: pointer;
   display: inline-block;
-  font-family: "Ubuntu", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   font-size: 1rem;
   font-weight: 300;
-  line-height: 1rem;
-  outline: none;
-  padding: 0.75rem 1.5rem;
+  line-height: 1.5rem;
+  margin: 0 0 1.7rem 0;
+  padding: calc(0.4rem - 1px) 0.75rem;
   text-align: center;
-  text-decoration: none;
-  width: 100%; }
-  .p-button:focus, .p-button--neutral:focus, .p-button--brand:focus, .p-button--positive:focus, .p-button--negative:focus, .p-button--base:focus {
-    outline: 1px solid #19b6ee;
-    outline-offset: 2px; }
-  @media (max-width: 459px) {
-    .p-button + .p-button, .p-button--neutral + .p-button, .p-button--brand + .p-button, .p-button--positive + .p-button, .p-button--negative + .p-button, .p-button--base + .p-button, .p-button + .p-button--neutral, .p-button--neutral + .p-button--neutral, .p-button--brand + .p-button--neutral, .p-button--positive + .p-button--neutral, .p-button--negative + .p-button--neutral, .p-button--base + .p-button--neutral, .p-button + .p-button--brand, .p-button--neutral + .p-button--brand, .p-button--brand + .p-button--brand, .p-button--positive + .p-button--brand, .p-button--negative + .p-button--brand, .p-button--base + .p-button--brand, .p-button + .p-button--positive, .p-button--neutral + .p-button--positive, .p-button--brand + .p-button--positive, .p-button--positive + .p-button--positive, .p-button--negative + .p-button--positive, .p-button--base + .p-button--positive, .p-button + .p-button--negative, .p-button--neutral + .p-button--negative, .p-button--brand + .p-button--negative, .p-button--positive + .p-button--negative, .p-button--negative + .p-button--negative, .p-button--base + .p-button--negative, .p-button + .p-button--base, .p-button--neutral + .p-button--base, .p-button--brand + .p-button--base, .p-button--positive + .p-button--base, .p-button--negative + .p-button--base, .p-button--base + .p-button--base {
-      margin-top: 1rem; } }
-  @media (min-width: 460px) {
-    .p-button + .p-button, .p-button--neutral + .p-button, .p-button--brand + .p-button, .p-button--positive + .p-button, .p-button--negative + .p-button, .p-button--base + .p-button, .p-button + .p-button--neutral, .p-button--neutral + .p-button--neutral, .p-button--brand + .p-button--neutral, .p-button--positive + .p-button--neutral, .p-button--negative + .p-button--neutral, .p-button--base + .p-button--neutral, .p-button + .p-button--brand, .p-button--neutral + .p-button--brand, .p-button--brand + .p-button--brand, .p-button--positive + .p-button--brand, .p-button--negative + .p-button--brand, .p-button--base + .p-button--brand, .p-button + .p-button--positive, .p-button--neutral + .p-button--positive, .p-button--brand + .p-button--positive, .p-button--positive + .p-button--positive, .p-button--negative + .p-button--positive, .p-button--base + .p-button--positive, .p-button + .p-button--negative, .p-button--neutral + .p-button--negative, .p-button--brand + .p-button--negative, .p-button--positive + .p-button--negative, .p-button--negative + .p-button--negative, .p-button--base + .p-button--negative, .p-button + .p-button--base, .p-button--neutral + .p-button--base, .p-button--brand + .p-button--base, .p-button--positive + .p-button--base, .p-button--negative + .p-button--base, .p-button--base + .p-button--base {
-      margin-left: 1rem; } }
-  @media only screen and (min-width: 460px) {
-    .p-button, .p-button--neutral, .p-button--brand, .p-button--positive, .p-button--negative, .p-button--base {
-      width: auto; } }
-  .p-button:active, .p-button--neutral:active, .p-button--brand:active, .p-button--positive:active, .p-button--negative:active, .p-button--base:active, .p-button:focus, .p-button--neutral:focus, .p-button--brand:focus, .p-button--positive:focus, .p-button--negative:focus, .p-button--base:focus, .p-button:hover, .p-button--neutral:hover, .p-button--brand:hover, .p-button--positive:hover, .p-button--negative:hover, .p-button--base:hover {
+  text-decoration: none; }
+  button:focus, .p-button:focus, .p-button--neutral:focus, .p-button--brand:focus, .p-button--positive:focus, .p-button--negative:focus, .p-button--base:focus {
+    outline: 2px solid #19b6ee; }
+  button:active, .p-button:active, .p-button--neutral:active, .p-button--brand:active, .p-button--positive:active, .p-button--negative:active, .p-button--base:active, button:focus, .p-button:focus, .p-button--neutral:focus, .p-button--brand:focus, .p-button--positive:focus, .p-button--negative:focus, .p-button--base:focus, button:hover, .p-button:hover, .p-button--neutral:hover, .p-button--brand:hover, .p-button--positive:hover, .p-button--negative:hover, .p-button--base:hover {
     text-decoration: none; }
-  .p-button:disabled, .p-button--neutral:disabled, .p-button--brand:disabled, .p-button--positive:disabled, .p-button--negative:disabled, .p-button--base:disabled, .is--disabled.p-button, .is--disabled.p-button--neutral, .is--disabled.p-button--brand, .is--disabled.p-button--positive, .is--disabled.p-button--negative, .is--disabled.p-button--base {
+  button:disabled, .p-button:disabled, .p-button--neutral:disabled, .p-button--brand:disabled, .p-button--positive:disabled, .p-button--negative:disabled, .p-button--base:disabled, button.is-disabled, .is-disabled.p-button, .is-disabled.p-button--neutral, .is-disabled.p-button--brand, .is-disabled.p-button--positive, .is-disabled.p-button--negative, .is-disabled.p-button--base {
     cursor: not-allowed;
-    opacity: .5; }
+    opacity: 0.5; }
+  @media only screen and (max-width: 460px) {
+    button, .p-button, .p-button--neutral, .p-button--brand, .p-button--positive, .p-button--negative, .p-button--base {
+      width: 100%; } }
+  @media only screen and (min-width: 461px) {
+    button, .p-button, .p-button--neutral, .p-button--brand, .p-button--positive, .p-button--negative, .p-button--base {
+      width: auto; }
+      button:not(:last-of-type):not(:only-of-type), .p-button:not(:last-of-type):not(:only-of-type), .p-button--neutral:not(:last-of-type):not(:only-of-type), .p-button--brand:not(:last-of-type):not(:only-of-type), .p-button--positive:not(:last-of-type):not(:only-of-type), .p-button--negative:not(:last-of-type):not(:only-of-type), .p-button--base:not(:last-of-type):not(:only-of-type) {
+        margin-right: 1rem; } }
+  table button, table .p-button, table .p-button--neutral, table .p-button--brand, table .p-button--positive, table .p-button--negative, table .p-button--base {
+    margin-bottom: 0.1rem;
+    padding-bottom: calc(0.15rem - 1px);
+    padding-top: calc(0.15rem - 1px); }
+  p button, p .p-button, p .p-button--neutral, p .p-button--brand, p .p-button--positive, p .p-button--negative, p .p-button--base {
+    margin-bottom: 0.6rem;
+    margin-top: -0.4rem; }
+  p + p > button, p + p > .p-button, p + p > .p-button--neutral, p + p > .p-button--brand, p + p > .p-button--positive, p + p > .p-button--negative, p + p > .p-button--base {
+    margin-top: 0.1rem; }
+  @media only screen and (max-width: 460px) {
+    p button + button, p .p-button + button, p .p-button--neutral + button, p .p-button--brand + button, p .p-button--positive + button, p .p-button--negative + button, p .p-button--base + button, p button + .p-button, p .p-button + .p-button, p .p-button--neutral + .p-button, p .p-button--brand + .p-button, p .p-button--positive + .p-button, p .p-button--negative + .p-button, p .p-button--base + .p-button, p button + .p-button--neutral, p .p-button + .p-button--neutral, p .p-button--neutral + .p-button--neutral, p .p-button--brand + .p-button--neutral, p .p-button--positive + .p-button--neutral, p .p-button--negative + .p-button--neutral, p .p-button--base + .p-button--neutral, p button + .p-button--brand, p .p-button + .p-button--brand, p .p-button--neutral + .p-button--brand, p .p-button--brand + .p-button--brand, p .p-button--positive + .p-button--brand, p .p-button--negative + .p-button--brand, p .p-button--base + .p-button--brand, p button + .p-button--positive, p .p-button + .p-button--positive, p .p-button--neutral + .p-button--positive, p .p-button--brand + .p-button--positive, p .p-button--positive + .p-button--positive, p .p-button--negative + .p-button--positive, p .p-button--base + .p-button--positive, p button + .p-button--negative, p .p-button + .p-button--negative, p .p-button--neutral + .p-button--negative, p .p-button--brand + .p-button--negative, p .p-button--positive + .p-button--negative, p .p-button--negative + .p-button--negative, p .p-button--base + .p-button--negative, p button + .p-button--base, p .p-button + .p-button--base, p .p-button--neutral + .p-button--base, p .p-button--brand + .p-button--base, p .p-button--positive + .p-button--base, p .p-button--negative + .p-button--base, p .p-button--base + .p-button--base {
+      margin-top: 0.6rem; } }
 
 .p-button {
   background-color: #fff;
-  border-color: #cdcdcd;
-  color: #111; }
+  border-color: #999;
+  color: #000; }
   .p-button:visited {
-    color: #111; }
-  .p-button:active, .p-button:hover {
-    background-color: #f7f7f7;
-    border-color: #cdcdcd; }
-  .p-button:disabled:active, .p-button:disabled:hover, .p-button.is--disabled:active, .p-button.is--disabled:hover {
+    color: #000; }
+  .p-button:active, .p-button:active:hover {
+    background-color: #d1d1d1;
+    border-color: #fff;
+    transition-duration: 0s; }
+  .p-button:hover {
+    background-color: #e6e6e6;
+    border-color: #999; }
+  .p-button:disabled:active, .p-button:disabled:hover, .is-disabled.p-button:active, .is-disabled.p-button:hover {
     background-color: #fff;
     border-color: #fff; }
   .p-button .p-link--external {
@@ -52,16 +82,20 @@
 
 .p-button--neutral {
   background-color: #fff;
-  border-color: #cdcdcd;
-  color: #111; }
+  border-color: #999;
+  color: #000; }
   .p-button--neutral:visited {
-    color: #111; }
-  .p-button--neutral:active, .p-button--neutral:hover {
-    background-color: #f7f7f7;
-    border-color: #cdcdcd; }
-  .p-button--neutral:disabled:active, .p-button--neutral:disabled:hover, .p-button--neutral.is--disabled:active, .p-button--neutral.is--disabled:hover {
+    color: #000; }
+  .p-button--neutral:active, .p-button--neutral:active:hover {
+    background-color: #d9d9d9;
+    border-color: #999;
+    transition-duration: 0s; }
+  .p-button--neutral:hover {
+    background-color: #e6e6e6;
+    border-color: #999; }
+  .p-button--neutral:disabled:active, .p-button--neutral:disabled:hover, .is-disabled.p-button--neutral:active, .is-disabled.p-button--neutral:hover {
     background-color: transparent;
-    border-color: #cdcdcd; }
+    border-color: #999; }
   .p-button--neutral .p-link--external {
     color: currentColor; }
 
@@ -71,10 +105,14 @@
   color: #fff; }
   .p-button--brand:visited {
     color: #fff; }
-  .p-button--brand:active, .p-button--brand:hover {
+  .p-button--brand:active, .p-button--brand:active:hover {
+    background-color: #0d0d0d;
+    border-color: #0d0d0d;
+    transition-duration: 0s; }
+  .p-button--brand:hover {
     background-color: #1a1a1a;
     border-color: #1a1a1a; }
-  .p-button--brand:disabled:active, .p-button--brand:disabled:hover, .p-button--brand.is--disabled:active, .p-button--brand.is--disabled:hover {
+  .p-button--brand:disabled:active, .p-button--brand:disabled:hover, .is-disabled.p-button--brand:active, .is-disabled.p-button--brand:hover {
     background-color: #333;
     border-color: #333; }
   .p-button--brand .p-link--external {
@@ -86,10 +124,14 @@
   color: #fff; }
   .p-button--positive:visited {
     color: #fff; }
-  .p-button--positive:active, .p-button--positive:hover {
+  .p-button--positive:active, .p-button--positive:active:hover {
+    background-color: #073f0f;
+    border-color: #073f0f;
+    transition-duration: 0s; }
+  .p-button--positive:hover {
     background-color: #095615;
     border-color: #095615; }
-  .p-button--positive:disabled:active, .p-button--positive:disabled:hover, .p-button--positive.is--disabled:active, .p-button--positive.is--disabled:hover {
+  .p-button--positive:disabled:active, .p-button--positive:disabled:hover, .is-disabled.p-button--positive:active, .is-disabled.p-button--positive:hover {
     background-color: #0e8420;
     border-color: #0e8420; }
   .p-button--positive .p-link--external {
@@ -101,10 +143,14 @@
   color: #fff; }
   .p-button--negative:visited {
     color: #fff; }
-  .p-button--negative:active, .p-button--negative:hover {
+  .p-button--negative:active, .p-button--negative:active:hover {
+    background-color: #820e1c;
+    border-color: #820e1c;
+    transition-duration: 0s; }
+  .p-button--negative:hover {
     background-color: #991121;
     border-color: #991121; }
-  .p-button--negative:disabled:active, .p-button--negative:disabled:hover, .p-button--negative.is--disabled:active, .p-button--negative.is--disabled:hover {
+  .p-button--negative:disabled:active, .p-button--negative:disabled:hover, .is-disabled.p-button--negative:active, .is-disabled.p-button--negative:hover {
     background-color: #c7162b;
     border-color: #c7162b; }
   .p-button--negative .p-link--external {
@@ -113,23 +159,31 @@
 .p-button--base {
   background-color: transparent;
   border-color: transparent;
-  color: #111; }
+  color: #000; }
   .p-button--base:visited {
-    color: #111; }
-  .p-button--base:active, .p-button--base:hover {
-    background-color: #f7f7f7;
+    color: #000; }
+  .p-button--base:active, .p-button--base:active:hover {
+    background-color: #d1d1d1;
+    border-color: transparent;
+    transition-duration: 0s; }
+  .p-button--base:hover {
+    background-color: #e6e6e6;
     border-color: transparent; }
-  .p-button--base:disabled:active, .p-button--base:disabled:hover, .p-button--base.is--disabled:active, .p-button--base.is--disabled:hover {
+  .p-button--base:disabled:active, .p-button--base:disabled:hover, .is-disabled.p-button--base:active, .is-disabled.p-button--base:hover {
     background-color: transparent;
-    border-color: #cdcdcd; }
+    border-color: #999; }
   .p-button--base .p-link--external {
     color: currentColor; }
 
-@media (max-width: 768px) {
-  [class^="p-button"].is-inline {
-    margin-top: 1.2rem; } }
-
-@media (min-width: 768px) {
-  [class^="p-button"].is-inline {
-    margin-left: 0.75rem;
+@media (min-width: 772px) {
+  [class~='p-button'].is-inline {
+    margin-left: 1rem;
     width: auto; } }
+
+[class~='p-button'].has-icon {
+  width: auto; }
+  [class~='p-button'].has-icon [class*='p-icon']:only-child {
+    margin-left: -2px;
+    margin-right: -2px; }
+  [class~='p-button'].has-icon [class*='p-icon'] + * {
+    margin-left: 0.25rem; }

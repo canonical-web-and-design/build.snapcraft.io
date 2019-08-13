@@ -1,97 +1,147 @@
+@media (max-width: 772px) {
+  .u-no-margin--bottom.p-heading--one {
+    margin-bottom: -0.165rem !important; } }
+
+@media (min-width: 772px) {
+  .u-no-margin--bottom.p-heading--one {
+    margin-bottom: -0.2rem !important; } }
+
+@media (min-width: 1680px) {
+  .u-no-margin--bottom.p-heading--one {
+    margin-bottom: -0.15rem !important; } }
+
+@media (max-width: 772px) {
+  .u-no-margin--bottom.p-heading--two {
+    margin-bottom: -0.1rem !important; } }
+
+@media (min-width: 772px) {
+  .u-no-margin--bottom.p-heading--two {
+    margin-bottom: -0.2rem !important; } }
+
+@media (max-width: 772px) {
+  .u-no-margin--bottom.p-heading--three {
+    margin-bottom: -0.5rem !important; } }
+
+@media (min-width: 772px) {
+  .u-no-margin--bottom.p-heading--three {
+    margin-bottom: -0.1rem !important; } }
+
+@media (max-width: 772px) {
+  .u-no-margin--bottom.p-heading--four {
+    margin-bottom: -0.3rem !important; } }
+
+@media (min-width: 772px) {
+  .u-no-margin--bottom.p-heading--four {
+    margin-bottom: -0.05rem !important; } }
+
+@media (min-width: 1680px) {
+  .u-no-margin--bottom.p-heading--four {
+    margin-bottom: -0 !important; } }
+
+.u-no-margin--bottom.p-heading--five, .u-no-margin--bottom.p-heading--six {
+  margin-bottom: 0.1rem !important; }
+
+
+.measure--p, .p-heading--five, .p-heading--six {
+  max-width: 40em; }
+
 .p-heading--one {
   max-width: 20em;
-  font-size: 2rem;
-  font-weight: 300;
-  line-height: 1.3125; }
-  .u-align--center .p-heading--one {
-    margin-left: auto;
-    margin-right: auto; }
-  .u-align--left .p-heading--one {
-    margin-right: auto; }
-  .u-align--right .p-heading--one {
-    margin-left: auto; }
-  @media only screen and (min-width: 1030px) {
+  font-style: normal;
+  font-weight: 100;
+  margin-top: -0.5rem; }
+  @media (max-width: 772px) {
     .p-heading--one {
-      font-size: 3rem;
-      line-height: 1.25; } }
+      font-size: 2.22819rem;
+      line-height: 3rem;
+      margin-bottom: 0.835rem;
+      padding-top: 0.166rem; } }
+  @media (min-width: 772px) {
+    .p-heading--one {
+      font-size: 2.91029rem;
+      line-height: 3.5rem;
+      margin-bottom: 1.3rem;
+      padding-top: 0.201rem; } }
+  @media (min-width: 1680px) {
+    .p-heading--one {
+      margin-bottom: 1.35rem;
+      padding-top: 0.151rem; } }
 
 .p-heading--two {
   max-width: 20em;
-  font-size: 1.75rem;
-  font-weight: 300;
-  line-height: 1.2857; }
-  .u-align--center .p-heading--two {
-    margin-left: auto;
-    margin-right: auto; }
-  .u-align--left .p-heading--two {
-    margin-right: auto; }
-  .u-align--right .p-heading--two {
-    margin-left: auto; }
-  @media only screen and (min-width: 1030px) {
+  font-style: normal;
+  font-weight: 100;
+  margin-top: -0.5rem; }
+  @media (max-width: 772px) {
     .p-heading--two {
-      font-size: 2.25rem;
-      line-height: 1.333; } }
+      font-size: 1.83274rem;
+      line-height: 2.5rem;
+      margin-bottom: 0.9rem;
+      padding-top: 0.101rem; } }
+  @media (min-width: 772px) {
+    .p-heading--two {
+      font-size: 2.22819rem;
+      line-height: 3rem;
+      margin-bottom: 1.3rem;
+      padding-top: 0.201rem; } }
 
 .p-heading--three {
-  max-width: 25em;
-  font-size: 1.5rem;
+  max-width: 30em;
+  font-style: normal;
   font-weight: 300;
-  line-height: 1.333; }
-  .u-align--center .p-heading--three {
-    margin-left: auto;
-    margin-right: auto; }
-  .u-align--left .p-heading--three {
-    margin-right: auto; }
-  .u-align--right .p-heading--three {
-    margin-left: auto; }
-  @media only screen and (min-width: 1030px) {
+  margin-top: -0.5rem; }
+  @media (max-width: 772px) {
     .p-heading--three {
-      font-size: 1.75rem;
-      line-height: 1.287; } }
+      font-size: 1.49271rem;
+      line-height: 2rem;
+      margin-bottom: 0.5rem;
+      padding-top: 0.5rem; } }
+  @media (min-width: 772px) {
+    .p-heading--three {
+      font-size: 1.70596rem;
+      line-height: 2.5rem;
+      margin-bottom: 1.4rem;
+      padding-top: 0.101rem; } }
 
 .p-heading--four {
-  max-width: 25em;
-  font-size: 1.375rem;
+  max-width: 30em;
+  font-style: normal;
   font-weight: 300;
-  line-height: 1.2727; }
-  .u-align--center .p-heading--four {
-    margin-left: auto;
-    margin-right: auto; }
-  .u-align--left .p-heading--four {
-    margin-right: auto; }
-  .u-align--right .p-heading--four {
-    margin-left: auto; }
-  @media only screen and (min-width: 1030px) {
+  margin-top: 0; }
+  @media (max-width: 772px) {
     .p-heading--four {
-      font-size: 1.5rem;
-      line-height: 1.333; } }
+      font-size: 1.22176rem;
+      line-height: 1.5rem;
+      margin-bottom: 0.7rem;
+      padding-top: 0.301rem; } }
+  @media (min-width: 772px) {
+    .p-heading--four {
+      font-size: 1.30612rem;
+      line-height: 2rem;
+      margin-bottom: 0.95rem;
+      padding-top: 0.051rem; } }
+  @media (min-width: 1680px) {
+    .p-heading--four {
+      margin-bottom: 1rem;
+      padding-top: 0.001rem; } }
 
 .p-heading--five {
-  max-width: 35em;
-  font-size: 1.125rem;
-  font-weight: 300;
-  line-height: 1.333; }
-  .u-align--center .p-heading--five {
-    margin-left: auto;
-    margin-right: auto; }
-  .u-align--left .p-heading--five {
-    margin-right: auto; }
-  .u-align--right .p-heading--five {
-    margin-left: auto; }
-  @media only screen and (min-width: 1030px) {
-    .p-heading--five {
-      font-size: 1.25rem;
-      line-height: 1.4; } }
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.5rem;
+  margin-bottom: 1.1rem;
+  margin-top: 0;
+  padding-top: 0.401rem; }
 
 .p-heading--six {
-  max-width: 35em;
   font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5; }
-  .u-align--center .p-heading--six {
-    margin-left: auto;
-    margin-right: auto; }
-  .u-align--left .p-heading--six {
-    margin-right: auto; }
-  .u-align--right .p-heading--six {
-    margin-left: auto; }
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.5rem;
+  margin-bottom: 1.1rem;
+  margin-top: 0;
+  padding-top: 0.338rem; }
+  @media (min-width: 1680px) {
+    .p-heading--six {
+      padding-top: 0.345rem; } }

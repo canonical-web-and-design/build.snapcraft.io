@@ -1,21 +1,27 @@
-.p-breadcrumbs::after {
-  clear: both;
-  content: '';
-  display: block; }
+
+.measure--p {
+  max-width: 40em; }
+
+.p-breadcrumbs__item {
+  line-height: 1.5rem;
+  margin-top: 0;
+  padding-top: 0.4005rem; }
+
+.p-breadcrumbs__item {
+  margin-bottom: 0.1rem; }
 
 .p-breadcrumbs {
   list-style: none;
   margin: 0;
   padding: 0;
   width: 100%; }
-  .p-breadcrumbs__item {
-    float: left;
-    margin: 0 0 0.25rem 0.25rem;
-    position: relative; }
-    .p-breadcrumbs__item:not(:first-of-type) {
-      text-indent: 1rem; }
-    .p-breadcrumbs__item:not(:first-of-type)::before {
-      content: '\203A';
-      left: -.75rem;
-      position: absolute;
-      top: 0; }
+
+.p-breadcrumbs__item {
+  display: inline-block;
+  margin-bottom: 0.6rem; }
+  .p-breadcrumbs__item:not(:first-of-type) {
+    text-indent: 1rem; }
+  .p-breadcrumbs__item:not(:first-of-type)::before {
+    content: '\203A';
+    margin-left: -0.75rem;
+    margin-right: 0.5rem; }

@@ -9,5 +9,5 @@ import { render } from 'react-dom';
 
 import Root from './root';
 
-createNav({ maxWidth: '64.875rem', showLogins: false });
+createNav({ maxWidth: '72rem', showLogins: false });
 render(<Root />, document.getElementById('content'));

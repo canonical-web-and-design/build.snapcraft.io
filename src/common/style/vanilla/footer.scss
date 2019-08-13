@@ -1,6 +1,4 @@
-@import 'vanilla-framework/scss/patterns_footer.scss';
-@include vf-p-footer;
-
+// for u-align--right
 @import 'vanilla-framework/scss/_utilities_content-align.scss';
 @include vf-u-align;
 
@@ -8,20 +6,41 @@
 @import 'vanilla-framework/scss/patterns_links.scss';
 @include vf-p-links;
 
-// CUSTOM OVERRIDES
+// for p-strip--light
+@import 'vanilla-framework/scss/patterns_strip.scss';
+@include vf-p-strip;
 
+// make social icons match footer p-strip--light color
+$color-social-icon-foreground: $color-light;
+
+// for social icons
+@import 'vanilla-framework/scss/_base_placeholders.scss';
 @import 'vanilla-framework/scss/_patterns_icons.scss';
 @include vf-p-icons;
 
+// for grid classes (also required by lists)
 @import 'vanilla-framework/scss/_utilities_clearfix.scss';
 @import 'vanilla-framework/scss/patterns_grid.scss';
+@include vf-p-grid;
+
+// for p-inline-list
 @import 'vanilla-framework/scss/patterns_lists.scss';
 @include vf-p-lists;
 
-.p-inline-list--compact {
-  @extend .p-inline-list;
-  margin-top: $sp-medium;
+// minimal base typography styles
+@import 'vanilla-framework/scss/_base_typography-definitions.scss';
+@import 'vanilla-framework/scss/_base_typography-max-widths.scss';
+@include vf-b-typography-max-widths;
+@include vf-b-typography-definitions;
+
+p {
+  @extend %paragraph;
 }
+small {
+  @extend %small-text;
+}
+
+// custom sticky footer code
 
 .p-sticky-footer {
   margin-top: auto;
@@ -43,67 +62,10 @@ body,
   flex-grow: 1;
 }
 
-@import 'vanilla-framework/scss/_base_vertical-spacing.scss';
-.p-footer {
-  // not to include whole strip pattern
-  background-color: $color-light;
-  border-top: none;
-  font-size: 1rem;
-  padding-bottom: $sp-xx-large;
-
-  p {
-    max-width: 100%;
-  }
-
-  // vanilla 1.7 compatibility
-  small {
-    font-size: .875rem;
-    line-height: 1.25rem;
-    margin-bottom: .7rem;
-    padding-top: 0.05rem;
-  }
-
-  // make sure default vanilla vertical spacing works in footer
-  @include vf-b-vertical-spacing;
-
-  // snapcraft custom social icons
-  %p-social-icon {
-    background-image: url('#{$assets-path}6bfc3d6a-build.snapcraft.social.optimize.svg');
-    background-repeat: no-repeat;
-    background-size: 160px 80px; // 2x4 icons 40x40px each (in 2 rows for regular and hover state)
-    color: transparent;
-    display: inline-block;
-    height: 40px;
-    overflow: hidden;
-    text-indent: -99999px;
-    width: 40px;
-
-    &:hover {
-      background-position-y: -40px;
-    }
-  }
-
-  .p-social-icon--twitter {
-    @extend %p-social-icon;
-    background-position: 0 0;
-  }
-
-  .p-social-icon--facebook {
-    @extend %p-social-icon;
-    background-position: -80px 0;
-  }
-
-  .p-social-icon--youtube {
-    @extend %p-social-icon;
-    background-position: -120px 0;
-  }
-
-  // snapcraft custom footer styles
-  .p-icon--top {
-    @extend %icon;
-    background-image: url('#{$assets-path}9ec2c354-icon-arrow-up.svg');
-    background-size: 12px 12px;
-    margin-left: $sp-x-small;
-  }
-
+// custom icon
+.p-icon--top {
+  @extend %icon;
+  background-image: url('#{$assets-path}9ec2c354-icon-arrow-up.svg');
+  background-size: 12px 12px;
+  margin-left: $sp-x-small;
 }

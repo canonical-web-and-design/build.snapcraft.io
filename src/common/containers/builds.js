@@ -7,7 +7,7 @@ import BuildsList from '../components/builds-list';
 import Notification from '../components/vanilla-modules/notification';
 import { IconSpinner } from '../components/vanilla-modules/icons';
 import { HelpBox, HelpCustom, HelpInstallSnap } from '../components/help';
-import { HeadingOne, HeadingFive } from '../components/vanilla-modules/heading';
+import { HeadingOne, HeadingFour } from '../components/vanilla-modules/heading';
 import Badge from '../components/badge';
 import Breadcrumbs, { BreadcrumbsLink } from '../components/vanilla-modules/breadcrumbs';
 import BetaNotification from '../components/beta-notification';
@@ -49,7 +49,7 @@ export class Builds extends Component {
   renderBuilds(repo, builds, heading) {
     return (
       <div>
-        <HeadingFive>{heading}</HeadingFive>
+        <HeadingFour>{heading}</HeadingFour>
         <BuildsList repository={repo} builds={builds} />
       </div>
     );
@@ -217,7 +217,8 @@ Builds.propTypes = {
   }).isRequired,
   snap: PropTypes.shape({
     selfLink: PropTypes.string.isRequired,
-    storeName: PropTypes.string
+    storeName: PropTypes.string,
+    stableRevision: PropTypes.string
   }),
   snapBuilds: PropTypes.shape({
     isFetching: PropTypes.bool,

@@ -1,4 +1,8 @@
-@import 'vanilla-framework/scss/_utilities_clearfix.scss';
-@import 'vanilla-framework/scss/patterns_breadcrumbs.scss';
+// https://github.com/canonical-web-and-design/vanilla-framework/issues/2474
+@import 'vanilla-framework/scss/_base_typography-definitions.scss';
+@import 'vanilla-framework/scss/_base_typography-max-widths.scss';
+@include vf-b-typography-max-widths;
+@include vf-b-typography-definitions;
 
+@import 'vanilla-framework/scss/patterns_breadcrumbs.scss';
 @include vf-p-breadcrumbs;
