@@ -46,6 +46,9 @@ export default class Header extends Component {
               <li className={ style['p-navigation__link'] } role="menuitem">
                 <a href={ `${SNAPCRAFT_URL}/blog` }>Blog</a>
               </li>
+              <li className={ style['p-navigation__link'] } role="menuitem">
+                <a href={ `${SNAPCRAFT_URL}/iot` }>IoT</a>
+              </li>
               <li className={ `${style['p-navigation__link']} ${ authenticated ? style['is-selected'] : ''}` } role="menuitem">
                 <a href={ `${SNAPCRAFT_URL}/build` }>Build</a>
               </li>
