@@ -30,7 +30,9 @@ export const badge = async (req, res) => {
       }
     }
 
-    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate, value');
+    res.setHeader('Expires', 'Thu, 01 Jan 1970 00:00:00 GMT');
+    res.setHeader('Pragma', 'no-cache');
     return res.sendFile(path.join(BADGES_PATH, `${badgeName}.svg`));
   } catch (err) {
     logger.error(`Error generating badge for repo ${repoUrl}`, err);
