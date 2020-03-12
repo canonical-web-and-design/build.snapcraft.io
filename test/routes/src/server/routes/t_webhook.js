@@ -223,24 +223,24 @@ describe('The WebHook API endpoint', () => {
 
           beforeEach(() => {
             const contentsPath = '/repos/anowner/aname/contents';
-            const query = {
-              client_id: conf.get('GITHUB_AUTH_CLIENT_ID'),
-              client_secret: conf.get('GITHUB_AUTH_CLIENT_SECRET')
+            const username = conf.get('GITHUB_AUTH_CLIENT_ID');
+            const password = conf.get('GITHUB_AUTH_CLIENT_SECRET');
+            const auth = new Buffer(`${username}:${password}`).toString('base64');
+            const headers = {
+              'Authorization': `Basic ${auth}`
             };
             const error = { message: 'Not Found' };
 
-            getSnapcraftYaml = nock(conf.get('GITHUB_API_ENDPOINT'))
+            getSnapcraftYaml = nock(conf.get('GITHUB_API_ENDPOINT'), {
+              reqheaders: headers
+            })
               .get(`${contentsPath}/snap/snapcraft.yaml`)
-              .query(query)
               .reply(404, error)
               .get(`${contentsPath}/build-aux/snap/snapcraft.yaml`)
-              .query(query)
               .reply(404, error)
               .get(`${contentsPath}/snapcraft.yaml`)
-              .query(query)
               .reply(404, error)
               .get(`${contentsPath}/.snapcraft.yaml`)
-              .query(query)
               .reply(404, error);
           });
 
@@ -283,12 +283,17 @@ describe('The WebHook API endpoint', () => {
           let buildRequest;
 
           beforeEach(() => {
-            getSnapcraftYaml = nock(conf.get('GITHUB_API_ENDPOINT'))
+            const username = conf.get('GITHUB_AUTH_CLIENT_ID');
+            const password = conf.get('GITHUB_AUTH_CLIENT_SECRET');
+            const auth = new Buffer(`${username}:${password}`).toString('base64');
+            const headers = {
+              'Authorization': `Basic ${auth}`
+            };
+            
+            getSnapcraftYaml = nock(conf.get('GITHUB_API_ENDPOINT'), {
+              reqheaders: headers
+            })
               .get('/repos/anowner/aname/contents/snap/snapcraft.yaml')
-              .query({
-                client_id: conf.get('GITHUB_AUTH_CLIENT_ID'),
-                client_secret: conf.get('GITHUB_AUTH_CLIENT_SECRET')
-              })
               .reply(200, 'name: dummy-test-snap\n');
             patchSnapAutoBuild = nock(lp_api_url)
               .post(`/devel${lp_snap_path}`, { auto_build: true })

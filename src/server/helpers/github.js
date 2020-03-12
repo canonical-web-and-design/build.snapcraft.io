@@ -38,8 +38,10 @@ export const requestGitHub = (options) => {
       // number of users.
       const parsedUri = url.parse(params.uri, true);
       delete parsedUri.search;
-      parsedUri.query.client_id = conf.get('GITHUB_AUTH_CLIENT_ID');
-      parsedUri.query.client_secret = conf.get('GITHUB_AUTH_CLIENT_SECRET');
+      const username = conf.get('GITHUB_AUTH_CLIENT_ID');
+      const password = conf.get('GITHUB_AUTH_CLIENT_SECRET');
+      const base64encodedAuth = new Buffer(`${username}:${password}`).toString('base64');
+      params.headers['Authorization'] = `Basic ${base64encodedAuth}`;
       params.uri = url.format(parsedUri);
     }
     params.headers['User-Agent'] = 'SnapcraftBuild';
