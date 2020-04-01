@@ -104,14 +104,21 @@ const handleLaunchpadSnapBuild = async (req, res, owner, name, parsedBody) => {
       if (parsedBody.build_request) {
         // Record a build annotation so that we can determine why this build
         // was dispatched.  As above, this is best-effort.
-        await db.transaction(async (trx) => {
-          await db.model('BuildAnnotation')
-            .forge({
-              build_id: getLinkId(parsedBody.snap_build),
-              request_id: getLinkId(parsedBody.build_request)
-            })
-            .save({}, { method: 'insert', transacting: trx });
-        });
+        try {
+          await db.transaction(async (trx) => {
+            await db.model('BuildAnnotation')
+              .forge({
+                build_id: getLinkId(parsedBody.snap_build),
+                request_id: getLinkId(parsedBody.build_request)
+              })
+              .save({}, { method: 'insert', transacting: trx });
+          });
+        } catch (error) {
+          logger.error(
+            'Error saving annotation for build ' +
+            `${parsedBody.snap_build}: ${error}`
+          );
+        }
       }
     }
 
