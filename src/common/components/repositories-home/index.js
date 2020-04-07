@@ -123,7 +123,7 @@ class RepositoriesHome extends Component {
     const infoNotification = (
       <Notification appearance='information'>
         We are updating the way you build from GitHub to integrate better within
-        Snapcraft. <a href="#">Learn more</a>
+        Snapcraft. <a href="https://snapcraft.io/blog/we-are-changing-the-way-you-build-snaps-from-github-repos" target="_blank" rel="noopener noreferrer">Learn more</a>
       </Notification>
     );
 
