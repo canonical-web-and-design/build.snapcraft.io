@@ -1,7 +1,6 @@
 from glob import glob
 from re import search
-from os import remove
-from os.path import basename, dirname, isfile, join
+from os.path import basename, dirname, join
 from subprocess import check_call, check_output
 from textwrap import dedent
 
@@ -12,7 +11,7 @@ from charmhelpers.core.host import restart_on_change
 from charmhelpers.core.templating import render
 from charms.apt import queue_install
 from charms.leadership import leader_set
-from charms.reactive import remove_state, set_state, when, when_not
+from charms.reactive import set_state, when, when_not
 from ols.base import check_port, code_dir, logs_dir, service_name, user
 from ols.http import port
 
@@ -21,8 +20,6 @@ SYSTEMD_CONFIG = '/lib/systemd/system/snap-build.service'
 KNEXFILE_NORMAL = join(code_dir(), 'knexfile-normal.js')
 KNEXFILE_ADMIN = join(code_dir(), 'knexfile-admin.js')
 SECRETS_PATH = join(code_dir(), 'secrets.env')
-CRONTAB_PATH = '/etc/cron.d/snap-build-poller'
-LOGROTATE_PATH = '/etc/logrotate.d/snap-build-poller'
 
 
 def get_node_env(environment):
@@ -111,9 +108,6 @@ def configure(pgsql, cache):
     github_webhook_secret = hookenv.config('github_webhook_secret') or ''
     http_proxy = hookenv.config('http_proxy') or ''
     trusted_networks = (hookenv.config('trusted_networks') or '').split()
-    poller_github_auth_token = hookenv.config('poller_github_auth_token')
-    poller_request_builds = hookenv.config('poller_request_builds')
-    poller_build_threshold = hookenv.config('poller_build_threshold')
 
     if session_secret and memcache_session_secret:
         render(
@@ -123,27 +117,6 @@ def configure(pgsql, cache):
                 'node_env': get_node_env(environment),
                 'db_conn': pgsql.master.uri,
             })
-
-        # Render shell secrets to keep crontab cleaner.
-        render('snap-build-poller_secrets.j2', SECRETS_PATH,
-               {'environment': environment,
-                'cache_hosts': sorted(cache.memcache_hosts()),
-                'memcache_session_secret': memcache_session_secret,
-                'sentry_dsn': sentry_dsn,
-                'sentry_dsn_public': sentry_dsn_public,
-                'lp_api_username': lp_api_username,
-                'lp_api_consumer_key': lp_api_consumer_key,
-                'lp_api_token': lp_api_token,
-                'lp_api_token_secret': lp_api_token_secret,
-                'github_auth_client_id': github_auth_client_id,
-                'github_auth_client_secret': github_auth_client_secret,
-                'github_webhook_secret': github_webhook_secret,
-                'http_proxy': http_proxy,
-                'poller_github_auth_token': poller_github_auth_token,
-                'poller_request_builds': poller_request_builds,
-                'poller_build_threshold': poller_build_threshold,
-                'knex_config_path': KNEXFILE_NORMAL},
-               owner='root', group='ubuntu', perms=0o640)
 
         # XXX cjwatson 2017-03-08: Set NODE_ENV from here instead of in .env
         # files?  This may make more sense as part of entirely getting rid
@@ -212,39 +185,3 @@ def install_custom_nodejs():
         # us, we can't due to the conditional nature of installing these
         # packages *only* if the .deb file isn't used
         queue_install(['npm', 'nodejs', 'nodejs-legacy'])
-
-
-@when('service.configured')
-@when('leadership.is_leader')
-@when_not('service.poller_enabled')
-def setup_poller():
-    hookenv.log('Enabling poller ...')
-
-    hookenv.log('Writing poller crontab at {}.'.format(CRONTAB_PATH))
-    render('snap-build-poller_cron.j2', CRONTAB_PATH,
-           {'code_dir': code_dir(),
-            'environment': hookenv.config('environment'),
-            'logs_dir': logs_dir(),
-            'user': user()})
-
-    hookenv.log("Writing service logrotate file.")
-    render('snap-build-poller_logrotate.j2', LOGROTATE_PATH,
-           {'logs_dir': logs_dir()})
-
-    hookenv.log('Poller cron enabled!')
-    hookenv.status_set('active', 'systemd unit configured and poller enabled')
-    set_state('service.poller_enabled')
-
-
-@when('service.configured')
-@when_not('leadership.is_leader')
-def destroy_poller():
-    hookenv.log('Destroying poller ...')
-
-    for f in [CRONTAB_PATH, LOGROTATE_PATH]:
-        if isfile(f):
-            remove(f)
-
-    hookenv.log('Poller cron removed')
-    hookenv.status_set('active', 'systemd unit configured and poller disabled')
-    remove_state('service.poller_enabled')
