@@ -119,10 +119,19 @@ class RepositoriesHome extends Component {
       );
     }
 
+    // switch over to snapcraft.io/<snap_name>/builds notification
+    const infoNotification = (
+      <Notification appearance='information'>
+        We are updating the way you build from GitHub to integrate better within
+        Snapcraft. <a href="https://snapcraft.io/blog/we-are-changing-the-way-you-build-snaps-from-github-repos" target="_blank" rel="noopener noreferrer">Learn more</a>
+      </Notification>
+    );
+
     return (
       <div>
         <FirstTimeHeading isOnMyRepos={true} />
         { errorNotification }
+        { infoNotification }
         <div className={ styles['button-container'] }>
           <HeadingThree>Repos to build</HeadingThree>
           <div>

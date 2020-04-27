@@ -81,7 +81,7 @@ describe('The RepositoriesHome component', () => {
     });
 
     it('should render error message', () => {
-      expect(wrapper.find('Notification').html()).toContain('Test error');
+      expect(wrapper.find('Notification').first().html()).toContain('Test error');
     });
   });
 
