@@ -1,5 +1,7 @@
 # build.snapcraft.io
 
+***This project is now archived, and the build behaviour has been moved to a new experience at https://snapcraft.io/build. Please see the [snapcraft.io repo](https://github.com/canonical-web-and-design/snapcraft.io).***
+
 Snapcraft Build site.
 
 ## Local development
